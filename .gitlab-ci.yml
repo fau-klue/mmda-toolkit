@@ -27,6 +27,15 @@ frontend-lint:
   script:
     - yarn run lint
 
+frontend-test:
+  stage: test
+  image: node:alpine
+  before_script:
+    - cd mmda-frontend/
+    - yarn install
+  script:
+    - yarn run test:unit
+
 backend-test:
   stage: test
   image: python:3.6
