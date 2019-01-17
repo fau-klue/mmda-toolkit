@@ -42,6 +42,6 @@ backend-test:
   before_script:
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
-    - pipenv install
+    - pipenv install --dev
   script:
     - py.test --cov-report term-missing -v --cov=backend/
