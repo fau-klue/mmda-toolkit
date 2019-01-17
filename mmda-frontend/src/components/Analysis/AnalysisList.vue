@@ -1,0 +1,70 @@
+<template>
+  <div>
+  <v-card flat>
+    <v-card-text>
+      <v-container>
+        <v-layout>
+          <v-flex xs12 sm12>
+            <v-text-field label="Search" prepend-inner-icon="search" v-model="search" clearable @click:clear="clearSearch"></v-text-field>
+
+            <v-list two-line subheader>
+              <v-list-tile v-for="analysis in filteredItems" :key="analysis.id" avatar :to="/analysis/ + analysis.id">
+                <v-list-tile-avatar>
+                  <v-icon class="grey lighten-1 white--text">dashboard</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ analysis.name }}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{ analysis.items }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-card-text>
+  </v-card>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapGetters } from 'vuex'
+
+export default {
+  name: 'AnalysisList',
+  data: () => ({
+    search: ''
+  }),
+  computed: {
+    ...mapGetters({
+      user: 'login/user',
+      userAnalysis: 'analysis/userAnalysis'
+    }),
+    filteredItems() {
+      if (!this.search) {
+        return this.userAnalysis
+      } else {
+        return this.userAnalysis.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
+      }
+    }
+  },
+  methods: {
+    ...mapActions({
+      getUserAnalysis: 'analysis/getUserAnalysis'
+    }),
+    clearSearch () {
+      this.search = ''
+    },
+    loadAnalysis () {
+      this.getUserAnalysis(this.user.username).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
+    }
+  },
+  created () {
+    this.loadAnalysis()
+  }
+}
+
+</script>

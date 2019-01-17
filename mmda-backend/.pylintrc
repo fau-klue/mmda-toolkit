@@ -1,0 +1,194 @@
+[MASTER]
+
+extension-pkg-whitelist=
+ignore=CVS
+ignore-patterns=
+#init-hook=
+jobs=2
+load-plugins=
+persistent=yes
+#rcfile=
+suggestion-mode=yes
+unsafe-load-any-extension=no
+
+[MESSAGES CONTROL]
+confidence=
+disable=all
+enable=c-extension-no-member,
+       empty-docstring,
+       missing-docstring
+
+[REPORTS]
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+#msg-template=
+output-format=text
+reports=no
+score=yes
+
+[REFACTORING]
+
+max-nested-blocks=5
+never-returning-functions=optparse.Values,sys.exit
+
+[MISCELLANEOUS]
+
+notes=FIXME,
+      XXX,
+      TODO
+
+
+[VARIABLES]
+
+additional-builtins=
+allow-global-unused-variables=yes
+callbacks=cb_,
+          _cb
+
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_
+ignored-argument-names=_.*|^ignored_|^unused_
+init-import=no
+redefining-builtins-modules=six.moves,past.builtins,future.builtins,io,builtins
+
+[SPELLING]
+
+max-spelling-suggestions=4
+spelling-dict=
+spelling-ignore-words=
+spelling-private-dict-file=
+spelling-store-unknown-words=no
+
+
+[LOGGING]
+
+logging-modules=logging
+
+[SIMILARITIES]
+
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=no
+min-similarity-lines=4
+
+[FORMAT]
+
+expected-line-ending-format=
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+indent-after-paren=4
+indent-string='    '
+max-line-length=100
+max-module-lines=1000
+no-space-check=trailing-comma,
+               dict-separator
+
+single-line-class-stmt=no
+single-line-if-stmt=no
+
+[TYPECHECK]
+
+contextmanager-decorators=contextlib.contextmanager
+generated-members=
+ignore-mixin-members=yes
+ignore-on-opaque-inference=yes
+ignored-classes=optparse.Values,thread._local,_thread._local
+ignored-modules=
+missing-member-hint=yes
+missing-member-hint-distance=1
+missing-member-max-choices=1
+
+[BASIC]
+
+argument-naming-style=snake_case
+#argument-rgx=
+attr-naming-style=snake_case
+#attr-rgx=
+bad-names=foo,
+          bar,
+          baz,
+          toto,
+          tutu,
+          tata
+
+class-attribute-naming-style=any
+#class-attribute-rgx=
+class-naming-style=PascalCase
+#class-rgx=
+const-naming-style=UPPER_CASE
+#const-rgx=
+docstring-min-length=-1
+function-naming-style=snake_case
+#function-rgx=
+
+good-names=i,
+           j,
+           k,
+           ex,
+           Run,
+           _
+
+include-naming-hint=no
+inlinevar-naming-style=any
+#inlinevar-rgx=
+method-naming-style=snake_case
+#method-rgx=
+module-naming-style=snake_case
+#module-rgx=
+name-group=
+no-docstring-rgx=^_
+property-classes=abc.abstractproperty
+variable-naming-style=snake_case
+#variable-rgx=
+
+[CLASSES]
+
+defining-attr-methods=__init__,
+                      __new__,
+                      setUp
+
+exclude-protected=_asdict,
+                  _fields,
+                  _replace,
+                  _source,
+                  _make
+
+valid-classmethod-first-arg=cls
+valid-metaclass-classmethod-first-arg=mcs
+
+[IMPORTS]
+
+allow-wildcard-with-all=no
+analyse-fallback-blocks=no
+deprecated-modules=optparse,tkinter.tix
+ext-import-graph=
+import-graph=
+int-import-graph=
+known-standard-library=
+known-third-party=enchant
+
+[DESIGN]
+
+# Maximum number of arguments for function / method
+max-args=5
+# Maximum number of attributes for a class (see R0902).
+max-attributes=7
+# Maximum number of boolean expressions in a if statement
+max-bool-expr=5
+# Maximum number of branch for function / method body
+max-branches=12
+# Maximum number of locals for function / method body
+max-locals=15
+# Maximum number of parents for a class (see R0901).
+max-parents=7
+# Maximum number of public methods for a class (see R0904).
+max-public-methods=20
+# Maximum number of return / yield for function / method body
+max-returns=6
+# Maximum number of statements in function / method body
+max-statements=50
+# Minimum number of public methods for a class (see R0903).
+min-public-methods=2
+
+[EXCEPTIONS]
+
+# Exceptions that will emit a warning when being caught. Defaults to
+# "Exception"
+overgeneral-exceptions=Exception

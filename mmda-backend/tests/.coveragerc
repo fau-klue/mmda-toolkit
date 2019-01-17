@@ -1,0 +1,7 @@
+# Configuration for the test coverage tool (py.test --cov)
+
+[run]
+omit = backend/startup/reset_db.py
+
+[report]
+show_missing = True

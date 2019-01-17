@@ -1,0 +1,38 @@
+stages:
+#  - lint
+  - test
+  - build
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
+cache:
+  paths:
+    - .cache/
+    - venv/
+
+# backend-lint:
+#   stage: lint
+#   image: python:3.6
+#   script:
+#     - pip install pylint==1.9.2 --quiet
+#     - pylint --rcfile=mmda-backend/.pylintrc
+
+frontend-lint:
+  stage: lint
+  image: node:alpine
+  allow_failure: true
+  before_script:
+    - cd mmda-frontend/
+    - yarn install
+  script:
+    - yarn run lint
+
+backend-test:
+  stage: test
+  image: python:3.6
+  before_script:
+    - cd mmda-backend/
+    - pip install --quiet -r requirements.txt
+    - pipenv install
+  script:
+    - py.test --cov-report term-missing -v --cov=backend/

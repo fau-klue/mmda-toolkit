@@ -1,0 +1,50 @@
+import Vue from 'vue'
+import Vuex from 'vuex'
+import api from '@/api'
+
+Vue.use(Vuex)
+
+const state = {
+  // Coordinates of an analysis
+  coordinates: null,
+}
+
+const getters = {
+  coordinates (state) {
+    return state.coordinates
+  }
+}
+
+const actions = {
+  getAnalysisCoordinates ({commit}, data) {
+    // Get the coordinates of an analysis
+    return new Promise((resolve, reject) => {
+
+      if (!data.username) {
+        reject('No user provided')
+        return
+      }
+
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`).then(function (response) {
+        commit('setCoordinates', response.data)
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
+  }
+}
+
+const mutations = {
+  setCoordinates (state, coordinates) {
+    state.coordinates = coordinates
+  },
+}
+
+export default {
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations
+}
