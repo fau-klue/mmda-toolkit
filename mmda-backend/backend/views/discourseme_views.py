@@ -4,9 +4,11 @@ Discourseme view
 
 
 from flask import Blueprint, request, jsonify
+from flask_expects_json import expects_json
 
 from backend import db
 from backend import user_required
+from backend.analysis.validators import DISCOURSEME_SCHEMA
 from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme
 
@@ -15,6 +17,7 @@ discourseme_blueprint = Blueprint('discourseme', __name__, template_folder='temp
 
 # CREATE
 @discourseme_blueprint.route('/api/user/<username>/discourseme/', methods=['POST'])
+@expects_json(DISCOURSEME_SCHEMA)
 @user_required
 def create_discourseme(username):
     """
@@ -27,8 +30,6 @@ def create_discourseme(username):
     # Check request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
-    if not items:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()
@@ -79,6 +80,7 @@ def get_discourseme(username, discourseme):
 
 # UPDATE
 @discourseme_blueprint.route('/api/user/<username>/discourseme/<discourseme>/', methods=['PUT'])
+@expects_json(DISCOURSEME_SCHEMA)
 @user_required
 def update_discourseme(username, discourseme):
     """
@@ -92,8 +94,6 @@ def update_discourseme(username, discourseme):
     # Check Request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
-    if not name or not items:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()
