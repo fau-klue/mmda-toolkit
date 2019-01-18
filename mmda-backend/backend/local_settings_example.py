@@ -1,9 +1,6 @@
-import os
-
-
-# *****************************
-# Environment specific settings
-# *****************************
+"""
+Environment specific settings
+"""
 
 
 # DO NOT use "DEBUG = True" in production environments

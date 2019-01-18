@@ -1,5 +1,6 @@
-# __init__.py is a special Python file that allows a directory to become
-# a Python package so it can be accessed using the 'import' statement.
+"""
+Import the blueprints here
+"""
 
 
 from .admin_views import admin_blueprint
@@ -13,6 +14,10 @@ from .discursive_position_views import discursive_blueprint
 
 
 def register_blueprints(app):
+    """
+    Register the blueprints here
+    """
+
     app.register_blueprint(admin_blueprint)
     app.register_blueprint(login_blueprint)
     app.register_blueprint(user_blueprint)

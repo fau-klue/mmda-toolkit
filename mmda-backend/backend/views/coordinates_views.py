@@ -1,15 +1,16 @@
-# Coordinates view
+"""
+Coordinates view
+"""
+
 
 from pandas import notnull, DataFrame
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, current_app
 
-from backend import db, cache
-from backend import admin_required, user_required
+from backend import db
+from backend import user_required
 from backend.analysis.coordinates.tsne import generate_semantic_space
 from backend.models.user_models import User
-from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
+from backend.models.analysis_models import Analysis, Coordinates
 
 coordinates_blueprint = Blueprint('coordinates', __name__, template_folder='templates')
 

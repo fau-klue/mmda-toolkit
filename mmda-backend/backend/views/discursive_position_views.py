@@ -1,12 +1,14 @@
-# Analysis view
+"""
+Discursive Position views
+"""
 
 
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify
+from flask_expects_json import expects_json
 
 from backend import db
-from backend import admin_required, user_required
+from backend import user_required
+from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA
 from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
@@ -15,6 +17,7 @@ discursive_blueprint = Blueprint('discursive_position', __name__, template_folde
 
 # CREATE
 @discursive_blueprint.route('/api/user/<username>/discursiveposition/', methods=['POST'])
+@expects_json(DISCURSIVE_POSITION_SCHEMA)
 @user_required
 def create_discursive_position(username):
     """
@@ -24,12 +27,9 @@ def create_discursive_position(username):
     if not request.is_json:
         return jsonify({'msg': 'No request data provided'}), 400
 
-    # Check Request
+    # Check Request. Discoursemes should be List of IDs
     name = request.json.get('name', None)
-    # Should be List of IDs
     discoursemes = request.json.get('discoursemes', [])
-    if not name or not discoursemes:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()

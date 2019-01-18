@@ -7,15 +7,16 @@ variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache"
 cache:
   paths:
-    - .cache/
-    - venv/
+    - ~/.cache/pip/
+    - ~/node_modules/
 
-# backend-lint:
-#   stage: lint
-#   image: python:3.6
-#   script:
-#     - pip install pylint==1.9.2 --quiet
-#     - pylint --rcfile=mmda-backend/.pylintrc
+backend-lint:
+  stage: lint
+  image: python:3.6
+  script:
+    - cd mmda-backend/
+    - pip install pylint==1.9.2 --quiet
+    - pylint --rcfile=.pylintrc backend/*/*.py
 
 frontend-lint:
   stage: lint
@@ -43,5 +44,7 @@ backend-test:
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
     - pipenv install --dev
+    - cp backend/corpora_settings_example.py backend/corpora_settings.py
+    - cp backend/local_settings_example.py backend/local_settings.py
   script:
-    - py.test --cov-report term-missing -v --cov=backend/
+    - pipenv run pytest --cov-report term-missing -v --cov=backend/

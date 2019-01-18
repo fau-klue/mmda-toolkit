@@ -1,17 +1,16 @@
-# Users view
+"""
+Admin view
+"""
 
 
 import datetime
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, current_app
 
 from backend import db
 from backend.commands.init_db import find_or_create_user
-from backend import admin_required, user_required
+from backend import admin_required
 from backend.models.user_models import User
-from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Coordinates
-from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
+from backend.models.analysis_models import Analysis, Discourseme, DiscursivePosition
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 

@@ -3,7 +3,7 @@ Analysis Models
 """
 
 
-from pandas import DataFrame, read_json
+from pandas import read_json
 from backend import db
 
 
@@ -11,6 +11,7 @@ class Analysis(db.Model):
     """
     Define the Analysis data model.
     """
+
     __tablename__ = 'analysis'
 
     id = db.Column(db.Integer, primary_key=True)
@@ -58,10 +59,16 @@ class Discourseme(db.Model):
 
     @property
     def items(self):
+        """
+        Read string and turn into list
+        """
         return self._items.split(self._separator)
 
     @items.setter
     def items(self, items):
+        """
+        Turn list into String
+        """
         self._items = self._separator.join(items)
 
     @property
@@ -106,6 +113,7 @@ class DiscursivePosition(db.Model):
     """
     Define the discursive position data model
     """
+
     __tablename__ = 'discursive_position'
 
     id = db.Column(db.Integer(), primary_key=True)
@@ -142,8 +150,16 @@ class Coordinates(db.Model):
 
     @property
     def data(self):
+        """
+        Read JSON String an create DataFrame
+        """
+
         return read_json(self._data)
 
     @data.setter
     def data(self, dataframe):
+        """
+        Turn DataFrame into JSON String
+        """
+
         self._data = dataframe.to_json()

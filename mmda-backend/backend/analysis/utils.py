@@ -1,4 +1,6 @@
-# General utils
+"""
+General utils
+"""
 
 
 from hashlib import sha256

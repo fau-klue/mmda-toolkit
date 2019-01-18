@@ -1,13 +1,15 @@
-# Analysis view
+"""
+Analysis view
+"""
 
 
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, current_app
+from flask_expects_json import expects_json
 
 from backend import db, cache
-from backend import admin_required, user_required
+from backend import user_required
 from backend.analysis.utils import generate_hash
+from backend.analysis.validators import ANALYSIS_SCHEMA, ANALYSIS_UPDATE_SCHEMA
 from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
@@ -45,6 +47,7 @@ def extract_collocates_from_cache(corpus, window_size, items, identifier):
 
 # CREATE
 @analysis_blueprint.route('/api/user/<username>/analysis/', methods=['POST'])
+@expects_json(ANALYSIS_SCHEMA)
 @user_required
 def create_analysis(username):
     """
@@ -55,13 +58,10 @@ def create_analysis(username):
         return jsonify({'msg': 'No request data provided'}), 400
 
     # Check Request
-    # TODO: Check if window_size is greater 2
     name = request.json.get('name', None)
     corpus = request.json.get('corpus', None)
     maximal_window_size = request.json.get('window_size', 3)
     items = request.json.get('items', [])
-    if not name or not corpus or not items or not maximal_window_size:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Check corpus
     if corpus not in current_app.config['CORPORA']:
@@ -146,6 +146,7 @@ def get_all_analysis(username):
 
 # UPDATE
 @analysis_blueprint.route('/api/user/<username>/analysis/<analysis>/', methods=['PUT'])
+@expects_json(ANALYSIS_UPDATE_SCHEMA)
 @user_required
 def update_analysis(username, analysis):
     """
