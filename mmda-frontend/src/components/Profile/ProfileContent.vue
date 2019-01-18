@@ -5,6 +5,9 @@
       <v-layout wrap row>
         <v-flex xs12>
           <v-form v-if="userProfile">
+            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Updated Profile</v-alert>
+            <v-alert v-if="error" value="true" dismissible color="warning" icon="priority_high" outline>Could not update Profile</v-alert>
+
             <v-text-field v-model="userProfile.id" box label="ID" readonly></v-text-field>
             <v-text-field v-model="userProfile.first_name" label="First Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
             <v-text-field v-model="userProfile.last_name" label="Last Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
@@ -31,6 +34,7 @@ export default {
   name: 'ProfileContent',
   data: () => ({
     error: null,
+    updated: false,
     rules: rules
   }),
   computed: {
@@ -41,7 +45,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getUserProfile: 'profile/getUserProfile'
+      getUserProfile: 'profile/getUserProfile',
+      updateUserProfile: 'profile/updateUserProfile'
     }),
     loadProfile () {
       this.getUserProfile(this.user.username).then(() => {
@@ -51,11 +56,19 @@ export default {
       })
     },
     updateProfile () {
-      // const newProfile = {
-      //   firstName: '',
-      //   lastName: '',
-      //   email: ''
-      // }
+      const data = {
+        username: this.user.username,
+        first_name: this.userProfile.first_name,
+        last_name: this.userProfile.last_name,
+        email: this.userProfile.email
+      }
+      this.updateUserProfile(data).then(() => {
+        this.updated = true
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
+
     }
   },
   created () {

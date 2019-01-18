@@ -46,6 +46,21 @@ const actions = {
         reject(error)
       })
     })
+  },
+  updateUserProfile ({commit}, data) { // eslint-disable-line no-unused-vars
+    return new Promise((resolve, reject) => {
+
+      if (!data.username) {
+        reject('No user provided')
+        return
+      }
+
+      api.put(`/user/${data.username}/`, data).then(function () {
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 
