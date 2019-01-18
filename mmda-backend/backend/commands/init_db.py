@@ -9,7 +9,6 @@ from flask_script import Command
 
 from backend import db
 from backend.models.user_models import User, Role
-from backend.models.analysis_models import Analysis, Discourseme, AnalysisDiscoursemes, Coordinates
 
 
 class InitDbCommand(Command):

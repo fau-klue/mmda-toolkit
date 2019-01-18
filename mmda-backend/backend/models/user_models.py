@@ -1,8 +1,9 @@
-# User Models
+"""
+User Models
+"""
 
 
 from flask_user import UserMixin
-from wtforms import StringField, SubmitField, validators
 from backend import db
 
 

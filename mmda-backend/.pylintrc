@@ -4,7 +4,7 @@ extension-pkg-whitelist=
 ignore=CVS
 ignore-patterns=
 #init-hook=
-jobs=2
+jobs=10
 load-plugins=
 persistent=yes
 #rcfile=
@@ -15,8 +15,39 @@ unsafe-load-any-extension=no
 confidence=
 disable=all
 enable=c-extension-no-member,
-       empty-docstring,
-       missing-docstring
+       *-docstring,
+       *-builtin,
+       *-method,
+       *-not-iterating,
+       *-return,
+       *-format-*,
+       backtick,
+       bad-python3-import,
+       comprehension-escape,
+       deprecated-*,
+       dict-*,
+       eq-without-hash,
+       exception-escape,
+       inconsistent-return-statements,
+       indexing-exception,
+       invalid-str-codec,
+       metaclass-assignment,
+       next-method-called,
+       next-method-defined,
+       no-name-in-module,
+       parameter-unpacking,
+       print-statement,
+       raising-string,
+       simplifiable-if-*,
+       simplify-boolean-expression,
+       standarderror-builtin,
+       sys-max-in,
+       too-many-nested-blocks,
+       trailing-comma-tuple,
+       unpacking-non-sequence
+       unused-*,
+       used-before-assignment,
+       using-cmp-argument
 
 [REPORTS]
 evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)

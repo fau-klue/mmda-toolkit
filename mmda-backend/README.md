@@ -30,6 +30,12 @@ See https://help.yahoo.com/kb/SLN27791.html
     # Install dependencies
     pipenv install
 
+## Create local settings
+
+    # Copy the examples to adjust the settings
+    cp backend/corpora_settings_example.py backend/corpora_settings.py
+    cp backend/local_settings_example.py backend/local_settings.py
+
 ## Initializing the Database
 
     # Create DB tables and populate the roles and users tables

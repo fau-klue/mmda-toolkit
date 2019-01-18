@@ -1,12 +1,10 @@
-# Corpus view
+"""
+Corpus view
+"""
 
 
-from flask import Blueprint, redirect, render_template, current_app, jsonify
-from flask import request, url_for
+from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required
-
-from backend import db
-from backend import admin_required
 
 corpus_blueprint = Blueprint('corpus', __name__, template_folder='templates')
 

@@ -1,12 +1,12 @@
-# Analysis view
+"""
+Discursive Position views
+"""
 
 
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify
 
 from backend import db
-from backend import admin_required, user_required
+from backend import user_required
 from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 

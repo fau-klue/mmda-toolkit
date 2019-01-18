@@ -19,6 +19,7 @@ pandas = "==0.23.4"
 pymagnitude = "==0.1.120"
 scikit-learn = "==0.20.2"
 gevent = "==1.4.0"
+flask-cors = "==3.0.7"
 
 [dev-packages]
 pytest = "==3.8.2"

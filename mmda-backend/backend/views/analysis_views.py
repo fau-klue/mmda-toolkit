@@ -1,12 +1,12 @@
-# Analysis view
+"""
+Analysis view
+"""
 
 
-from flask import Blueprint, redirect, render_template
-from flask import request, url_for, jsonify, current_app
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask import Blueprint, request, jsonify, current_app
 
 from backend import db, cache
-from backend import admin_required, user_required
+from backend import user_required
 from backend.analysis.utils import generate_hash
 from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User

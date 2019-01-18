@@ -3,10 +3,12 @@ import unittest.mock as mock
 import pandas
 
 
-def test_create_analysis(client, header):
+@mock.patch('backend.views.analysis_views.generate_semantic_space')
+def test_create_analysis(mock_coords, client, header):
+
+    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
 
     data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['foobar', 'barfoo']}
-
     response = client.post(url_for('analysis.create_analysis', username='student1'),
                           follow_redirects=True,
                           content_type='application/json',
