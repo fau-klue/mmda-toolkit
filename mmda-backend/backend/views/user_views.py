@@ -4,8 +4,10 @@ Users view
 
 
 from flask import Blueprint, request, jsonify, current_app
+from flask_expects_json import expects_json
 
 from backend import db
+from backend.analysis.validators import PASSWORD_SCHEMA
 from backend import user_required
 from backend.models.user_models import User
 
@@ -30,19 +32,15 @@ def get_user(username):
 
 # PUT
 @user_blueprint.route('/api/user/<username>/password/', methods=['PUT'])
+@expects_json(PASSWORD_SCHEMA)
 @user_required
 def put_user_password(username):
     """
     Update a password for a user
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
     # Check Request
     new_password = request.json.get('password')
-    if not new_password or len(new_password) < current_app.config['USER_MIN_PASSWORD_LENGTH']:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()

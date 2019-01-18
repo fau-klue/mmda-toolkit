@@ -24,9 +24,6 @@ def create_discourseme(username):
     Create a new discourseme
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
     # Check request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
@@ -88,8 +85,6 @@ def update_discourseme(username, discourseme):
     """
 
     # TODO: Can you edit a topic discourseme?
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
 
     # Check Request
     name = request.json.get('name', None)

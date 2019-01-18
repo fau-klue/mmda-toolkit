@@ -5,8 +5,10 @@ Admin view
 
 import datetime
 from flask import Blueprint, request, jsonify, current_app
+from flask_expects_json import expects_json
 
 from backend import db
+from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.commands.init_db import find_or_create_user
 from backend import admin_required
 from backend.models.user_models import User
@@ -15,29 +17,15 @@ from backend.models.analysis_models import Analysis, Discourseme, DiscursivePosi
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 
 
-def valid(username, first_name, last_name, email, password):
-    """
-    Check if data is provided and is correct.
-    """
-
-    if len(password) < current_app.config['USER_MIN_PASSWORD_LENGTH']:
-        return False
-
-    return bool(username and first_name and last_name and email and password)
-
-
 # CREATE
 @admin_blueprint.route('/api/admin/user/', methods=['POST'])
+@expects_json(USER_SCHEMA)
 @admin_required
 def create_user():
     """
     Admin: Add new user to database
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
-    # TODO: Validate JSON (alphanum, email Regex)
     username = request.json.get('username', None)
     first_name = request.json.get('first_name', None)
     last_name = request.json.get('last_name', None)
@@ -45,9 +33,6 @@ def create_user():
     email = request.json.get('email', None)
     email_confirmed_at = request.json.get('email_confirmed_at', datetime.datetime.utcnow())
     role = request.json.get('role', None)
-
-    if not valid(username, first_name, last_name, email, password):
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Create user
     user = find_or_create_user(username, first_name, last_name, email, password, role)
@@ -71,19 +56,14 @@ def get_users():
 
 # PUT
 @admin_blueprint.route('/api/admin/user/<username>/password/', methods=['PUT'])
+@expects_json(PASSWORD_SCHEMA)
 @admin_required
 def put_user_password(username):
     """
     Admin: Update a password for a user
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
-    # Check Request
     new_password = request.json.get('password')
-    if not new_password or len(new_password) < current_app.config['USER_MIN_PASSWORD_LENGTH']:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()

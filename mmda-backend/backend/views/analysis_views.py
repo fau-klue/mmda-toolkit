@@ -9,7 +9,7 @@ from flask_expects_json import expects_json
 from backend import db, cache
 from backend import user_required
 from backend.analysis.utils import generate_hash
-from backend.analysis.validators import ANALYSIS_SCHEMA, ANALYSIS_UPDATE_SCHEMA
+from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
@@ -53,9 +53,6 @@ def create_analysis(username):
     """
     Add a new analysis for a user
     """
-
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
 
     # Check Request
     name = request.json.get('name', None)
@@ -146,15 +143,12 @@ def get_all_analysis(username):
 
 # UPDATE
 @analysis_blueprint.route('/api/user/<username>/analysis/<analysis>/', methods=['PUT'])
-@expects_json(ANALYSIS_UPDATE_SCHEMA)
+@expects_json(UPDATE_SCHEMA)
 @user_required
 def update_analysis(username, analysis):
     """
     Update an analysis
     """
-
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
 
     # Check request
     name = request.json.get('name', None)

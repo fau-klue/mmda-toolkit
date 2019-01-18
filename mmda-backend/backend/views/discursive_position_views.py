@@ -8,7 +8,7 @@ from flask_expects_json import expects_json
 
 from backend import db
 from backend import user_required
-from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA
+from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, UPDATE_SCHEMA
 from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
@@ -23,9 +23,6 @@ def create_discursive_position(username):
     """
     Add a new discursive position for a user.
     """
-
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
 
     # Check Request. Discoursemes should be List of IDs
     name = request.json.get('name', None)
@@ -97,19 +94,15 @@ def get_discursive_positions(username):
 
 # UPDATE
 @discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/', methods=['PUT'])
+@expects_json(UPDATE_SCHEMA)
 @user_required
 def update_discursive_position(username, discursive_position):
     """
     Update discursive position details
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
     # Check request
     name = request.json.get('name', None)
-    if not name:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()

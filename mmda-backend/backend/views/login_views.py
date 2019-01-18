@@ -6,7 +6,9 @@ Login views
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_refresh_token_required
 from flask_jwt_extended import create_refresh_token, create_access_token
+from flask_expects_json import expects_json
 
+from backend.analysis.validators import PASSWORD_SCHEMA
 from backend import admin_required, user_required
 from backend.models.user_models import User
 
@@ -14,19 +16,15 @@ login_blueprint = Blueprint('login', __name__, template_folder='templates')
 
 
 @login_blueprint.route('/api/login/', methods=['POST'])
+@expects_json(PASSWORD_SCHEMA)
 def login():
     """
     Login route to get JWT token to access the API
     """
 
-    if not request.is_json:
-        return jsonify({'msg': 'No request data provided'}), 400
-
     # Check Request
     username = request.json.get('username', None)
     password = request.json.get('password', None)
-    if not username or not password:
-        return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()
