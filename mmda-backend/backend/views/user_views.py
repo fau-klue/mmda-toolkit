@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
 
 from backend import db
-from backend.analysis.validators import PASSWORD_SCHEMA
+from backend.analysis.validators import PASSWORD_SCHEMA, USER_UPDATE_SCHEMA
 from backend import user_required
 from backend.models.user_models import User
 
@@ -55,6 +55,33 @@ def put_user_password(username):
 
     # Only set if we got a valid hash
     user.password = hashed_password
+    db.session.commit()
+
+    return jsonify({'msg': 'Updated'}), 200
+
+
+# PUT
+@user_blueprint.route('/api/user/<username>/', methods=['PUT'])
+@expects_json(USER_UPDATE_SCHEMA)
+@user_required
+def put_user(username):
+    """
+    Update details of a user
+    """
+
+    # Check Request
+    first_name = request.json.get('first_name')
+    last_name = request.json.get('last_name')
+    email = request.json.get('email')
+
+    # Get User
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        return jsonify({'msg': 'No such user'}), 404
+
+    user.first_name = first_name
+    user.last_name = last_name
+    user.email = email
     db.session.commit()
 
     return jsonify({'msg': 'Updated'}), 200

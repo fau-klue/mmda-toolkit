@@ -38,6 +38,16 @@ USER_SCHEMA = {
     'required': ['username', 'password', 'last_name', 'first_name', 'email']
 }
 
+USER_UPDATE_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'last_name': {'type': 'string', 'maxLength': 64},
+        'first_name': {'type': 'string', 'maxLength': 64},
+        'email': {'type': 'string', 'format': 'email'}
+    },
+    'required': ['last_name', 'first_name', 'email']
+}
+
 ANALYSIS_SCHEMA = {
     'type': 'object',
     'properties': {
