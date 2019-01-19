@@ -14,7 +14,7 @@
                 <v-list-tile-title>{{ user }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn v-if="user != 'admin'"icon @click="removeUser(user)">
+                <v-btn v-if="user != 'admin'" icon @click="removeUser(user)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>
