@@ -14,7 +14,7 @@
                 <v-list-tile-title>{{ user }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn icon @click="deleteUser(user)">
+                <v-btn v-if="user != 'admin'"icon @click="removeUser(user)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>
@@ -44,7 +44,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getAllUsers: 'admin/getAllUsers'
+      getAllUsers: 'admin/getAllUsers',
+      deleteUser: 'admin/deleteUser'
     }),
     loadUsers () {
       this.loading = true
@@ -55,9 +56,12 @@ export default {
       })
       this.loading = false
     },
-    deleteUser (name) {
-      // TODO call API
-      console.log(name)
+    removeUser (name) {
+      this.deleteUser(name).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
     }
   },
   created () {

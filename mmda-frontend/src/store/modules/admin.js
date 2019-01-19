@@ -38,6 +38,17 @@ const actions = {
         reject(error)
       })
     })
+  },
+  deleteUser ({dispatch}, username) {
+    return new Promise((resolve, reject) => {
+
+      api.delete(`/admin/user/${username}/`).then(function () {
+        dispatch('getAllUsers')
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 
