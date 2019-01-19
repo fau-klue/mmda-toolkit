@@ -44,7 +44,9 @@
                   <p>Generating Discursive Position...</p>
                 </div>
                 <v-form v-else>
-                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
+                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Discursive Position creation</v-alert>
+
                   <v-text-field v-model="name" label="Discursive Position Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
 
                   <v-combobox

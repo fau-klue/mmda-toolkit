@@ -4,7 +4,7 @@
 
 const rules = {
   alphanum: value => {
-    const pattern = /^[a-zA-Z0-9]+$/i
+    const pattern = /^[a-zA-Z0-9öäü,]+$/i
     return pattern.test(value) || 'Invalid characters.'
   },
   required: value => !!value || 'Required.',

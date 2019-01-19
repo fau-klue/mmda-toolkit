@@ -49,13 +49,16 @@
                 </p>
 
               </v-flex>
+
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
                   <p>Generating Analysis...</p>
                 </div>
                 <v-form v-else>
-                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
+                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Analysis creation</v-alert>
+
                   <v-text-field v-model="name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
                   <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="Corpus"></v-autocomplete>
                   <v-combobox
@@ -130,8 +133,6 @@ export default {
         return
       }
 
-      this.loading = true
-
       const data = {
         username: this.user.username,
         name: this.name,
@@ -140,13 +141,13 @@ export default {
         corpus: this.selectCorpus
       }
 
+      this.loading = true
       this.addUserAnalysis(data).then(() => {
         this.error = null
         this.$router.push('/analysis')
       }).catch((error) => {
         this.error = error
       })
-
       this.loading = false
     }
   },

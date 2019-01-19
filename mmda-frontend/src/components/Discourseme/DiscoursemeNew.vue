@@ -38,9 +38,15 @@
                 </p>
 
               </v-flex>
+
               <v-flex xs6 sm6>
-                <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
-                <v-form>
+                <div v-if="loading" class="text-md-center">
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  <p>Generating Discourseme...</p>
+                </div>
+                <v-form v-else>
+                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Discourseme creation</v-alert>
                   <v-text-field v-model="name" label="Discourseme Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
                   <v-combobox
                     v-model="select"
@@ -70,6 +76,7 @@ export default {
   name: 'DiscoursemeNewContent',
   data: () => ({
     error: null,
+    loading: false,
     items: [],
     name: '',
     nodata: false,
@@ -99,12 +106,14 @@ export default {
         username: this.user.username
       }
 
+      this.loading = true
       this.addUserDiscourseme(data).then(() => {
         this.error = null
         this.$router.push('/discourseme')
       }).catch((error) => {
         this.error = error
       })
+      this.loading = false
     }
   }
 }
