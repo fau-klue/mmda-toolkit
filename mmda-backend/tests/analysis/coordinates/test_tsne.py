@@ -46,10 +46,10 @@ def test_coord_generate_2d_coordinates(mock_vectors):
 
 
 @mock.patch('backend.analysis.coordinates.tsne.load_vectors')
-def test_coord_generate_2d_coordinates_fail(mock_vectors):
+def test_coord_generate_2d_coordinates_error(mock_vectors):
 
-    with pytest.raises(RuntimeError):
-        fail = tsne.generate_semantic_space(['token1', 'token2', 'token1'], '/tmp/foo.pymagnitude')
+    fail = tsne.generate_semantic_space(['token1', 'token2', 'token1'], '/tmp/foo.pymagnitude')
+    assert fail.empty == True
 
 
 def test_calculate_item_coordinates():

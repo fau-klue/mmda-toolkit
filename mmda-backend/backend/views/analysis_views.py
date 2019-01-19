@@ -91,6 +91,9 @@ def create_analysis(username):
     # Generate Coordinates
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
     semantic_space = generate_semantic_space(tokens, wectors_path)
+    if semantic_space.empty:
+        return jsonify({'msg': 'Error during TSNE'}), 500
+
     coordinates = Coordinates(analysis_id=analysis.id)
     coordinates.data = semantic_space
 

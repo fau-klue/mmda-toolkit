@@ -117,6 +117,7 @@ ENV/
 # ----------------------------
 
 *.sqlite
+*.sqlite-journal
 backend/local_settings.py
 backend/corpora_settings.py
 

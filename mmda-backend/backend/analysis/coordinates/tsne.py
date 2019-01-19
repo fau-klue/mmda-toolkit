@@ -2,14 +2,10 @@
 Module to manage dimensionality transformations.
 """
 
-from logging import getLogger
 from pandas import DataFrame
 from pymagnitude import Magnitude
 from sklearn.manifold import TSNE
 from scipy.spatial.distance import cosine
-
-
-LOGGER = getLogger('mmda-logger')
 
 
 def load_vectors(tokens, vectors_filepath):
@@ -25,8 +21,6 @@ def load_vectors(tokens, vectors_filepath):
     try:
         embeddings = Magnitude(vectors_filepath)
     except RuntimeError:
-        LOGGER.error('Word vector file not found')
-        LOGGER.debug('Filepath: %s', vectors_filepath)
         return DataFrame()
 
     vectors = []
@@ -52,9 +46,9 @@ def generate_semantic_space(tokens, vectors_filepath):
     """
 
     vectors = load_vectors(tokens, vectors_filepath)
+
     if vectors.empty:
-        LOGGER.error('Could not load Word Embeddings')
-        raise RuntimeError('Could not load Word Embeddings')
+        return DataFrame()
 
     tsne_data = TSNE(n_components=2,
                      metric='euclidean',

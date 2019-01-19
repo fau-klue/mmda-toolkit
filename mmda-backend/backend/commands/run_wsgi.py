@@ -20,6 +20,7 @@ class WSGICommand(Command):
     """
 
     def run(self):
+        print('Started WSGI Server.')
         run_wsgi()
 
 
