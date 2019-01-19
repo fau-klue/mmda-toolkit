@@ -35,6 +35,11 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "adminusers" */ '@/views/AdminUsers.vue')
     },
     {
+      path: '/admin/users/new',
+      name: 'adminusersnew',
+      component: () => import(/* webpackChunkName: "adminusersnew" */ '@/views/AdminUsersNew.vue')
+    },
+    {
       path: '/admin/objects',
       name: 'adminobjects',
       component: () => import(/* webpackChunkName: "adminobjects" */ '@/views/AdminObjects.vue')

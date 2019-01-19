@@ -21,11 +21,6 @@
             </v-list-tile>
           </v-list>
         </v-flex>
-
-        <v-flex xs12>
-        <AdminUsersNew/>
-        </v-flex>
-
       </v-layout>
     </v-card-text>
     </v-card>
@@ -34,13 +29,9 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import AdminUsersNew from '@/components/Admin/AdminUsersNew.vue'
 
 export default {
   name: 'AdminUsersContent',
-  components: {
-    AdminUsersNew
-  },
   data: () => ({
     loading: false,
     error: null

@@ -36,6 +36,7 @@ def create_user():
 
     # Create user
     user = find_or_create_user(username, first_name, last_name, email, password, role)
+    db.session.commit()
 
     return jsonify({'msg': user.id}), 201
 

@@ -27,6 +27,17 @@ const actions = {
         reject(error)
       })
     })
+  },
+  createNewUser ({dispatch}, data) {
+    return new Promise((resolve, reject) => {
+
+      api.post(`/admin/user/`, data).then(function () {
+        dispatch('getAllUsers')
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 

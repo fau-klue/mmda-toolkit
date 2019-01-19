@@ -4,12 +4,12 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs12>
+          <v-form v-if="userProfile">
           <v-alert v-model="warn" type="warning" dismissible outline>Passwords do not match.</v-alert>
           <v-alert v-model="success" type="success" dismissible outline>Password changed.</v-alert>
           <v-alert v-model="error" type="error" dismissible>An error occured.</v-alert>
 
-          <v-form v-if="userProfile">
-            <v-text-field
+          <v-text-field
               v-model="newPassword"
               :append-icon="showPassword ? 'visibility_off' : 'visibility'"
               :type="showPassword ? 'text' : 'password'"

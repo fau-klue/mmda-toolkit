@@ -3,8 +3,11 @@
   <v-card flat>
     <v-card-text>
       <v-layout wrap row>
-        <v-flex xs12>
+        <v-flex xs6>
           <h1 class="display-1">Administration</h1>
+        </v-flex>
+        <v-flex xs6 class="text-xs-right">
+          <v-btn color="success" class="text-lg-right" to="/admin/users/new">Add User</v-btn>
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -15,9 +18,7 @@
 <script>
 
 export default {
-  name: 'AdminHeader',
-  data: () => ({
-})
+  name: 'AdminHeader'
 }
 
 </script>

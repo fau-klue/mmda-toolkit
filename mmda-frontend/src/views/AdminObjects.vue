@@ -22,9 +22,7 @@ export default {
   components: {
     AdminHeader,
     AdminObjectsContent
-  },
-  data: () => ({
-  })
+  }
 }
 
 </script>
