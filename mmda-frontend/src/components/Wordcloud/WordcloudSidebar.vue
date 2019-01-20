@@ -26,6 +26,7 @@
 
   <v-expansion-panel>
     <WordcloudMetadata v-bind:mini="mini"/>
+    <WordcloudWindowsize v-bind:mini="mini"/>
   </v-expansion-panel>
 
 </v-navigation-drawer>
@@ -34,11 +35,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import WordcloudMetadata from '@/components/Wordcloud/Sidebar/WordcloudMetadata'
+import WordcloudWindowsize from '@/components/Wordcloud/Sidebar/WordcloudWindowsize'
 
 export default {
   name: 'WordcloudSidebar',
   components: {
-    WordcloudMetadata
+    WordcloudMetadata,
+    WordcloudWindowsize
   },
   data: () => ({
     sidebar: true,
