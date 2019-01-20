@@ -1,4 +1,6 @@
 from flask import url_for
+import unittest.mock as mock
+import pandas
 
 
 def test_users_list(client, admin_header):
@@ -163,10 +165,9 @@ def test_delete_position(client, header, admin_header):
     assert response.status_code==200
 
 
-def test_delete_analysis(client, header, admin_header):
+def test_delete_analysis_noanalysis(client, header, admin_header):
 
-    # TODO Create analysis
-    response = client.delete(url_for('admin.delete_analysis', analysis=1),
+    response = client.delete(url_for('admin.delete_analysis', analysis=2),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=admin_header)
