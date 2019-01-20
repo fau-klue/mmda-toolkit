@@ -109,6 +109,9 @@ def update_discursive_position(username, discursive_position):
 
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
+    if not discursive:
+        return jsonify({'msg': 'No such discursive position'}), 404
+
     discursive.name = name
     db.session.commit()
 

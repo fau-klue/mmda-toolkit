@@ -11,6 +11,7 @@ from backend import create_app, db as the_db
 # Initialize the Flask-App with test-specific settings
 the_app = create_app(dict(
     TESTING=True,  # Propagate exceptions
+    DEBUG=False,
     LOGIN_DISABLED=False,  # Enable @register_required
     MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
     SERVER_NAME='localhost',  # Enable url_for() without request context
