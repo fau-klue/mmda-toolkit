@@ -1,32 +1,33 @@
 <template>
-<v-container grid-list-md>
-  <v-layout row wrap>
-    <v-flex xs12>
-      <h1>Super WordCloud</h1>
-      <p>
-        {{ analysis }}
-      </p>
-      <p>
-        {{ coordinates }}
-      </p>
-      <p>
-        {{ concordances }}
-      </p>
-      <p>
-        {{ collocates }}
-      </p>
-    </v-flex>
-  </v-layout>
-</v-container>
+<div>
+  <v-container grid-list-md>
+    <v-layout row wrap>
+      <v-flex xs12>
+        <p>
+          {{ coordinates }}
+        </p>
+        <p>
+          {{ concordances }}
+        </p>
+        <p>
+          {{ collocates }}
+        </p>
+      </v-flex>
+    </v-layout>
+  </v-container>
+  <WordcloudSidebar/>
+</div>
 </template>
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
+import WordcloudSidebar from '@/components/Wordcloud/WordcloudSidebar'
 
 export default {
   name: 'WordcloudContent',
   components: {
+    WordcloudSidebar
   },
   data: () => ({
     id: null,
