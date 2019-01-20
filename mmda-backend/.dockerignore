@@ -1,0 +1,11 @@
+*.md
+*Dockerfile*
+*docker-compose*
+*example*
+.git
+.gitignore
+.pylintrc
+.venv/
+__pycache__
+tests/
+pytest.ini
