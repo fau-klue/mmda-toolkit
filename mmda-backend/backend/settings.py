@@ -8,12 +8,18 @@ An example file (env_settings_example.py) can be used as a starting point
 # Application settings
 APP_NAME = "MMDA Backend"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
+
 # Flask settings
 # Since we use JWT
 WTF_CSRF_ENABLED = False
 
 # Avoids a SQLAlchemy deprecation warning
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+# TLS settings
+APP_TLS_ENABLE = False
+APP_TLS_KEYFILE = 'private_key.pem'
+APP_TLS_CERTFILE = 'certificate.pem'
 
 # Flask-User settings
 USER_APP_NAME = APP_NAME

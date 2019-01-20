@@ -18,10 +18,6 @@ SQLALCHEMY_DATABASE_URI = 'sqlite:///../backend.sqlite'
 # Avoids a SQLAlchemy deprecation warning
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-# TLS settings
-APP_TLS_KEYFILE = '/privkey.pem'
-APP_TLS_CERTFILE = '/cert.pem'
-
 # Flask-Mail settings
 MAIL_SERVER = 'localhost'
 MAIL_PORT = 1025

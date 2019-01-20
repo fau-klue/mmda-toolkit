@@ -29,12 +29,15 @@ def run_wsgi():
     Where the magic happens
     """
 
-    # TODO: Add SSL Config
-    # keyfile=app.config['APP_TLS_KEYFILE']
-    # certfile=app.config['APP_TLS_CERTFILE']
-
     app = create_app()
+
     server = WSGIServer(listener=(APP_HOST, APP_PORT),
                         application=app)
+
+    if app.config['APP_TLS_ENABLE']:
+        server = WSGIServer(listener=(APP_HOST, APP_PORT),
+                            application=app,
+                            keyfile=app.config['APP_TLS_KEYFILE'],
+                            certfile=app.config['APP_TLS_CERTFILE'])
 
     server.serve_forever()
