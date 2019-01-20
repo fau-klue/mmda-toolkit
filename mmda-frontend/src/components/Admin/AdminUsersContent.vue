@@ -8,13 +8,14 @@
           <v-list two-line subheader v-if="users">
             <v-list-tile v-for="user in users" :key="user" avatar>
               <v-list-tile-avatar>
-                <v-icon class="grey--text">face</v-icon>
+                <v-icon v-if="user === 'admin'" class="red--text">face</v-icon>
+                <v-icon v-else class="grey--text">face</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>{{ user }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn v-if="user != 'admin'" icon @click="removeUser(user)">
+                <v-btn v-if="user !== 'admin'" icon @click="removeUser(user)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>

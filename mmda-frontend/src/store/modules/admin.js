@@ -4,7 +4,6 @@ import api from '@/api'
 
 Vue.use(Vuex)
 
-
 const state = {
   // List of all users
   users: null,
@@ -61,6 +60,20 @@ const actions = {
 
       api.delete(`/admin/user/${username}/`).then(function () {
         dispatch('getAllUsers')
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
+  },
+  deleteObject ({dispatch}, data) {
+    // Delete a single element
+    return new Promise((resolve, reject) => {
+
+      api.delete(`/admin/${data.object}/${data.object_id}/`).then(function () {
+        dispatch('getAllAnalysis')
+        dispatch('getAllDiscoursemes')
+        dispatch('getAllPositions')
         resolve()
       }).catch(function (error) {
         reject(error)
