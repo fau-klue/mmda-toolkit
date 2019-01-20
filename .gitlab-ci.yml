@@ -43,8 +43,8 @@ backend-test:
   before_script:
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
-    - pipenv install --dev
-    - cp backend/corpora_settings_example.py backend/corpora_settings.py
-    - cp backend/local_settings_example.py backend/local_settings.py
+    - pipenv install --system --dev
+    - cp backend/corpora_settings_example.py backend/corpora_settings_development.py
+    - cp backend/local_settings_example.py backend/local_settings_development.py
   script:
     - pipenv run pytest --cov-report term-missing -v --cov=backend/
