@@ -118,8 +118,8 @@ ENV/
 
 *.sqlite
 *.sqlite-journal
-backend/local_settings.py
-backend/corpora_settings.py
+backend/local_settings_development.py
+backend/corpora_settings_development.py
 
 
 # Editor directories and files

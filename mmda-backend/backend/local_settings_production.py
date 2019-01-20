@@ -1,17 +1,14 @@
 """
-Development specific settings
+Production specific settings
 """
 
 
 # DO NOT use "DEBUG = True" in production environments
-DEBUG = True
+DEBUG = False
 
 # JWT Settings
-JWT_ACCESS_TOKEN_EXPIRES = False
-JWT_REFRESH_TOKEN_EXPIRES = False
-
-# Avoids a SQLAlchemy deprecation warning
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+JWT_ACCESS_TOKEN_EXPIRES = True
+JWT_REFRESH_TOKEN_EXPIRES = True
 
 # Flask-Mail settings
 MAIL_SERVER = 'localhost'

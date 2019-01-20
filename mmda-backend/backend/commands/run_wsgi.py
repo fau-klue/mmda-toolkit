@@ -9,11 +9,6 @@ from os import getenv
 from gevent.pywsgi import WSGIServer
 
 
-# Get Host and Port from environment, to make Docker life esier
-APP_HOST = str(getenv('MMDA_HOST', default='0.0.0.0'))
-APP_PORT = int(getenv('MMDA_PORT', default='5000'))
-
-
 class WSGICommand(Command):
     """
     Run the production server
@@ -30,6 +25,9 @@ def run_wsgi():
     """
 
     app = create_app()
+
+    APP_HOST = app.config['MMDA_APP_HOST']
+    APP_PORT = app.config['MMDA_APP_PORT']
 
     server = WSGIServer(listener=(APP_HOST, APP_PORT),
                         application=app)

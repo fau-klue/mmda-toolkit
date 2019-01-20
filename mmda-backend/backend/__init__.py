@@ -91,10 +91,11 @@ def create_app(extra_config_settings={}):
 
     # Load common settings
     app.config.from_object('backend.settings')
-    # Load environment specific settings
-    app.config.from_object('backend.local_settings')
-    # Load corpus settings
-    app.config.from_object('backend.corpora_settings')
+
+    # Load environment settings
+    app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
+    app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
+
     # Load extra settings from extra_config_settings param
     app.config.update(extra_config_settings)
 

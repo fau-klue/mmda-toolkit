@@ -5,21 +5,43 @@ An example file (env_settings_example.py) can be used as a starting point
 """
 
 
+from os import getenv
+
+
+# Get Host and Port from environment, to make Docker life esier
+MMDA_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
+MMDA_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
+MMDA_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
+MMDA_SQL_DATABASE_URI = str(getenv('SQL_DATABASE_URI', default='sqlite:///../backend.sqlite'))
+MMDA_APP_ENV = str(getenv('ENVIRONMENT', default='development'))
+MMDA_APP_HOST = str(getenv('HOST', default='0.0.0.0'))
+MMDA_APP_PORT = int(getenv('PORT', default='5000'))
+MMDA_SECRET_KEY = str(getenv('SECRET_KEY', default='Please Change me in production. Stay Save!'))
+
+# See also: CWB engine
+REGISTRY_PATH = getenv('CQP_REGISTRY_PATH', default='/usr/local/cwb-3.4.13/share/cwb/registry')
+
 # Application settings
 APP_NAME = "MMDA Backend"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
+APP_ENV = MMDA_APP_ENV
+
+# DO NOT use an Unsecure Secrets in production environments
+SECRET_KEY = MMDA_SECRET_KEY
 
 # Flask settings
 # Since we use JWT
 WTF_CSRF_ENABLED = False
 
+# Database Settings
+SQLALCHEMY_DATABASE_URI = MMDA_SQL_DATABASE_URI
 # Avoids a SQLAlchemy deprecation warning
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # TLS settings
-APP_TLS_ENABLE = False
-APP_TLS_KEYFILE = 'private_key.pem'
-APP_TLS_CERTFILE = 'certificate.pem'
+APP_TLS_ENABLE = MMDA_TLS_ENABLE
+APP_TLS_KEYFILE = MMDA_TLS_KEYFILE
+APP_TLS_CERTFILE = MMDA_TLS_CERTFILE
 
 # Flask-User settings
 USER_APP_NAME = APP_NAME
