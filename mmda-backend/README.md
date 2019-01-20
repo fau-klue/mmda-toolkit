@@ -33,8 +33,8 @@ See https://help.yahoo.com/kb/SLN27791.html
 ## Create local settings
 
     # Copy the examples to adjust the settings
-    cp backend/corpora_settings_example.py backend/corpora_settings.py
-    cp backend/local_settings_example.py backend/local_settings.py
+    cp backend/corpora_settings_example.py backend/corpora_settings_development.py
+    cp backend/local_settings_example.py backend/local_settings_development.py
 
 ## Initializing the Database
 
