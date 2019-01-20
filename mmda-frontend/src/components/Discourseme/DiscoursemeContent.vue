@@ -9,8 +9,7 @@
             <v-alert v-if="nodata" value="true" dismissible color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <!-- Better component for this? -->
-              <v-alert v-if="discourseme.is_topic" value="true" color="info" icon="info" outline>This is a topic discourseme</v-alert>
+                <p v-if="discourseme.is_topic" class="title"><v-icon color="orange">grade</v-icon> Topic Discourseme</p>
 
               <v-text-field v-model="discourseme.name" label="Discourseme Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
               <v-combobox
