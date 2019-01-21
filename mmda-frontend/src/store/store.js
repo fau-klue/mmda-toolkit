@@ -8,6 +8,7 @@ import discourseme from './modules/discourseme'
 import discursive from './modules/discursive'
 import login from './modules/login'
 import profile from './modules/profile'
+import wordcloud from './modules/wordcloud'
 
 Vue.use(Vuex)
 
@@ -21,7 +22,8 @@ const store = new Vuex.Store({
     discourseme: discourseme,
     discursive: discursive,
     login: login,
-    profile: profile
+    profile: profile,
+    wordcloud: wordcloud
   }
 })
 

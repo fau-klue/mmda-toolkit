@@ -4,6 +4,9 @@
     <v-layout row wrap>
       <v-flex xs12>
         <p>
+          Window Size {{ windowSize }}
+        </p>
+        <p>
           {{ coordinates }}
         </p>
         <p>
@@ -40,7 +43,8 @@ export default {
       discoursemes: 'analysis/discoursemes',
       collocates: 'analysis/collocates',
       coordinates: 'coordinates/coordinates',
-      concordances: 'corpus/concordances'
+      concordances: 'corpus/concordances',
+      windowSize: 'wordcloud/windowSize'
     })
   },
   methods: {
