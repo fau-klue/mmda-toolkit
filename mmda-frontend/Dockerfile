@@ -12,7 +12,8 @@ RUN yarn run build
 FROM nginx:alpine
 LABEL maintainer="markus.opolka@fau.de"
 
-ENV BASE_URL=http://localhost:5000/v1/
+ENV API_BASE_URL=http://localhost:5000/api/
+ENV BASE_URL=http://localhost/
 
 COPY --from=builder /usr/src/app/dist /usr/share/nginx/html/
 # TODO: nginx.config

@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mmda-backend:
+    build:
+      context: ./mmda-backend
+      dockerfile: Dockerfile
+  mmda-frontend:
+    build:
+      context: ./mmda-frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - mmda-backend
+    links:
+      - mmda-backend
+    ports:
+      - '8080:80'
+      - '8443:443'
+    environment:
+      - API_BASE_URL=http://mmda-backend/api/
