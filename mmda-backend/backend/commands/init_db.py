@@ -26,9 +26,22 @@ def init_db():
     Initialize the database.
     """
 
-    db.drop_all()
-    db.create_all()
-    create_users()
+    if not db_exists():
+        db.drop_all()
+        db.create_all()
+        create_users()
+
+
+def db_exists():
+    """
+    Check if database is already initialized.
+    """
+
+    tables = db.inspect(db.get_engine()).get_table_names()
+    if 'users' in tables:
+        return True
+
+    return False
 
 
 def create_users():

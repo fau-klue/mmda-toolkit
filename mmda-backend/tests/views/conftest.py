@@ -25,6 +25,8 @@ the_app.app_context().push()
 # Create and populate roles and users tables
 from backend.commands.init_db import init_db
 init_db()
+# Run twice to ensure the function runs idempotently
+init_db()
 
 
 @pytest.fixture(scope='session')
