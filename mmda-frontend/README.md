@@ -1,13 +1,14 @@
 # MMDA Frontend
 
-# Install dependencies
+# Setup
+
+## Install dependencies
 
     # Install with npm
     npm install
 
     # or yarn
     yarn install
-
 
 #  Running the app
 
@@ -20,6 +21,22 @@
 Point your web browser to http://localhost:8080/
 
 
+# Development
+
+## Running eslint
+
+    # Run ESLint
+    npm run lint
+    yarn run lint
+
+## Running the automated tests
+
+    # Run JEST Unittest
+    npm run test:unit
+    yarn run test:unit
+
+# Deployment
+
 # Compile for production
 
     # Compile code for production
@@ -29,16 +46,3 @@ Point your web browser to http://localhost:8080/
     yarn run build
 
 You need a webserver to serve the page
-
-
-# Development
-
-## Running the automated tests
-
-    # Run ESLint
-    npm run lint
-    yarn run lint
-
-    # Run JEST Unittest
-    npm run test:unit
-    yarn run test:unit

@@ -1,25 +1,8 @@
 # MMDA Backend
 
-# Configuring SMTP
+# Setup
 
-Copy the `local_settings_example.py` file to `local_settings.py`.
-
-    cp backend/local_settings_example.py backend/local_settings.py
-
-Edit the `local_settings.py` file.
-
-Specifically set all the MAIL_... settings to match your SMTP settings
-
-You can use MailHog as a development server.
-See https://github.com/mailhog/MailHog
-
-Note that Google's SMTP server requires the configuration of "less secure apps".
-See https://support.google.com/accounts/answer/6010255?hl=en
-
-Note that Yahoo's SMTP server requires the configuration of "Allow apps that use less secure sign in".
-See https://help.yahoo.com/kb/SLN27791.html
-
-# Install Dependencies
+## Install Dependencies
 
     # Init pyvenv
     python3 -m venv && source .venv/bin/activate
@@ -44,17 +27,35 @@ See https://help.yahoo.com/kb/SLN27791.html
     # Run the migrations
     python manage.py migrate
 
-## Running the app
+## Running the app (development)
 
     # Start the Flask development web server
     python manage.py runserver
 
-    # Start the wGSI production web server
-    python manage.py run_wsgi
-
 Point your web browser to http://localhost:5000/
 
+## Configuring SMTP
+
+Edit the `local_settings_development.py` file.
+
+Specifically set all the MAIL_... settings to match your SMTP settings
+
+You can use MailHog as a development server.
+See https://github.com/mailhog/MailHog
+
+Note that Google's SMTP server requires the configuration of "less secure apps".
+See https://support.google.com/accounts/answer/6010255?hl=en
+
+Note that Yahoo's SMTP server requires the configuration of "Allow apps that use less secure sign in".
+See https://help.yahoo.com/kb/SLN27791.html
+
+
 # Development
+
+## Running pylint
+
+    # Running pylint
+    pylint --rcfile=.pylintrc backend/*/*.py
 
 ## Running the automated tests
 
@@ -64,7 +65,21 @@ Point your web browser to http://localhost:5000/
     # With coverage
     py.test --cov-report term-missing -v --cov=backend/
 
+
+# Deployment
+
+# Running in production
+
+    # Start the wGSI production web server
+    python manage.py run_wsgi
+
+See http://flask.pocoo.org/docs/1.0/deploying/
+
 # cUrl Examples
+
+Here are some examples on how to use the API.
+
+To consume the Flask API you'll first need to login and acquire an [JSON Web Token](https://jwt.io/).
 
 ## JWT Token
 
