@@ -1,5 +1,7 @@
 [report]
 omit =
      backend/__main__.py
-     backend/local_settings_example.py
+     backend/corpora_settings_production.py
+     backend/local_settings_production.py
      backend/corpora_settings_example.py
+     backend/local_settings_example.py
