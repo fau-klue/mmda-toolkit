@@ -24,8 +24,11 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+// import { finished } from 'stream'
+// import { WordcloudWindow } from '@/wordcloud/wordcloud.js'
 import rules from '@/utils/validation'
 import WordcloudSidebar from '@/components/Wordcloud/WordcloudSidebar'
+import styles from '@/wordcloud/wordcloud.module.css' // eslint-disable-line no-unused-vars
 
 export default {
   name: 'WordcloudContent',
@@ -56,13 +59,11 @@ export default {
       const request = {
         params: {'window_size': window_size}
       }
-
       const data = {
         username: this.user.username,
         analysis_id: this.id,
         request: request
       }
-
       this.getCollocates(data).then(() => {
         this.error = null
       }).catch((error) => {
@@ -70,22 +71,18 @@ export default {
       })
     },
     fetchConcordances (items) {
-
       let params = new URLSearchParams()
       // Concat item parameter
       items.forEach(function(item) {
         params.append('item', item)
       })
-
       const request = {
         params: params
       }
-
       const data = {
         corpus: this.analysis.corpus,
         request: request
       }
-
       this.getConcordances(data).then(() => {
         this.error = null
       }).catch((error) => {
@@ -97,6 +94,17 @@ export default {
     this.id = this.$route.params.id
     this.fetchConcordances(['test', 'anothertest'])
     this.fetchCollocates(3)
+  },
+  mounted () {
+    // let WW = []
+    // for (let A of document.getElementsByClassName(
+    //   'structured_wordcloud_container'
+    // )) {
+    //   let W
+    //   WW.push((W = new WordcloudWindow(A)))
+    //   window.addEventListener('resize', (W => () => W.resize())(W))
+    //   W.setupContent()
+    // }
   }
 }
 

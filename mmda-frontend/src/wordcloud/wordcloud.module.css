@@ -1,0 +1,274 @@
+
+  .structured_wordcloud_container {
+    margin:0;
+    position: absolute;
+    background-color: #eee;
+    box-shadow: 0 0 1rem black;
+    overflow: hidden;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .structured_wordcloud_container.dragging .wordcloud_element .text,
+  .structured_wordcloud_container.dragging .wordcloud_group {
+    cursor: copy !important;
+  }
+
+  .menu {
+    position: absolute;
+    z-index: 500;
+    font-family: monospace;
+    padding: 1rem;
+    background-color: #abb;
+    box-shadow: 0 0 1rem #000a;
+  }
+
+  .selection_box {
+    position: absolute;
+    /*border-radius: 12rem;*/
+    z-index: 300;
+    border: 0.2rem solid black;
+  }
+
+  .wordcloud_error_container {
+    color: red;
+    font-weight: bold;
+    font-size: 200%;
+    z-index: 200;
+    top: 0;
+    left: 0;
+    margin: 1rem;
+    position: absolute;
+    font-family: Helvetica;
+    cursor: pointer;
+  }
+
+  .wordcloud_group_title {
+    position: absolute;
+    font-family: Helvetica;
+    cursor: default;
+    pointer-events: none;
+    font-weight: bold;
+    font-size: 2.5rem;
+    color: #0072;
+    z-index: 20;
+    /*transition: all 1s ease;*/
+    /*text-rendering: optimizeSpeed;
+        text-rendering: optimizeLegibility;*/
+  }
+
+  .wordcloud_group {
+    cursor: pointer;
+    z-index: 40;
+  }
+
+  .wordcloud_element,
+  .wordcloud_element .text {
+    position: absolute;
+    font-family: Helvetica;
+    cursor: pointer;
+    z-index: 50;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    visibility: hidden;
+    transition: top 0.5s ease, left 0.5s ease;
+    /*text-rendering: optimizeSpeed;
+        text-rendering: optimizeLegibility;*/
+  }
+
+  .wordcloud_element .text {
+    visibility: visible;
+    top: -50%;
+    left: -50%;
+  }
+
+  .wordcloud_element.dragged {
+    transition: none;
+    pointer-events: none;
+  }
+
+  .wordcloud_group.dragged {
+    pointer-events: none;
+  }
+
+  .wordcloud_element.hidden,
+  .wordcloud_element.hidden .text {
+    visibility: hidden;
+    color: #0006 !important;
+    cursor: default;
+  }
+
+  .wordcloud_element.disappeared .text {
+    text-decoration: line-through !important;
+    color: #0006 !important;
+  }
+
+  .wordcloud_element.disappeared,
+  .wordcloud_element.hidden.permanent,
+  .wordcloud_element.hidden.permanent .text,
+  .wordcloud_element.hidden.selected,
+  .wordcloud_element.hidden.selected .text,
+  .wordcloud_element.disappeared .text {
+    font-size: 1rem !important;
+  }
+
+  .wordcloud_element.selected,
+  .wordcloud_element.selected .text {
+    /*text-shadow: 0 0 1rem green;*/
+    /*z-index: 400;*/
+    text-decoration: underline;
+    font-weight: bold;
+
+    /*box-shadow: 0 0 1rem green;
+        border: 0.15rem solid #000a;
+        border-radius: 1rem;*/
+  }
+
+  .wordcloud_element.hidden.permanent .text,
+  .wordcloud_element.hidden.selected .text {
+    visibility: visible !important;
+    cursor: pointer !important;
+  }
+
+  .structured_wordcloud_container .word_menu {
+    position: absolute;
+    width: 4rem;
+    height: 4rem;
+    border-radius: 12rem;
+    z-index: 300;
+    background-color: #0001;
+    border: 4rem solid #eeee;
+    box-shadow: 0 0 1rem #0004;
+    /* mask-path: circle(1rem at 4.5rem 4.5rem);*/
+  }
+
+  .structured_wordcloud_container .word_menu .item {
+    z-index: 410;
+    color: #000a;
+    position: absolute;
+    cursor: pointer;
+    font-size: 150%;
+    padding-bottom: 1rem;
+  }
+
+  .structured_wordcloud_container .word_menu .item.hidden {
+    color: #0004;
+    cursor: default;
+  }
+
+  .wordcloud_pin {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    font-size: 1rem;
+  }
+
+  .wordcloud_pin.hidden {
+    visibility: hidden;
+  }
+
+  .wordcloud_trend {
+    position: absolute;
+    top: 0;
+    left: calc(-1rem + 100%);
+    font-size: 1rem;
+    text-shadow: 0.05rem 0.1rem 0.02rem black;
+  }
+
+  .wordcloud_trend.hidden {
+    visibility: hidden;
+  }
+
+  .wordcloud_trend.up {
+    color: forestgreen;
+  }
+
+  .wordcloud_trend.new {
+    color: goldenrod;
+    top: auto;
+    bottom: 0;
+  }
+
+  .wordcloud_trend.down {
+    color: darkred;
+    top: auto;
+    bottom: 0;
+  }
+
+  .wordcloud_canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .structured_wordcloud_container .minimap {
+    z-index: 100;
+    position: absolute;
+    overflow: hidden;
+    width: 20%;
+    height: 20%;
+    right: 0;
+    bottom: 0;
+    background-color: #aaa7;
+    box-shadow: 0 0 1rem black;
+    border-top-left-radius: 0.5rem;
+  }
+
+  .structured_wordcloud_container .minimap_exit_button {
+    position: absolute;
+    z-index: 125;
+    padding: 0.2rem;
+    color: #eee;
+    top: 0;
+    right: 0;
+    background-color: #444a;
+    cursor: pointer;
+    border-bottom-left-radius: 0.4rem;
+  }
+
+  .structured_wordcloud_container svg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /*background-color: #faaa;*/
+    /*z-index: 10;*/
+  }
+
+  .structured_wordcloud_container .container {
+    position: absolute;
+    box-shadow: 0 0 10rem #0001;
+  }
+
+  .structured_wordcloud_container .minimap.hidden {
+    visibility: hidden !important;
+  }
+
+  .structured_wordcloud_container .minimap_element {
+    position: absolute;
+    z-index: 105;
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 0.125rem;
+    background-color: #000a;
+  }
+
+  .structured_wordcloud_container .minimap .frame {
+    z-index: 102;
+    position: absolute;
+    background-color: #fff7;
+    border: 0.15rem solid black;
+  }
+
+  .structured_wordcloud_container .minimap .frame div {
+    z-index: 102;
+    position: absolute;
+    width: 20%;
+    height: 20%;
+    right: 0;
+    bottom: 0;
+    background-color: #aaa7;
+  }
