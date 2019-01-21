@@ -15,7 +15,6 @@ class WSGICommand(Command):
     """
 
     def run(self):
-        print('Started WSGI Server.')
         run_wsgi()
 
 
@@ -38,4 +37,5 @@ def run_wsgi():
                             keyfile=app.config['APP_TLS_KEYFILE'],
                             certfile=app.config['APP_TLS_CERTFILE'])
 
+    print('Started WSGI Server on {host}:{port}.'.format(host=APP_HOST, port=APP_PORT))
     server.serve_forever()

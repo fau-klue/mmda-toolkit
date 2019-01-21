@@ -17,6 +17,7 @@ class InitDbCommand(Command):
     """
 
     def run(self):
+        print(current_app.config['SQLALCHEMY_DATABASE_URI'])
         init_db()
         print('Database has been initialized.')
 
@@ -29,7 +30,8 @@ def init_db():
     if not db_exists():
         db.drop_all()
         db.create_all()
-        create_users()
+
+    create_users()
 
 
 def db_exists():

@@ -4,6 +4,11 @@ services:
     build:
       context: ./mmda-backend
       dockerfile: Dockerfile
+    environment:
+      - SQL_DATABASE_URI=sqlite:////var/local/mmda.sqlite
+      - ENVIRONMENT=development
+    ports:
+      - '5000:5000'
   mmda-frontend:
     build:
       context: ./mmda-frontend
@@ -15,5 +20,3 @@ services:
     ports:
       - '8080:80'
       - '8443:443'
-    environment:
-      - API_BASE_URL=http://mmda-backend/api/

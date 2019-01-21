@@ -12,7 +12,7 @@ from os import getenv
 MMDA_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
 MMDA_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
 MMDA_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
-MMDA_SQL_DATABASE_URI = str(getenv('SQL_DATABASE_URI', default='sqlite:///../backend.sqlite'))
+MMDA_SQL_DATABASE_URI = str(getenv('SQL_DATABASE_URI', default='sqlite:////tmp/backend.sqlite'))
 MMDA_APP_ENV = str(getenv('ENVIRONMENT', default='development'))
 MMDA_APP_HOST = str(getenv('HOST', default='0.0.0.0'))
 MMDA_APP_PORT = int(getenv('PORT', default='5000'))
@@ -29,8 +29,7 @@ APP_ENV = MMDA_APP_ENV
 # DO NOT use an Unsecure Secrets in production environments
 SECRET_KEY = MMDA_SECRET_KEY
 
-# Flask settings
-# Since we use JWT
+# Flask settings - False, since we're using JWT
 WTF_CSRF_ENABLED = False
 
 # Database Settings

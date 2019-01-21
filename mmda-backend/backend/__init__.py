@@ -85,14 +85,15 @@ def create_app(extra_config_settings={}):
 
     # Instantiate Flask
     app = Flask(__name__)
+
     # Setup CORS
-    # CORS(app, send_wildcard=True, origins=r'/*')
-    cors = CORS(app, resources={r'/api/*': {'origins': '*'}})
+    cors = CORS(app, supports_credentials=True)
 
     # Load common settings
     app.config.from_object('backend.settings')
 
     # Load environment settings
+    # TODO: Check for files and throw error
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
 
