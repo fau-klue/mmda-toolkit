@@ -93,6 +93,9 @@ def create_analysis(username):
     semantic_space = generate_semantic_space(tokens, wectors_path)
     # TODO: What do we do here? Delete everything? Continue with empty?
     if semantic_space.empty:
+        db.session.delete(analysis)
+        db.session.delete(topic_discourseme)
+        db.session.commit()
         return jsonify({'msg': 'Error during TSNE'}), 500
 
     coordinates = Coordinates(analysis_id=analysis.id)
