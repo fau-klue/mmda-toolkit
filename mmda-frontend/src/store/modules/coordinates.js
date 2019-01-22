@@ -32,6 +32,23 @@ const actions = {
         reject(error)
       })
     })
+  },
+  reloadAnalysisCoordinates ({dispatch}, data) {
+    // Reload the coordinates of an analysis
+    return new Promise((resolve, reject) => {
+
+      if (!data.username) {
+        reject('No user provided')
+        return
+      }
+
+      api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/reload/`).then(function () {
+        dispatch('getAnalysisCoordinates', data)
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 

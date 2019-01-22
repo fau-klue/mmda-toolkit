@@ -61,7 +61,8 @@ export default {
     ...mapActions({
       getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
       updateUserAnalysis: 'analysis/updateUserAnalysis',
-      deleteUserAnalysis: 'analysis/deleteUserAnalysis'
+      deleteUserAnalysis: 'analysis/deleteUserAnalysis',
+      reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates'
     }),
     loadAnalysis () {
       const data = {
@@ -109,7 +110,15 @@ export default {
       })
     },
     reloadCoordinates () {
-      // TODO
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id
+      }
+      this.reloadAnalysisCoordinates(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
     }
   },
   created () {
