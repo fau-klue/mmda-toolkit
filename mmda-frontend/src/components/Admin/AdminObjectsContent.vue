@@ -5,7 +5,7 @@
       <v-layout wrap row>
         <v-flex xs12>
           <p class="headline">Analysis</p>
-          <v-list two-line subheader v-if="analysis">
+          <v-list v-if="analysis">
             <v-list-tile v-for="item in analysis" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">dashboard</v-icon>
@@ -22,7 +22,7 @@
           </v-list>
 
           <p class="headline">Discoursemes</p>
-          <v-list two-line subheader v-if="discoursemes">
+          <v-list v-if="discoursemes">
             <v-list-tile v-for="item in discoursemes" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">subject</v-icon>
@@ -39,7 +39,7 @@
           </v-list>
 
           <p class="headline">Discursive Positions</p>
-          <v-list two-line subheader v-if="positions">
+          <v-list v-if="positions">
             <v-list-tile v-for="item in positions" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">question_answer</v-icon>

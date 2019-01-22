@@ -22,7 +22,11 @@
             <v-container>
               <v-layout justify-space-between row>
                 <v-flex xs12 sm12>
-                  <v-form>
+                  <div v-if="loading" class="text-md-center">
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  <p>Adding User...</p>
+                  </div>
+                  <v-form v-else>
                     <v-alert v-model="warn" type="warning" dismissible outline>Passwords do not match.</v-alert>
 
                     <v-text-field v-model="newUser.username" label="Username" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
@@ -49,6 +53,7 @@
                       counter @click:append="showPassword = !showPassword"
                       ></v-text-field>
 
+                    <v-checkbox v-model="willBeAdmin" label="New user is Adminstrator"></v-checkbox>
                   <v-btn color="success" @click="addNewUser">Add User</v-btn>
                 </v-form>
               </v-flex>
@@ -75,12 +80,13 @@ export default {
     rules: rules,
     newPasswordRepeat: '',
     showPassword: false,
+    willBeAdmin: false,
     newUser: {
       username: '',
       first_name: '',
       last_name: '',
       email: '',
-      password: '',
+      password: ''
     }
   }),
   computed: {
@@ -111,12 +117,18 @@ export default {
         return
       }
 
+      if (this.willBeAdmin) {
+        this.newUser['roles'] = ['admin']
+      }
+
+      this.loading = true
       this.createNewUser(this.newUser).then(() => {
         this.error = null
         this.$router.push('/admin/users')
       }).catch((error) => {
         this.error = error
       })
+      this.loading = false
     }
   }
 }

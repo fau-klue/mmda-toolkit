@@ -4,7 +4,7 @@
     <v-list class="pa-0">
       <v-list-tile>
         <v-list-tile-content>
-          <v-list-tile-title class="title"> {{ user.username }} <v-icon color="red" v-if="isAdmin">supervisor_account</v-icon> </v-list-tile-title>
+          <v-list-tile-title class="title"> {{ user.username }}</v-list-tile-title>
         </v-list-tile-content>
       </v-list-tile>
     </v-list>

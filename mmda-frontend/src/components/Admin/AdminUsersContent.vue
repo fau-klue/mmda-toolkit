@@ -5,11 +5,11 @@
       <v-layout wrap row>
         <v-flex xs12>
           <h1 class="title">Users</h1>
-          <v-list two-line subheader v-if="users">
+          <v-list v-if="users">
             <v-list-tile v-for="user in users" :key="user" avatar>
               <v-list-tile-avatar>
-                <v-icon v-if="user === 'admin'" class="red--text">face</v-icon>
-                <v-icon v-else class="grey--text">face</v-icon>
+                <v-icon v-if="user === 'admin'" class="red--text">perm_identity</v-icon>
+                <v-icon v-else class="grey--text">perm_identity</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>{{ user }}</v-list-tile-title>
