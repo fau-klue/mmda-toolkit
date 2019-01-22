@@ -10,7 +10,7 @@ class DummyEngine(Engine):
     """
 
     # pylint: disable=unused-argument, no-self-use
-    def extract_collocates(self, query, window_size, collocates=None):
+    def extract_collocates(self, items, window_size, collocates=None):
         """
         Return a fixed tuple with a collocate format you would expect from a real engine.
         See Base Engine for details.
@@ -33,7 +33,7 @@ class DummyEngine(Engine):
         return (ret_collocates, 15, 1000)
 
     # pylint: disable=unused-argument, no-self-use
-    def extract_concordances(self, query, window_size=None, collocates=None, order='random'):
+    def extract_concordances(self, items, window_size=None, collocates=None, order='random'):
         """
         Return a fixed list you would expect from a real engine.
         See Base Engine for details.

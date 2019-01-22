@@ -38,7 +38,7 @@ def extract_collocates_from_cache(corpus, window_size, items, identifier):
 
     if not collocates:
         engine = current_app.config['ENGINES'][corpus]
-        collocates = engine.extract_collocates(query=items, window_size=window_size)
+        collocates = engine.extract_collocates(items=items, window_size=window_size)
         cache.set(identifier, collocates)
 
     return collocates
@@ -267,7 +267,7 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
 
     if not collocates:
         engine = current_app.config['ENGINES'][analysis.corpus]
-        collocates = engine.extract_collocates(query=discourseme.items, window_size=5)
+        collocates = engine.extract_collocates(items=discourseme.items, window_size=5)
         cache.set(identifier, collocates)
 
     # Generate Coordinates for missing collocates

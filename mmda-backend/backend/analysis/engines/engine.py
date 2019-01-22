@@ -29,7 +29,7 @@ class Engine(ABC):
         self.corpus_name = corpus_name
         self.corpus_settings = corpus_settings
 
-    def extract_collocates(self, topic_query, window_size, collocates=None):
+    def extract_collocates(self, items, window_size, collocates=None):
         """
         Extract collocates from a corpus.
 
@@ -47,7 +47,7 @@ class Engine(ABC):
 
         raise NotImplementedError
 
-    def extract_concordances(self, topic_query, window_size, collocates=None, order='random'):
+    def extract_concordances(self, items, window_size, collocates=None, order='random'):
         """
         Extract concordances from a corpus.
 
