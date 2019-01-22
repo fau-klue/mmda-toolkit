@@ -4,8 +4,9 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs12>
+          <div v-if="analysis">
           <p class="headline">Analysis ({{ analysis.length }})</p>
-          <v-list v-if="analysis">
+          <v-list>
             <v-list-tile v-for="item in analysis" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">dashboard</v-icon>
@@ -20,9 +21,11 @@
               </v-list-tile-action>
             </v-list-tile>
           </v-list>
+          </div>
 
+          <div v-if="discoursemes">
           <p class="headline">Discoursemes ({{ discoursemes.length }})</p>
-          <v-list v-if="discoursemes">
+          <v-list>
             <v-list-tile v-for="item in discoursemes" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">subject</v-icon>
@@ -37,9 +40,11 @@
               </v-list-tile-action>
             </v-list-tile>
           </v-list>
+          </div>
 
+          <div v-if="positions">
           <p class="headline">Discursive Positions ({{ positions.length }})</p>
-          <v-list v-if="positions">
+          <v-list>
             <v-list-tile v-for="item in positions" :key="item.name" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">question_answer</v-icon>
@@ -54,6 +59,7 @@
               </v-list-tile-action>
             </v-list-tile>
           </v-list>
+          </div>
 
         </v-flex>
       </v-layout>
