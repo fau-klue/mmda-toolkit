@@ -4,7 +4,7 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs12>
-          <h1 class="title">Users</h1>
+          <p class="headline">Users ({{ users.length }})</p>
           <v-list v-if="users">
             <v-list-tile v-for="user in users" :key="user" avatar>
               <v-list-tile-avatar>
