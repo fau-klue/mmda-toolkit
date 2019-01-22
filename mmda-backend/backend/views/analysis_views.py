@@ -91,6 +91,7 @@ def create_analysis(username):
     # Generate Coordinates
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
     semantic_space = generate_semantic_space(tokens, wectors_path)
+    # TODO: What do we do here? Delete everything? Continue with empty?
     if semantic_space.empty:
         return jsonify({'msg': 'Error during TSNE'}), 500
 
@@ -185,6 +186,11 @@ def delete_analysis(username, analysis):
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
         return jsonify({'msg': 'No such analysis'}), 404
+
+    # Change topic discourseme to regular discourseme
+    # TODO: Or can it be deleted?
+    discourseme = Discourseme.query.filter_by(id=analysis.topic_id, user_id=user.id).first()
+    discourseme.topic = False
 
     db.session.delete(analysis)
     db.session.commit()
