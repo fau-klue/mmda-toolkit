@@ -4,6 +4,8 @@
     <v-flex xs12>
       <DiscursivePositionHeader/>
     </v-flex>
+  </v-layout>
+  <v-layout wrap row>
     <v-flex xs12>
       <DiscursivePositionList/>
     </v-flex>
