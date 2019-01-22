@@ -32,6 +32,21 @@ migrate = Migrate()
 jwt = JWTManager()
 
 
+def preflight_check_config_passed(app):
+    """
+    Check if app is ready to start.
+    """
+
+    local_settings_file = 'backend/local_settings_{ENV}.py'.format(ENV=app.config['APP_ENV'])
+    corpora_settings_file = 'backend/corpora_settings_{ENV}.py'.format(ENV=app.config['APP_ENV'])
+
+    config_available = False
+    if os.path.exists(corpora_settings_file) and os.path.exists(corpora_settings_file):
+        config_available = True
+
+    return config_available
+
+
 def admin_required(fn):
     """
     Decorator: JWT Wrapper to allow admins only
@@ -93,7 +108,10 @@ def create_app(extra_config_settings={}):
     app.config.from_object('backend.settings')
 
     # Load environment settings
-    # TODO: Check for files and throw error
+    if not preflight_check_config_passed(app):
+        print('Error: Config files not initialized')
+        exit(1)
+
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
 
