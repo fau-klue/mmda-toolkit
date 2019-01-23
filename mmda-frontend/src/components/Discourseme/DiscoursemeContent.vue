@@ -22,7 +22,8 @@
                 ></v-combobox>
             </v-form>
 
-            <v-btn color="success" class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
+            <v-btn color="success" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
+            <v-btn color="success" v-else class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
             <v-btn color="error" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
             <v-btn color="error" v-else outline class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
 

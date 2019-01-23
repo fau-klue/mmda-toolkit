@@ -84,8 +84,6 @@ def update_discourseme(username, discourseme):
     Update the details of a discourseme
     """
 
-    # TODO: Can you edit a topic discourseme?
-
     # Check Request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
@@ -95,9 +93,12 @@ def update_discourseme(username, discourseme):
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
+
+    if discourseme.topic:
+        return jsonify({'msg': 'Cannot edit topic discourseme'}), 409
+
     discourseme.name = name
     discourseme.items = items
-
     db.session.commit()
 
     return jsonify({'msg': discourseme.id}), 200
