@@ -53,7 +53,8 @@ def get_concordances(corpus):
 
     # Check Request
     window_size = request.args.get('window_size', 8)
-    items = request.args.getlist('item')
+    items = request.args.getlist('item', None)
+    collocates = request.args.getlist('collocates', None)
 
     if not items:
         return jsonify({'msg': 'No items provided'}), 400
@@ -66,7 +67,7 @@ def get_concordances(corpus):
     corpus = corpora[corpus]
     # Get Engine
     engine = current_app.config['ENGINES'][corpus['name_api']]
-    concordances = engine.extract_concordances(items, window_size)
+    concordances = engine.extract_concordances(items=items, window_size=window_size, collocates=collocates)
 
     # TODO: Test if format is OK
     return jsonify(concordances), 200

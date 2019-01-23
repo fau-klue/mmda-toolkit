@@ -325,7 +325,7 @@ def get_collocate_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
-    collocates = request.args.getlist('item')
+    collocates = request.args.getlist('item', None)
 
     if not window_size and not collocates:
         return jsonify({'msg': 'No request data provided'}), 400
