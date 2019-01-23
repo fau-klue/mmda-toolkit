@@ -22,26 +22,26 @@ def create_identifier(analysis_id, window_size, items):
     Create unique identifier
     """
 
-    identifier_str = '{analysis_id}{window_size}'.format(analysis_id=analysis_id,
+    identifier_str = '{analysis_id}{window_size}{items}'.format(analysis_id=analysis_id,
                                                          window_size=window_size,
                                                          items=''.join(items))
 
     return generate_hash(identifier_str)
 
 
-def extract_collocates_from_cache(corpus, window_size, items, identifier):
+def extract_collocates_from_cache(corpus, window_size, items, identifier, collocates=None):
     """
     Extract collocates from cache or create and store in cache
     """
 
-    collocates = cache.get(identifier)
+    collocate_data = cache.get(identifier)
 
-    if not collocates:
+    if not collocate_data:
         engine = current_app.config['ENGINES'][corpus]
-        collocates = engine.extract_collocates(items=items, window_size=window_size)
-        cache.set(identifier, collocates)
+        collocate_data = engine.extract_collocates(items=items, window_size=window_size, collocates=collocates)
+        cache.set(identifier, collocate_data)
 
-    return collocates
+    return collocate_data
 
 
 
@@ -82,7 +82,7 @@ def create_analysis(username):
     for window_size in range(2, maximal_window_size):
         # String concatenation to create hash
         identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
-        collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier)
+        collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=None)
         tokens += list(collocate[0].index)
 
     # Make unique list from tokens
@@ -191,7 +191,6 @@ def delete_analysis(username, analysis):
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Change topic discourseme to regular discourseme
-    # TODO: Or can it be deleted?
     discourseme = Discourseme.query.filter_by(id=analysis.topic_id, user_id=user.id).first()
     discourseme.topic = False
 
@@ -326,8 +325,9 @@ def get_collocate_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
+    collocates = request.args.getlist('item')
 
-    if not window_size:
+    if not window_size and not collocates:
         return jsonify({'msg': 'No request data provided'}), 400
 
     # Get User
@@ -343,8 +343,8 @@ def get_collocate_for_analysis(username, analysis):
     items = discourseme.items
 
     # Get topic and items
-    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
-    collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier)
-    df = collocate[0]
+    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items+collocates)
+    collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=collocates)
+    df = collocate_data[0]
 
     return jsonify(df.to_dict()), 200
