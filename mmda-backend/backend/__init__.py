@@ -107,6 +107,9 @@ def create_app(extra_config_settings={}):
     # Load common settings
     app.config.from_object('backend.settings')
 
+    # Load extra settings from extra_config_settings param
+    app.config.update(extra_config_settings)
+
     # Load environment settings
     if not preflight_check_config_passed(app):
         print('Error: Config files not initialized')
@@ -115,8 +118,6 @@ def create_app(extra_config_settings={}):
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
 
-    # Load extra settings from extra_config_settings param
-    app.config.update(extra_config_settings)
 
     # Setup Flask-SQLAlchemy
     db.init_app(app)
