@@ -73,7 +73,7 @@ def create_analysis(username):
     db.session.commit()
 
     # Add Analysis to DB
-    analysis = Analysis(name=name, corpus=corpus, user_id=user.id, topic_id=topic_discourseme.id)
+    analysis = Analysis(name=name, corpus=corpus, user_id=user.id, topic_id=topic_discourseme.id, window_size=maximal_window_size)
     db.session.add(analysis)
     db.session.commit()
 

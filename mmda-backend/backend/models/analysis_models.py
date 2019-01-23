@@ -15,6 +15,8 @@ class Analysis(db.Model):
     __tablename__ = 'analysis'
 
     id = db.Column(db.Integer, primary_key=True)
+    # Maximum window size
+    window_size = db.Column(db.Integer, nullable=True)
     name = db.Column(db.Unicode(255), nullable=False)
     corpus = db.Column(db.Unicode(255), nullable=False)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
@@ -36,6 +38,7 @@ class Analysis(db.Model):
            'corpus': self.corpus,
            'user_id': self.user_id,
            'topic_id': self.topic_id,
+           'window_size': self.window_size
        }
 
 

@@ -3,7 +3,7 @@
   <div slot="header" v-if="!mini" >Window Size</div>
   <v-card v-if="!mini">
     <v-card-text>
-      <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
+      <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
     </v-card-text>
   </v-card>
 </v-expansion-panel-content>
@@ -17,7 +17,6 @@ export default {
   props: ['mini'],
   data: () => ({
     min: 2,
-    max: 20,
     selectWindow: 3
   }),
   computed: {

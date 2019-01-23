@@ -55,10 +55,11 @@ def upgrade():
     # Table analysis
     op.create_table('analysis',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=255), nullable=True),
-    sa.Column('corpus', sa.String(length=255), nullable=True),
+    sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('corpus', sa.String(length=255), nullable=False),
     sa.Column('topic_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('window_size', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['topic_id'], ['discourseme.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
