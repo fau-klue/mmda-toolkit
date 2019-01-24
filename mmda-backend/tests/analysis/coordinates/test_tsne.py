@@ -28,7 +28,7 @@ def test_coord_load_vectors(mock_pymag):
 
     actual = tsne.load_vectors(['token1', 'token2', 'token1'], '/tmp/foo.pymagnitude')
 
-    mock_pymag.assert_called_once_with('/tmp/foo.pymagnitude')
+    mock_pymag.assert_called_with('/tmp/foo.pymagnitude')
     assert_frame_equal(actual, expected)
 
 

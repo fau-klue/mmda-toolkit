@@ -26,7 +26,7 @@ RUN apt-get update && \
 
 # Pathlib due to pytest error
 # --dev cause of sklearn
-RUN  pip3 install pipenv pathlib2
+RUN  pip3 install pipenv
 COPY Pipfile Pipfile.lock /app/
 RUN pipenv install --dev --system
 
