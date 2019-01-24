@@ -171,13 +171,13 @@ class WordElement {
     return this.window.getCompareSizeOf(this.data);
   }
   get original_position() {
-    return this.data.tsne_pos;
+    return [this.data.tsne_x,this.data.tsne_y];
   }
 
   get computed_position() {
     if (this.user_defined_position) return this.user_defined_position;
     if (this.repositioned_tsne_position) return this.repositioned_tsne_position;
-    return [this.data.tsne_x,this.data.tsne_y];
+    return this.original_position;
   }
   resetPosition(){
     this.user_defined_position = null;//this.original_position;
@@ -206,7 +206,7 @@ class WordElement {
     // shadow position
     var s = this.window.worldToContainer(
       sub2(
-        lerp2(this._pos, [this.data.tsne_x,this.data.tsne_y], 0.05),
+        lerp2(this._pos, this.original_position, 0.05),
         scale2(this.WH, 0.5 * this.window.worldPerScreen)
       )
     );

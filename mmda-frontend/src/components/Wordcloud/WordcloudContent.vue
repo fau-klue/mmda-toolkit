@@ -44,7 +44,8 @@ export default {
   },
   data: () => ({
     id: null,
-    rules: rules
+    rules: rules,
+    wc: null,
   }),
   computed: {
     ...mapGetters({
@@ -73,6 +74,7 @@ export default {
       }
       this.getCollocates(data).then(() => {
         this.error = null
+        if(this.wc) this.wc.setupContent2(this.collocates, this.coordinates, this.discoursemes);
       }).catch((error) => {
         this.error = error
       })
@@ -108,10 +110,10 @@ export default {
     for (let A of document.getElementsByClassName(
       'structured_wordcloud_container'
     )) {
-      let W
-      WW.push((W = new WordcloudWindow(A)))
-      window.addEventListener('resize', (W => () => W.resize())(W))
-      W.setupContent2(this.collocates, this.coordinates, this.discoursemes);
+      WW.push((this.wc = new WordcloudWindow(A)))
+      window.addEventListener('resize', (W => () => W.resize())(this.wc))
+      //wc.setupContent2(this.collocates, this.coordinates, this.discoursemes);
+      break;
     }
   }
 }

@@ -208,6 +208,7 @@ function  layoutWordcloudFormGroupsResolveOverlap( wordset ) {
     wordset.wWH = sub2(wordset.max, wordset.min);
     var vm = wordset;
     var failedInsertions = [];
+    if(!vm.groups){vm.groups={};}
 
     hierarchically_insert_groups(all_nodes, new Set());
     function hierarchically_insert_groups(all_nodes, set_of_parent_groups) {

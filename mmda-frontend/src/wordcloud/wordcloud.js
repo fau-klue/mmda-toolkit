@@ -440,19 +440,28 @@ class WordcloudWindow {
     return add2(scale2(this.mouse, 1 / this.scale), this.pos); //something with scale
   }
 
-  getAMWS(data, am, ws) {
+  getAMWS(data, am){//}, ws) {
+    /*
     if (!this.am_by_ws[ws]) return -1;
     if (!this.am_by_ws[ws][am]) return -1;
     var m = this.am_by_ws[ws][am];
     if (!data.am_by_ws[ws] || !data.am_by_ws[ws][am]) return -1; //--> not existent in current context(am and ws)
     return (data.am_by_ws[ws][am] - m.min) / (m.max - m.min);
+  */
+
+    if(!this.collocates) return -1;
+    if(!am) return -1;
+    if(!this.collocates[am]) return -1;
+    if(!this.collocates[am][data.name]) return -1;
+    return (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max- this.am_minmax[am].max);
+    
   }
 
   getSizeOf(data) {
-    return this.getAMWS(data, this.am, this.ws);
+    return this.getAMWS(data, this.am);//, this.ws);
   }
   getCompareSizeOf(data) {
-    return this.getAMWS(data, this.compare_am, this.compare_ws);
+    return this.getAMWS(data, this.compare_am);//, this.compare_ws);
   }
 
   worldToContainer(wpos) {
@@ -1042,13 +1051,15 @@ class WordcloudWindow {
   }
 
   changeAM(ws, am, cws, cam) {
-    this.compare_ws = cws ? cws : this.ws;
+    //if(!this.collocates) return;
+    //this.compare_ws = cws ? cws : this.ws;
     this.compare_am = cam ? cam : this.am;
-    var WS = Object.keys(this.am_by_ws);
-    this.ws = ws ? ws : oneOf(WS);
-    var AM = Object.keys(this.am_by_ws[this.ws]);
+    //var WS = Object.keys(this.am_by_ws);
+    //this.ws = ws ? ws : oneOf(WS);
+    //var AM = Object.keys(this.am_by_ws[this.ws]);
+    var AM = Object.keys(this.collocates);
     this.am = am ? am : oneOf(AM);
-    console.log("CHANGE TO " + this.ws + " " + this.am);
+    console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
 
     for (var [_, a] of this.Map.entries()) {
       //a.shown = !a.hidden;
@@ -1066,12 +1077,31 @@ class WordcloudWindow {
 
   setupContent2(collocates, coordinates, discoursemes){
     
-    console.log(collocates);
-    console.log(coordinates);
-    console.log(discoursemes);
+    //console.log(collocates);
+    //console.log(coordinates);
+    //console.log(discoursemes);
+    
+    if(!collocates || !coordinates){
+      return console.error("Wordcloud:  No collocates loaded.");
+    }
+
+    this.collocates = collocates;
+    this.coordinates = coordinates;
+    this.am_minmax = {};
+    for(var am of Object.keys(collocates)){
+      this.am_minmax[am] = {min:Number.POSITIVE_INFINITY,max:Number.NEGATIVE_INFINITY};
+      for(var word of Object.keys(collocates[am])){
+        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
+        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
+      }
+      this.compare_am = this.am;
+      this.am = am;
+    }
+
 
     for(var word of Object.keys(coordinates)){
-      this.addWord( word );
+      this.addWord( coordinates[word] );
+      //console.log(coordinates[word]);
     }
 
     this.layoutTsnePositions();
