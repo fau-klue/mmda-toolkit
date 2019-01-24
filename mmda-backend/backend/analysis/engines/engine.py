@@ -9,16 +9,17 @@ from abc import ABC
 from collections import namedtuple
 
 
+# Return value for extract_collocates
+# data=pandas.DataFrame
+# f1=Number of query in corpus
+# N=Total number of tokens in corpus
+Collocates = namedtuple('Collocates', ['data', 'f1', 'N'])
+
+
 class Engine(ABC):
     """
     Abstract base class for all Corpus Engines
     """
-
-    # Return value for extract collocates
-    # data=pandas.DataFrame
-    # f1=Number of query in corpus
-    # N=Total number of tokens in corpus
-    Collocates = namedtuple('Collocates', ['data', 'f1', 'N'])
 
     def __init__(self, corpus_name, corpus_settings):
         """
@@ -36,7 +37,7 @@ class Engine(ABC):
         :param str topic_query: Query for collocate extraction.
         :param int window_size: Window Size for collocate extraction.
         :param list collocates: (Optional) collocate group for extracting discourse collocates.
-        :return: Tuple with collocates in DataFrame, f1 and N (see below)
+        :return: Namedtuple (Collocates) with collocates in DataFrame, f1 and N (see below)
         DataFrame
             index: lexical items
             columns: O11, f2, am.[...]

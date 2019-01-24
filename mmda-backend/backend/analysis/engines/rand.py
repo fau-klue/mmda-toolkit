@@ -3,6 +3,7 @@
 from random import choices, randint, random
 from pandas import DataFrame
 from .engine import Engine
+from .engine import Collocates
 
 
 WORD_FILE = '/usr/share/dict/words'
@@ -46,9 +47,10 @@ class RandomEngine(Engine):
                            random()]
             data.append(random_data)
 
-        ret_collocates = DataFrame(data=data, columns=columns, index=index)
+        dataframe = DataFrame(data=data, columns=columns, index=index)
+        collocates = Collocates(data=dataframe, f1=15, N=1000)
 
-        return (ret_collocates, 15, 1000)
+        return collocates
 
     # pylint: disable=unused-argument, no-self-use
     def extract_concordances(self, items, window_size=None, collocates=None, order='random'):

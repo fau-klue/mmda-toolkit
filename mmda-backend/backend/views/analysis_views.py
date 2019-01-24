@@ -83,7 +83,7 @@ def create_analysis(username):
         # String concatenation to create hash
         identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
         collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=None)
-        tokens += list(collocate[0].index)
+        tokens += list(collocate.data.index)
 
     # Make unique list from tokens
     tokens = list(set(tokens))
@@ -345,6 +345,6 @@ def get_collocate_for_analysis(username, analysis):
     # Get topic and items
     identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items+collocates)
     collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=collocates)
-    df = collocate_data[0]
+    df = collocate_data.data
 
     return jsonify(df.to_dict()), 200

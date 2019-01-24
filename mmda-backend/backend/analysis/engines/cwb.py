@@ -1,4 +1,7 @@
-# Corpus Workbench Engine
+"""
+Corpus Workbench Engine
+"""
+
 
 from copy import deepcopy
 from subprocess import Popen, PIPE, run, TimeoutExpired
@@ -8,9 +11,11 @@ from re import sub, search, escape
 from random import shuffle
 from pandas import DataFrame
 from .engine import Engine
+from .engine import Collocates
 
 
 LOGGER = getLogger('mmda-logger')
+# TODO: How can we set this in the settings.py?
 REGISTRY_PATH = getenv('MMDA_CQP_REGISTRY', default='/usr/local/cwb-3.4.13/share/cwb/registry')
 
 
@@ -400,7 +405,7 @@ def format_ucs_data(data, association_measures):
     data = data[['f2', 'f'] + association_measures]
     data.columns = ['f2', 'O11'] + association_measures
 
-    return data, f1_score, n_value
+    return Collocates(data=data, f1=f1_score, N=n_value)
 
 
 def ucs_tool_collocates(corpus_name,
