@@ -44,15 +44,13 @@ function intersectConvexs(p, q) {
   return true;
 }
 function intersectObjects(a, b) {
-  if (!intersectAABBs(a.bounds, b.bounds)) return false;
+  var A=a.bounds,B=b.bounds;
+  if (!intersectAABBs(A, B)) return false;
   else {
-    if (!a.border_path) {
-      if (!b.border_path) return true;
-      else return intersectConvexAABB(b.border_path, a.bounds);
-    } else {
-      if (!b.border_path) return intersectConvexAABB(a.border_path, b.bounds);
-      else return intersectConvexs(a.border_path, b.border_path);
-    }
+    if(!A.convex_hull){ var C=A; A=B; B=C; }
+    if(!A.convex_hull) return true;
+    if(!B.convex_hull) return intersectConvexAABB(A.convex_hull,B);
+    return intersectConvexs(A.convex_hull,B.convex_hull);
   }
 }
 

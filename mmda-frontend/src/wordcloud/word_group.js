@@ -123,7 +123,8 @@ class WordGroup {
     return this.__pos;
   }
   get bounds() {
-    return { min: this.min, max: this.max };
+    var vm=this;
+    return { min: this.min, max: this.max, get convex_hull(){ return vm.border_path; }, set convex_hull(c){ return vm.border_path=c;} };
   }
   get min() {
     return add2(this._pos, this._min);
@@ -135,6 +136,7 @@ class WordGroup {
     this._border_path = P;
   }
   get border_path() {
+    if(!this._border_path) return null;
     var res = [];
     for (var p of this._border_path) {
       res.push(add2(this._pos, p));

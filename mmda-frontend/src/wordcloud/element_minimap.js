@@ -95,13 +95,13 @@ class Minimap {
     var camDimToWorld = this.window.screenToWorld_vector(this.window.WH);
 
     //hide minimap if unneeded
-    var worldCamMax = add2(p, camDimToWorld);
+    /*var worldCamMax = add2(p, camDimToWorld);
     this.shown = !(
       p[0] <= this.window.min[0] &&
       p[1] <= this.window.min[1] &&
       worldCamMax[0] >= this.window.max[0] &&
       worldCamMax[1] >= this.window.max[1]
-    );
+    );*/
 
     this.frame.style.left =
       ((p[0] - this.window.min[0]) / this.window.wWH[0]) * 100 + "%";

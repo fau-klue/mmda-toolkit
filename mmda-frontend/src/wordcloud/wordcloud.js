@@ -1,6 +1,5 @@
 //import * as d3 from "./d3.js";
 import "./svg.min.js";
-import { example_data1 } from "./example_1.js";
 import {
   mul2,
   sub2,
@@ -40,6 +39,9 @@ import { WordElement } from "./word_element.js";
 import { WordGroup } from "./word_group.js";
 import { WordMenu } from "./word_menu.js";
 
+import { callWorker }from "./layout_worker.js";
+import * as layout from "./layout_generation.js";
+
 ///////////////////////////////////////
 //
 //    Box Selection
@@ -54,6 +56,7 @@ class SelectionBox {
     this.window.container.appendChild(this.el);
     this.selected = new Set();
     this.bounds = { min: [0, 0], max: [0, 0] };
+    this.hide();
   }
   hide() {
     this.el.style.visibility = "hidden";
@@ -91,7 +94,7 @@ class SelectionBox {
       (t => els => {
         for (var el of els) {
           if (intersectObjects(el, { bounds: { min: wmin, max: wmax } })) {
-            t.newSelection.add(el);
+            if(el.shown) t.newSelection.add(el);
           }
         }
       })(this)
@@ -121,18 +124,11 @@ class WordCanvas {
   constructor(window) {
     this.window = window;
     this.window.container.setAttribute("id", "window_container");
-    this.svg = SVG("window_container");
-    this.svg_worldspace = this.svg.nested().move(0, 0);
+    this.svg_worldspace = SVG("window_container")  ;
     this.clearDebug();
   }
   resize() {
-    this.svg_worldspace
-      .transform({
-        scale: this.window.container.offsetWidth / this.window.wWH[0],
-        cx: 0,
-        cy: 0
-      })
-      .move(-this.window.min[0], -this.window.min[1]);
+    this.svg_worldspace.attr("viewBox",this.window.min[0]+" "+this.window.min[1]+" "+(this.window.max[0]-this.window.min[0])+" "+(this.window.max[1]-this.window.min[1]))
   }
   remove(el) {
     var i = this.elements.findIndex(a => a == el);
@@ -320,7 +316,7 @@ class WordcloudWindow {
     this.resize();
 
     this.container = document.createElement("div");
-    this.container.classList.add("container");
+    this.container.classList.add("sw_container");
     this.el.appendChild(this.container);
 
     this.minimap = new Minimap(this);
@@ -379,7 +375,7 @@ class WordcloudWindow {
     if (this.menu) document.body.removeChild(this.menu);
     this.menu = document.createElement("div");
     this.menu.classList.add("menu");
-    document.body.appendChild(this.menu);
+    this.el.appendChild(this.menu);
     var header = document.createElement("h3");
     header.appendChild(document.createTextNode("Options"));
 
@@ -430,7 +426,7 @@ class WordcloudWindow {
   }
   optionsChanged() {
     this.log(this.options);
-    this.tsneRepositionVariance();
+    //this.tsneRepositionVariance();
     this.request("layout");
   }
   openMenu() {
@@ -501,6 +497,7 @@ class WordcloudWindow {
     this.container.style.right = (1 - smax[0]) * 100 + "%";
     this.container.style.top = smin[1] * 100 + "%";
     this.container.style.bottom = (1 - smax[1]) * 100 + "%";
+    this.container.style.transition= this.transition?"all ease .5s":"none";
 
     //
     this._pos = p;
@@ -580,8 +577,11 @@ class WordcloudWindow {
   }
   onmousemove(e) {
     this.boxSelection |= e.shiftKey;
-
-    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
+   
+    var R = this.el.getBoundingClientRect();
+    //offset   = elemRect.top - bodyRect.top;
+    this.mouse = [e.pageX - R.left, e.pageY - R.top];
+//    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
     if (this.pressed_node) {
       // dragging node
       this.dragging = true;
@@ -672,6 +672,9 @@ class WordcloudWindow {
     } else if (G.size == 0) {
       for (var n of N) {
         G = Array.from(n.groups, name => this.groups[name]);
+        if(G.length==0){
+          n.pin.reset();
+        }
         for (var g of G) {
           g.removeItem(n);
         }
@@ -711,6 +714,7 @@ class WordcloudWindow {
   }
 
   centerCamera() {
+    this.transition = true;
     //scale == screenPerWorld
     this.scale = Math.min(this.WH[0] / this.wWH[0], this.WH[1] / this.wWH[1]);
 
@@ -727,8 +731,14 @@ class WordcloudWindow {
 
     var rest = sub2(scale2(this.WH, 1 / this.scale), worldDelta);
     this.pos = sub2(sub2(this.min, scale2(wBorder, 0.5)), scale2(rest, 0.5));
+    this.transition = false;
+    this.timeout("layout");
+  }
 
-    this.request("layout");
+  centerAtWord(word){
+    this.transition = true;
+    this.pos = sub2( word.pos, this.screenToWorld_vector(scale2(this.WH,.5)) );
+    this.transition = false;
   }
 
   get WH() {
@@ -1054,6 +1064,21 @@ class WordcloudWindow {
     //this.timeout("changeAM", 3000);
   }
 
+  setupContent2(collocates, coordinates, discoursemes){
+    
+    console.log(collocates);
+    console.log(coordinates);
+    console.log(discoursemes);
+
+    for(var word of Object.keys(coordinates)){
+      this.addWord( word );
+    }
+
+    this.layoutTsnePositions();
+    this.request("layout");
+  }
+
+
   setupContent(wordcloud_object) {
     this.setupDummyContent2(wordcloud_object);
   }
@@ -1107,9 +1132,39 @@ class WordcloudWindow {
   }
 
   layout(x) {
+
+    
+    //callWorker( this );
+
+/*
+    function myworker(){
+      self.addEventListener('message', function(e) {
+        setTimeout(()=>
+        self.postMessage(e.data)
+        ,1000);  
+      }, false);
+    }
+    var wstring = myworker.toString(); 
+    var body = wstring.slice(wstring.indexOf("{") + 1, wstring.lastIndexOf("}"));
+    var blobURL = window.URL.createObjectURL(new Blob([body]));
+    this.worker = new Worker(blobURL);
+    //this.worker = new Worker("./layout_worker.js");
+
+    this.worker.addEventListener("message", (msg) => console.log("MAIN: got msg: "+msg.data));
+    this.worker.postMessage("Starteth thy work");
+*/
+
     //this.layoutTsnePositions();
-    if (!this.options.show_groups) this.layoutWordcloudResolveOverlap();
-    else this.layoutWordcloudFormGroupsResolveOverlap();
+    if (!this.options.show_groups) layout.layoutWordcloudResolveOverlap(this);
+    else layout.layoutWordcloudFormGroupsResolveOverlap(this);
+    ///if (!this.options.show_groups) this.layoutWordcloudResolveOverlap();
+    //else this.layoutWordcloudFormGroupsResolveOverlap();
+
+
+    this.debugClear();
+    this.drawContainmentEdges();
+    this.drawGroups();
+
     this.pos = this.pos;
     this.scale = this.scale;
   }
@@ -1137,7 +1192,7 @@ class WordcloudWindow {
   //  }
 
   layoutTsnePositions() {
-    this.tsneRepositionVariance();
+    //this.tsneRepositionVariance();
     //this.wWH = this.WH;
     var min = inf2();
     for (var [_, a] of this.Map.entries()) min = min2(min, a.computed_position);
@@ -1163,595 +1218,172 @@ class WordcloudWindow {
     //    this.request("animation");
   }
 
-  tsneRepositionVariance() {
-    var max_variance_factor = this.options.remap_standard_deviation_factor;
-    var center = null;
-    for (var [_, a] of this.Map.entries()) {
-      a.repositioned_tsne_position = null;
-      if (center === null) center = a.computed_position;
-      else center = add2(a.computed_position, center);
-    }
-    this.log(center);
-    this.log(this.Map.size);
-    center = scale2(center, 1 / this.Map.size);
+//  tsneRepositionVariance() {
+//    var max_variance_factor = this.options.remap_standard_deviation_factor;
+//    var center = null;
+//    for (var [_, a] of this.Map.entries()) {
+//      a.repositioned_tsne_position = null;
+//      if (center === null) center = a.computed_position;
+//      else center = add2(a.computed_position, center);
+//    }
+//    this.log(center);
+//    this.log(this.Map.size);
+//    center = scale2(center, 1 / this.Map.size);
+//
+//    var variance = null;
+//    for (var [_, a] of this.Map.entries()) {
+//      if (variance == null) variance = abs2(sub2(a.computed_position, center));
+//      else variance = add2(variance, abs2(sub2(a.computed_position, center)));
+//    }
+//    variance = scale2(variance, 1 / this.Map.size);
+//    this.log(center);
+//    this.log(variance);
+//
+//    var max_variance = scale2(variance, max_variance_factor);
+//    var min = sub2(center, max_variance);
+//    var max = add2(center, max_variance);
+//
+//    for (var [_, a] of this.Map.entries()) {
+//      var delta = sub2(a.computed_position, center);
+//      if (this.options.remap_standard_deviation_clamp) {
+//        delta = mul2(sign2(delta), min2(abs2(delta), max_variance));
+//      }
+//
+//      if (this.options.remap_standard_deviation_log) {
+//        delta = [
+//          Math.sign(delta[0]) *
+//            max_variance[0] *
+//            Math.log(Math.abs(delta[0]) / max_variance[0] + 1),
+//          Math.sign(delta[1]) *
+//            max_variance[1] *
+//            Math.log(Math.abs(delta[1]) / max_variance[1] + 1)
+//        ];
+//        /*
+//        delta = [
+//          Math.sign(delta[0]) *
+//          max_variance[0] *
+//          (1 -
+//            1 /
+//            Math.pow(
+//              1 + Math.abs(delta[0]) / max_variance[0] / power,
+//              power
+//            )),
+//          Math.sign(delta[1]) *
+//          max_variance[1] *
+//          (1 -
+//            1 /
+//            Math.pow(
+//              1 + Math.abs(delta[1]) / max_variance[1] / power,
+//              power
+//            ))
+//        ];*/
+//      }
+//
+//      if (!this.options.remap_tsne_positions) {
+//        a.repositioned_tsne_position = null;
+//      } else {
+//        a.repositioned_tsne_position = add2(center, delta);
+//      }
+//    }
+//  }
 
-    var variance = null;
-    for (var [_, a] of this.Map.entries()) {
-      if (variance == null) variance = abs2(sub2(a.computed_position, center));
-      else variance = add2(variance, abs2(sub2(a.computed_position, center)));
-    }
-    variance = scale2(variance, 1 / this.Map.size);
-    this.log(center);
-    this.log(variance);
 
-    var max_variance = scale2(variance, max_variance_factor);
-    var min = sub2(center, max_variance);
-    var max = add2(center, max_variance);
-
-    for (var [_, a] of this.Map.entries()) {
-      var delta = sub2(a.computed_position, center);
-      if (this.options.remap_standard_deviation_clamp) {
-        delta = mul2(sign2(delta), min2(abs2(delta), max_variance));
-      }
-
-      if (this.options.remap_standard_deviation_log) {
-        delta = [
-          Math.sign(delta[0]) *
-            max_variance[0] *
-            Math.log(Math.abs(delta[0]) / max_variance[0] + 1),
-          Math.sign(delta[1]) *
-            max_variance[1] *
-            Math.log(Math.abs(delta[1]) / max_variance[1] + 1)
-        ];
-        /*
-        delta = [
-          Math.sign(delta[0]) *
-          max_variance[0] *
-          (1 -
-            1 /
-            Math.pow(
-              1 + Math.abs(delta[0]) / max_variance[0] / power,
-              power
-            )),
-          Math.sign(delta[1]) *
-          max_variance[1] *
-          (1 -
-            1 /
-            Math.pow(
-              1 + Math.abs(delta[1]) / max_variance[1] / power,
-              power
-            ))
-        ];*/
-      }
-
-      if (!this.options.remap_tsne_positions) {
-        a.repositioned_tsne_position = null;
-      } else {
-        a.repositioned_tsne_position = add2(center, delta);
-      }
-    }
-  }
-
-  iterativelyInsertObjectsTo(
-    Objects,
-    accGrid,
-    noIntersection,
-    shouldTest,
-    failedInserting
-  ) {
-    var total_intersections = 0;
-    for (var n of Objects) {
-      n.outer_offset = null;
-      var found_position = false;
-      const MAX_INSERTION_TESTS = 1000;
-      for (var i = 0; i < MAX_INSERTION_TESTS; ++i) {
-        ++total_intersections;
-        // Offsetting the Word to pseudo-random positions in increasing distances
-        // around their desired position
-        var world_footprint = sub2(n.max, n.min);
-        var mf = Math.min(world_footprint[0], world_footprint[1]);
-        n.offset = [
-          Math.sin(1.8 * 2 * Math.sqrt(i) * mf) * i * mf * 0.0126,
-          Math.cos(1.8 * 2 * Math.sqrt(i) * mf) * i * mf * 0.0126
-        ];
-        n._pos = add2(n.layout_position, n.offset);
-        var intersection = false;
-        if (shouldTest && !shouldTest(n)) {
-          continue;
-        }
-        accGrid.forEachIn(n.bounds, F => {
-          for (var m of F) {
-            if (intersectObjects(m, n)) {
-              //boundsIntersect(m.bounds, n.bounds)) {
-              accGrid.abort = true;
-              intersection = true;
-              return;
-            }
-          }
-        });
-        if (!intersection) {
-          if (noIntersection) {
-            found_position = noIntersection(n);
-          } else found_position = true;
-          if (found_position) break;
-        }
-      }
-
-      if (!found_position) {
-        if (n.outer_offset !== null) {
-          n.offset = n.outer_offset;
-        } else {
-          n.offset = [0, 0];
-          if (failedInserting) failedInserting(n);
-        }
-        n._pos = add2(n.layout_position, n.offset);
-      }
-      accGrid.forEachIn(n.bounds, F => {
-        F.push(n);
-      });
-    }
-    return total_intersections;
-  }
-
-  layoutWordcloudResolveOverlap() {
-    // Profiling
-    var starttime = Date.now();
-    var total_Tests = 0;
-    var total_intersections = 0;
-
-    var sorted_nodes = [];
-    for (var [_, n] of this.Map.entries()) {
-      n.offset = [0, 0];
-      n._pos = n.layout_position = n.computed_position;
-      sorted_nodes.push(n);
-    }
-
-    sorted_nodes.sort((a, b) => {
-      if (a.hidden && !b.hidden) return 1;
-      if (!a.hidden && b.hidden) return -1;
-      return b.normalized_size - a.normalized_size;
-    });
-    var min = inf2();
-    for (var [_, a] of this.Map.entries()) min = min2(min, a.computed_position);
-    var max = negInf2();
-    for (var [_, a] of this.Map.entries()) max = max2(max, a.computed_position);
-    this.max = max;
-    this.min = min;
-    this.wWH = sub2(max, min);
-
-    if (this.options.resolve_overlap) {
-      var accGrid = new GridAccelerationStructure(sorted_nodes.length, {
-        min: min,
-        max: max
-      });
-
-      total_intersections += this.iterativelyInsertObjectsTo(
-        sorted_nodes,
-        accGrid,
-        n => {
-          //Found Intersection and end
-          if (
-            n._pos[0] >= min[0] &&
-            n._pos[0] <= max[0] &&
-            n._pos[1] >= min[1] &&
-            n._pos[1] <= max[1]
-          ) {
-            return true;
-          } else if (n.outer_offset === null) {
-            n.outer_offset = n.offset;
-          }
-          return false;
-        },
-        n => {
-          //shouldTest
-          return (
-            n._pos[0] >= min[0] &&
-            n._pos[0] <= max[0] &&
-            n._pos[1] >= min[1] &&
-            n._pos[1] <= max[1]
-          );
-        }
-      );
-    }
-
+  debugClear(){
     this.canvas.clearDebug();
-    for (var [_, a] of this.Map.entries()) {
+  }
+ 
+  debugRepositionLines(){
+    var wordset = this;
+    for (var [_, a] of wordset.Map.entries()) {
       a._pos = min2(max, a._pos);
       a._pos = max2(min, a._pos);
-      if (this.options.reposition_shown_by_line) {
-        this.canvas.debugLine(a._pos, a.layout_position, 2, [0, 0, 0, 0.1]);
+      if (wordset.options.reposition_shown_by_line) {
+        wordset.canvas.debugLine(a._pos, a.layout_position, 2, [0, 0, 0, 0.1]);
       }
     }
-
-    this.screenBorder = [0, 0];
-    for (var [_, a] of this.Map.entries()) {
-      if (this.options.reposition_shown_by_color) {
+  }
+  
+  debugRepositionColor(){
+    var wordset = this;
+    for (var [_, a] of wordset.Map.entries()) {
+      if (wordset.options.reposition_shown_by_color) {
         a.color = [
-          len2(a.offset) / (0.5 * this.wWH[1]),
-          0, //a.my_ctr / this.Map.size,
+          len2(a.offset) / (0.5 * wordset.wWH[1]),
+          0, //a.my_ctr / wordset.Map.size,
           0, //a.user_defined_position ? 0.5 : 0,
           0.8
         ]; //[Math.random(), Math.random(), Math.random()];
       } else {
         a.color = [0, 0, 0, 0.8];
       }
-
-      this.screenBorder = max2(a.WH, this.screenBorder);
     }
-    //this.centerCamera();
-
-    //    this.request("animation");
-
-    var n0 = sorted_nodes[0];
-    this.log(n0);
-    this.log(n0.bounds);
-    this.log("Position 0 at " + n0._pos);
-    this.log("          Words: " + sorted_nodes.length);
-    this.log(
-      "Insertion tests: " +
-        total_intersections / sorted_nodes.length +
-        " (/Word)"
-    );
-    this.log(
-      "    Bound tests: " + total_Tests / total_intersections + " (/Insertion)"
-    );
-    this.log("           Took: " + (Date.now() - starttime) + " ms");
-
-    //      this.redrawLayout();
-    // Send to Parent
-    // this.$emit('event_text_ready', vm.list);
+    //wordset.centerCamera();
   }
+ 
+  
+  drawContainmentEdges(){
+  for (var [_, a] of this.Map.entries()) {
+    if(!a.shown) continue;
 
-  layoutWordcloudFormGroupsResolveOverlap() {
-    // Profiling
-    var starttime = Date.now();
-    var total_Tests = 0;
-    var total_intersections = 0;
+    //TODO:: for every word, that is in multiple groups:
+    if (this.options.show_lexical_items_of_group && a.groups.size > 1) {
+      // draw a containment edge from the closest Group-Boundary-Point (lerp(Pi,Pi+1,0.5))
+      // Pointing in normal direction
+      // towards the center of the word, stopping at the word-boundary
 
-    function insertion_order(a, b) {
-      if (a.hidden && !b.hidden) return 1;
-      if (!a.hidden && b.hidden) return -1;
-      return b.normalized_size - a.normalized_size;
-    }
-
-    this.error.clear();
-
-    this.group_map = {};
-
-    this.min = inf2();
-    this.max = negInf2();
-    var all_nodes = [];
-    for (var [_, n] of this.Map.entries()) {
-      n.offset = [0, 0];
-      n._pos = n.layout_position = n.computed_position;
-      all_nodes.push(n);
-      this.min = min2(this.min, n.computed_position);
-      this.max = max2(this.max, n.computed_position);
-
-      n.shown = !n.hidden;
-    }
-    this.wWH = sub2(this.max, this.min);
-    var vm = this;
-    var failedInsertions = [];
-
-    hierarchically_insert_groups(all_nodes, new Set());
-    function hierarchically_insert_groups(all_nodes, set_of_parent_groups) {
-      if (!all_nodes.length) return;
-      var min = inf2();
-      var max = negInf2();
-      for (var n of all_nodes) {
-        min = min2(min, n.computed_position);
-        max = max2(max, n.computed_position);
-      }
-
-      var accGrid = new GridAccelerationStructure(all_nodes.length, {
-        min,
-        max
-      });
-      vm.total_acceleration_grid = accGrid;
-
-      var free_nodes = [];
-      for (var gi of Object.keys(vm.groups)) {
-        var g = vm.groups[gi];
-        g.uniqueItems = new Set(); //[];
-      }
-
-      for (var n of all_nodes) {
-        if (n.groups.size == 1) {
-          var g0;
-          for (var v of n.groups) {
-            g0 = v;
-            break;
-          }
-          vm.groups[g0].uniqueItems.add(n);
-          n.single_group = g0;
-        } else if (
-          n.groups.size == 0 ||
-          vm.options.show_lexical_items_of_group
-        ) {
-          free_nodes.push(n);
-        } else {
-          n.shown = false;
-        }
-      }
-
-      free_nodes.sort(insertion_order);
-
-      var sorted_groups = [];
-      for (var name of Object.keys(vm.groups)) {
-        sorted_groups.push(vm.groups[name]);
-      }
-
-      for (var G of sorted_groups) {
-        G.accumulated_size = 0;
-        for (var i of G.uniqueItems) {
-          G.accumulated_size += i.normalized_size > 0 ? i.normalized_size : 0;
-        }
-      }
-      sorted_groups.sort((a, b) => {
-        return b.accumulated_size - a.accumulated_size;
-      });
-
-      for (var G of sorted_groups) {
-        var center = [0, 0];
-        var gmin = inf2();
-        var gmax = negInf2();
-        var I = G.uniqueItems.size > 0 ? G.uniqueItems : G.items;
-        for (var a of I) {
-          center = add2(center, a.computed_position);
-        }
-        if (I.size > 0) {
-          G.center = center = scale2(center, 1 / I.size);
-        } else {
-          G.center = center = G.computed_position
-            ? G.computed_position
-            : [0, 0];
-        }
-        var deltaTitle = vm.screenToWorld_vector(scale2(G.WH, 0.5));
-
-        var PathPoints = [];
-        G._min = sub2([0, 0], deltaTitle); //center,del);
-        G._max = add2([0, 0], deltaTitle);
-        PathPoints.push(
-          [G._min[0], G._max[1]],
-          G._min,
-          [G._max[0], G._min[1]],
-          G._max
-        );
-        if (!vm.options.show_lexical_items_of_group) {
-          for (var a of G.uniqueItems) {
-            a.shown = false;
-          }
-        } else if (G.uniqueItems.size) {
-          for (var a of G.uniqueItems) {
-            a.layout_position = scale2(
-              sub2(a.computed_position, center),
-              a.user_defined_position ? 1 : vm.options.relocation_by_group
+      for (var gi of a.groups) {
+        var G = this.groups[gi];
+        //var closest = [0, 0];
+        //var normal = [1, 0];
+        var dist = Number.POSITIVE_INFINITY;
+        var P = G.border_path;
+        var ctr = [[0, 0], [0, 0], [0, 0], [0, 0]];
+        var d = (a.max[1] - a.min[1]) / 4;
+        for (var k = 0; k < P.length; ++k) {
+          var A = P[k];
+          var B = P[(k + 1) % P.length];
+          var point = lerp2(A, B, 0.5);
+          var norm = sub2(B, A);
+          norm = [norm[1], -norm[0]]; //orthogonal
+          norm = normalize2(norm);
+          var len = len2(sub2(a._pos, point));
+          function test(target, tnorm) {
+            var dist2 = len2(
+              sub2(
+                add2(point, scale2(norm, len / 5)),
+                add2(target, scale2(tnorm, len / 5 - d))
+              )
             );
-            gmin = min2(gmin, a.layout_position);
-            gmax = max2(gmax, a.layout_position);
-          }
-          var itemsToInsert = Array.from(G.uniqueItems).sort(insertion_order);
-
-          var groupGrid = new GridAccelerationStructure(G.uniqueItems.size, {
-            min: gmin,
-            max: gmax
-          });
-          total_intersections += vm.iterativelyInsertObjectsTo(
-            itemsToInsert,
-            groupGrid,
-            undefined,
-            undefined,
-            n => {
-              failedInsertions.push(n.label);
-              n.shown = false;
+            if (dist2 < dist) {
+              dist = dist2;
+              ctr = [
+                point,
+                add2(point, scale2(norm, len / 5)),
+                add2(target, scale2(tnorm, len / 5 - d)),
+                add2(target, scale2(tnorm, -d))
+              ];
             }
-          );
-
-          gmin = G._min;
-          gmax = G._max;
-          var P = [];
-          function margin(pos) {
-            /*if(pos[1]<0){ 
-              pos = [pos[0],pos[1] - 15*vm.worldPerScreen]; 
-            }*/
-            gmin = min2(gmin, pos);
-            gmax = max2(gmax, pos);
-            return pos;
           }
-          for (var a of G.uniqueItems) {
-            //collect all AABB edges
-            PathPoints.push(
-              margin(a.bounds.min),
-              margin(a.bounds.max),
-              margin([a.bounds.max[0], a.bounds.min[1]]),
-              margin([a.bounds.min[0], a.bounds.max[1]])
-            );
-          }
-          G._min = gmin;
-          G._max = gmax;
+          test([a._pos[0], a.min[1]], [0, -1]);
+          test([a._pos[0], a.max[1]], [0, 1]);
+          test([a.min[0], a._pos[1]], [-1, 0]);
+          test([a.max[0], a._pos[1]], [1, 0]);
         }
-        G.border_path = convexHull(PathPoints);
-
-        G.layout_position = G.computed_position;
-
-        //border path should be ccw (when bottom-right == pos ydir, pos xdir)
-        total_intersections += vm.iterativelyInsertObjectsTo([G], accGrid);
-
-        for (var a of G.uniqueItems) {
-          // reposition items according to Group position
-          a._pos = add2(a._pos, G._pos);
-        }
-      }
-
-      for (var n of free_nodes) {
-        if (n.groups.size > 0) {
-          var scale = vm.options.multigroup_attraction;
-          var center = [0, 0];
-          for (var gi of n.groups) {
-            var G = vm.groups[gi];
-            center = add2(center, G._pos);
-          }
-          n.layout_position = lerp2(
-            n.layout_position,
-            scale2(center, 1 / n.groups.size),
-            1 - (n.user_defined_position ? 1 : vm.options.multigroup_attraction)
-          );
-        }
-      }
-
-      {
-        total_intersections += vm.iterativelyInsertObjectsTo(
-          free_nodes,
-          accGrid,
-          n => {
-            //Found Intersection and end
-            if (
-              n._pos[0] >= vm.min[0] &&
-              n._pos[0] <= vm.max[0] &&
-              n._pos[1] >= vm.min[1] &&
-              n._pos[1] <= vm.max[1]
-            ) {
-              return true;
-            } else if (n.outer_offset === null) {
-              n.outer_offset = n.offset;
-            }
-            return false;
-          },
-          n => {
-            //shouldTest
-            return (
-              n._pos[0] >= vm.min[0] &&
-              n._pos[0] <= vm.max[0] &&
-              n._pos[1] >= vm.min[1] &&
-              n._pos[1] <= vm.max[1]
-            );
-          },
-          n => {
-            //failed Insertion
-            if (n.normalized_size > 0 || n.normalized_size_compare > 0) {
-              //if should be visible...
-              failedInsertions.push(n.label);
-            }
-            n.shown = false;
-          }
-        );
-      }
-
-      if (failedInsertions.length) {
-        vm.error.set(
-          " " + failedInsertions.length,
-          "Not enough space to show all the lexical items (zoom in to solve). The following lexical item(s) is/are missing:  " +
-            failedInsertions.join(", ")
-        );
-      }
-
-      vm.canvas.clearDebug();
-      for (var [_, a] of vm.Map.entries()) {
-        //a._pos = min2(vm.max, a._pos);
-        //a._pos = max2(vm.min, a._pos);
-
-        if (vm.options.reposition_shown_by_line) {
-          vm.canvas.debugLine(a._pos, a.original_position, 2, [0, 0, 0, 0.1]);
-        }
-        //finalize position
-        a.pos = a._pos;
-
-        //TODO:: for every word, that is in multiple groups:
-        if (vm.options.show_lexical_items_of_group && a.groups.size > 1) {
-          // draw a containment edge from the closest Group-Boundary-Point (lerp(Pi,Pi+1,0.5))
-          // Pointing in normal direction
-          // towards the center of the word, stopping at the word-boundary
-
-          for (var gi of a.groups) {
-            var G = vm.groups[gi];
-            //var closest = [0, 0];
-            //var normal = [1, 0];
-            var dist = Number.POSITIVE_INFINITY;
-            var P = G.border_path;
-            var ctr = [[0, 0], [0, 0], [0, 0], [0, 0]];
-            var d = (a.max[1] - a.min[1]) / 4;
-            for (var k = 0; k < P.length; ++k) {
-              var A = P[k];
-              var B = P[(k + 1) % P.length];
-              var point = lerp2(A, B, 0.5);
-              var norm = sub2(B, A);
-              norm = [norm[1], -norm[0]]; //orthogonal
-              norm = normalize2(norm);
-              var len = len2(sub2(a._pos, point));
-              function test(target, tnorm) {
-                var dist2 = len2(
-                  sub2(
-                    add2(point, scale2(norm, len / 5)),
-                    add2(target, scale2(tnorm, len / 5 - d))
-                  )
-                );
-                if (dist2 < dist) {
-                  dist = dist2;
-                  ctr = [
-                    point,
-                    add2(point, scale2(norm, len / 5)),
-                    add2(target, scale2(tnorm, len / 5 - d)),
-                    add2(target, scale2(tnorm, -d))
-                  ];
-                }
-              }
-              test([a._pos[0], a.min[1]], [0, -1]);
-              test([a._pos[0], a.max[1]], [0, 1]);
-              test([a.min[0], a._pos[1]], [-1, 0]);
-              test([a.max[0], a._pos[1]], [1, 0]);
-            }
-            vm.canvas.debugSpline(ctr, 2, G.color);
-            /*
-          this.canvas.debugLine(ctr[0], ctr[1], 3, G.color);
-          this.canvas.debugLine(ctr[1], ctr[2], 3, G.color);
-          this.canvas.debugLine(ctr[2], ctr[3], 3, G.color);
-          */
-          }
-        }
-      }
-
-      for (var g of sorted_groups) {
-        g.draw();
+        this.canvas.debugSpline(ctr, 2, G.color);
       }
     }
-
-    this.screenBorder = [0, 0];
-    for (var [_, a] of this.Map.entries()) {
-      if (this.options.reposition_shown_by_color) {
-        a.color = [
-          len2(a.offset) / (0.5 * this.wWH[1]),
-          0, //a.my_ctr / this.Map.size,
-          0, //a.user_defined_position ? 0.5 : 0,
-          0.8
-        ]; //[Math.random(), Math.random(), Math.random()];
-      } else {
-        a.color = [0, 0, 0, 0.8];
-      }
-
-      this.screenBorder = max2(a.WH, this.screenBorder);
-    }
-    //this.centerCamera();
-
-    //    this.request("animation");
-
-    //    var n0 = free_nodes[0];
-    //  this.log(n0);
-    //this.log(n0.bounds);
-    // this.log("Position 0 at " + n0._pos);
-    this.log("          Words: " + all_nodes.length);
-    this.log(
-      "Insertion tests: " + total_intersections / all_nodes.length + " (/Word)"
-    );
-    this.log(
-      "    Bound tests: " + total_Tests / total_intersections + " (/Insertion)"
-    );
-    this.log("           Took: " + (Date.now() - starttime) + " ms");
-
-    //      this.redrawLayout();
-    // Send to Parent
-    // this.$emit('event_text_ready', vm.list);
   }
+}
+
+drawGroups(){
+  for (var g of this.sorted_groups) {
+    g.draw();
+  }
+}
+
+
+
+
 }
 
 ///////////////////////////////////////

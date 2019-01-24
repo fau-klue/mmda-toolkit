@@ -173,10 +173,14 @@ class WordElement {
   get original_position() {
     return this.data.tsne_pos;
   }
+
   get computed_position() {
     if (this.user_defined_position) return this.user_defined_position;
     if (this.repositioned_tsne_position) return this.repositioned_tsne_position;
-    return this.data.tsne_pos;
+    return [this.data.tsne_x,this.data.tsne_y];
+  }
+  resetPosition(){
+    this.user_defined_position = null;//this.original_position;
   }
 
   get identifier() {
@@ -202,7 +206,7 @@ class WordElement {
     // shadow position
     var s = this.window.worldToContainer(
       sub2(
-        lerp2(this._pos, this.data.tsne_pos, 0.05),
+        lerp2(this._pos, [this.data.tsne_x,this.data.tsne_y], 0.05),
         scale2(this.WH, 0.5 * this.window.worldPerScreen)
       )
     );
@@ -250,10 +254,17 @@ class WordElement {
     if (s) this.el.classList.remove("hidden");
     else this.el.classList.add("hidden");
     this.mini.shown = s;
+    return this._shown = s;
+  }
+  get shown(){
+    return this._shown;
   }
   get hidden() {
     return this.normalized_size < 0 && this.normalized_size_compare < 0;
   }
+
+
+
   get size() {
     return this._size;
   }
@@ -336,6 +347,7 @@ class WordElement {
     this.window.last_selected_node = this;
     this.window.pressed_node = this;
     this.window.pressed_offset = sub2(this.window.mouse_wpos, this.pos);
+    this.window.centerAtWord(this);
     e.preventDefault();
   }
 }

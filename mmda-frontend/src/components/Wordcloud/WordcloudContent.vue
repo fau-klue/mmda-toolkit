@@ -1,5 +1,8 @@
 <template>
-<div>
+  <div >
+    <div class="structured_wordcloud_container"></div>
+
+<!--
   <v-container grid-list-md>
     <v-layout row wrap>
       <v-flex xs12>
@@ -18,17 +21,21 @@
       </v-flex>
     </v-layout>
   </v-container>
+  -->
   <WordcloudSidebar/>
 </div>
 </template>
 
+<style>
+@import '../../wordcloud/wordcloud.module.css';
+</style>
+
 <script>
 import { mapActions, mapGetters } from 'vuex'
-// import { finished } from 'stream'
-// import { WordcloudWindow } from '@/wordcloud/wordcloud.js'
+import { WordcloudWindow } from '@/wordcloud/wordcloud.js'
 import rules from '@/utils/validation'
 import WordcloudSidebar from '@/components/Wordcloud/WordcloudSidebar'
-import styles from '@/wordcloud/wordcloud.module.css' // eslint-disable-line no-unused-vars
+import * as data from '@/wordcloud/example_1.js'
 
 export default {
   name: 'WordcloudContent',
@@ -92,19 +99,20 @@ export default {
   },
   created () {
     this.id = this.$route.params.id
-    this.fetchConcordances(['test', 'anothertest'])
+    //this.fetchConcordances(['test', 'anothertest'])
     this.fetchCollocates(3)
   },
   mounted () {
-    // let WW = []
-    // for (let A of document.getElementsByClassName(
-    //   'structured_wordcloud_container'
-    // )) {
-    //   let W
-    //   WW.push((W = new WordcloudWindow(A)))
-    //   window.addEventListener('resize', (W => () => W.resize())(W))
-    //   W.setupContent()
-    // }
+    
+    let WW = []
+    for (let A of document.getElementsByClassName(
+      'structured_wordcloud_container'
+    )) {
+      let W
+      WW.push((W = new WordcloudWindow(A)))
+      window.addEventListener('resize', (W => () => W.resize())(W))
+      W.setupContent2(this.collocates, this.coordinates, this.discoursemes);
+    }
   }
 }
 
