@@ -223,7 +223,7 @@ def test_cwb_sentence_positions_of_cqp_query(mock_popen):
     expected = [85144]
 
     assert actual == expected
-    mock_popen.assert_called_once()
+    assert mock_popen.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.Popen')
@@ -246,7 +246,7 @@ def test_cwb_sentence_positions_of_cqp_query_error(mock_popen):
     expected = [85144]
 
     assert actual == expected
-    mock_popen.assert_called_once()
+    assert mock_popen.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.Popen')
@@ -261,7 +261,7 @@ def test_cwb_cqp_concordances_of_topic(mock_popen):
     actual = cqp_concordances_of_topic('foocorpus', 'Trump')
 
     assert actual == expected
-    mock_popen.assert_called_once()
+    assert mock_popen.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.Popen')
@@ -294,7 +294,7 @@ def test_cwb_cqp_concordances_of_collocate(mock_popen):
     actual = cqp_concordances_of_collocate('foocorpus', 'Atomkraft', 'Merkel', 5, 's')
 
     assert actual == expected
-    mock_popen.assert_called_once()
+    assert mock_popen.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.Popen')
@@ -323,7 +323,7 @@ def test_cwb_cqp_concordances_of_discourse(mock_popen):
     actual = cqp_concordances_of_discourse('foocorpus', 'Atomkraft', 5, 's', ['Merkel'])
 
     assert actual == expected
-    mock_popen.assert_called_once()
+    assert mock_popen.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.shuffle')
@@ -331,7 +331,7 @@ def test_cwb_sort_concordances(mock_shuffle):
 
     actual = sort_concordances([1, 2, 3], 'random')
 
-    mock_shuffle.assert_called_once_with([1, 2, 3])
+    mock_shuffle.assert_called_with([1, 2, 3])
 
 
 def test_cwb_sort_concordances_error():
@@ -444,7 +444,7 @@ def test_cwb_engine_extract_collocates(mock_collo, corpus_settings):
     assert actual_f1 == 7
     assert actual_N == 2693270
     assert_frame_equal(actual_df, expected_df)
-    mock_collo.assert_called_once()
+    assert mock_collo.call_count == 1
 
 
 @mock.patch('backend.analysis.engines.cwb.sort_concordances')
@@ -457,8 +457,8 @@ def test_cwb_engine_extract_concordances_topic(mock_topic, mock_discourse, mock_
 
     actual = eng.extract_concordances('fooquery', 5)
 
-    mock_topic.assert_called_once_with('foo_corpus', 'fooquery')
-    mock_sort.assert_called_once_with([1, 2, 3], 'random')
+    mock_topic.assert_called_with('foo_corpus', 'fooquery')
+    mock_sort.assert_called_with([1, 2, 3], 'random')
 
 
 @mock.patch('backend.analysis.engines.cwb.cqp_concordances_of_discourse', return_value=None)
@@ -480,5 +480,5 @@ def test_cwb_engine_extract_concordances_discourse(mock_topic, mock_discourse, m
 
     actual = eng.extract_concordances('fooquery', 5, ['item1'])
 
-    mock_discourse.assert_called_once_with('foo_corpus', 'fooquery', 5, 's', ['item1'])
-    mock_sort.assert_called_once_with([1, 2, 3], 'random')
+    mock_discourse.assert_called_with('foo_corpus', 'fooquery', 5, 's', ['item1'])
+    mock_sort.assert_called_with([1, 2, 3], 'random')

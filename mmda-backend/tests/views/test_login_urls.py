@@ -14,7 +14,7 @@ def test_login_urls(client):
 
     assert response.status_code==200
 
-    response_data = loads(response.data)
+    response_data = loads(response.data.decode('utf-8'))
 
     headers = {
         'Authorization': 'Bearer {}'.format(response_data['refresh_token'])
