@@ -1,6 +1,6 @@
 # Random Engine for Development and Testing
 
-from random import choices, randint, random
+from random import sample, randint, random
 from pandas import DataFrame
 from .engine import Engine
 from .engine import Collocates
@@ -19,7 +19,7 @@ def random_words(num):
     Get some random words
     """
 
-    return choices(WORDS, k=num)
+    return sample(WORDS, k=num)
 
 
 class RandomEngine(Engine):
