@@ -101,7 +101,7 @@ export default {
     nodata: false,
     selectCorpus: '',
     selectItems: [],
-    selectWindow: 8,
+    selectWindow: 3,
     rules: rules
   }),
   computed: {
@@ -123,7 +123,7 @@ export default {
       this.name = ''
       this.selectCorpus = ''
       this.selectItems = []
-      this.selectWindow = 8
+      this.selectWindow = 3
     },
     addAnalysis () {
       this.nodata = false
@@ -133,6 +133,7 @@ export default {
         return
       }
 
+      this.loading = true
       const data = {
         username: this.user.username,
         name: this.name,
@@ -141,14 +142,13 @@ export default {
         corpus: this.selectCorpus
       }
 
-      this.loading = true
       this.addUserAnalysis(data).then(() => {
         this.error = null
         this.$router.push('/analysis')
       }).catch((error) => {
         this.error = error
-      })
-      this.loading = false
+      }).then()
+
     }
   },
   created () {
@@ -156,7 +156,9 @@ export default {
       this.error = null
     }).catch((error) => {
       this.error = error
-      })
+    }).then(() => {
+      this.loading = false
+    })
   }
 }
 

@@ -82,7 +82,7 @@ const actions = {
       })
     })
   },
-  async addUserAnalysis ({commit}, data) { // eslint-disable-line no-unused-vars
+  addUserAnalysis ({commit}, data) { // eslint-disable-line no-unused-vars
     // Get all users analysis
     return new Promise((resolve, reject) => {
 
