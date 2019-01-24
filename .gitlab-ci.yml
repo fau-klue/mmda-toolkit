@@ -13,6 +13,7 @@ cache:
 backend-lint:
   stage: lint
   image: python:3.6
+  allow_failure: true
   script:
     - cd mmda-backend/
     - pip install pylint==1.9.2 --quiet
@@ -37,14 +38,23 @@ frontend-test:
   script:
     - yarn run test:unit
 
-backend-test:
+backend-test:python3-6:
   stage: test
   image: python:3.6
   before_script:
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
     - pipenv install --system --dev
-    - cp backend/corpora_settings_example.py backend/corpora_settings_development.py
-    - cp backend/local_settings_example.py backend/local_settings_development.py
   script:
     - pipenv run pytest --cov-report term-missing -v --cov=backend/
+
+backend-test:python3-5:
+  stage: test
+  image: python:3.5
+  allow_failure: true
+  before_script:
+    - cd mmda-backend/
+    - pip install --quiet -r requirements.txt
+    - pipenv install --system --dev
+  script:
+    - pipenv run pytest -v
