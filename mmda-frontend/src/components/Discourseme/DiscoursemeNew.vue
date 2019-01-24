@@ -56,8 +56,9 @@
                     multiple
                     chips
                     ></v-combobox>
+
+                  <v-btn color="success" class="text-lg-right" @click="addDiscourseme">Submit</v-btn>
                 </v-form>
-                <v-btn color="success" class="text-lg-right" @click="addDiscourseme">Submit</v-btn>
               </v-flex>
             </v-layout>
           </v-container>
@@ -112,8 +113,9 @@ export default {
         this.$router.push('/discourseme')
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   }
 }

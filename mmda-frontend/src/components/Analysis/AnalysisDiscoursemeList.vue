@@ -43,7 +43,7 @@
         </v-btn>
       </v-list-tile-action>
       <v-list-tile-action>
-        <v-btn  :loading="loading" icon @click="addDiscourseme(discourseme.id)">
+        <v-btn :loading="loading" icon @click="addDiscourseme(discourseme.id)">
           <v-icon class="green--text text--lighten-1">add</v-icon>
         </v-btn>
       </v-list-tile-action>
@@ -115,8 +115,9 @@ export default {
         this.error = null
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     },
     removeDiscourseme (id) {
       const data = {
@@ -130,8 +131,9 @@ export default {
         this.error = null
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   },
   created () {

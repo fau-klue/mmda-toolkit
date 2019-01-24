@@ -130,8 +130,9 @@ export default {
         this.error = null
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   },
   created () {

@@ -127,8 +127,9 @@ export default {
         this.$router.push('/admin/users')
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   }
 }

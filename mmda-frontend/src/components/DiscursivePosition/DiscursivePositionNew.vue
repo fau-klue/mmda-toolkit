@@ -121,8 +121,9 @@ export default {
         this.$router.push('/discursive')
       }).catch((error) => {
         this.error = error
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   }
 }

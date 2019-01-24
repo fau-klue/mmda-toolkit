@@ -64,8 +64,9 @@ export default {
         this.error = error
         this.password = null
         this.unsuccessfull = true
+      }).then(() => {
+        this.loading = false
       })
-      this.loading = false
     }
   }
 }
