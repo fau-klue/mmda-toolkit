@@ -1,5 +1,14 @@
 {
   "index": {
     "top": "This is the Index page"
+  },
+  "login": {
+    "username": "Username",
+    "password": "Password"
+  },
+  "toolbar": {
+    "about": "About",
+    "login": "Login",
+    "logout": "Logout"
   }
 }
