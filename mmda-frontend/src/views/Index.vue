@@ -4,6 +4,8 @@
     <v-flex xs12>
       <h1>Mixed Method Discourse Analysis</h1>
 
+      <p>{{ $t("index.top") }}</p>
+
       <p>Illo cum quia consequatur ipsam. Accusantium facere et reiciendis explicabo omnis. Fugit sunt corrupti quia in.</p>
 
       <p>Et nam asperiores ut ratione excepturi sed et. Rem illo laboriosam et. Culpa et ut dolorem esse sit ducimus. Qui in magni aut ut omnis quas blanditiis. Alias sit impedit consectetur quasi hic quod saepe et.</p>
