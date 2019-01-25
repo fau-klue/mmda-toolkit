@@ -15,9 +15,9 @@
         </v-list>
         </v-menu>
         <v-btn flat to="/">Index</v-btn>
-        <v-btn flat to="/about">About</v-btn>
-        <v-btn flat v-if="isAuthenticated" @click="logout">Logout</v-btn>
-        <v-btn flat v-else to="/login">Login</v-btn>
+        <v-btn flat to="/about">{{ $t("toolbar.about") }}</v-btn>
+        <v-btn flat v-if="isAuthenticated" @click="logout">{{ $t("toolbar.logout") }}</v-btn>
+        <v-btn flat v-else to="/login">{{ $t("toolbar.login") }}</v-btn>
       </v-toolbar-items>
     </v-toolbar>
 </template>

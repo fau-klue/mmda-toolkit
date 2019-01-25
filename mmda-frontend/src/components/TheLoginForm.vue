@@ -5,10 +5,16 @@
       <v-card>
         <v-card-text>
           <v-form @keyup.native.enter="login">
-            <v-text-field v-model="username"
-                          prepend-icon="person" name="username" label="Username" type="text"></v-text-field>
-            <v-text-field v-model="password"
-                          prepend-icon="lock" name="password" label="Password" id="password" type="password"></v-text-field>
+            <v-text-field v-model="username" prepend-icon="person" name="username" label="Username" type="text">
+              <template slot="label">
+                {{ $t("login.username") }}
+              </template>
+            </v-text-field>
+            <v-text-field v-model="password" prepend-icon="lock" name="password" id="password" type="password">
+              <template slot="label">
+                {{ $t("login.password") }}
+              </template>
+            </v-text-field>
           </v-form>
         </v-card-text>
           <v-card-actions>
