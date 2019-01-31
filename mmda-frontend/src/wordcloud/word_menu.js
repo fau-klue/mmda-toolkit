@@ -38,8 +38,7 @@ class WordMenu {
 
     var interresting_icons = ["👁📈📌📊⊕📂⚇💾📄⮋⊞➕"];
 
-    var options = [
-      {
+    var options = [{
         icon: "📌",
         icon_overlay: "╳",
         title: "un-pin selected",
@@ -69,9 +68,18 @@ class WordMenu {
           this.window.deleteSelection();
         }
       },
-      { icon: "⮋", title: "enter group" },
-      { icon: "📈", title: "show distribution over time" },
-      { icon: "📊", title: "show evaluation" }
+      {
+        icon: "⮋",
+        title: "enter group"
+      },
+      {
+        icon: "📈",
+        title: "show distribution over time"
+      },
+      {
+        icon: "📊",
+        title: "show evaluation"
+      }
     ];
 
     for (var oi in options) {
@@ -79,11 +87,11 @@ class WordMenu {
       var firstlen = Math.ceil(options.length * 0.5);
       var secondlen = options.length - firstlen;
       o.angle =
-        oi < firstlen
-          ? 180 + (firstlen > 1 ? 45 + (oi * 90) / (firstlen - 1) : 90)
-          : secondlen > 1
-          ? 180 - 45 - ((oi - firstlen) * 90) / (secondlen - 1)
-          : 90;
+        oi < firstlen ?
+        180 + (firstlen > 1 ? 45 + (oi * 90) / (firstlen - 1) : 90) :
+        secondlen > 1 ?
+        180 - 45 - ((oi - firstlen) * 90) / (secondlen - 1) :
+        90;
       this.makeItem(o);
     }
 
@@ -149,19 +157,26 @@ class WordMenu {
       el.appendChild(el_ol);
     }
     if (obj.title) el.title = obj.title;
-    el.style.top =
-      50 +
+    let x = Math.cos((obj.angle / 180) * Math.PI);
+    let y = Math.sin((obj.angle / 180) * Math.PI);
+    let radius = 12;
+    el.style.top = "calc(" + (0.25 * radius * y + .5) + "rem - " + (el.offsetHeight * 0.5) + "px)";
+    el.style.left = "calc(" + (0.25 * radius * x) + "rem - " + (el.offsetWidth * 0.5) + "px)";
+    /*      50 +
       (Math.sin((obj.angle / 180) * Math.PI) -
         el.offsetHeight / this.el.offsetHeight) *
         100 +
-      "%";
-    el.style.left =
-      50 +
-      (Math.cos((obj.angle / 180) * Math.PI) -
-        el.offsetWidth / this.el.offsetWidth) *
-        100 +
-      "%";
+      "%";*/
+    /*
+        el.style.left =
+          50 +
+          (Math.cos((obj.angle / 180) * Math.PI) -
+            el.offsetWidth / this.el.offsetWidth) *
+            100 +
+          "%";*/
   }
 }
 
-export { WordMenu };
+export {
+  WordMenu
+};

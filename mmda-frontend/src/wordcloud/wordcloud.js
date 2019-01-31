@@ -34,12 +34,22 @@ import {
   fwdEvent
 } from "./util_misc.js";
 
-import { Minimap } from "./element_minimap.js";
-import { WordElement } from "./word_element.js";
-import { WordGroup } from "./word_group.js";
-import { WordMenu } from "./word_menu.js";
+import {
+  Minimap
+} from "./element_minimap.js";
+import {
+  WordElement
+} from "./word_element.js";
+import {
+  WordGroup
+} from "./word_group.js";
+import {
+  WordMenu
+} from "./word_menu.js";
 
-import { callWorker }from "./layout_worker.js";
+import {
+  callWorker
+} from "./layout_worker.js";
 import * as layout from "./layout_generation.js";
 
 ///////////////////////////////////////
@@ -55,7 +65,10 @@ class SelectionBox {
     this.el.classList.add("selection_box");
     this.window.container.appendChild(this.el);
     this.selected = new Set();
-    this.bounds = { min: [0, 0], max: [0, 0] };
+    this.bounds = {
+      min: [0, 0],
+      max: [0, 0]
+    };
     this.hide();
   }
   hide() {
@@ -89,12 +102,19 @@ class SelectionBox {
     //TODO: Select every contained this.window.Map-element
 
     this.newSelection = new Set();
-    this.window.total_acceleration_grid.forEachIn(
-      { min: wmin, max: wmax },
+    this.window.total_acceleration_grid.forEachIn({
+        min: wmin,
+        max: wmax
+      },
       (t => els => {
         for (var el of els) {
-          if (intersectObjects(el, { bounds: { min: wmin, max: wmax } })) {
-            if(el.shown) t.newSelection.add(el);
+          if (intersectObjects(el, {
+              bounds: {
+                min: wmin,
+                max: wmax
+              }
+            })) {
+            if (el.shown) t.newSelection.add(el);
           }
         }
       })(this)
@@ -124,11 +144,22 @@ class WordCanvas {
   constructor(window) {
     this.window = window;
     this.window.container.setAttribute("id", "window_container");
-    this.svg_worldspace = SVG("window_container")  ;
+    this.svg_worldspace = SVG("window_container");
+    this.svg_worldspace.attr("style", "left:-1000%;top:-1000%;width:3000%;height:3000%;");
     this.clearDebug();
   }
   resize() {
-    this.svg_worldspace.attr("viewBox",this.window.min[0]+" "+this.window.min[1]+" "+(this.window.max[0]-this.window.min[0])+" "+(this.window.max[1]-this.window.min[1]))
+    let m = this.window.min,
+      M = this.window.max;
+    let x = m[0],
+      y = m[1],
+      w = M[0] - m[0],
+      h = M[1] - m[1];
+    let X = x - 10 * w,
+      Y = y - 10 * h,
+      W = 30 * w,
+      H = 30 * h;
+    this.svg_worldspace.attr("viewBox", X + " " + Y + " " + W + " " + H);
   }
   remove(el) {
     var i = this.elements.findIndex(a => a == el);
@@ -138,7 +169,8 @@ class WordCanvas {
     }
   }
   clearDebug() {
-    if (this.elements) for (var p of this.elements) p.remove();
+    if (this.elements)
+      for (var p of this.elements) p.remove();
     this.elements = [];
   }
   debugLine(a, b, size, color) {
@@ -196,10 +228,12 @@ class WordCanvas {
         width: wid,
         color: hex_color_from_array(color)
       })
-      .attr({ fill: hex_color_from_array([...color, 0.1]) });
+      .attr({
+        fill: hex_color_from_array([...color, 0.1])
+      });
 
     var text = this.svg_worldspace
-      .text(function(add) {
+      .text(function (add) {
         add.tspan(label);
       })
       .font({
@@ -213,12 +247,17 @@ class WordCanvas {
         "dominant-baseline": "hanging"
       })
       .path(str);
-    text.textPath().attr({ startOffset: middlePercentage + "%" });
+    text.textPath().attr({
+      startOffset: middlePercentage + "%"
+    });
 
     var res = path;
     this.elements.push(res);
     this.elements.push(text);
-    return { path, text };
+    return {
+      path,
+      text
+    };
   }
   debugSpline(P, size, color) {
     var str = this.pathElement("M", P[0]);
@@ -232,12 +271,14 @@ class WordCanvas {
     }
     this.elements.push(
       this.svg_worldspace
-        .path(str)
-        .stroke({
-          width: size * this.window.worldPerScreen,
-          color: hex_color_from_array(color)
-        })
-        .attr({ fill: "none" })
+      .path(str)
+      .stroke({
+        width: size * this.window.worldPerScreen,
+        color: hex_color_from_array(color)
+      })
+      .attr({
+        fill: "none"
+      })
     );
   }
 }
@@ -280,6 +321,8 @@ class WordcloudWindow {
 
     this.Map = new Map();
     this.selected_nodes = new Set();
+    this.groups = new Set();
+    this.groupMap = new Map();
 
     this.options = {
       verbose: false,
@@ -298,20 +341,15 @@ class WordcloudWindow {
       draw_group_schnoerkel: false,
       show_lexical_items_of_group: true
     };
-    this.option_explained = {
-      remap_tsne_positions:
-        "Reduces the area according to the standard deviation of the contained items.",
-      remap_standard_deviation_log:
-        "Every item is repositioned according to a logarithmic-scale.",
-      remap_standard_deviation_clamp:
-        "Overflowing items are clamped to the border of the area.",
-      resolve_overlap:
-        "Prevents item overlaps by moving the smaller item away.",
-      relocation_by_group:
-        "The positions of words inside the group are scaled by this factor (at the group center of mass).",
-      multigroup_attraction:
-        "Words inside multiple groups are scaled towards them by this factor"
-    };
+    /*
+        this.option_explained = {
+          remap_tsne_positions: "Reduces the area according to the standard deviation of the contained items.",
+          remap_standard_deviation_log: "Every item is repositioned according to a logarithmic-scale.",
+          remap_standard_deviation_clamp: "Overflowing items are clamped to the border of the area.",
+          resolve_overlap: "Prevents item overlaps by moving the smaller item away.",
+          relocation_by_group: "The positions of words inside the group are scaled by this factor (at the group center of mass).",
+          multigroup_attraction: "Words inside multiple groups are scaled towards them by this factor"
+        };*/
 
     this.resize();
 
@@ -319,16 +357,21 @@ class WordcloudWindow {
     this.container.classList.add("sw_container");
     this.el.appendChild(this.container);
 
+    this._scale = 1;
+    this._pos = [0, 0];
+
     this.minimap = new Minimap(this);
-
     this.error = new ErrorMessage(this);
+    //    this.word_menu = new WordMenu(this);
+    this.selectionBox = new SelectionBox(this);
+    this.canvas = new WordCanvas(this);
 
-    this.scale = 1;
-    this.pos = [0, 0];
+    this.scale = this.scale;
+    this.pos = this.pos;
 
     for (var v of ["mousedown", "mousemove"]) fwdEvent(this, this.el, v);
 
-    document.addEventListener("mouseup", (t => e => t.onmouseup(e))(this));
+    document.addEventListener("mouseup", (t => t.mouseupevent = e => t.onmouseup(e))(this));
 
     function handleMouseWheel(t) {
       return e => {
@@ -342,105 +385,108 @@ class WordcloudWindow {
 
     document.addEventListener(
       "keydown",
-      (t => e => {
+      (t => t.keydownevent = e => {
         t.onkeydown(e);
       })(this)
     );
 
-    this.setupMenu();
-    this.closeMenu();
+    //this.setupMenu();
+    //this.closeMenu();
 
-    this.word_menu = new WordMenu(this);
-    this.selectionBox = new SelectionBox(this);
-    this.canvas = new WordCanvas(this);
   }
 
-  openWordMenuAt(item) {
-    this.log("add" + item);
-    if (item) {
-      //this.word_menu.pos = item.isgroup ? this.mouse_wpos : item._pos;
-      this.word_menu.pos = this.mouse_wpos;
-      this.word_menu.item = item;
-    }
-    this.word_menu.shown = item != null;
+  destroy() {
+    document.removeEventListener("keydown", this.keydownevent);
+    document.removeEventListener("mouseup", this.mouseupevent);
   }
+
+  /*
+    openWordMenuAt(item) {
+      this.log("add" + item);
+      if (item) {
+        //this.word_menu.pos = item.isgroup ? this.mouse_wpos : item._pos;
+        this.word_menu.pos = this.mouse_wpos;
+        this.word_menu.item = item;
+      }
+      this.word_menu.shown = item != null;
+    }*/
 
   log(s) {
     if (this.options.verbose) {
       console.log(s);
     }
   }
+  /*
+    setupMenu() {
+      if (this.menu) document.body.removeChild(this.menu);
+      this.menu = document.createElement("div");
+      this.menu.classList.add("menu");
+      this.el.appendChild(this.menu);
+      var header = document.createElement("h3");
+      header.appendChild(document.createTextNode("Options"));
 
-  setupMenu() {
-    if (this.menu) document.body.removeChild(this.menu);
-    this.menu = document.createElement("div");
-    this.menu.classList.add("menu");
-    this.el.appendChild(this.menu);
-    var header = document.createElement("h3");
-    header.appendChild(document.createTextNode("Options"));
+      var exit_button = document.createElement("div");
+      exit_button.appendChild(document.createTextNode("[X]"));
+      exit_button.addEventListener("click", (t => e => t.closeMenu(e))(this));
+      exit_button.style.cursor = "pointer";
+      exit_button.style.position = "absolute";
+      exit_button.style.left = 0;
+      exit_button.style.top = 0;
+      exit_button.style.margin = ".5rem";
 
-    var exit_button = document.createElement("div");
-    exit_button.appendChild(document.createTextNode("[X]"));
-    exit_button.addEventListener("click", (t => e => t.closeMenu(e))(this));
-    exit_button.style.cursor = "pointer";
-    exit_button.style.position = "absolute";
-    exit_button.style.left = 0;
-    exit_button.style.top = 0;
-    exit_button.style.margin = ".5rem";
+      header.appendChild(exit_button);
+      this.menu.appendChild(header);
 
-    header.appendChild(exit_button);
-    this.menu.appendChild(header);
-
-    for (var o of Object.keys(this.options)) {
-      var el = document.createElement("input");
-      var txt = document.createTextNode(o.replace(/_/g, " "));
-      var typ = typeof this.options[o];
-      el.type =
-        typ === "string"
-          ? "text"
-          : typ === "number"
-          ? "number"
-          : typ === "boolean"
-          ? "checkbox"
-          : typ;
-      el.value = this.options[o];
-      el.checked = this.options[o];
-      el.title = this.option_explained[o] ? this.option_explained[o] : "";
-      //txt.title = this.option_explained[o] ? this.option_explained[o] : '';
-      el.addEventListener(
-        "input",
-        ((el, t, o, typ) => e => {
-          t.options[o] =
-            typ === "number"
-              ? Number.parseFloat(el.value)
-              : typ === "boolean"
-              ? el.checked
-              : el.value;
-          t.optionsChanged();
-        })(el, this, o, typ)
-      );
-      this.menu.appendChild(el);
-      this.menu.appendChild(txt);
-      this.menu.appendChild(document.createElement("br"));
+      for (var o of Object.keys(this.options)) {
+        var el = document.createElement("input");
+        var txt = document.createTextNode(o.replace(/_/g, " "));
+        var typ = typeof this.options[o];
+        el.type =
+          typ === "string" ?
+          "text" :
+          typ === "number" ?
+          "number" :
+          typ === "boolean" ?
+          "checkbox" :
+          typ;
+        el.value = this.options[o];
+        el.checked = this.options[o];
+        el.title = this.option_explained[o] ? this.option_explained[o] : "";
+        //txt.title = this.option_explained[o] ? this.option_explained[o] : '';
+        el.addEventListener(
+          "input",
+          ((el, t, o, typ) => e => {
+            t.options[o] =
+              typ === "number" ?
+              Number.parseFloat(el.value) :
+              typ === "boolean" ?
+              el.checked :
+              el.value;
+            t.optionsChanged();
+          })(el, this, o, typ)
+        );
+        this.menu.appendChild(el);
+        this.menu.appendChild(txt);
+        this.menu.appendChild(document.createElement("br"));
+      }
     }
-  }
-  optionsChanged() {
-    this.log(this.options);
-    //this.tsneRepositionVariance();
-    this.request("layout");
-  }
-  openMenu() {
-    this.menu.style.visibility = "visible";
-  }
-  closeMenu(e) {
-    this.menu.style.visibility = "hidden";
-  }
+    optionsChanged() {
+      this.log(this.options);
+      //this.tsneRepositionVariance();
+      this.request("layout");
+    }
+    openMenu() {
+      this.menu.style.visibility = "visible";
+    }
+    closeMenu(e) {
+      this.menu.style.visibility = "hidden";
+    }*/
 
   get mouse_wpos() {
     return add2(scale2(this.mouse, 1 / this.scale), this.pos); //something with scale
   }
 
-  getAMWS(data, am){//}, ws) {
+  getAMWS(data, am) { //}, ws) {
     /*
     if (!this.am_by_ws[ws]) return -1;
     if (!this.am_by_ws[ws][am]) return -1;
@@ -448,25 +494,33 @@ class WordcloudWindow {
     if (!data.am_by_ws[ws] || !data.am_by_ws[ws][am]) return -1; //--> not existent in current context(am and ws)
     return (data.am_by_ws[ws][am] - m.min) / (m.max - m.min);
   */
-
-    if(!this.collocates) return -1;
-    if(!am) return -1;
-    if(!this.collocates[am]) return -1;
-    if(!this.collocates[am][data.name]) return -1;
-    return (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max- this.am_minmax[am].max);
-    
+    if (!am || !this.am_minmax[am] || !this.collocates) return .5;
+    if (!this.collocates[am][data.name]) return -1;
+    var v = (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    return v;
   }
 
   getSizeOf(data) {
-    return this.getAMWS(data, this.am);//, this.ws);
+    return this.getAMWS(data, this.am); //, this.ws);
   }
   getCompareSizeOf(data) {
-    return this.getAMWS(data, this.compare_am);//, this.compare_ws);
+    return this.getAMWS(data, this.compare_am); //, this.compare_ws);
   }
 
   worldToContainer(wpos) {
     if (!this.wWH) return wpos;
     return div2(sub2(wpos, this.min), this.wWH);
+  }
+
+
+  set boxSelection(v) {
+    this._boxSel = v;
+    if (v) this.el.classList.add("box_selection");
+    else this.el.classList.remove("box_selection");
+    return v;
+  }
+  get boxSelection() {
+    return this._boxSel;
   }
 
   get worldPerScreen() {
@@ -506,7 +560,7 @@ class WordcloudWindow {
     this.container.style.right = (1 - smax[0]) * 100 + "%";
     this.container.style.top = smin[1] * 100 + "%";
     this.container.style.bottom = (1 - smax[1]) * 100 + "%";
-    this.container.style.transition= this.transition?"all ease .5s":"none";
+    this.container.style.transition = this.transition ? "all ease .5s" : "none";
 
     //
     this._pos = p;
@@ -531,7 +585,7 @@ class WordcloudWindow {
     this.window_downpos = this.pos;
     this.dragging = false;
     this.el.classList.remove("dragging");
-    this.boxSelection = false;
+    //    this.boxSelection = false;
     e.preventDefault();
   }
 
@@ -542,19 +596,19 @@ class WordcloudWindow {
   }
 
   onmouseup(e) {
-    if (!this.dragging && !this.dragging_camera) {
-      this.word_menu.shown = false;
-      if (!e.shiftKey) {
+    if (!this.dragging && !this.dragging_camera && !this.clickedTools) {
+      //      this.word_menu.shown = false;
+      if (!e.shiftKey && !this.boxSelection) {
         if (this.pressed_node && this.pressed_node.selected) {
-          this.openWordMenuAt(this.pressed_node);
+          //this.openWordMenuAt(this.pressed_node);
         } else {
           this.clearSelection();
         }
       }
       if (this.pressed_node) {
-        this.pressed_node.selected = e.shiftKey
-          ? !this.pressed_node.selected
-          : true;
+        this.pressed_node.selected = e.shiftKey ?
+          !this.pressed_node.selected :
+          true;
       }
     }
     if (this.dragging) {
@@ -583,19 +637,21 @@ class WordcloudWindow {
     this.el.classList.remove("dragging");
     this.dragging_camera = false;
     this.window_downpos = null;
+    this.boxSelection = false;
+    this.clickedTools = false;
   }
   onmousemove(e) {
     this.boxSelection |= e.shiftKey;
-   
+
     var R = this.el.getBoundingClientRect();
     //offset   = elemRect.top - bodyRect.top;
     this.mouse = [e.pageX - R.left, e.pageY - R.top];
-//    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
+    //    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
     if (this.pressed_node) {
       // dragging node
       this.dragging = true;
       this.el.classList.add("dragging");
-      this.word_menu.shown = false;
+      //      this.word_menu.shown = false;
       this.pressed_node._pos = this.pressed_node.pos = sub2(
         this.mouse_wpos,
         this.pressed_offset
@@ -603,7 +659,7 @@ class WordcloudWindow {
       this.pressed_node.user_defined_position = this.pressed_node.pos;
       this.pressed_node.dragging = true;
     } else if (this.window_downpos) {
-      this.word_menu.shown = false;
+      //this.word_menu.shown = false;
       if (this.boxSelection) {
         this.selectionBox.show(this.mouse_down_wpos, this.mouse_wpos);
       } else {
@@ -620,7 +676,7 @@ class WordcloudWindow {
   }
   onzoom(e, wheel) {
     this.log(wheel);
-    this.word_menu.shown = false;
+    //    this.word_menu.shown = false;
     var wpos = this.mouse_wpos;
     var sf = 1;
     if (wheel > 0) {
@@ -635,36 +691,67 @@ class WordcloudWindow {
   }
 
   groupSelected() {
-    this.groupSet(this.selected_nodes);
+    if (this.selected_nodes.size) this.groupSet(this.selected_nodes);
+  }
+
+  formGroup(name, item_names) {
+    //console.log("formGroup");
+    var G = null;
+    if (!name || !this.groupMap.has(name)) {
+      //console.log("NU");
+      G = new WordGroup(name, this);
+      if (name) this.groupMap.set(name, G);
+      this.groups.add(G);
+    } else {
+      G = this.groupMap.get(name);
+    }
+    G.addItems(item_names);
+
+    for (var i of item_names) {
+      var a = this.Map.get(i);
+      if (!a)
+        return console.error("item '" + i + "' is grouped, but not present");
+      a.groups.add(G);
+    }
   }
 
   groupSet(S, title) {
+    //console.log("groupSet " + Array.from(S).map((s) => s.label ? s.label : ("(" + Array.from(s.items).map(n => n.label).join(",") + ")")));
     var N = new Set();
     var G = new Set();
-    for (var n of S) {
-      if (n.isgroup) {
-        G.add(n);
-      } else N.add(n);
-    }
+    for (var n of S)(n.isgroup ? G : N).add(n);
 
-    var item_names = [];
+
     if (G.size == 1) {
-      if (!title) title = G.values().next().value.label;
       N = Array.from(N);
+      if (!title) {
+        let item_labels = N.map(n => n.label);
+        Array.from(G)[0].addItems(item_labels);
+        return this.request("layout");
+      }
     } else {
       for (var g of G) {
         //treat every element in selected group as selected
-        for (var n of g.items) N.add(n);
+        for (var n of g.items) {
+          N.add(n);
+          n.groups.delete(g);
+        }
+        this.groups.delete(g);
+        if (g.title) {
+          this.groupMap.delete(g.title);
+        }
       }
       N = Array.from(N);
-      if (!title)
+      /*if (!title) {
         title = N.reduce(
-          (sum, a) => (sum.normalized_size > a.normalized_size ? sum : a),
-          { normalized_size: Number.NEGATIVE_INFINITY }
+          (sum, a) => (sum.normalized_size > a.normalized_size ? sum : a), {
+            normalized_size: Number.NEGATIVE_INFINITY
+          }
         ).label;
+      }*/
     }
-    var item_names = N.map(a => a.label);
-    this.formGroup(title, item_names);
+    let item_labels = N.map(n => n.label);
+    this.formGroup(title, item_labels);
     this.request("layout");
   }
   deleteSelection() {
@@ -680,8 +767,8 @@ class WordcloudWindow {
       }
     } else if (G.size == 0) {
       for (var n of N) {
-        G = Array.from(n.groups, name => this.groups[name]);
-        if(G.length==0){
+        G = Array.from(n.groups); //, name => this.groups[name]);
+        if (G.length == 0) {
           n.pin.reset();
         }
         for (var g of G) {
@@ -695,25 +782,32 @@ class WordcloudWindow {
         }
       }
     }
+    //console.log("delete sel");
+    //console.log(Array.from(G).map(n => n.label));
+    //console.log(Array.from(N).map(n => n.label));
     this.request("layout");
   }
 
   onkeydown(e) {
     //not every ctrlKey- combination reaches here in chrome ...:(
-    if (e.ctrlKey && e.key == "i") {
+    /*if (e.ctrlKey && e.key == "i") {
       this.openFile();
       e.preventDefault();
     }
     if (e.ctrlKey && e.key == "y") {
       this.openMenu();
       e.preventDefault();
-    }
+    }*/
     if (e.ctrlKey && e.key == "b") {
       this.changeAM();
       e.preventDefault();
     }
     if (e.ctrlKey && e.key == "g") {
-      this.groupSelected();
+      if (e.shiftKey) {
+        this.deleteSelection();
+      } else {
+        this.groupSelected();
+      }
       e.preventDefault();
     }
     if (e.keyCode == 46) {
@@ -721,6 +815,7 @@ class WordcloudWindow {
       e.preventDefault();
     }
   }
+
 
   centerCamera() {
     this.transition = true;
@@ -744,9 +839,12 @@ class WordcloudWindow {
     this.timeout("layout");
   }
 
-  centerAtWord(word){
+  centerAtWord(word) {
+    if (typeof word === "string") {
+      word = this.Map.get(word);
+    }
     this.transition = true;
-    this.pos = sub2( word.pos, this.screenToWorld_vector(scale2(this.WH,.5)) );
+    this.pos = sub2(word.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
     this.transition = false;
   }
 
@@ -793,6 +891,7 @@ class WordcloudWindow {
     this.el.appendChild(W.el);
   }
 
+  /*
   openFile() {
     var loader = document.createElement("input");
     loader.setAttribute("type", "file");
@@ -830,11 +929,11 @@ class WordcloudWindow {
       );
       t.setupContent(wordcloud_object);
     }
-  }
+  }*/
 
+  /*
   setupDummyContent(wordcloud_object) {
-    var els = [
-      {
+    var els = [{
         lemma: "hello"
       },
       {
@@ -884,8 +983,9 @@ class WordcloudWindow {
     //this.addWordGroup();
     this.layoutTsnePositions();
     this.request("layout");
-  }
+  }*/
 
+  /*
   setupDummyContent2(wordcloud_object) {
     this.log("#################################### received Content");
     this.log(wordcloud_object);
@@ -1015,40 +1115,26 @@ class WordcloudWindow {
     ]);
     this.formGroup("Ankü", ["ankündigen"]);
     this.formGroup("Bay", ["Bayer"]);
-    /*
-    var A = [];
-    for (var c in this.collocates) {
-      A.push(c);
-    }
-    function any() {
-      return A[Math.min(A.length - 1, Math.floor(A.length * Math.random()))];
-    }
+  //  var A = [];
+  //  for (var c in this.collocates) {
+  //    A.push(c);
+  //  }
+  //  function any() {
+  //    return A[Math.min(A.length - 1, Math.floor(A.length * Math.random()))];
+  //  }
 
-    for (var i = 0; i < 10; ++i) {
-      var arr = [any()];
-      while (Math.random() > 0.4) {
-        arr.push(any());
-      }
-      this.formGroup(arr[0], arr);
-    }*/
+  //  for (var i = 0; i < 10; ++i) {
+  //    var arr = [any()];
+  //    while (Math.random() > 0.4) {
+  //      arr.push(any());
+  //    }
+  //    this.formGroup(arr[0], arr);
+  //  }
 
     console.log(this.discourses);
     console.log(this.collocates);
-  }
+}*/
 
-  formGroup(name, item_names) {
-    if (!this.groups) this.groups = {};
-    if (!this.groups[name]) this.groups[name] = new WordGroup(name, this);
-    this.groups[name].addItems(item_names);
-
-    // { name, items, color: random_color(true) };
-    for (var i of item_names) {
-      var a = this.Map.get(i);
-      if (!a)
-        return console.error("item '" + i + "' is grouped, but not present");
-      a.groups.add(name);
-    }
-  }
 
   changeAM(ws, am, cws, cam) {
     //if(!this.collocates) return;
@@ -1057,7 +1143,7 @@ class WordcloudWindow {
     //var WS = Object.keys(this.am_by_ws);
     //this.ws = ws ? ws : oneOf(WS);
     //var AM = Object.keys(this.am_by_ws[this.ws]);
-    var AM = Object.keys(this.collocates);
+    var AM = Object.keys(this.am_minmax);
     this.am = am ? am : oneOf(AM);
     console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
 
@@ -1075,34 +1161,53 @@ class WordcloudWindow {
     //this.timeout("changeAM", 3000);
   }
 
-  setupContent2(collocates, coordinates, discoursemes){
-    
-    //console.log(collocates);
-    //console.log(coordinates);
-    //console.log(discoursemes);
-    
-    if(!collocates || !coordinates){
+  setupContent2(collocates, coordinates, discoursemes) {
+
+    console.log(collocates);
+    console.log(coordinates);
+    console.log(discoursemes);
+
+    if (!collocates || !coordinates) {
       return console.error("Wordcloud:  No collocates loaded.");
     }
 
     this.collocates = collocates;
     this.coordinates = coordinates;
     this.am_minmax = {};
-    for(var am of Object.keys(collocates)){
-      this.am_minmax[am] = {min:Number.POSITIVE_INFINITY,max:Number.NEGATIVE_INFINITY};
-      for(var word of Object.keys(collocates[am])){
+    for (var am of Object.keys(collocates)) {
+      if (!collocates[am]) continue;
+      this.am_minmax[am] = {
+        min: Number.POSITIVE_INFINITY,
+        max: Number.NEGATIVE_INFINITY
+      };
+      //console.log("setup " + am);
+      for (var word of Object.keys(collocates[am])) {
+        if (!collocates[am][word]) continue;
+        //console.log(collocates[am][word]);
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
       }
+      //console.log(this.am_minmax[am]);
       this.compare_am = this.am;
       this.am = am;
     }
 
 
-    for(var word of Object.keys(coordinates)){
-      this.addWord( coordinates[word] );
+    for (var word of Object.keys(coordinates)) {
+      this.addWord(coordinates[word]);
       //console.log(coordinates[word]);
     }
+
+
+    for (var disc of discoursemes) {
+      console.log("Discourseme " + disc.title);
+    }
+
+    this.formGroup("Gruppenname", [
+      "wie",
+      "wieso",
+      "das",
+    ]);
 
     this.layoutTsnePositions();
     this.request("layout");
@@ -1119,6 +1224,9 @@ class WordcloudWindow {
     if (!this.requested) this.requested = new Set();
     if (this.requested.has(fncName)) return;
     this.requested.add(fncName);
+    if (fncName == "layout") {
+      this.canvas.clearDebug();
+    }
     requestAnimationFrame(
       ((t, fncName) => () => {
         t.requested.delete(fncName);
@@ -1163,37 +1271,38 @@ class WordcloudWindow {
 
   layout(x) {
 
-    
+
     //callWorker( this );
 
-/*
-    function myworker(){
-      self.addEventListener('message', function(e) {
-        setTimeout(()=>
-        self.postMessage(e.data)
-        ,1000);  
-      }, false);
-    }
-    var wstring = myworker.toString(); 
-    var body = wstring.slice(wstring.indexOf("{") + 1, wstring.lastIndexOf("}"));
-    var blobURL = window.URL.createObjectURL(new Blob([body]));
-    this.worker = new Worker(blobURL);
-    //this.worker = new Worker("./layout_worker.js");
+    /*
+        function myworker(){
+          self.addEventListener('message', function(e) {
+            setTimeout(()=>
+            self.postMessage(e.data)
+            ,1000);  
+          }, false);
+        }
+        var wstring = myworker.toString(); 
+        var body = wstring.slice(wstring.indexOf("{") + 1, wstring.lastIndexOf("}"));
+        var blobURL = window.URL.createObjectURL(new Blob([body]));
+        this.worker = new Worker(blobURL);
+        //this.worker = new Worker("./layout_worker.js");
 
-    this.worker.addEventListener("message", (msg) => console.log("MAIN: got msg: "+msg.data));
-    this.worker.postMessage("Starteth thy work");
-*/
+        this.worker.addEventListener("message", (msg) => console.log("MAIN: got msg: "+msg.data));
+        this.worker.postMessage("Starteth thy work");
+    */
 
     //this.layoutTsnePositions();
-    if (!this.options.show_groups) layout.layoutWordcloudResolveOverlap(this);
-    else layout.layoutWordcloudFormGroupsResolveOverlap(this);
+    //if (!this.options.show_groups) layout.layoutWordcloudResolveOverlap(this);
+    //else 
+    layout.layoutWordcloudFormGroupsResolveOverlap(this);
     ///if (!this.options.show_groups) this.layoutWordcloudResolveOverlap();
     //else this.layoutWordcloudFormGroupsResolveOverlap();
 
 
     this.debugClear();
     this.drawContainmentEdges();
-    this.drawGroups();
+    for (var g of this.groups) g.draw();
 
     this.pos = this.pos;
     this.scale = this.scale;
@@ -1248,81 +1357,82 @@ class WordcloudWindow {
     //    this.request("animation");
   }
 
-//  tsneRepositionVariance() {
-//    var max_variance_factor = this.options.remap_standard_deviation_factor;
-//    var center = null;
-//    for (var [_, a] of this.Map.entries()) {
-//      a.repositioned_tsne_position = null;
-//      if (center === null) center = a.computed_position;
-//      else center = add2(a.computed_position, center);
-//    }
-//    this.log(center);
-//    this.log(this.Map.size);
-//    center = scale2(center, 1 / this.Map.size);
-//
-//    var variance = null;
-//    for (var [_, a] of this.Map.entries()) {
-//      if (variance == null) variance = abs2(sub2(a.computed_position, center));
-//      else variance = add2(variance, abs2(sub2(a.computed_position, center)));
-//    }
-//    variance = scale2(variance, 1 / this.Map.size);
-//    this.log(center);
-//    this.log(variance);
-//
-//    var max_variance = scale2(variance, max_variance_factor);
-//    var min = sub2(center, max_variance);
-//    var max = add2(center, max_variance);
-//
-//    for (var [_, a] of this.Map.entries()) {
-//      var delta = sub2(a.computed_position, center);
-//      if (this.options.remap_standard_deviation_clamp) {
-//        delta = mul2(sign2(delta), min2(abs2(delta), max_variance));
-//      }
-//
-//      if (this.options.remap_standard_deviation_log) {
-//        delta = [
-//          Math.sign(delta[0]) *
-//            max_variance[0] *
-//            Math.log(Math.abs(delta[0]) / max_variance[0] + 1),
-//          Math.sign(delta[1]) *
-//            max_variance[1] *
-//            Math.log(Math.abs(delta[1]) / max_variance[1] + 1)
-//        ];
-//        /*
-//        delta = [
-//          Math.sign(delta[0]) *
-//          max_variance[0] *
-//          (1 -
-//            1 /
-//            Math.pow(
-//              1 + Math.abs(delta[0]) / max_variance[0] / power,
-//              power
-//            )),
-//          Math.sign(delta[1]) *
-//          max_variance[1] *
-//          (1 -
-//            1 /
-//            Math.pow(
-//              1 + Math.abs(delta[1]) / max_variance[1] / power,
-//              power
-//            ))
-//        ];*/
-//      }
-//
-//      if (!this.options.remap_tsne_positions) {
-//        a.repositioned_tsne_position = null;
-//      } else {
-//        a.repositioned_tsne_position = add2(center, delta);
-//      }
-//    }
-//  }
+  //  tsneRepositionVariance() {
+  //    var max_variance_factor = this.options.remap_standard_deviation_factor;
+  //    var center = null;
+  //    for (var [_, a] of this.Map.entries()) {
+  //      a.repositioned_tsne_position = null;
+  //      if (center === null) center = a.computed_position;
+  //      else center = add2(a.computed_position, center);
+  //    }
+  //    this.log(center);
+  //    this.log(this.Map.size);
+  //    center = scale2(center, 1 / this.Map.size);
+  //
+  //    var variance = null;
+  //    for (var [_, a] of this.Map.entries()) {
+  //      if (variance == null) variance = abs2(sub2(a.computed_position, center));
+  //      else variance = add2(variance, abs2(sub2(a.computed_position, center)));
+  //    }
+  //    variance = scale2(variance, 1 / this.Map.size);
+  //    this.log(center);
+  //    this.log(variance);
+  //
+  //    var max_variance = scale2(variance, max_variance_factor);
+  //    var min = sub2(center, max_variance);
+  //    var max = add2(center, max_variance);
+  //
+  //    for (var [_, a] of this.Map.entries()) {
+  //      var delta = sub2(a.computed_position, center);
+  //      if (this.options.remap_standard_deviation_clamp) {
+  //        delta = mul2(sign2(delta), min2(abs2(delta), max_variance));
+  //      }
+  //
+  //      if (this.options.remap_standard_deviation_log) {
+  //        delta = [
+  //          Math.sign(delta[0]) *
+  //            max_variance[0] *
+  //            Math.log(Math.abs(delta[0]) / max_variance[0] + 1),
+  //          Math.sign(delta[1]) *
+  //            max_variance[1] *
+  //            Math.log(Math.abs(delta[1]) / max_variance[1] + 1)
+  //        ];
+  //        /*
+  //        delta = [
+  //          Math.sign(delta[0]) *
+  //          max_variance[0] *
+  //          (1 -
+  //            1 /
+  //            Math.pow(
+  //              1 + Math.abs(delta[0]) / max_variance[0] / power,
+  //              power
+  //            )),
+  //          Math.sign(delta[1]) *
+  //          max_variance[1] *
+  //          (1 -
+  //            1 /
+  //            Math.pow(
+  //              1 + Math.abs(delta[1]) / max_variance[1] / power,
+  //              power
+  //            ))
+  //        ];*/
+  //      }
+  //
+  //      if (!this.options.remap_tsne_positions) {
+  //        a.repositioned_tsne_position = null;
+  //      } else {
+  //        a.repositioned_tsne_position = add2(center, delta);
+  //      }
+  //    }
+  //  }
 
 
-  debugClear(){
+  debugClear() {
+    if (!this.canvas) return;
     this.canvas.clearDebug();
   }
- 
-  debugRepositionLines(){
+
+  debugRepositionLines() {
     var wordset = this;
     for (var [_, a] of wordset.Map.entries()) {
       a._pos = min2(max, a._pos);
@@ -1332,8 +1442,8 @@ class WordcloudWindow {
       }
     }
   }
-  
-  debugRepositionColor(){
+
+  debugRepositionColor() {
     var wordset = this;
     for (var [_, a] of wordset.Map.entries()) {
       if (wordset.options.reposition_shown_by_color) {
@@ -1349,71 +1459,66 @@ class WordcloudWindow {
     }
     //wordset.centerCamera();
   }
- 
-  
-  drawContainmentEdges(){
-  for (var [_, a] of this.Map.entries()) {
-    if(!a.shown) continue;
 
-    //TODO:: for every word, that is in multiple groups:
-    if (this.options.show_lexical_items_of_group && a.groups.size > 1) {
-      // draw a containment edge from the closest Group-Boundary-Point (lerp(Pi,Pi+1,0.5))
-      // Pointing in normal direction
-      // towards the center of the word, stopping at the word-boundary
 
-      for (var gi of a.groups) {
-        var G = this.groups[gi];
-        //var closest = [0, 0];
-        //var normal = [1, 0];
-        var dist = Number.POSITIVE_INFINITY;
-        var P = G.border_path;
-        var ctr = [[0, 0], [0, 0], [0, 0], [0, 0]];
-        var d = (a.max[1] - a.min[1]) / 4;
-        for (var k = 0; k < P.length; ++k) {
-          var A = P[k];
-          var B = P[(k + 1) % P.length];
-          var point = lerp2(A, B, 0.5);
-          var norm = sub2(B, A);
-          norm = [norm[1], -norm[0]]; //orthogonal
-          norm = normalize2(norm);
-          var len = len2(sub2(a._pos, point));
-          function test(target, tnorm) {
-            var dist2 = len2(
-              sub2(
-                add2(point, scale2(norm, len / 5)),
-                add2(target, scale2(tnorm, len / 5 - d))
-              )
-            );
-            if (dist2 < dist) {
-              dist = dist2;
-              ctr = [
-                point,
-                add2(point, scale2(norm, len / 5)),
-                add2(target, scale2(tnorm, len / 5 - d)),
-                add2(target, scale2(tnorm, -d))
-              ];
+  drawContainmentEdges() {
+    for (var [_, a] of this.Map.entries()) {
+      if (!a.shown) continue;
+
+      //TODO:: for every word, that is in multiple groups:
+      if (this.options.show_lexical_items_of_group && a.groups.size > 1) {
+        // draw a containment edge from the closest Group-Boundary-Point (lerp(Pi,Pi+1,0.5))
+        // Pointing in normal direction
+        // towards the center of the word, stopping at the word-boundary
+
+        for (var G of a.groups) {
+          //var closest = [0, 0];
+          //var normal = [1, 0];
+          var dist = Number.POSITIVE_INFINITY;
+          var P = G.border_path;
+          var ctr = [
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 0]
+          ];
+          var d = (a.max[1] - a.min[1]) / 4;
+          for (var k = 0; k < P.length; ++k) {
+            var A = P[k];
+            var B = P[(k + 1) % P.length];
+            var point = lerp2(A, B, 0.5);
+            var norm = sub2(B, A);
+            norm = [norm[1], -norm[0]]; //orthogonal
+            norm = normalize2(norm);
+            var len = len2(sub2(a._pos, point));
+
+            function test(target, tnorm) {
+              var dist2 = len2(
+                sub2(
+                  add2(point, scale2(norm, len / 5)),
+                  add2(target, scale2(tnorm, len / 5 - d))
+                )
+              );
+              if (dist2 < dist) {
+                dist = dist2;
+                ctr = [
+                  point,
+                  add2(point, scale2(norm, len / 5)),
+                  add2(target, scale2(tnorm, len / 5 - d)),
+                  add2(target, scale2(tnorm, -d))
+                ];
+              }
             }
+            test([a._pos[0], a.min[1]], [0, -1]);
+            test([a._pos[0], a.max[1]], [0, 1]);
+            test([a.min[0], a._pos[1]], [-1, 0]);
+            test([a.max[0], a._pos[1]], [1, 0]);
           }
-          test([a._pos[0], a.min[1]], [0, -1]);
-          test([a._pos[0], a.max[1]], [0, 1]);
-          test([a.min[0], a._pos[1]], [-1, 0]);
-          test([a.max[0], a._pos[1]], [1, 0]);
+          this.canvas.debugSpline(ctr, 2, G.color);
         }
-        this.canvas.debugSpline(ctr, 2, G.color);
       }
     }
   }
-}
-
-drawGroups(){
-  for (var g of this.sorted_groups) {
-    g.draw();
-  }
-}
-
-
-
-
 }
 
 ///////////////////////////////////////
@@ -1422,4 +1527,6 @@ drawGroups(){
 //
 ///////////////////////////////////////
 
-export { WordcloudWindow };
+export {
+  WordcloudWindow
+};

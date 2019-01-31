@@ -26,7 +26,10 @@ import {
   fwdEvent
 } from "./util_misc.js";
 
-import { Minimap, MinimapElement } from "./element_minimap.js";
+import {
+  Minimap,
+  MinimapElement
+} from "./element_minimap.js";
 
 class Pin {
   constructor(parent) {
@@ -34,7 +37,17 @@ class Pin {
     this.el = document.createElement("div");
     this.el.classList.add("wordcloud_pin");
     this.el.classList.add("hidden");
-    this.el.appendChild(document.createTextNode("📌"));
+
+    var ic = document.createTextNode("📌");
+    /*  var ic = document.createElement("i");
+    ic.classList.add("v-icon");
+    ic.classList.add("material-icons");
+    ic.classList.add("place_icon");
+    ic.appendChild(document.createTextNode("place"));
+*/
+    this.el.appendChild(ic);
+
+    this.el.addEventListener("click", ((t) => (e) => t.reset(e))(this));
   }
   get pinned() {
     return this._pinned;
@@ -49,7 +62,8 @@ class Pin {
     this.parent.selected = false;
     this.parent._user_defined_position = null;
     this.parent.pos = this.parent.computed_position;
-    this.parent.window.word_menu.shown = false;
+    this.parent.window.request("layout");
+    //this.parent.window.word_menu.shown = false;
     //
   }
 }
@@ -155,7 +169,7 @@ class WordElement {
     window.container.appendChild(this.el);
     this.window = window;
     this.pos = [0, 0];
-    this.size = 1; // + this.normalized_size * 1;
+    this.size = 1 + this.normalized_size * 1;
     this.mini.link();
   }
   get WH() {
@@ -171,7 +185,7 @@ class WordElement {
     return this.window.getCompareSizeOf(this.data);
   }
   get original_position() {
-    return [this.data.tsne_x,this.data.tsne_y];
+    return [this.data.tsne_x, this.data.tsne_y];
   }
 
   get computed_position() {
@@ -179,8 +193,8 @@ class WordElement {
     if (this.repositioned_tsne_position) return this.repositioned_tsne_position;
     return this.original_position;
   }
-  resetPosition(){
-    this.user_defined_position = null;//this.original_position;
+  resetPosition() {
+    this.user_defined_position = null; //this.original_position;
   }
 
   get identifier() {
@@ -219,12 +233,12 @@ class WordElement {
       this.el.style.textShadow = "";
     else
       this.el.style.textShadow =
-        del[0] * 100 +
-        "rem " +
-        del[1] * 100 +
-        "rem " +
-        len2(del) * 10 +
-        "rem #0002";
+      del[0] * 100 +
+      "rem " +
+      del[1] * 100 +
+      "rem " +
+      len2(del) * 10 +
+      "rem #0002";
     this.mini.reposition();
   }
 
@@ -256,7 +270,7 @@ class WordElement {
     this.mini.shown = s;
     return this._shown = s;
   }
-  get shown(){
+  get shown() {
     return this._shown;
   }
   get hidden() {
@@ -310,7 +324,7 @@ class WordElement {
 
     if (this.groups.size == 1) {
       //group-local user position:
-      var G = this.window.groups[this.groups.values().next().value];
+      var G = this.groups.values().next().value;
       p = sub2(p, sub2(G.computed_position, G.center));
     }
 
@@ -319,8 +333,9 @@ class WordElement {
 
   dropAt(el) {
     if (el.isgroup) {
-      if (this.groups.has(el.label)) return;
+      if (this.groups.has(el)) return;
       this.selected = true;
+      el.selected = true;
       this.window.groupSet(this.window.selected_nodes, el.label);
     } else {
       this.selected = true;
@@ -347,9 +362,13 @@ class WordElement {
     this.window.last_selected_node = this;
     this.window.pressed_node = this;
     this.window.pressed_offset = sub2(this.window.mouse_wpos, this.pos);
-    this.window.centerAtWord(this);
+    //this.window.centerAtWord(this);
     e.preventDefault();
   }
 }
 
-export { Pin, WordElement, WordTrend };
+export {
+  Pin,
+  WordElement,
+  WordTrend
+};
