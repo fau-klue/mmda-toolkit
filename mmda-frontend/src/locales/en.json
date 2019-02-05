@@ -10,5 +10,102 @@
     "about": "About",
     "login": "Login",
     "logout": "Logout"
+  },
+  "sidebar": {
+    "profile": "Profile",
+    "analysis": "Analysis",
+    "discourseme": "Discourseme",
+    "position": "Discursive Position",
+    "administration": "Administration",
+    "users": "Users",
+    "objects": "Objects"
+  },
+  "profile": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "updateProfile": "Update Profile",
+    "updatePassword": "Update Password",
+    "updatePassword": "Update Password",
+    "password": "New Password",
+    "passwordRepeat": "Repeat new Password"
+  },
+  "analysis": {
+    "search": "Search",
+    "newAnalysis": "New Analysis",
+    "name": "Name",
+    "corpus": "Corpus",
+    "associatedDiscoursemes": "Associated Discoursemes",
+    "availableDiscoursemes": "Available Discoursemes",
+    "coordinates": "Coordinates",
+    "openWordcloud": "Open Wordcloud",
+    "updateName": "Update Name",
+    "reloadCoordinates": "Reload Coordinates",
+    "delete": "Delete",
+    "new": {
+      "name": "Analysis Name",
+      "corpus": "Corpus",
+      "items": "Topic Items",
+      "windowSize": "Window Size",
+      "submit": "Submit",
+      "clear": "Clear",
+      "helpTitle": "What is an Analysis?",
+      "helpText": "Lorem ipsum dolor",
+      "helpName": "Lorem ipsum dolor",
+      "helpCorpus": "Lorem ipsum dolor",
+      "helpItems": "Lorem ipsum dolor",
+      "helpWindowSize": "Lorem ipsum dolor"
+    }
+  },
+  "discourseme": {
+    "search": "Search",
+    "newDiscourseme": "New Discourseme",
+    "name": "Name",
+    "items": "Lexical Items",
+    "update": "Update",
+    "delete": "Delete",
+    "new": {
+      "name": "Discourseme Name",
+      "items": "Lexical Items",
+      "submit": "Submit",
+      "helpTitle": "What is a Discourseme?",
+      "helpText": "Lorem ipsum dolor",
+      "helpName": "Lorem ipsum dolor",
+      "helpItems": "Lorem ipsum dolor"
+    }
+  },
+  "position": {
+    "search": "Search",
+    "newPosition": "New Discursive Position",
+    "name": "Name",
+    "associatedDiscoursemes": "Associated Discoursemes",
+    "availableDiscoursemes": "Available Discoursemes",
+    "update": "Update Name",
+    "delete": "Delete",
+    "new": {
+      "name": "Discursive Position Name",
+      "discoursemes": "Discoursemes",
+      "submit": "Submit",
+      "clear": "Clear",
+      "helpTitle": "What is a Discursive Position?",
+      "helpText": "Lorem ipsum dolor",
+      "helpName": "Lorem ipsum dolor",
+      "helpDiscoursemes": "Lorem ipsum dolor"
+    }
+  },
+  "admin": {
+    "addUser": "Add User",
+    "newUser": {
+      "username": "User Name",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "updateProfile": "Update Profile",
+      "updatePassword": "Update Password",
+      "updatePassword": "Update Password",
+      "password": "New Password",
+      "passwordRepeat": "Repeat new Password",
+      "isAdmin": "New User is Administrator"
+    }
   }
 }
