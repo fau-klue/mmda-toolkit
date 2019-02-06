@@ -9,7 +9,9 @@
     "delete": "Delete"
   },
   "index": {
-    "top": "This is the Index page"
+    "paragraph1": "The digitalisation of society and media systems has had a major impact on (political) discourses and the formation of public opinion. The purpose of this project is to investigate the transnational algorithmic public sphere, a complex phenomenon that has arisen in an era of globalised mass media and social media connectivity across national borders. An interdisciplinary combination of computational linguistics, network visualisation, intercultural hermeneutics and communication science enables us to analyse and map the processes underlying this phenomenon. The project addresses the current political discussion on nuclear power and renewable energy in Germany and Japan following the Fukushima accident.",
+    "paragraph2": "The project aims to make the analysis faster and more fine-grained by introducing a dynamic and interactive computer-assisted software platform. With the key features being: 1) dynamic visualization based on semantic similarities, enabling a faster identificationof discourses. 2) interactive grouping procedure, in which analyst forms discourses by drag & drop. 3) concordance lines are always in view.",
+    "paragraph3": "Dynamic visualization plays a central role in MMDA-THC. There are two distinct kinds of information that need to be represented. 1) the relevance of a collocate or discourse for the topic (e.g. an association score). 2) semantic similarities and other meaning relations between different collocates and discourse descriptions."
   },
   "login": {
     "username": "Username",
