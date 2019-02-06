@@ -1,10 +1,21 @@
 {
+  "common": {
+    "missingData": "Please enter missing data.",
+    "required": "Input required",
+    "search": "Search",
+    "submit": "Submit",
+    "clear": "Clear",
+    "update": "Update",
+    "delete": "Delete"
+  },
   "index": {
     "top": "This is the Index page"
   },
   "login": {
     "username": "Username",
-    "password": "Password"
+    "password": "Password",
+    "unauthorized": "Incorrect username or password.",
+    "network": "Network Error."
   },
   "toolbar": {
     "about": "About",
@@ -26,12 +37,15 @@
     "email": "Email",
     "updateProfile": "Update Profile",
     "updatePassword": "Update Password",
-    "updatePassword": "Update Password",
     "password": "New Password",
-    "passwordRepeat": "Repeat new Password"
+    "passwordRepeat": "Repeat new Password",
+    "messages": {
+      "passwordMatch": "Passwords do not match.",
+      "passwordChanged": "Password changed.",
+      "updateProfile": "Profile Updated."
+    }
   },
   "analysis": {
-    "search": "Search",
     "newAnalysis": "New Analysis",
     "name": "Name",
     "corpus": "Corpus",
@@ -47,50 +61,39 @@
       "corpus": "Corpus",
       "items": "Topic Items",
       "windowSize": "Window Size",
-      "submit": "Submit",
-      "clear": "Clear",
       "helpTitle": "What is an Analysis?",
-      "helpText": "Lorem ipsum dolor",
-      "helpName": "Lorem ipsum dolor",
-      "helpCorpus": "Lorem ipsum dolor",
-      "helpItems": "Lorem ipsum dolor",
-      "helpWindowSize": "Lorem ipsum dolor"
+      "helpText": "TODO",
+      "helpName": "User-defined name for the new analysis",
+      "helpCorpus": "The corpus for the initial collocation analysis",
+      "helpItems": "Topics items are a set of lexemes, which form the node of a collocation analysis. Lexemes can include multi-word units (MWU).",
+      "helpWindowSize": "Maximum window size for the initial collocation analysis."
     }
   },
   "discourseme": {
-    "search": "Search",
     "newDiscourseme": "New Discourseme",
     "name": "Name",
     "items": "Lexical Items",
-    "update": "Update",
-    "delete": "Delete",
     "new": {
       "name": "Discourseme Name",
       "items": "Lexical Items",
-      "submit": "Submit",
       "helpTitle": "What is a Discourseme?",
-      "helpText": "Lorem ipsum dolor",
-      "helpName": "Lorem ipsum dolor",
-      "helpItems": "Lorem ipsum dolor"
+      "helpText": "TODO",
+      "helpName": "User-defined name for the new discourseme",
+      "helpItems": "Items are a set of lexemes, which form the discourseme. Lexemes can include multi-word units (MWU) and can be adjusted at a later time."
     }
   },
   "position": {
-    "search": "Search",
     "newPosition": "New Discursive Position",
     "name": "Name",
     "associatedDiscoursemes": "Associated Discoursemes",
     "availableDiscoursemes": "Available Discoursemes",
-    "update": "Update Name",
-    "delete": "Delete",
     "new": {
       "name": "Discursive Position Name",
       "discoursemes": "Discoursemes",
-      "submit": "Submit",
-      "clear": "Clear",
       "helpTitle": "What is a Discursive Position?",
-      "helpText": "Lorem ipsum dolor",
-      "helpName": "Lorem ipsum dolor",
-      "helpDiscoursemes": "Lorem ipsum dolor"
+      "helpText": "TODO",
+      "helpName": "User-defined name for the new discursive position",
+      "helpDiscoursemes": "A selection of available discoursemes that are included in the discursive position. Can be adjusted at a later time."
     }
   },
   "admin": {
@@ -100,12 +103,16 @@
       "firstName": "First Name",
       "lastName": "Last Name",
       "email": "Email",
-      "updateProfile": "Update Profile",
-      "updatePassword": "Update Password",
-      "updatePassword": "Update Password",
       "password": "New Password",
       "passwordRepeat": "Repeat new Password",
-      "isAdmin": "New User is Administrator"
+      "isAdmin": "New User is Administrator",
+      "addUser": "Add User"
+    }
+  },
+  "wordcloud": {
+    "sidebar": {
+      "metadata": "Metadata",
+      "windowSize": "Window Size"
     }
   }
 }
