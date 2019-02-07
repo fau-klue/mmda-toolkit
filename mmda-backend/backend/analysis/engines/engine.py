@@ -34,9 +34,9 @@ class Engine(ABC):
         """
         Extract collocates from a corpus.
 
-        :param str topic_query: Query for collocate extraction.
+        :param list items: List of strings (words) for collocate extraction.
         :param int window_size: Window Size for collocate extraction.
-        :param list collocates: (Optional) collocate group for extracting discourse collocates.
+        :param list collocates: (Optional) List of strings (words) for extracting discourse collocates.
         :return: Namedtuple (Collocates) with collocates in DataFrame, f1 and N (see below)
         DataFrame
             index: lexical items
@@ -52,9 +52,9 @@ class Engine(ABC):
         """
         Extract concordances from a corpus.
 
-        :param str topic_query: Query for concordance extraction.
+        :param list items: List of strings (words) for concordance extraction.
         :param int window_size: Window Size for concordance extraction.
-        :param list collocates: (Optional) collocate group for extracting discourse concordances
+        :param list collocates: (Optional) List of strings (words) for extracting discourse concordances
         :param str order: How to sort the concordances. Options: (random)
         :return: list of dictionaries containing the concordances, keys:
             s_pos
