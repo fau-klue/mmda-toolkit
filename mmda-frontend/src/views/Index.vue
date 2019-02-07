@@ -2,11 +2,13 @@
 <v-container grid-list-md>
   <v-layout row wrap>
     <v-flex xs12>
-      <h1>Mixed Method Discourse Analysis</h1>
+      <h2>{{ $t("index.headline1") }}</h2>
 
       <p>{{ $t("index.paragraph1") }}</p>
 
-      <v-parallax src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"></v-parallax>
+      <p>
+        <v-parallax src="https://cdn.vuetifyjs.com/images/parallax/material.jpg"></v-parallax>
+      </p>
 
       <p>{{ $t("index.paragraph2") }}</p>
 
