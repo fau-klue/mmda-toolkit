@@ -7,7 +7,7 @@
           <v-container>
             <v-layout>
               <v-flex xs12 sm12>
-                <h1 class="display-1">New Analysis</h1>
+                <h1 class="display-1"> {{ $t("analysis.newAnalysis") }} </h1>
               </v-flex>
             </v-layout>
           </v-container>
@@ -22,30 +22,29 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                <h1 class="title">What is an Analysis?</h1>
+                <h1 class="title">{{ $t("analysis.new.helpTitle") }}</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                  {{ $t("analysis.new.helpText") }}
                 </p>
 
                 <h1 class="subheading">Name</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("analysis.new.helpName") }}
                 </p>
-
 
                 <h1 class="subheading">Corpus</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("analysis.new.helpCorpus") }}
                 </p>
 
                 <h1 class="subheading">Items</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("analysis.new.helpItems") }}
                 </p>
 
                 <h1 class="subheading">Window Size</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
               </v-flex>

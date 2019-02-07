@@ -22,7 +22,7 @@
             <v-btn color="primary" :loading="loading" :disabled="loading" @click="login">Login</v-btn>
           </v-card-actions>
         </v-card>
-        <v-alert v-model="unsuccessfull" dismissible type="error">Login unsuccessfull. {{ error }}</v-alert>
+        <v-alert v-model="unsuccessfull" dismissible type="error">{{ $t("login.unauthorized") }} </v-alert>
       </v-flex>
     </v-layout>
   </v-container>
