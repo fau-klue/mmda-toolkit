@@ -38,13 +38,14 @@ class Pin {
     this.el.classList.add("wordcloud_pin");
     this.el.classList.add("hidden");
 
-    var ic = document.createTextNode("📌");
-    /*  var ic = document.createElement("i");
+    //var ic = document.createTextNode("📌");
+    var ic = document.createElement("i");
     ic.classList.add("v-icon");
     ic.classList.add("material-icons");
     ic.classList.add("place_icon");
     ic.appendChild(document.createTextNode("place"));
-*/
+
+    this.el.title = "unpin item/group";
     this.el.appendChild(ic);
 
     this.el.addEventListener("click", ((t) => (e) => t.reset(e))(this));
@@ -218,27 +219,27 @@ class WordElement {
     this.el.style.top = p[1] * 100 + "%";
 
     // shadow position
-    var s = this.window.worldToContainer(
-      sub2(
-        lerp2(this._pos, this.original_position, 0.05),
-        scale2(this.WH, 0.5 * this.window.worldPerScreen)
-      )
-    );
+    /*    var s = this.window.worldToContainer(
+          sub2(
+            lerp2(this._pos, this.original_position, 0.05),
+            scale2(this.WH, 0.5 * this.window.worldPerScreen)
+          )
+        );
 
-    var del = sub2(s, p);
-    if (
-      !this.window.options.reposition_shown_by_shadow ||
-      len2(del) * 10 < 0.02
-    )
-      this.el.style.textShadow = "";
-    else
-      this.el.style.textShadow =
-      del[0] * 100 +
-      "rem " +
-      del[1] * 100 +
-      "rem " +
-      len2(del) * 10 +
-      "rem #0002";
+        var del = sub2(s, p);
+        if (
+          !this.window.options.reposition_shown_by_shadow ||
+          len2(del) * 10 < 0.02
+        )
+          this.el.style.textShadow = "";
+        else
+          this.el.style.textShadow =
+          del[0] * 100 +
+          "rem " +
+          del[1] * 100 +
+          "rem " +
+          len2(del) * 10 +
+          "rem #0002";*/
     this.mini.reposition();
   }
 

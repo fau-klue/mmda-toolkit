@@ -70,43 +70,40 @@ export default {
     rules: rules,
     tool: null,
     wc: null,
+    resizeEvent: null,
     tools: [
       {
+        title: "view all",
         icon: "aspect_ratio",
         color: "gray",
-        title: "view all",
         call: () => vm.wc.centerCamera()
       },
       //{ icon: "search", color: "gray", title: "find item" },
       {
+        title: "box selection [shift]",
         icon: "select_all",
         color: "gray",
-        title: "box selection [shift]",
         call: () => (vm.wc.boxSelection = true)
       },
       {
-        icon: "add_circle_outline",
-        color: "gray",
         title:
           "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
+        icon: "add_circle_outline",
+        color: "gray",
         call: () => vm.wc.groupSelected()
       },
       {
+        title: "remove (selected items from) (selected) discourseme [del]",
         icon: "remove_circle_outline",
         color: "gray",
-        title: "remove selected items from (selected) discourseme [del]",
         call: () => vm.wc.deleteSelection()
       },
       { icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
       { icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
-      /*{ icon: "cached", color: "green" },
-      { icon: "thumb_up", color: "deep-orange" },
-      { icon: "favorite", color: "pink" },
-      { icon: "star", color: "indigo" }*/
       {
+        title: "minimap (hide/show)",
         icon: "map",
         color: "gray",
-        title: "minimap",
         call: () => (vm.wc.minimap.shown = !vm.wc.minimap.shown)
       }
     ]
@@ -140,7 +137,7 @@ export default {
         .then(() => {
           this.error = null;
           if (this.wc)
-            this.wc.setupContent2(
+            this.wc.setupContent(
               this.collocates,
               this.coordinates,
               this.discoursemes
@@ -182,20 +179,18 @@ export default {
   },
   mounted() {
     vm = this;
-    let WW = [];
-    for (let A of document.getElementsByClassName(
-      "structured_wordcloud_container"
-    )) {
-      WW.push((this.wc = new WordcloudWindow(A)));
-      window.addEventListener("resize", (W => () => W.resize())(this.wc));
-      //wc.setupContent2(this.collocates, this.coordinates, this.discoursemes);
-      break;
-    }
+    let A = document.getElementsByClassName("structured_wordcloud_container");
+    this.wc = new WordcloudWindow(A[0]);
+    window.addEventListener(
+      "resize",
+      (this.resizeEvent = (W => () => W.resize())(this.wc))
+    );
   },
   beforeDestroy() {
-    console.log("DESTROY!!");
-    this.wc.destroy(); //removing event listeners from document for example
+    //e.g. removing event listeners from document
+    this.wc.destroy();
     delete this.wc;
+    window.removeEventListener("resize", this.resizeEvent);
   }
 };
 </script>

@@ -1,9 +1,3 @@
-import {
-  sub2,
-  div2,
-  add2
-} from "./util_math.js";
-
 ///////////////////////////////////////
 //
 //    Minimap Element
@@ -56,21 +50,6 @@ class Minimap {
 
     //minimap in minimap (inside frame)
     this.frame.appendChild(document.createElement("div"));
-
-    // exit button of the minimap (centering the camera, such that the minimap is not needed)
-    // (minimap is automatically discarded if not needed (all words are visible))
-
-    /*this.exit = document.createElement("div");
-    this.exit.innerHTML = "&#8690;";
-    this.exit.title = "view all";
-    this.exit.classList.add("minimap_exit_button");
-    this.exit.addEventListener(
-      "click",
-      (t => e => {
-        t.window.centerCamera();
-      })(this)
-    );
-    this.el.appendChild(this.exit);*/
     this.max_scale = [20, 20];
   }
 
@@ -96,15 +75,6 @@ class Minimap {
   reposition() {
     var p = this.window.pos;
     var camDimToWorld = this.window.screenToWorld_vector(this.window.WH);
-
-    //hide minimap if unneeded
-    /*var worldCamMax = add2(p, camDimToWorld);
-    this.shown = !(
-      p[0] <= this.window.min[0] &&
-      p[1] <= this.window.min[1] &&
-      worldCamMax[0] >= this.window.max[0] &&
-      worldCamMax[1] >= this.window.max[1]
-    );*/
 
     this.frame.style.left =
       ((p[0] - this.window.min[0]) / this.window.wWH[0]) * 100 + "%";

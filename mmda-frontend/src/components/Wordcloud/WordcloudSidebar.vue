@@ -36,14 +36,14 @@
 import { mapGetters } from "vuex";
 import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
 import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
-import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
+//import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
 
 export default {
   name: "WordcloudSidebar",
   components: {
     WordcloudMetadata,
-    WordcloudWindowsize,
-    WordcloudTools
+    WordcloudWindowsize
+    //    WordcloudTools
   },
   data: () => ({
     sidebar: true,

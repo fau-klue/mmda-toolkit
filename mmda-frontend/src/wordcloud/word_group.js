@@ -50,17 +50,17 @@ class WordGroup {
     this.pin = new Pin(this);
     //this.el.appendChild(this.pin.el);
 
+    this.window.container.appendChild(this.pin.el);
 
     //this.window.container.appendChild(this.el);
     this.linewidth = 2;
     this.color = random_color(true);
   }
-  addItems(item_names) {
+  addItemsByName(item_names) {
     for (var n of item_names) {
       var it = this.window.Map.get(n);
-      this.items.add(it);
-      it.groups.add(this);
-      //this.items.push(this.window.Map.get(n));
+      if (!it) continue;
+      this.addItem(it);
     }
   }
   delete() {
@@ -69,9 +69,15 @@ class WordGroup {
     for (var i of this.items) {
       this.removeItem(i);
     }
-    if (this.pin) this.window.container.removeChild(this.pin.el);
+    //this.window.container.appendChild(this.pin.el);
+    // if (this.pin) 
+    this.window.container.removeChild(this.pin.el);
     //if (this.el) this.window.container.removeChild(this.el);
     //this.el = undefined;
+  }
+  addItem(n) {
+    this.items.add(n);
+    n.groups.add(this);
   }
   removeItem(n) {
     this.items.delete(n);
@@ -222,7 +228,6 @@ class WordGroup {
       this.label
     );
 
-    this.window.container.appendChild(this.pin.el);
 
     var el = this.visual_representation.path.node;
     fwdEvent(this, el, "mouseover");

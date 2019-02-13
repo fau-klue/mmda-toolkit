@@ -87,95 +87,6 @@ function iterativelyInsertObjectsTo(
 }
 
 
-/*function layoutWordcloudResolveOverlap(wordset) {
-  // Profiling
-  //var starttime = Date.now();
-  //var total_Tests = 0;
-  //var total_intersections = 0;
-
-  var sorted_nodes = [];
-  for (var [_, n] of wordset.Map.entries()) {
-    n.offset = [0, 0];
-    n._pos = n.layout_position = n.computed_position;
-    sorted_nodes.push(n);
-  }
-
-  sorted_nodes.sort((a, b) => {
-    if (a.hidden && !b.hidden) return 1;
-    if (!a.hidden && b.hidden) return -1;
-    return b.normalized_size - a.normalized_size;
-  });
-  var min = inf2();
-  for (var [_, a] of wordset.Map.entries()) min = min2(min, a.computed_position);
-  var max = negInf2();
-  for (var [_, a] of wordset.Map.entries()) max = max2(max, a.computed_position);
-  wordset.max = max;
-  wordset.min = min;
-  wordset.wWH = sub2(max, min);
-
-  if (wordset.options.resolve_overlap) {
-    var accGrid = new GridAccelerationStructure(sorted_nodes.length, {
-      min: min,
-      max: max
-    });
-
-    total_intersections += iterativelyInsertObjectsTo(
-      sorted_nodes,
-      accGrid,
-      n => {
-        //Found Intersection and end
-        if (
-          n._pos[0] >= min[0] &&
-          n._pos[0] <= max[0] &&
-          n._pos[1] >= min[1] &&
-          n._pos[1] <= max[1]
-        ) {
-          return true;
-        } else if (n.outer_offset === null) {
-          n.outer_offset = n.offset;
-        }
-        return false;
-      },
-      n => {
-        //shouldTest
-        return (
-          n._pos[0] >= min[0] &&
-          n._pos[0] <= max[0] &&
-          n._pos[1] >= min[1] &&
-          n._pos[1] <= max[1]
-        );
-      }
-    );
-  }
-
-  // recalculate the margin around the drawing area
-  wordset.screenBorder = [0, 0];
-  for (var [_, a] of wordset.Map.entries()) {
-    wordset.screenBorder = max2(a.WH, wordset.screenBorder);
-  }
-  //wordset.centerCamera();
-
-  //    wordset.request("animation");
- //     var n0 = sorted_nodes[0];
- //     wordset.log(n0);
- //     wordset.log(n0.bounds);
- //     wordset.log("Position 0 at " + n0._pos);
- //     wordset.log("          Words: " + sorted_nodes.length);
- //     wordset.log(
- //       "Insertion tests: " +
- //         total_intersections / sorted_nodes.length +
- //         " (/Word)"
- //     );
- //     wordset.log(
- //       "    Bound tests: " + total_Tests / total_intersections + " (/Insertion)"
- //     );
- //     wordset.log("           Took: " + (Date.now() - starttime) + " ms");
- // 
-  //      wordset.redrawLayout();
-  // Send to Parent
-  // wordset.$emit('event_text_ready', vm.list);
-}*/
-
 function layoutWordcloudFormGroupsResolveOverlap(wordset) {
   // Profiling
   var starttime = Date.now();
@@ -190,26 +101,53 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
 
   wordset.error.clear();
   wordset.group_map = {};
-  wordset.min = inf2();
-  wordset.max = negInf2();
 
   var all_nodes = [];
   for (var [_, n] of wordset.Map.entries()) {
     n.offset = [0, 0];
-    n._pos = n.layout_position = n.computed_position;
+    n._pos = n.computed_position;
+    n._pos = max2(n._pos, wordset.min);
+    n._pos = min2(n._pos, wordset.max);
+    n.layout_position = n._pos;
     all_nodes.push(n);
-    wordset.min = min2(wordset.min, n.computed_position);
-    wordset.max = max2(wordset.max, n.computed_position);
     n.shown = !n.hidden;
   }
 
-  wordset.wWH = sub2(wordset.max, wordset.min);
-  var vm = wordset;
   var failedInsertions = [];
 
-  hierarchically_insert_groups(all_nodes, new Set());
+  hierarchically_insert_groups(all_nodes, new Set(), wordset);
+  wordset.screenBorder = [0, 0];
+  for (var [_, a] of wordset.Map.entries()) {
+    wordset.screenBorder = max2(a.WH, wordset.screenBorder);
+  }
 
-  function hierarchically_insert_groups(all_nodes, set_of_parent_groups) {
+  //finalize position
+  for (var [_, a] of wordset.Map.entries()) {
+    a.pos = a._pos;
+  }
+
+  //    wordset.request("animation");
+  //    var n0 = free_nodes[0];
+  //  wordset.log(n0);
+  //wordset.log(n0.bounds);
+  // wordset.log("Position 0 at " + n0._pos);
+  /*wordset.log("          Words: " + all_nodes.length);
+    wordset.log(
+      "Insertion tests: " + total_intersections / all_nodes.length + " (/Word)"
+    );
+    wordset.log(
+      "    Bound tests: " + total_Tests / total_intersections + " (/Insertion)"
+    );
+    wordset.log("           Took: " + (Date.now() - starttime) + " ms");
+*/
+  //      wordset.redrawLayout();
+  // Send to Parent
+  // wordset.$emit('event_text_ready', vm.list);
+
+
+
+
+  function hierarchically_insert_groups(all_nodes, set_of_parent_groups, vm) {
     if (!all_nodes.length) return;
     var min = inf2();
     var max = negInf2();
@@ -319,7 +257,6 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
 
         gmin = G._min;
         gmax = G._max;
-        var P = [];
 
         function margin(pos) {
           /*if(pos[1]<0){ 
@@ -419,38 +356,9 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
     wordset.sorted_groups = sorted_groups;
   }
 
-  wordset.screenBorder = [0, 0];
-  for (var [_, a] of wordset.Map.entries()) {
-    wordset.screenBorder = max2(a.WH, wordset.screenBorder);
-  }
-  //wordset.centerCamera();
-
-  for (var [_, a] of wordset.Map.entries()) {
-    //finalize position
-    a.pos = a._pos;
-  }
-  //    wordset.request("animation");
-
-  //    var n0 = free_nodes[0];
-  //  wordset.log(n0);
-  //wordset.log(n0.bounds);
-  // wordset.log("Position 0 at " + n0._pos);
-  /*wordset.log("          Words: " + all_nodes.length);
-    wordset.log(
-      "Insertion tests: " + total_intersections / all_nodes.length + " (/Word)"
-    );
-    wordset.log(
-      "    Bound tests: " + total_Tests / total_intersections + " (/Insertion)"
-    );
-    wordset.log("           Took: " + (Date.now() - starttime) + " ms");
-*/
-  //      wordset.redrawLayout();
-  // Send to Parent
-  // wordset.$emit('event_text_ready', vm.list);
 }
 
 export {
   iterativelyInsertObjectsTo,
   layoutWordcloudFormGroupsResolveOverlap,
-  //layoutWordcloudResolveOverlap
 }
