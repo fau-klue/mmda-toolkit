@@ -79,7 +79,8 @@ def create_analysis(username):
 
     # Load Collocates
     tokens = []
-    for window_size in range(2, maximal_window_size):
+    # +1 to include upper boundary
+    for window_size in range(2, maximal_window_size + 1):
         # String concatenation to create hash
         identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
         collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=None)
