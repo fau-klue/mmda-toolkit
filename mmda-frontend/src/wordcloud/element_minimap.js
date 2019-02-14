@@ -1,5 +1,3 @@
-import { sub2, div2, add2 } from "./util_math.js";
-
 ///////////////////////////////////////
 //
 //    Minimap Element
@@ -52,34 +50,18 @@ class Minimap {
 
     //minimap in minimap (inside frame)
     this.frame.appendChild(document.createElement("div"));
-
-    // exit button of the minimap (centering the camera, such that the minimap is not needed)
-    // (minimap is automatically discarded if not needed (all words are visible))
-    this.exit = document.createElement("div");
-    this.exit.innerHTML = "&#8690;";
-    this.exit.title = "view all";
-    this.exit.classList.add("minimap_exit_button");
-    this.exit.addEventListener(
-      "click",
-      (t => e => {
-        t.window.centerCamera();
-      })(this)
-    );
-    this.el.appendChild(this.exit);
     this.max_scale = [20, 20];
   }
 
   rescale() {
-    var scale = Math.min(
-      this.window.WH[0] / this.window.wWH[0],
-      this.window.WH[1] / this.window.wWH[1]
-    );
+    var s2 = Math.max(this.window.wWH[0], this.window.wWH[1]);
+
     this.el.style.width =
-      (this.window.wWH[0] / this.window.WH[0]) * scale * this.max_scale[0] +
-      "%";
+      this.window.wWH[0] / s2 * this.max_scale[0] +
+      "rem";
     this.el.style.height =
-      (this.window.wWH[1] / this.window.WH[1]) * scale * this.max_scale[1] +
-      "%";
+      this.window.wWH[1] / s2 * this.max_scale[1] +
+      "rem";
   }
 
   set shown(s) {
@@ -94,15 +76,6 @@ class Minimap {
     var p = this.window.pos;
     var camDimToWorld = this.window.screenToWorld_vector(this.window.WH);
 
-    //hide minimap if unneeded
-    var worldCamMax = add2(p, camDimToWorld);
-    this.shown = !(
-      p[0] <= this.window.min[0] &&
-      p[1] <= this.window.min[1] &&
-      worldCamMax[0] >= this.window.max[0] &&
-      worldCamMax[1] >= this.window.max[1]
-    );
-
     this.frame.style.left =
       ((p[0] - this.window.min[0]) / this.window.wWH[0]) * 100 + "%";
     this.frame.style.top =
@@ -111,14 +84,17 @@ class Minimap {
     this.frame.style.right =
       (1 -
         (p[0] + camDimToWorld[0] - this.window.min[0]) / this.window.wWH[0]) *
-        100 +
+      100 +
       "%";
     this.frame.style.bottom =
       (1 -
         (p[1] + camDimToWorld[1] - this.window.min[1]) / this.window.wWH[1]) *
-        100 +
+      100 +
       "%";
   }
 }
 
-export { Minimap, MinimapElement };
+export {
+  Minimap,
+  MinimapElement
+};

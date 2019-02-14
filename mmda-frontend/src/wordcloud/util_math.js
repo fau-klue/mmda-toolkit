@@ -29,12 +29,15 @@ function lerp2(a, b, t) {
 function len2(a) {
   return Math.sqrt(dot2(a, a));
 }
+
 function normalize2(a) {
   return scale2(a, 1 / len2(a));
 }
+
 function dot2(a, b) {
   return a[0] * b[0] + a[1] * b[1];
 }
+
 function cross2(a, b) {
   return a[0] * b[1] - a[1] * b[0];
 }
@@ -92,55 +95,3 @@ export {
   sign2,
   nan2
 };
-
-/*
-function identity4x4() {
-  return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
-}
-
-function zoom4x4(s) {
-  return [s, 0, 0, 0, 0, s, 0, 0, 0, 0, s, 0, 0, 0, 0, 1];
-}
-
-function mul4x4(a, b) {
-  var res = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  for (var i = 0; i < 4; ++i)
-    for (var j = 0; j < 4; ++j)
-      for (var k = 0; k < 4; ++k) {
-        res[i * 4 + j] += a[k * 4 + j] * b[i * 4 + k];
-      }
-  return res;
-}
-
-function mul4x4_2(A, b) {
-  return [
-    A[0] * b[0] + A[4 * 1 + 0] * b[1] + A[4 * 3 + 0],
-    A[1] * b[0] + A[4 * 1 + 1] * b[1] + A[4 * 3 + 1]
-  ];
-}
-
-function ortho4x4(min, max) {
-  return [
-    2 / (max[0] - min[0]),
-    0,
-    0,
-    0,
-    0,
-    2 / (max[1] - min[1]),
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    -(max[0] - min[0]) / 2,
-    -(max[1] - min[1]) / 2,
-    0,
-    1
-  ];
-}
-
-function lookAt2D(pos) {
-  return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -pos[0], -pos[1], 0, 1];
-}
-*/

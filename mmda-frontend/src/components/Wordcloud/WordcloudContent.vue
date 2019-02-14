@@ -1,5 +1,31 @@
 <template>
-<div>
+  <div>
+    <div class="structured_wordcloud_container">
+      <v-layout fill-height column ma-0>
+        <v-flex shrink class="text-xs-right">
+          <v-btn-toggle class="wordcloud_tools" v-model="tool">
+            <v-btn
+              flat
+              icon
+              :color="button.color"
+              :value="i"
+              v-for="(button,i) in tools"
+              :key="button.icon+button.color"
+              :title="button.title"
+              @click="(x)=>{if(button.call) button.call(x);}"
+              @mousedown="()=>wc.clickedTools=true"
+            >
+              <v-icon>{{button.icon}}</v-icon>
+            </v-btn>
+            <!-- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
+              <v-icon>chevron_right</v-icon>
+            </v-btn>-->
+          </v-btn-toggle>
+        </v-flex>
+      </v-layout>
+    </div>
+
+    <!--
   <v-container grid-list-md>
     <v-layout row wrap>
       <v-flex xs12>
@@ -18,94 +44,153 @@
       </v-flex>
     </v-layout>
   </v-container>
-  <WordcloudSidebar/>
-</div>
+    -->
+    <WordcloudSidebar/>
+  </div>
 </template>
 
-<script>
-import { mapActions, mapGetters } from 'vuex'
-// import { finished } from 'stream'
-// import { WordcloudWindow } from '@/wordcloud/wordcloud.js'
-import rules from '@/utils/validation'
-import WordcloudSidebar from '@/components/Wordcloud/WordcloudSidebar'
-import styles from '@/wordcloud/wordcloud.module.css' // eslint-disable-line no-unused-vars
+<style>
+@import "../../wordcloud/wordcloud.module.css";
+</style>
 
+<script>
+import { mapActions, mapGetters } from "vuex";
+import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
+import rules from "@/utils/validation";
+import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
+//import * as data from '@/wordcloud/example_1.js'
+var vm;
 export default {
-  name: 'WordcloudContent',
+  name: "WordcloudContent",
   components: {
     WordcloudSidebar
   },
   data: () => ({
     id: null,
-    rules: rules
+    rules: rules,
+    tool: null,
+    wc: null,
+    resizeEvent: null,
+    tools: [
+      {
+        title: "view all",
+        icon: "aspect_ratio",
+        color: "gray",
+        call: () => vm.wc.centerCamera()
+      },
+      //{ icon: "search", color: "gray", title: "find item" },
+      {
+        title: "box selection [shift]",
+        icon: "select_all",
+        color: "gray",
+        call: () => (vm.wc.boxSelection = true)
+      },
+      {
+        title:
+          "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
+        icon: "add_circle_outline",
+        color: "gray",
+        call: () => vm.wc.groupSelected()
+      },
+      {
+        title: "remove (selected items from) (selected) discourseme [del]",
+        icon: "remove_circle_outline",
+        color: "gray",
+        call: () => vm.wc.deleteSelection()
+      },
+      { icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
+      { icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
+      {
+        title: "minimap (hide/show)",
+        icon: "map",
+        color: "gray",
+        call: () => (vm.wc.minimap.shown = !vm.wc.minimap.shown)
+      }
+    ]
   }),
   computed: {
     ...mapGetters({
-      user: 'login/user',
-      analysis: 'analysis/analysis',
-      discoursemes: 'analysis/discoursemes',
-      collocates: 'analysis/collocates',
-      coordinates: 'coordinates/coordinates',
-      concordances: 'corpus/concordances',
-      windowSize: 'wordcloud/windowSize'
+      user: "login/user",
+      analysis: "analysis/analysis",
+      discoursemes: "analysis/discoursemes",
+      collocates: "analysis/collocates",
+      coordinates: "coordinates/coordinates",
+      concordances: "corpus/concordances",
+      windowSize: "wordcloud/windowSize"
     })
   },
   methods: {
     ...mapActions({
-      getConcordances: 'corpus/getConcordances',
-      getCollocates: 'analysis/getAnalysisCollocates'
+      getConcordances: "corpus/getConcordances",
+      getCollocates: "analysis/getAnalysisCollocates"
     }),
-    fetchCollocates (window_size) {
+    fetchCollocates(window_size) {
       const request = {
-        params: {'window_size': window_size}
-      }
+        params: { window_size: window_size }
+      };
       const data = {
         username: this.user.username,
         analysis_id: this.id,
         request: request
-      }
-      this.getCollocates(data).then(() => {
-        this.error = null
-      }).catch((error) => {
-        this.error = error
-      })
+      };
+      this.getCollocates(data)
+        .then(() => {
+          this.error = null;
+          if (this.wc)
+            this.wc.setupContent(
+              this.collocates,
+              this.coordinates,
+              this.discoursemes
+            );
+        })
+        .catch(error => {
+          this.error = error;
+        });
     },
-    fetchConcordances (items) {
-      let params = new URLSearchParams()
+    fetchConcordances(items) {
+      let params = new URLSearchParams();
       // Concat item parameter
       items.forEach(function(item) {
-        params.append('item', item)
-      })
+        params.append("item", item);
+      });
       const request = {
         params: params
-      }
+      };
       const data = {
         corpus: this.analysis.corpus,
         request: request
-      }
-      this.getConcordances(data).then(() => {
-        this.error = null
-      }).catch((error) => {
-        this.error = error
-      })
+      };
+      this.getConcordances(data)
+        .then(() => {
+          this.error = null;
+        })
+        .catch(error => {
+          this.error = error;
+        });
     }
   },
-  created () {
-    this.id = this.$route.params.id
-    this.fetchConcordances(['test', 'anothertest'])
-    this.fetchCollocates(3)
+  centerItemLocation(item_string) {
+    this.wc.centerAtWord(item_string);
   },
-  mounted () {
-    // let WW = []
-    // for (let A of document.getElementsByClassName(
-    //   'structured_wordcloud_container'
-    // )) {
-    //   let W
-    //   WW.push((W = new WordcloudWindow(A)))
-    //   window.addEventListener('resize', (W => () => W.resize())(W))
-    //   W.setupContent()
-    // }
+  created() {
+    this.id = this.$route.params.id;
+    //this.fetchConcordances(['test', 'anothertest'])
+    this.fetchCollocates(3);
+  },
+  mounted() {
+    vm = this;
+    let A = document.getElementsByClassName("structured_wordcloud_container");
+    this.wc = new WordcloudWindow(A[0]);
+    window.addEventListener(
+      "resize",
+      (this.resizeEvent = (W => () => W.resize())(this.wc))
+    );
+  },
+  beforeDestroy() {
+    //e.g. removing event listeners from document
+    this.wc.destroy();
+    delete this.wc;
+    window.removeEventListener("resize", this.resizeEvent);
   }
-}
-
+};
 </script>

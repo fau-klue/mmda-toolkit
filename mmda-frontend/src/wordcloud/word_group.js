@@ -19,9 +19,15 @@ import {
   sign2,
   nan2
 } from "./util_math.js";
-import { hex_color_from_array, random_color, fwdEvent } from "./util_misc.js";
+import {
+  hex_color_from_array,
+  random_color,
+  fwdEvent
+} from "./util_misc.js";
 
-import { Pin } from "./word_element.js";
+import {
+  Pin
+} from "./word_element.js";
 
 ///////////////////////////////////////
 //
@@ -44,28 +50,38 @@ class WordGroup {
     this.pin = new Pin(this);
     //this.el.appendChild(this.pin.el);
 
+    this.window.container.appendChild(this.pin.el);
+
     //this.window.container.appendChild(this.el);
     this.linewidth = 2;
     this.color = random_color(true);
   }
-  addItems(item_names) {
+  addItemsByName(item_names) {
     for (var n of item_names) {
-      this.items.add(this.window.Map.get(n));
-      //this.items.push(this.window.Map.get(n));
+      var it = this.window.Map.get(n);
+      if (!it) continue;
+      this.addItem(it);
     }
   }
   delete() {
-    delete this.window.groups[this.label];
+    this.window.groups.delete(this);
     if (this.selected) this.window.selected_nodes.delete(this);
     for (var i of this.items) {
       this.removeItem(i);
     }
+    //this.window.container.appendChild(this.pin.el);
+    // if (this.pin) 
+    this.window.container.removeChild(this.pin.el);
     //if (this.el) this.window.container.removeChild(this.el);
     //this.el = undefined;
   }
+  addItem(n) {
+    this.items.add(n);
+    n.groups.add(this);
+  }
   removeItem(n) {
     this.items.delete(n);
-    n.groups.delete(this.label);
+    n.groups.delete(this);
   }
 
   get isgroup() {
@@ -87,9 +103,9 @@ class WordGroup {
     return [40, 40]; //[this.el.offsetWidth, this.el.offsetHeight];
   }
   get computed_position() {
-    return this.user_defined_position
-      ? this.user_defined_position
-      : this.center;
+    return this.user_defined_position ?
+      this.user_defined_position :
+      this.center;
   }
   get user_defined_position() {
     return this._user_defined_position;
@@ -110,20 +126,33 @@ class WordGroup {
   }
   set _pos(p) {
     this.__pos = p;
-    /*var pixPos = div2(
+    var pixPos = div2(
       sub2(
-        sub2(p, scale2(this.WH, 0.5 * this.window.worldPerScreen)),
+        p, //sub2(p, scale2(this.WH, 0.5 * this.window.worldPerScreen)),
         this.window.min
       ),
       this.window.wWH
-    );*/
+    );
     //this.el.style.left = pixPos[0] * 100 + "%";
     //this.el.style.top = pixPos[1] * 100 + "%";
+
+    this.pin.el.style.left = pixPos[0] * 100 + "%";
+    this.pin.el.style.bottom = (1 - pixPos[1]) * 100 + "%";
     this.redraw();
     return this.__pos;
   }
   get bounds() {
-    return { min: this.min, max: this.max };
+    var vm = this;
+    return {
+      min: this.min,
+      max: this.max,
+      get convex_hull() {
+        return vm.border_path;
+      },
+      set convex_hull(c) {
+        return vm.border_path = c;
+      }
+    };
   }
   get min() {
     return add2(this._pos, this._min);
@@ -135,6 +164,7 @@ class WordGroup {
     this._border_path = P;
   }
   get border_path() {
+    if (!this._border_path) return null;
     var res = [];
     for (var p of this._border_path) {
       res.push(add2(this._pos, p));
@@ -148,8 +178,7 @@ class WordGroup {
     this._selected = v;
 
     this.visual_representation.path.stroke({
-      width:
-        (this._selected ? 3 : 1) * this.window.worldPerScreen * this.linewidth
+      width: (this._selected ? 3 : 1) * this.window.worldPerScreen * this.linewidth
     });
     if (this._selected) {
       this.window.selected_nodes.add(this);
@@ -177,13 +206,9 @@ class WordGroup {
 
   dropAt(el) {
     if (el.isgroup) {
-      for (var n of this.items) {
-        n.selected = true;
-      }
-      this.window.groupSet(this.window.selected_nodes, el.label);
-      this.window.clearSelection();
       this.selected = true;
-      this.window.deleteSelection();
+      el.selected = true;
+      this.window.groupSet(this.window.selected_nodes, el.label);
       this.window.clearSelection();
     }
     //do nothing ...
@@ -202,6 +227,7 @@ class WordGroup {
       this.color,
       this.label
     );
+
 
     var el = this.visual_representation.path.node;
     fwdEvent(this, el, "mouseover");
@@ -237,4 +263,6 @@ class WordGroup {
   }
 }
 
-export { WordGroup };
+export {
+  WordGroup
+};
