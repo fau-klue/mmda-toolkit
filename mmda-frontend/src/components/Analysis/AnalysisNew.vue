@@ -146,7 +146,9 @@ export default {
         this.$router.push('/analysis')
       }).catch((error) => {
         this.error = error
-      }).then()
+      }).then(() => {
+        this.loading = false
+      })
 
     }
   },
