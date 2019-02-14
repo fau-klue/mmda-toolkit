@@ -591,6 +591,7 @@ class WordcloudWindow {
     this.coordinates = coordinates;
     this.am_minmax = {};
     for (var am of Object.keys(collocates)) {
+      //console.log("AM: "+am);
       if (!collocates[am]) continue;
       this.am_minmax[am] = {
         min: Number.POSITIVE_INFINITY,
@@ -610,6 +611,9 @@ class WordcloudWindow {
 
 
     for (var word of Object.keys(coordinates)) {
+      //console.log("AM: "+am);
+
+      coordinates[word].name = word;
       this.addWord(coordinates[word]);
       //console.log(coordinates[word]);
     }
@@ -619,12 +623,14 @@ class WordcloudWindow {
       console.log("Discourseme " + disc.title);
     }
 
+    /*
     var G = this.formGroupByNames([
       "wie",
       "wieso",
       "das",
     ]);
     G.name = "Gruppenname";
+*/
 
     this.layoutTsnePositions();
     this.request("layout");
@@ -677,13 +683,11 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   layout(x) {
-    layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.debugClear();
+    layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.drawContainmentEdges();
     for (var g of this.groups) g.draw();
 
-    for (var [_, n] of this.Map.entries())
-      if (!n.shown) this.debugPoint(n._pos);
     this.pos = this.pos;
     this.scale = this.scale;
   }

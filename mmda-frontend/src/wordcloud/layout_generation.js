@@ -250,8 +250,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
           undefined,
           undefined,
           n => {
-            failedInsertions.push(n.label);
-            n.shown = false;
+            failedInsertions.push(n);
           }
         );
 
@@ -338,18 +337,22 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
           //failed Insertion
           if (n.normalized_size > 0 || n.normalized_size_compare > 0) {
             //if should be visible...
-            failedInsertions.push(n.label);
+            failedInsertions.push(n);
           }
-          n.shown = false;
         }
       );
     }
 
     if (failedInsertions.length) {
+      for(var n of failedInsertions){
+        wordset.debugPoint(n._pos);
+        n.shown = false;
+      }
+      
       vm.error.set(
         " " + failedInsertions.length,
         "Not enough space to show all the lexical items (zoom in to solve). The following lexical item(s) is/are missing:  " +
-        failedInsertions.join(", ")
+        failedInsertions.map((n)=>n.label).join(", ")
       );
     }
 

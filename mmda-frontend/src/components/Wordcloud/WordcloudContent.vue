@@ -4,15 +4,18 @@
       <v-layout fill-height column ma-0>
         <v-flex shrink class="text-xs-right">
           <v-btn-toggle class="wordcloud_tools" v-model="tool">
+         
             <v-btn
               flat
               icon
+              style="z-index:500;"
+              ripple
               :color="button.color"
               :value="i"
               v-for="(button,i) in tools"
               :key="button.icon+button.color"
               :title="button.title"
-              @click="(x)=>{if(button.call) button.call(x);}"
+              @click="(x)=>{ if(button.call) button.call(x);}"
               @mousedown="()=>wc.clickedTools=true"
             >
               <v-icon>{{button.icon}}</v-icon>
@@ -20,7 +23,7 @@
             <!-- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
               <v-icon>chevron_right</v-icon>
             </v-btn>-->
-          </v-btn-toggle>
+          </v-btn-toggle> 
         </v-flex>
       </v-layout>
     </div>
@@ -58,6 +61,7 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
+import { Promise } from 'q';
 //import * as data from '@/wordcloud/example_1.js'
 var vm;
 export default {
@@ -71,40 +75,44 @@ export default {
     tool: null,
     wc: null,
     resizeEvent: null,
+    has_data:false,
     tools: [
       {
         title: "view all",
         icon: "aspect_ratio",
         color: "gray",
-        call: () => vm.wc.centerCamera()
+        call: () =>{vm.tool=null; vm.wc.centerCamera();}
       },
       //{ icon: "search", color: "gray", title: "find item" },
       {
         title: "box selection [shift]",
         icon: "select_all",
         color: "gray",
-        call: () => (vm.wc.boxSelection = true)
+        call: () =>{ 
+          //TODO:: on finished box selection tool=null;
+          vm.tool=null; vm.wc.boxSelection = true;
+        }
       },
       {
         title:
           "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
         icon: "add_circle_outline",
         color: "gray",
-        call: () => vm.wc.groupSelected()
+        call: () =>{vm.tool=null; vm.wc.groupSelected(); }
       },
       {
         title: "remove (selected items from) (selected) discourseme [del]",
         icon: "remove_circle_outline",
         color: "gray",
-        call: () => vm.wc.deleteSelection()
+        call: () =>{vm.tool =null; vm.wc.deleteSelection();}
       },
-      { icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
-      { icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
+      //{ icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
+      //{ icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
       {
         title: "minimap (hide/show)",
         icon: "map",
         color: "gray",
-        call: () => (vm.wc.minimap.shown = !vm.wc.minimap.shown)
+        call: () =>{vm.tool=null; vm.wc.minimap.shown = !vm.wc.minimap.shown;}
       }
     ]
   }),
@@ -122,9 +130,31 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: "corpus/getConcordances",
-      getCollocates: "analysis/getAnalysisCollocates"
+      getCollocates: "analysis/getAnalysisCollocates",
+      addUserDiscourseme: 'discourseme/addUserDiscourseme',
+      updateUserDiscourseme: 'discourseme/updateUserDiscourseme',
+      deleteUserDiscourseme: 'discourseme/deleteUserDiscourseme',
+      getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
+      setUserCoordinates:  'coordinates/setUserCoordinates',
+      getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates'
     }),
-    fetchCollocates(window_size) {
+
+    initializeData(){
+      return Promise.all([
+        this.loadCoordinates(),
+        this.loadCollocates( 2 ),
+        this.loadDiscoursemes()
+      ]);
+    },
+    
+    loadCoordinates () {
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id
+      }
+      return this.getAnalysisCoordinates(data)
+    },
+    loadCollocates(window_size) {
       const request = {
         params: { window_size: window_size }
       };
@@ -133,20 +163,13 @@ export default {
         analysis_id: this.id,
         request: request
       };
-      this.getCollocates(data)
-        .then(() => {
-          this.error = null;
-          if (this.wc)
-            this.wc.setupContent(
-              this.collocates,
-              this.coordinates,
-              this.discoursemes
-            );
-        })
-        .catch(error => {
-          this.error = error;
-        });
+      return this.getCollocates(data);
     },
+    loadDiscoursemes() {
+      return this.getUserDiscoursemes(this.user.username);
+    },
+
+
     fetchConcordances(items) {
       let params = new URLSearchParams();
       // Concat item parameter
@@ -169,13 +192,51 @@ export default {
         });
     }
   },
+
+
+
+    setUserCoordinate(){
+     const data = {
+        username: this.user.username,
+        analysis_id: this.id,
+        user_coordinates:{foobar:{user_x:null,user_y:null}}
+      }
+      this.setUserCoordinates(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      }) 
+    },
+
+  setupContent(){
+    if(this.has_data && this.wc){
+     
+    }
+  },
+  
   centerItemLocation(item_string) {
     this.wc.centerAtWord(item_string);
   },
   created() {
     this.id = this.$route.params.id;
+    console.log("ID: "+this.id);
     //this.fetchConcordances(['test', 'anothertest'])
-    this.fetchCollocates(3);
+    this.initializeData().then(
+      ()=>{
+        this.error = null;
+        if(this.wc)
+        this.wc.setupContent(
+          this.collocates,
+          this.coordinates,
+          this.discoursemes
+        );
+      }).catch((e)=>{
+        this.error = e;
+        if(this.wc)
+          this.wc.errors.set("No Data Available",""+e);
+        else
+          console.error("Data Initialization Failed: " + e);
+      })
   },
   mounted() {
     vm = this;
