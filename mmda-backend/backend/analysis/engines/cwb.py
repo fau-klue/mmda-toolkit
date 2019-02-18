@@ -1,13 +1,14 @@
+#!/usr/bin/python3 -*- coding: utf-8 -*-
 """
 Corpus Workbench Engine
 """
 
 
-from copy import deepcopy
 from subprocess import Popen, PIPE, run, TimeoutExpired
 from logging import getLogger
 from os import getenv
-from re import sub, search, escape
+from re import search
+import xml.etree.ElementTree as ET
 from random import shuffle
 from pandas import DataFrame
 from .engine import Engine
@@ -16,65 +17,23 @@ from .engine import Collocates
 
 LOGGER = getLogger('mmda-logger')
 # TODO: How can we set this in the settings.py?
-REGISTRY_PATH = getenv('MMDA_CQP_REGISTRY', default='/usr/local/cwb-3.4.13/share/cwb/registry')
+REGISTRY_PATH = getenv(
+    'MMDA_CQP_REGISTRY',
+    default='/usr/local/cwb-3.4.13/share/cwb/registry'
+)
 
 
-def create_cqp_query(query):
+def evaluate_cqp_query(corpus_name, cmd):
     """
-    Return original query (if input starts with '[', assuming it is a correct CQP query)
-    or transforms simple input query (i.e. single word) into a CQP query.
+    Lets CQP evaluate a command via Popen.
 
-    :param str query: user input in interface.
-    :return: CQP query as string.
+    :param str corpus_name: corpus to be queried
+    :param str cmd: CQP command
+    :return: decoded return value of CQP
     :rtype: str
     """
 
-    # If the query starts with [ we assume it's a correct CQP query
-    if query.startswith("["):
-        return query
-
-    return '[word = "{}" %c]'.format(query)
-
-
-def create_discourse_query(topic_query, s_break, collocates):
-    """
-    Creates CQP query for a discourse.
-
-    :param str topic_query: original topic query.
-    :param str s_break: s-attribute where to break (typically 's' or 'tweet').
-    :param list collocates: list of lemmas (discourseme).
-    :return: discourse CQP query as string.
-    :rtype: str
-    """
-
-    topic_query = create_cqp_query(topic_query)
-
-    # Create CQP command from list of collocates
-    collocate_group = list()
-    for coll in collocates:
-        collocate_group.append('lemma = "{coll}"'.format(coll=coll))
-
-    collocate_group = " | ".join(collocate_group)
-
-    # Create full CQP query
-    query = 'MU (meet [{collocate_group}] {topic_query} {br})'.format(
-        topic_query=topic_query,
-        collocate_group=collocate_group,
-        br=s_break)
-
-    return query
-
-
-def start_cqp_command(corpus_name):
-    """
-    Creates a CQP command to be executed by Popen.
-
-    :param str corpus_name: Corpus to be queried.
-    :return: CQP command as list.
-    :rtype: list
-    """
-
-    return [
+    start_cqp = [
         'cqp',
         '-c',
         '-r',
@@ -83,49 +42,440 @@ def start_cqp_command(corpus_name):
         corpus_name.upper()
     ]
 
+    cqp_process = Popen(start_cqp,
+                        stdin=PIPE,
+                        stdout=PIPE,
+                        stderr=PIPE)
 
-def make_ucs_command(corpus_name,
-                     topic_query,
-                     window_size,
-                     s_break,
-                     collocates=None):
+    try:
+        cqp_return = cqp_process.communicate(cmd.encode())[0]
+
+    except Exception:
+        LOGGER.error('Error during execution of CQP command')
+        raise OSError('Error during execution of CQP command')
+
+    return cqp_return.decode()
+
+
+def evaluate_ucs_query(corpus_name, ucs_cmd, add_cmd):
     """
-    Compiles a ucs-tool command to be executed by Popen. Either with or without discourse collocates.
+    Lets UCS evalutate a command via Popen.
 
-    :param str corpus_name: Corpus to be queried.
-    :param str window_size: window size for collocate retrieval.
-    :param str topic_query: Query to be extracted.
-    :param str s_break: s-attribute where to break (typically 's' or 'tweet').
-    :param list collocates: (Optional) collocate group for discourse collocates.
-    :return: ucs-tool command as list.
+    :param str corpus_name: corpus to be queried
+    :param str cmd: query to be used
+    """
+
+    try:
+        ucs_process = Popen(ucs_cmd, stdout=PIPE)
+        add_process = run(add_cmd,
+                          stdin=ucs_process.stdout,
+                          stdout=PIPE,
+                          stderr=PIPE,
+                          timeout=300)
+
+    except TimeoutExpired:
+        LOGGER.error('Error during ucs-add. Timeout during query.')
+        return DataFrame()
+
+    except Exception:           # pylint: disable=broad-except
+        LOGGER.error('Error during ucs-add.')
+        return DataFrame()
+
+    ucs_return = add_process.stdout
+    # error handling for UCS toolkit
+    if len(ucs_return) == 0:
+        LOGGER.error(
+            'Collocation extraction failed. Empty return for UCS query.'
+        )
+        LOGGER.debug([ucs_cmd, add_cmd])
+        raise ValueError(
+            'Collocation extraction failed. Empty return for UCS query.'
+        )
+
+    return ucs_return.decode()
+
+
+# CQP QUERIES ##########################################################
+def create_cqp_query_from_items(items, p_att):
+    """
+    Creates CQP query from item-list
+
+    :param list items: user input in interface (list of tokens)
+    :parm p_att str: p-attribute to query
+    :return: CQP query as string
+    :rtype: str
+    """
+
+    query = '[{p_att}="{items}"]'.format(
+        p_att=p_att,
+        items='|'.join(items)
+    )
+
+    return query
+
+
+def create_topic_discourseme_query(topic_items,
+                                   discourseme_items,
+                                   p_att,
+                                   s_att):
+    """
+    Creates CQP query for a discourseme given a topic.
+    Uses MU to determine s_att-areas that contain both.
+
+    :param str topic_items: topic items
+    :param str discourseme_items: discourseme items
+    :param str p_att: p-attribute to query (typically 'lemma')
+    :param str s_att: s-attribute where to break (typically 's' or 'tweet')
+    :return: topic-discourseme CQP query as string
+    :rtype: str
+    """
+    query = 'MU (meet {discourseme_query} {topic_query} {s_att})'
+    query = query.format(
+        discourseme_query=create_cqp_query_from_items(discourseme_items, p_att),
+        topic_query=create_cqp_query_from_items(topic_items, p_att),
+        s_att=s_att
+    )
+
+    return query
+
+
+def create_topic_discourseme_query_window(topic_items,
+                                          discourseme_items,
+                                          p_att,
+                                          s_att,
+                                          window_size):
+    """
+    Creates CQP query for a discourseme given a topic.
+    Includes window_size breaks.
+
+    :param str topic_items: topic items
+    :param str discourseme_items: discourseme items
+    :param str p_att: p-attribute to query (typically 'lemma')
+    :param str s_att: s-attribute where to break (typically 's' or 'tweet')
+    :return: topic-discourseme CQP query as string
+    :rtype: str
+    """
+    query = '(({topic_query} []{{,{ws}}} @{discourseme_query}) ' +\
+            '| (@{discourseme_query} []{{,{ws}}} {topic_query})) ' +\
+            'within {s_att}'
+    query = query.format(
+        discourseme_query=create_cqp_query_from_items(discourseme_items, p_att),
+        topic_query=create_cqp_query_from_items(topic_items, p_att),
+        s_att=s_att,
+        ws=window_size
+    )
+
+    return query
+
+
+# CONCORDANCES ##########################################################
+def cqp_concordances(corpus_name,
+                     s_att,
+                     p_att,
+                     topic_items,
+                     window_size,
+                     discourseme_items=None):
+    """
+    Uses CQP to get concordances for a given list of topic items.
+    Optional discourseme items.
+
+    :param str corpus_name: corpus to be queried
+    :param str s_att: s-attribute where to break (typically 's' or 'tweet')
+    :param str p_att: p-attribute to be queried (typically 'lemma')
+    :param list topic_items: list of topic items
+    :param int window_size: window size used in extraction
+    :param list discourseme_items: optional list of discourseme items
+    :return: tuple of raw concordance strings (words + queried p-attribute)
+    :rtype: tuple
+    """
+
+    # cqp settings
+    cqp_settings = 'set PrintOptions hdr;' +\
+                   'set ShowTagAttributes on;' +\
+                   'set PrintMode sgml;' +\
+                   'set Context 1 {s_att};'
+    cqp_settings = cqp_settings.format(
+        s_att=s_att
+    )
+
+    if p_att != "word":
+        cqp_settings_p_att = 'set PrintOptions hdr;' +\
+                   'set ShowTagAttributes on;' +\
+                   'set PrintMode sgml;' +\
+                   'set Context 1 {s_att};' +\
+                   'show -word +{p_att};'
+        cqp_settings_p_att = cqp_settings_p_att.format(
+            p_att=p_att,
+            s_att=s_att
+        )
+
+    # retrieve topic concordances if no discourseme items are provided
+    if discourseme_items is None:
+        cqp_exec = 'A = {query}; cat A;'
+        cqp_exec = cqp_exec.format(
+            query=create_cqp_query_from_items(topic_items, p_att)
+        )
+
+    # retrieve topic-discourseme concordances
+    elif isinstance(discourseme_items, list):
+        cqp_exec = 'A = {query}; cat A;'
+        cqp_exec = cqp_exec.format(
+            query=create_topic_discourseme_query_window(
+                topic_items,
+                discourseme_items,
+                p_att,
+                s_att,
+                window_size
+            )
+        )
+
+    # raise an Error if discourseme items are not a list
+    else:
+        LOGGER.error('discourseme items are not a list')
+        raise TypeError('discourseme items are not a list')
+
+    # get raw concordances
+    concordances_raw = evaluate_cqp_query(
+        corpus_name,
+        cqp_settings + cqp_exec
+    )
+    # get concordances of queried p-attribute
+    if p_att != "word":
+        concordances_p_att = evaluate_cqp_query(
+            corpus_name,
+            cqp_settings_p_att + cqp_exec
+        )
+    else:
+        concordances_p_att = concordances_raw
+
+    # give back the raw concordances
+    return concordances_raw, concordances_p_att
+
+
+# CQP formatting
+def _process_simple_match(match):
+    # matches have the tokens as children
+    match_tokens = list()
+    match_roles = list()
+    for match_child in match.getchildren():
+        match_tokens.append(match_child.text)
+        match_roles.append('topic')
+    return match_tokens, match_roles
+
+
+def _process_complex_match(match):
+    # matches consist of tokens and collocates
+    match_tokens = list()
+    match_roles = list()
+    for match_child in match.getchildren():
+        # tokens only have a text element
+        if match_child.tag == 'TOKEN':
+            match_roles.append('token')
+            match_tokens.append(match_child.text)
+        # collocates have the tokens as children
+        elif match_child.tag == 'COLLOCATE':
+            for token in match_child.getchildren():
+                match_roles.append('collocate')
+                match_tokens.append(token.text)
+
+    # either the first or last element of the match is the topic
+    # TODO: doesn't work for multiple topic hits
+    if match_roles[0] == 'token':
+        match_roles[0] = 'topic'
+    elif match_roles[-1] == 'token':
+        match_roles[-1] = 'topic'
+
+    return match_tokens, match_roles
+
+
+def _process_match(match, simple):
+    # TODO solve case differentiation
+    if simple:
+        return _process_simple_match(match)
+    else:
+        return _process_complex_match(match)
+
+
+def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
+
+    if order != 'first':
+        LOGGER.error(
+            'can only format first "cut_off" concordances from CWB'
+        )
+        raise NotImplementedError(
+            'can only format first "cut_off" concordances from CWB'
+        )
+
+    # init output
+    lines = dict()
+
+    # loop through CQP return value
+    for line in cqp_return.split("\n"):
+
+        # get p_attribute
+        t = search('<attribute type=positional name="(\w+)" anr=0>', line)
+        if t:
+            p_att = t.group(1)
+
+        # get number of concordances
+        t = search("<subcorpusInfo size=(\d+)>", line)
+        if t:
+            size = t.group(1)
+            if int(size) > cut_off:
+                LOGGER.warning('only %d values will be retrieved' % cut_off)
+
+        # process concordances lines
+        if line.startswith("<LINE>"):
+
+            # rows contain MATCHNUM[0] and CONTENT[1]
+            row = ET.fromstring(line)
+            matchnum = row[0].text
+            tokens = list()
+            roles = list()
+
+            # CONTENT contains TOKENs and MATCHes
+            for child in row[1].getchildren():
+
+                # TOKENs only have one text element
+                if child.tag == 'TOKEN':
+                    roles.append('token')
+                    tokens.append(child.text)
+
+                elif child.tag == 'MATCH':
+                    # TODO get rid of case-folding for MATCH
+                    match_tokens, match_roles = _process_match(child, simple)
+                    # append tokens and roles of match
+                    tokens += match_tokens
+                    roles += match_roles
+
+            # save concordance line
+            lines[matchnum] = {
+                p_att: tokens,
+                'role': roles
+            }
+
+            # TODO
+            if len(lines) >= cut_off:
+                break
+
+    return lines
+
+
+def merge_concordances(conc1, conc2):
+
+    for s_pos in conc1.keys():
+        if s_pos in conc1.keys():
+            for key in (set(conc2[s_pos].keys()) - set(conc1[s_pos].keys())):
+                conc1[s_pos][key] = conc2[s_pos][key]
+        else:
+            LOGGER.warning("concordances don't overlap")
+
+    return conc1
+
+
+def sort_concordances(concordances, order='random'):
+    """
+    Shuffles concordance dictionary
+    Returns shuffled list
+    """
+
+    if order != 'random':
+        LOGGER.error(
+            'can only shuffle formatted concordances'
+        )
+        raise NotImplementedError(
+            'can only shuffle formatted concordances'
+        )
+
+    else:
+        shuffled_concordances = list()
+        shuffled_keys = list(concordances.keys())
+        shuffle(shuffled_keys)
+        for key in shuffled_keys:
+            conc = concordances[key]
+            conc['s_pos'] = key
+            shuffled_concordances.append(conc)
+        return shuffled_concordances
+
+
+# COLLOCATES ##########################################################
+def ucs_collocates(corpus_name,
+                   s_att,
+                   p_att,
+                   topic_items,
+                   window_size,
+                   assoc_measures,
+                   discourseme_items=None):
+
+    # create the UCS commands
+    ucs_cmd, ucs_add = create_ucs_query(corpus_name,
+                                        topic_items,
+                                        p_att,
+                                        window_size,
+                                        s_att,
+                                        assoc_measures,
+                                        discourseme_items)
+
+    # get collocates
+    collocates_raw = evaluate_ucs_query(corpus_name, ucs_cmd, ucs_add)
+
+    return collocates_raw
+
+
+def create_ucs_query(corpus_name,
+                     topic_items,
+                     p_att,
+                     window_size,
+                     s_att,
+                     assoc_measures,
+                     discourseme_items=None):
+    """
+    Compiles a UCS query to be executed by Popen.
+    Either with or without discourseme collocates.
+
+    :param str corpus_name: corpus to be queried
+    :param list topic_items: topic items
+    :param str p_att: p-attribute to query
+    :param str window_size: window size for collocate retrieval
+    :param str s_att: s-attribute where to break (typically 's' or 'tweet')
+    :param list discourseme_items: (optional) collocate group for discourseme collocates
+    :return: UCS command as list
     :rtype: list
     """
 
-    # Retrieve only topic collocates of no discourse collocates are provided
-    if collocates is None:
-        query = create_cqp_query(topic_query)
+    # retrieve topic collocates if no discourseme items are provided
+    if discourseme_items is None:
+        query = create_cqp_query_from_items(topic_items, p_att)
 
-    # Retrieve discourse collocates
-    elif isinstance(collocates, list):
+    # retrieve topic-discourseme collocates
+    elif isinstance(discourseme_items, list):
         if window_size:
-            LOGGER.warning('Window size provided, but are retrieving discourse collocates. window size will be ignored')
-        query = create_discourse_query(topic_query, s_break, collocates)
-    else:
-        raise TypeError('Collocate group is not a list')
+            LOGGER.warning('Window size provided, but retrieving discourse collocates. ' +
+                           'Window size will be ignored')
+        query = create_topic_discourseme_query(topic_items,
+                                               discourseme_items,
+                                               p_att,
+                                               s_att)
 
-    return [
+    # raise an Error if discourseme items are not a list
+    else:
+        LOGGER.error('discourseme items are not a list')
+        raise TypeError('discourseme items are not a list')
+
+    # return UCS command as list
+    ucs_cmd = [
         "ucs-tool",
         "surface-from-cwb-query",
         "-q",
         "-S",
-        str(s_break),
+        str(s_att),
         "-w",
         str(window_size),
         "-nh",
         "-r",
         REGISTRY_PATH,
         "-ca",
-        "lemma",
+        str(p_att),
         "-M",
         # cache marginal frequencies
         "/tmp/mmda_marginals_{corpus}_lemma.gz".format(corpus=corpus_name),
@@ -133,387 +483,162 @@ def make_ucs_command(corpus_name,
         "-f", "1",
         str(corpus_name),
         "-",
-        query,
+        "{query}".format(query=query),
         # so queries matching multiple words or phrases are treated
         # as a single node type (requires UCS revision >= r41)
         'NODE'
     ]
 
+    # create query
+    add_cmd = ["ucs-add"] + assoc_measures
 
-def format_cqp_concordances(concordances, topic_query, collocate=None):
-    """
-    Formats the return of a CQP query into a list of dictionaries.
+    LOGGER.debug("UCS pipe:  " + " ".join(ucs_cmd) + " | " + " ".join(add_cmd))
 
-    :param list concordances: List of concordances extracted from a CQP command.
-    :param str topic_query: Topic query that was used for extraction.
-    :param str collocate: (Optional) collocate that was used for extraction.
-    :return: List of dictionaries containing concordances.
-    :rtype: list
-    """
-
-    concs_f = list()
-
-    for conc in concordances:
-        # init formatted concordance
-        conc_f = dict()
-        # get sentence position
-        conc_f['s_pos'] = int(search(r"\s*(\d{1,}):\s+", conc).group(1))
-
-        # pre-format concordance
-        conc_p = sub(r"^\s*\d{1,}:\s+", "", conc).split(" ")
-        conc_f['tokens'] = list()
-        conc_f['lemmas'] = list()
-        conc_f['emphas'] = list()
-        for elem in conc_p:
-            # tokens and lemmas are separated by "/"
-            # problem if token or lemma contains character "/"
-            if elem == "///":
-                token = lemma = "/"  # catch the most common and annoying case
-            elif elem.count("/") != 1:
-                token = lemma = "ERR"  # need better solution here
-            else:
-                token, lemma = elem.split("/")
-            if search(escape(lemma), topic_query):
-                empha = "node"
-            elif collocate:
-                if lemma == collocate:
-                    empha = "coll"
-                else:
-                    empha = None
-            else:
-                empha = None
-
-            conc_f['tokens'].append(token)
-            conc_f['lemmas'].append(lemma)
-            conc_f['emphas'].append(empha)
-
-        concs_f.append(conc_f)
-
-    return concs_f
+    return ucs_cmd, add_cmd
 
 
-def sentence_positions_of_cqp_query(corpus_name, cqp_query):
-    """
-    Returns positions of sentences containing a given lemma.
-
-    :param str corpus_name: Corpus to be queried.
-    :param str cqp_query: CQP query to get sentences for.
-    :return: list of sentence positions in corpus.
-    :rtype: list
-    """
-
-    cqp_query = create_cqp_query(cqp_query)
-    cqp_exec = 'A = {cqp_query}; A = A expand to s; cat A;'
-    cqp_exec = cqp_exec.format(cqp_query=cqp_query)
-
-    cqp_cmd = start_cqp_command(corpus_name)
-    cqp_process = Popen(cqp_cmd,
-                        stdin=PIPE,
-                        stdout=PIPE,
-                        stderr=PIPE)
-
-    try:
-        sentences = cqp_process.communicate(cqp_exec.encode())
-        sentences = sentences[0].decode().split("\n")[1:-1]
-        positions = [int(sentence.lstrip().split(": ")[0]) for sentence in sentences]
-    except Exception:
-        LOGGER.error('Error during cqp command')
-        raise OSError('Error during cqp command')
-
-    return positions
-
-
-def cqp_concordances_of_topic(corpus_name, topic_query):
-    """
-    Uses cqp to get concordances for a given query
-
-    :param str corpus_name: corpus to be queried
-    :param str cqp_query: cqp query to extract concordances for
-    :return: list containing concordances
-    :rtype: list
-    """
-
-    cqp_cmd = start_cqp_command(corpus_name)
-    cqp_process = Popen(cqp_cmd,
-                        stdin=PIPE,
-                        stdout=PIPE,
-                        stderr=PIPE)
-
-    topic_query = create_cqp_query(topic_query)
-
-    cqp_exec = 'set LD ""; set RD ""; set Context 1 s; show +lemma;' +\
-               'query={topic_query}; cat query;'.format(topic_query=topic_query)
-
-    try:
-        concordances = cqp_process.communicate(cqp_exec.encode())
-        concordances = concordances[0].decode().split("\n")[1:-1]
-    except Exception:
-        LOGGER.error('Error during cqp command')
-        raise OSError('Error during cqp command')
-
-    return format_cqp_concordances(concordances=concordances, topic_query=topic_query)
-
-
-def cqp_concordances_of_collocate(corpus_name,
-                                  topic_query,
-                                  collocate,
-                                  window_size,
-                                  s_break):
-    """
-    Uses CQP to get concordances for a given topic query and one of its collocates.
-
-    :param str corpus_name: Corpus to be queried.
-    :param str topic_query: Topic query which was used for the collocation analysis.
-    :param str collocate: One of the topic collocates.
-    :param int window_size: Window size used in extraction.
-    :param str s_break: s-attribute where to break (typically 's' or 'tweet').
-    :return: list of dictionaries containing concordances.
-    :rtype: list
-    """
-
-    topic_query = create_cqp_query(topic_query)
-    # TODO: Sentence boundary s should not be hardcoded
-    cqp_exec = 'set LD ""; set RD ""; set Context 1 s; show +lemma;' +\
-               'A = ({topic_query} []{{,{ws}}} [lemma = "{coll}"])' +\
-               '| ([lemma = "{coll}"] []{{,{ws}}} {topic_query})' +\
-               'within {br};' +\
-               'A = A expand to {br}; cat A;'
-
-    cqp_exec = cqp_exec.format(
-        topic_query=topic_query,
-        coll=collocate,
-        ws=window_size,
-        br=s_break
-    )
-
-    cqp_cmd = start_cqp_command(corpus_name)
-    cqp_process = Popen(cqp_cmd,
-                        stdin=PIPE,
-                        stdout=PIPE,
-                        stderr=PIPE)
-
-    try:
-        raw_concordances = cqp_process.communicate(cqp_exec.encode())
-        raw_concordances = raw_concordances[0].decode().split("\n")[1:-1]
-    except Exception:
-        LOGGER.error('Error during cqp command')
-        raise OSError('Error during cqp command')
-
-    # TODO: Probably bad for error handling
-    return format_cqp_concordances(concordances=raw_concordances, topic_query=topic_query, collocate=collocate)
-
-
-def merge_concordances(concordances_a, concordances_b):
-    """
-    Combines two concordances with the same sentence id.
-
-    :param str concordances_a: Formatted concordance to merge.
-    :param str concordances_b: Formatted concordance to merge.
-    :raises RunTimeError: If concordances are not equal.
-    :return: Merged concordance dictionary.
-    :rtype: dict
-    """
-
-    if concordances_a['s_pos'] != concordances_b['s_pos']:
-        LOGGER.warning('Concordance ids are not equal')
-        raise ValueError('Concordance ids are not equal')
-
-    concordances = deepcopy(concordances_a)
-    concordances['emphas'] = list()
-
-    for elem_a, elem_b in zip(concordances_a['emphas'], concordances_b['emphas']):
-        if elem_a is not None:
-            concordances['emphas'].append(elem_a)
-        else:
-            concordances['emphas'].append(elem_b)
-
-    return concordances
-
-
-def cqp_concordances_of_discourse(corpus_name,
-                                  topic_query,
-                                  window_size,
-                                  s_break,
-                                  collocates):
-    """
-    Uses CQP to get concordances for a discourse (topic + group of collocates).
-
-    :param str corpus_name: Corpus to be queried.
-    :param str topic_query: topic query which was used for the collocation analysis.
-    :param list collocates: Collocates that make up the discourse.
-    :param int window_size: Window size used in extraction.
-    :param str s_break: s-attribute where to break (typically 's' or 'tweet').
-    :return: dictionary of dictionaries containing concordances (key: s_pos).
-    :rtype: dict
-    """
-
-    concordances_all = dict()
-
-    for collocate in collocates:
-        concordances = cqp_concordances_of_collocate(corpus_name,
-                                                     topic_query,
-                                                     collocate,
-                                                     window_size=window_size,
-                                                     s_break=s_break)
-
-        for conc in concordances:
-            if conc['s_pos'] not in concordances_all.keys():
-                concordances_all[conc['s_pos']] = conc
-            else:
-                # Concordance already exsists, merging the two
-                existing_conc = concordances_all[conc['s_pos']]
-                concordances_all[conc['s_pos']] = merge_concordances(conc, existing_conc)
-
-    return list(concordances_all.values())
-
-
-def sort_concordances(concordances, order):
-    """
-    Sort concordances according to order passed. Hint: Currently only Random.
-
-    :return: List of concordances in specified order.
-    :rtype: list
-    """
-
-    # TODO: Implement further methods
-    if order == 'random':
-        shuffle(concordances)
-    else:
-        LOGGER.error('Sampling method not implemented')
-        LOGGER.debug(order)
-        raise NotImplementedError('Sampling method not implemented')
-
-    return concordances
-
-
-def format_ucs_data(data, association_measures):
+def format_ucs_collocates(ucs_return, assoc_measures):
     """
     Adds association measures to data from ucs_tool_collocates.
 
     :param pandas.DataFrame data: DataFrame to transform (contains f1, N, l2, O11)
-    :param list association_measures: Association measures to use.
-    :return: Tuple of DataFrame with added association measures, f1 and N
+    :param list association_measures: association measures to use
+    :return: tuple of DataFrame with added association measures, f1, and N
     :rtype: tuple
     """
 
-    f1_score = int(data['f1'][0])
-    n_value = int(data['N'][0])
-
-    data.index = data['l2']
-    data.index.name = 'item'
-
-    data = data[['f2', 'f'] + association_measures]
-    data.columns = ['f2', 'O11'] + association_measures
-
-    return Collocates(data=data, f1=f1_score, N=n_value)
-
-
-def ucs_tool_collocates(corpus_name,
-                        topic_query,
-                        window_size,
-                        assoc_measures,
-                        s_break,
-                        collocates=None):
-    """
-    Runs ucs-tool surface-from-cwb-query and ucs-add with the measures provided.
-
-    **Example**
-    This is how you call the ucs-tool in the shell:
-       ucs-tool surface-from-cwb-query -q -S s -w 5 -nh -r /opt/registry/ sz_small - '"Atomkraft"'
-
-    **Python**
-    This is how you call this function::
-        collocates_from_cwb_query(corpus='SZ_SMALL', registry='/opt/cwb/registry', query='Atom', windowsize=4, measures=['am.simple.ll'], boundary='s')
-
-    :param str corpus_name: Corpus to be queried.
-    :param str topic_query: Query to extract.
-    :param str window_size: Window size to be used in command.
-    :param list association_measures: Association measures to be used.
-    :param str s_break: s-attribute where to break (typically 's' or 'tweet').
-    :param str collocates: (Optional) collocate group for discourse collocates.
-    :return: DataFrame containing collocates extraced by ucs-toolkit.
-    :rtype: pandas.DataFrame
-    """
-
-    add_cmd = ["ucs-add"] + assoc_measures
-    ucs_cmd = make_ucs_command(corpus_name,
-                               topic_query,
-                               window_size,
-                               s_break,
-                               collocates)
-
-    LOGGER.debug("UCS pipe:  " + " ".join(ucs_cmd) + " | " + " ".join(add_cmd))
-
-    try:
-        ucs_process = Popen(ucs_cmd, stdout=PIPE)
-        add_process = run(add_cmd, stdin=ucs_process.stdout, stdout=PIPE, stderr=PIPE, timeout=300)
-    except TimeoutExpired:
-        LOGGER.error('Error during ucs-add. Timeout during query.')
-        return DataFrame()
-    except Exception: # pylint: disable=broad-except
-        LOGGER.error('Error during ucs-add.')
-        return DataFrame()
-
-    raw_stdout = add_process.stdout
-    data = raw_stdout.decode().split('\n')
+    data = ucs_return.split('\n')
     # Last element is None because return string ends with \n
     data = [row.split('\t') for row in data[:-1]]
-    collocate_df = DataFrame(data=data[1:], columns=data[0])
+    collocates = DataFrame(data=data[1:], columns=data[0])
 
-    # Return only 200 most relevant items
-    # TODO: Sort by want?
-    collocate_df.sort_values(by='f2', ascending=False)
-    collocate_df = collocate_df.head(200)
+    f1 = int(collocates['f1'][0])
+    N = int(collocates['N'][0])
 
-    return collocate_df
+    collocates.index = collocates['l2']
+    collocates.index.name = 'item'
+
+    collocates = collocates[['f2', 'f'] + assoc_measures]
+    collocates.columns = ['f2', 'O11'] + assoc_measures
+
+    return collocates, f1, N
 
 
+# ENGINE #################################################
 class CWBEngine(Engine):
     """
     Corpus Workbench Engine Class.
     """
 
-    def extract_collocates(self, topic_query, window_size, collocates=None):
+    def extract_collocates(self,
+                           items,
+                           window_size,
+                           collocates=None,
+                           cut_off=100,
+                           order='f2'):
         """
-        Extract collocates from a CWB corpus. See BaseClass for parameters.
-        """
-
-        association_measures = self.corpus_settings['association_measures']
-        s_break = self.corpus_settings['sentence_boundary']
-
-        data = ucs_tool_collocates(corpus_name=self.corpus_name,
-                                   assoc_measures=association_measures,
-                                   s_break=s_break,
-                                   topic_query=topic_query,
-                                   window_size=window_size,
-                                   collocates=collocates)
-
-        if data.empty:
-            LOGGER.error('Collocation extraction failed. Empty return for CWB UCS query')
-            LOGGER.debug(topic_query)
-            raise ValueError('Collocation extraction failed. Empty return for CWB UCS query')
-
-        return format_ucs_data(data, association_measures)
-
-    def extract_concordances(self, topic_query, window_size, collocates=None, order='random'):
-        """
-        Extract concordances from a CWB corpus. See BaseClass for parameters.
+        Extract collocates from a CWB corpus.
+        See BaseClass for parameters.
         """
 
-        s_break = self.corpus_settings['sentence_boundary']
+        # extract collocates with UCS toolkit
+        collocates_raw = ucs_collocates(
+            corpus_name=self.corpus_name,
+            assoc_measures=self.corpus_settings['association_measures'],
+            s_att=self.corpus_settings['s_att'],
+            p_att=self.corpus_settings['p_att'],
+            topic_items=items,
+            window_size=window_size,
+            discourseme_items=collocates
+        )
 
-        if collocates is None:
-            concordances = cqp_concordances_of_topic(self.corpus_name, topic_query)
-            return sort_concordances(concordances, order)
+        # format collocates
+        collocates, f1, N = format_ucs_collocates(
+            ucs_return=collocates_raw,
+            assoc_measures=self.corpus_settings['association_measures']
+        )
 
-        concordances = cqp_concordances_of_discourse(self.corpus_name,
-                                                     topic_query,
-                                                     window_size,
-                                                     s_break,
-                                                     collocates)
-        if not concordances:
-            LOGGER.error('Concordance extraction failed. Empty return for CWB query')
-            LOGGER.debug(topic_query)
-            raise ValueError('concordance extraction failed. Empty return for CWB query')
+        collocates.sort_values(by=order, ascending=False)
+        collocates = collocates.head(cut_off)
 
-        return sort_concordances(concordances, order)
+        return Collocates(data=collocates, f1=f1, N=N)
+
+    def extract_concordances(self,
+                             items,
+                             window_size,
+                             collocates=None,
+                             cut_off=100,
+                             order='random',
+                             compatability=True):
+        """
+        Extract concordances from a CWB indexed corpus.
+        See BaseClass for parameters.
+        """
+
+        # extract concordances with CWB CQP
+        concordances_raw, concordances_p = cqp_concordances(
+            corpus_name=self.corpus_name,
+            s_att=self.corpus_settings['s_att'],
+            p_att=self.corpus_settings['p_att'],
+            topic_items=items,
+            window_size=window_size,
+            discourseme_items=collocates
+        )
+
+        # error handling for CWB
+        if not concordances_raw or not concordances_p:
+            LOGGER.error(
+                'Concordance extraction failed. Empty return for CQP query.'
+            )
+            LOGGER.debug(items)
+            raise ValueError(
+                'Concordance extraction failed. Empty return for CQP query.'
+            )
+
+        if collocates:
+            concordances_raw = format_cqp_concordances(
+                cqp_return=concordances_raw,
+                cut_off=cut_off,
+                order='first',
+                simple=False
+            )
+            concordances_p = format_cqp_concordances(
+                cqp_return=concordances_p,
+                cut_off=cut_off,
+                order='first',
+                simple=False
+            )
+        else:
+            print(concordances_raw)
+            concordances_raw = format_cqp_concordances(
+                cqp_return=concordances_raw,
+                cut_off=cut_off,
+                order='first',
+                simple=True
+            )
+            concordances_p = format_cqp_concordances(
+                cqp_return=concordances_p,
+                cut_off=cut_off,
+                order='first',
+                simple=True
+            )
+
+        concordances = merge_concordances(
+            concordances_raw,
+            concordances_p
+        )
+
+        # sort concordances
+        concordances = sort_concordances(concordances, order)
+
+        # for backwards compability
+        if compatability:
+            concordances_old = list()
+            for c in concordances:
+                c['tokens'] = c.pop('word')
+                c['lemmas'] = c.pop('tt_lemma')
+                c['emphas'] = c.pop('role')
+                concordances_old.append(c)
+            concordances = concordances_old
+
+        return concordances
