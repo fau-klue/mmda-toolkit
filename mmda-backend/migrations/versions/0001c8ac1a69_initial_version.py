@@ -20,7 +20,7 @@ def upgrade():
     # Table role
     op.create_table('role',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=64), nullable=True),
+    sa.Column('name', sa.String(length=255), nullable=True),
     sa.Column('description', sa.String(length=255), server_default='', nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('name')
@@ -29,14 +29,14 @@ def upgrade():
     # Table user
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('username', sa.String(length=64), nullable=False),
+    sa.Column('username', sa.String(length=255), nullable=False),
     sa.Column('password', sa.String(length=255), server_default='', nullable=False),
-    sa.Column('reset_password_token', sa.String(length=128), server_default='', nullable=False),
-    sa.Column('email', sa.String(length=128), nullable=False),
+    sa.Column('reset_password_token', sa.String(length=255), server_default='', nullable=False),
+    sa.Column('email', sa.String(length=255), nullable=False),
     sa.Column('email_confirmed_at', sa.DateTime(), nullable=True),
     sa.Column('is_active', sa.Boolean(), server_default='0', nullable=False),
-    sa.Column('first_name', sa.String(length=64), server_default='', nullable=False),
-    sa.Column('last_name', sa.String(length=64), server_default='', nullable=False),
+    sa.Column('first_name', sa.String(length=255), server_default='', nullable=False),
+    sa.Column('last_name', sa.String(length=255), server_default='', nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('username')
