@@ -79,8 +79,9 @@ class ErrorMessage {
 ///////////////////////////////////////
 
 class WordcloudWindow {
-  constructor(content_div) {
+  constructor(content_div, component) {
     this.el = content_div;
+    this.component = component;
 
     this.Map = new Map();
     this.selected_nodes = new Set();
@@ -274,7 +275,7 @@ class WordcloudWindow {
 
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
-    if (!this.collocates[am][data.name]) return -1;
+    if (!this.collocates[am][data.name]) return this.am_minmax[am].min; //TODO:  hide//-1;
     var v = (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
@@ -318,20 +319,31 @@ class WordcloudWindow {
     if (G.size == 1) {
       G = Array.from(G)[0];
       for (var n of N) G.addItem(n);
+      G.updateDatabase();
       return this.request("layout");
     }
 
-    var any_title;
+    var any_group;
     for (var g of G) { //Merge all selected groups (and delete old ones)
       //treat every element in selected group as selected
       for (var n of g.items) N.add(n);
-      if (g.name) any_title = g.name;
-      g.delete();
+      if (g.hasUsefulName) any_group = g;
+      else{
+        g.deleteDatabase();
+        g.delete();
+      }
     }
 
-    G = new WordGroup(any_title, this);
-    this.groups.add(G);
-    for (var n of N) G.addItem(n);
+    if(any_group){
+      G = any_group;
+      for (var n of N) G.addItem(n);
+      G.updateDatabase();
+    }else{
+      G = new WordGroup(undefined, this);
+      this.groups.add(G);
+      for (var n of N) G.addItem(n);
+      G.initDatabase();
+    }
     this.request("layout");
   }
 
@@ -340,21 +352,28 @@ class WordcloudWindow {
     var N = new Set();
     for (var i of S)(i.isgroup ? G : N).add(i);
     if (N.size == 0) {
-      for (var g of G) g.delete();
+      for (var g of G){
+        g.deleteDatabase();
+        g.delete();
+      }
     } else if (G.size == 0) {
       for (var n of N) {
         if (!n.groups.size) n.pin.reset();
-        for (var g of n.groups) g.removeItem(n);
+        for (var g of n.groups){
+          g.removeItem(n);
+          g.updateDatabase();
+        }
       }
     } else {
-      for (var n of N) {
-        for (var g of G) g.removeItem(n);
+      for (var g of G){
+        for (var n of N) g.removeItem(n);
+        g.updateDatabase();
       }
     }
     this.request("layout");
   }
 
-  formGroupByNames(item_names) {
+  /*formGroupByNames(item_names) {
     var G = new WordGroup(undefined, this);
     this.groups.add(G);
     G.addItemsByName(item_names);
@@ -365,7 +384,7 @@ class WordcloudWindow {
       a.groups.add(G);
     }
     return G;
-  }
+  }*/
 
 
   ///////////////////////////////////////
@@ -579,6 +598,11 @@ class WordcloudWindow {
 
   setupContent(collocates, coordinates, discoursemes) {
 
+    /*
+    console.log(Array.from(Object.keys(collocates.MI)));
+    console.log(Array.from(Object.keys(coordinates)));
+    console.log(Array.from(Object.keys(discoursemes)));//coordinates)));
+    */
     console.log(collocates);
     console.log(coordinates);
     console.log(discoursemes);
@@ -620,7 +644,20 @@ class WordcloudWindow {
 
 
     for (var disc of discoursemes) {
-      console.log("Discourseme " + disc.title);
+      var G = new WordGroup(undefined,this);
+      for(var name of disc.items){
+        var n = this.getItemByName(name);
+        if(!n){
+          n = this.addWord({name:name})
+        } 
+        G.addItem(n);
+      }
+      G.updateContentString();
+      if(G.contentString!=disc.name){
+        G.name = disc.name;
+      }
+      G.id = disc.id;
+      console.log("Discourseme " + disc.name);
     }
 
     /*

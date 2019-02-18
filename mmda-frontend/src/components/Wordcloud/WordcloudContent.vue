@@ -4,7 +4,6 @@
       <v-layout fill-height column ma-0>
         <v-flex shrink class="text-xs-right">
           <v-btn-toggle class="wordcloud_tools" v-model="tool">
-         
             <v-btn
               flat
               icon
@@ -23,7 +22,7 @@
             <!-- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
               <v-icon>chevron_right</v-icon>
             </v-btn>-->
-          </v-btn-toggle> 
+          </v-btn-toggle>
         </v-flex>
       </v-layout>
     </div>
@@ -61,7 +60,8 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
-import { Promise } from 'q';
+import { Promise, reject } from "q";
+import { resolve } from 'path';
 //import * as data from '@/wordcloud/example_1.js'
 var vm;
 export default {
@@ -75,22 +75,26 @@ export default {
     tool: null,
     wc: null,
     resizeEvent: null,
-    has_data:false,
+    has_data: false,
     tools: [
       {
         title: "view all",
         icon: "aspect_ratio",
         color: "gray",
-        call: () =>{vm.tool=null; vm.wc.centerCamera();}
+        call: () => {
+          vm.tool = null;
+          vm.wc.centerCamera();
+        }
       },
       //{ icon: "search", color: "gray", title: "find item" },
       {
         title: "box selection [shift]",
         icon: "select_all",
         color: "gray",
-        call: () =>{ 
+        call: () => {
           //TODO:: on finished box selection tool=null;
-          vm.tool=null; vm.wc.boxSelection = true;
+          vm.tool = null;
+          vm.wc.boxSelection = true;
         }
       },
       {
@@ -98,13 +102,19 @@ export default {
           "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
         icon: "add_circle_outline",
         color: "gray",
-        call: () =>{vm.tool=null; vm.wc.groupSelected(); }
+        call: () => {
+          vm.tool = null;
+          vm.wc.groupSelected();
+        }
       },
       {
         title: "remove (selected items from) (selected) discourseme [del]",
         icon: "remove_circle_outline",
         color: "gray",
-        call: () =>{vm.tool =null; vm.wc.deleteSelection();}
+        call: () => {
+          vm.tool = null;
+          vm.wc.deleteSelection();
+        }
       },
       //{ icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
       //{ icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
@@ -112,7 +122,10 @@ export default {
         title: "minimap (hide/show)",
         icon: "map",
         color: "gray",
-        call: () =>{vm.tool=null; vm.wc.minimap.shown = !vm.wc.minimap.shown;}
+        call: () => {
+          vm.tool = null;
+          vm.wc.minimap.shown = !vm.wc.minimap.shown;
+        }
       }
     ]
   }),
@@ -131,28 +144,29 @@ export default {
     ...mapActions({
       getConcordances: "corpus/getConcordances",
       getCollocates: "analysis/getAnalysisCollocates",
-      addUserDiscourseme: 'discourseme/addUserDiscourseme',
-      updateUserDiscourseme: 'discourseme/updateUserDiscourseme',
-      deleteUserDiscourseme: 'discourseme/deleteUserDiscourseme',
-      getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
-      setUserCoordinates:  'coordinates/setUserCoordinates',
-      getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates'
+      addUserDiscourseme: "discourseme/addUserDiscourseme",
+      updateUserDiscourseme: "discourseme/updateUserDiscourseme",
+      deleteUserDiscourseme: "discourseme/deleteUserDiscourseme",
+      getUserDiscoursemes: "discourseme/getUserDiscoursemes",
+      setUserCoordinates: "coordinates/setUserCoordinates",
+      getAnalysisCoordinates: "coordinates/getAnalysisCoordinates",
+      addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
     }),
 
-    initializeData(){
+    initializeData() {
       return Promise.all([
         this.loadCoordinates(),
-        this.loadCollocates( 2 ),
+        this.loadCollocates(2),
         this.loadDiscoursemes()
       ]);
     },
-    
-    loadCoordinates () {
+
+    loadCoordinates() {
       const data = {
         username: this.user.username,
         analysis_id: this.id
-      }
-      return this.getAnalysisCoordinates(data)
+      };
+      return this.getAnalysisCoordinates(data);
     },
     loadCollocates(window_size) {
       const request = {
@@ -166,9 +180,77 @@ export default {
       return this.getCollocates(data);
     },
     loadDiscoursemes() {
-      return this.getUserDiscoursemes(this.user.username);
+      return this.getUserDiscoursemes(this.user.username).catch(error => {
+        console.error(error);
+      });
     },
 
+    addDiscourseme(name, items) {
+      return new Promise((resolve,reject)=>{
+        const data = {
+          name: name,
+          items: items,
+          username: this.user.username
+        };
+        this.addUserDiscourseme(data).catch(error => {
+          reject(error);
+        }).then((e)=>{
+          var id = e;
+
+          this.addToAnalysis(id).then(()=>{
+            resolve(id);
+          }).catch((error)=>{
+            reject(error);
+          })
+        });
+      }).catch((error)=>{
+        console.error(error);
+      });
+    },
+    addToAnalysis(discourseme_id){
+        const data = {
+          username: this.user.username,
+          analysis_id: this.id,
+          discourseme_id: discourseme_id
+        }
+        return this.addDiscoursemeToAnalysis(data);//.catch((error) => {
+         // console.error( error );
+        //});
+    },
+
+    deleteDiscourseme(id) {
+      const data = {
+        username: this.user.username,
+        discourseme_id: id
+      };
+      return this.deleteUserDiscourseme(data).catch(error => {
+        console.error(error);
+      });
+    },
+
+    updateDiscourseme(id, name, items) {
+      const data = {
+        discourseme_id: id,
+        name: name,
+        items: items,
+        username: this.user.username
+      };
+      return this.updateUserDiscourseme(data).catch(error => {
+        console.error(error);
+      });
+    },
+    setCoordinates( obj ) {
+      //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id,
+        user_coordinates: obj
+      };
+      return this.setUserCoordinates(data)
+        .catch(error => {
+          console.error(error);
+        });
+    },
 
     fetchConcordances(items) {
       let params = new URLSearchParams();
@@ -190,58 +272,42 @@ export default {
         .catch(error => {
           this.error = error;
         });
-    }
-  },
+    },
+    
 
-
-
-    setUserCoordinate(){
-     const data = {
-        username: this.user.username,
-        analysis_id: this.id,
-        user_coordinates:{foobar:{user_x:null,user_y:null}}
+    setupContent() {
+      if (this.has_data && this.wc) {
       }
-      this.setUserCoordinates(data).then(() => {
-        this.error = null
-      }).catch((error) => {
-        this.error = error
-      }) 
     },
 
-  setupContent(){
-    if(this.has_data && this.wc){
-     
+    centerItemLocation(item_string) {
+      this.wc.centerAtWord(item_string);
     }
-  },
-  
-  centerItemLocation(item_string) {
-    this.wc.centerAtWord(item_string);
   },
   created() {
     this.id = this.$route.params.id;
-    console.log("ID: "+this.id);
+    console.log("ID: " + this.id);
     //this.fetchConcordances(['test', 'anothertest'])
-    this.initializeData().then(
-      ()=>{
+    this.initializeData()
+      .then(() => {
         this.error = null;
-        if(this.wc)
-        this.wc.setupContent(
-          this.collocates,
-          this.coordinates,
-          this.discoursemes
-        );
-      }).catch((e)=>{
-        this.error = e;
-        if(this.wc)
-          this.wc.errors.set("No Data Available",""+e);
-        else
-          console.error("Data Initialization Failed: " + e);
+        if (this.wc)
+          this.wc.setupContent(
+            this.collocates,
+            this.coordinates,
+            this.discoursemes
+          );
       })
+      .catch(e => {
+        this.error = e;
+        if (this.wc) this.wc.errors.set("No Data Available", "" + e);
+        else console.error("Data Initialization Failed: " + e);
+      });
   },
   mounted() {
     vm = this;
     let A = document.getElementsByClassName("structured_wordcloud_container");
-    this.wc = new WordcloudWindow(A[0]);
+    this.wc = new WordcloudWindow(A[0], this);
     window.addEventListener(
       "resize",
       (this.resizeEvent = (W => () => W.resize())(this.wc))

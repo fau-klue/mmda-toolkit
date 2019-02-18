@@ -42,6 +42,9 @@ class WordGroup {
 
     this.__pos = [0, 0];
     this.items = new Set(); //[];
+    this.id = null;
+    
+    this.contentString = "";
 
     //this.el = document.createElement("div");
     //this.el.appendChild(document.createTextNode(title));
@@ -55,6 +58,9 @@ class WordGroup {
     //this.window.container.appendChild(this.el);
     this.linewidth = 2;
     this.color = random_color(true);
+    
+    this.unfinished_update = false;
+    this.unfinished_delete = false;
   }
   addItemsByName(item_names) {
     for (var n of item_names) {
@@ -75,6 +81,51 @@ class WordGroup {
     //if (this.el) this.window.container.removeChild(this.el);
     //this.el = undefined;
   }
+
+  get item_names (){
+    return Array.from( this.items ).map((i)=>i.label);
+  }
+
+  updateContentString(){
+    var A = this.item_names;
+    A.sort();
+    this.contentString = A.join("_").substr(0,255); //names-length is limited by database
+  }
+
+  get hasUsefulName(){
+    return this.name !== null; //this.contentString;
+  }
+
+  deleteDatabase(){
+    if(this.id===null){
+      this.unfinished_delete = true;
+      return;
+    }
+    this.window.component.deleteDiscourseme(this.id);
+  }
+  updateDatabase(){
+    if(this.id===null){
+      this.unfinished_update = true;
+      return;
+    }
+    this.updateContentString();
+    this.window.component.updateDiscourseme(this.id, this.name || this.contentString, this.item_names);
+  }
+  initDatabase(){
+    this.updateContentString();
+    this.window.component.addDiscourseme(this.name || this.contentString, this.item_names).then((e)=>{
+      //console.log("Discourseme ID: "+e);
+      this.id = e;
+      //this.window.component.addToAnalysis(this.id);
+      if(this.unfinished_delete){
+        this.deleteDatabase();
+      }else if(this.unfinished_update){
+        this.updateDatabase();
+      }
+    });
+  }
+
+
   addItem(n) {
     this.items.add(n);
     n.groups.add(this);
