@@ -64,9 +64,9 @@ class RandomEngine(Engine):
             sentence_length = randint(5,15)
             sentence = random_words(num=sentence_length)
             random_concordance = {'s_pos': 323122,
-                                  'tokens': sentence,
-                                  'emphas': [None] * sentence_length,
-                                  'lemmas': sentence}
+                                  'words': sentence,
+                                  'roles': ['token'] * sentence_length,
+                                  'tt_lemmas': sentence}
             ret_concordances.append(random_concordance)
 
         return ret_concordances
