@@ -97,6 +97,24 @@ def test_generate_discourse_coordinates(mock_vectors, mock_combine):
 
 @mock.patch('backend.analysis.coordinates.tsne.calculate_item_coordinates')
 @mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+def test_generate_discourse_coordinates_with_empty_list(mock_vectors, mock_combine):
+
+    mock_coordinates = DataFrame({
+        'tsne_x': [3, 3],
+        'tsne_y': [4, 4],
+        'user_x': [None, None],
+        'user_y': [None, None]
+    }, index=['foo', 'bar'])
+
+    mock_vectors.return_value = pandas.DataFrame(data=[[11, 11],[22, 22]],index=['foo', 'bar'])
+    expected = pandas.DataFrame()
+
+    actual = tsne.generate_discourseme_coordinates(['foo', 'bar'], mock_coordinates, '/tmp/foo.pymagnitude')
+    assert_frame_equal(actual, expected)
+
+
+@mock.patch('backend.analysis.coordinates.tsne.calculate_item_coordinates')
+@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
 def test_generate_discourse_coordinates_with_user(mock_vectors, mock_combine):
 
     mock_coordinates = DataFrame({

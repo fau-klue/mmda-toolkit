@@ -34,8 +34,6 @@ def test_random_collocates(corpus_settings):
 
     actual  = eng.extract_collocates('fooquery', 5)
 
-    print(actual)
-
     assert isinstance(actual, tuple)
 
 

@@ -276,9 +276,11 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
 
     new_coordinates = generate_discourseme_coordinates(discourseme.items, semantic_space, wectors_path)
-    # Append new coordinates to semantic space
-    semantic_space.append(new_coordinates, sort=True)
-    coordinates.data = semantic_space
+    if not new_coordinates.empty:
+        # Append new coordinates to semantic space
+        semantic_space.append(new_coordinates, sort=True)
+        coordinates.data = semantic_space
+
     db.session.commit()
 
     return jsonify({'msg': 'Updated'}), 200

@@ -6,8 +6,8 @@ Contains data models for the Endpoint validation
 LOGIN_SCHEMA = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'maxLength': 64},
-        'password': {'type': 'string', 'maxLength': 64},
+        'username': {'type': 'string', 'maxLength': 255},
+        'password': {'type': 'string', 'maxLength': 255},
     },
     'required': ['username', 'password']
 }
@@ -15,7 +15,7 @@ LOGIN_SCHEMA = {
 PASSWORD_SCHEMA = {
     'type': 'object',
     'properties': {
-        'password': {'type': 'string','minLength': 8, 'maxLength': 64}
+        'password': {'type': 'string','minLength': 8, 'maxLength': 255}
     },
     'required': ['password']
 }
@@ -23,15 +23,15 @@ PASSWORD_SCHEMA = {
 USER_SCHEMA = {
     'type': 'object',
     'properties': {
-        'username': {'type': 'string', 'maxLength': 64},
-        'password': {'type': 'string', 'minLength': 8, 'maxLength': 64},
-        'last_name': {'type': 'string', 'maxLength': 64},
-        'first_name': {'type': 'string', 'maxLength': 64},
+        'username': {'type': 'string', 'maxLength': 255},
+        'password': {'type': 'string', 'minLength': 8, 'maxLength': 255},
+        'last_name': {'type': 'string', 'maxLength': 255},
+        'first_name': {'type': 'string', 'maxLength': 255},
         'email': {'type': 'string', 'format': 'email'},
         'roles': {
             'type': 'array',
             'items': {
-                'type': 'string', 'maxLength': 64
+                'type': 'string', 'maxLength': 255
             }
         }
     },
@@ -41,8 +41,8 @@ USER_SCHEMA = {
 USER_UPDATE_SCHEMA = {
     'type': 'object',
     'properties': {
-        'last_name': {'type': 'string', 'maxLength': 64},
-        'first_name': {'type': 'string', 'maxLength': 64},
+        'last_name': {'type': 'string', 'maxLength': 255},
+        'first_name': {'type': 'string', 'maxLength': 255},
         'email': {'type': 'string', 'format': 'email'}
     },
     'required': ['last_name', 'first_name', 'email']
@@ -51,13 +51,13 @@ USER_UPDATE_SCHEMA = {
 ANALYSIS_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 64},
-        'corpus': {'type': 'string', 'maxLength': 64},
+        'name': {'type': 'string', 'maxLength': 255},
+        'corpus': {'type': 'string', 'maxLength': 255},
         'window_size': {'type': 'number', 'minimum': 3, 'maximum': 20},
         'items': {
             'type': 'array',
             'items': {
-                'type': 'string', 'maxLength': 64
+                'type': 'string', 'maxLength': 255
             }
         }
     },
@@ -67,7 +67,7 @@ ANALYSIS_SCHEMA = {
 UPDATE_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 64}
+        'name': {'type': 'string', 'maxLength': 255}
     },
     'required': ['name']
 }
@@ -75,11 +75,11 @@ UPDATE_SCHEMA = {
 DISCOURSEME_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 64},
+        'name': {'type': 'string', 'maxLength': 255},
         'items': {
             'type': 'array',
             'items': {
-                'type': 'string', 'maxLength': 64
+                'type': 'string', 'maxLength': 255
             }
         }
     },
@@ -89,7 +89,7 @@ DISCOURSEME_SCHEMA = {
 DISCURSIVE_POSITION_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 64},
+        'name': {'type': 'string', 'maxLength': 255},
         'discoursemes': {
             'type': 'array',
             'items': {
