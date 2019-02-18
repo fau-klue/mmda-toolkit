@@ -170,7 +170,7 @@ class WordElement {
     window.container.appendChild(this.el);
     this.window = window;
     this.pos = [0, 0];
-    this.size = 1 + this.normalized_size * 1;
+    this.size = 1 + Math.max(0,Math.min(1,this.normalized_size * 1));
     this.mini.link();
   }
   get WH() {

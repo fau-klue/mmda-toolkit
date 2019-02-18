@@ -275,7 +275,7 @@ class WordcloudWindow {
 
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
-    if (!this.collocates[am][data.name]) return this.am_minmax[am].min; //TODO:  hide//-1;
+    if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
     var v = (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
@@ -603,9 +603,9 @@ class WordcloudWindow {
     console.log(Array.from(Object.keys(coordinates)));
     console.log(Array.from(Object.keys(discoursemes)));//coordinates)));
     */
-    console.log(collocates);
-    console.log(coordinates);
-    console.log(discoursemes);
+    //console.log(collocates);
+    //console.log(coordinates);
+    //console.log(discoursemes);
 
     if (!collocates || !coordinates) {
       return console.error("Wordcloud:  No collocates loaded.");
@@ -621,13 +621,18 @@ class WordcloudWindow {
         min: Number.POSITIVE_INFINITY,
         max: Number.NEGATIVE_INFINITY
       };
+      var count = 0;
       //console.log("setup " + am);
       for (var word of Object.keys(collocates[am])) {
+        if(!coordinates[word]){
+          count++;
+        }
         if (!collocates[am][word]) continue;
         //console.log(collocates[am][word]);
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
       }
+      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
       //console.log(this.am_minmax[am]);
       this.compare_am = this.am;
       this.am = am;
@@ -648,7 +653,8 @@ class WordcloudWindow {
       for(var name of disc.items){
         var n = this.getItemByName(name);
         if(!n){
-          n = this.addWord({name:name})
+          //console.log("ADD: "+name);
+          n = this.addWord({name:name,tsne_x:0,tsne_y:0})
         } 
         G.addItem(n);
       }
@@ -657,7 +663,8 @@ class WordcloudWindow {
         G.name = disc.name;
       }
       G.id = disc.id;
-      console.log("Discourseme " + disc.name);
+      this.groups.add(G);
+      //console.log("Discourseme " + disc.name);
     }
 
     /*

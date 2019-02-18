@@ -60,8 +60,6 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
-import { Promise, reject } from "q";
-import { resolve } from 'path';
 //import * as data from '@/wordcloud/example_1.js'
 var vm;
 export default {
@@ -286,7 +284,7 @@ export default {
   },
   created() {
     this.id = this.$route.params.id;
-    console.log("ID: " + this.id);
+    //console.log("ID: " + this.id);
     //this.fetchConcordances(['test', 'anothertest'])
     this.initializeData()
       .then(() => {

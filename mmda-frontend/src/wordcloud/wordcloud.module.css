@@ -110,8 +110,9 @@
 
 .wordcloud_element.hidden,
 .wordcloud_element.hidden .text {
-  visibility: hidden;
-  color: #0006 !important;
+  /*visibility: hidden;
+  */color: #0001 !important;
+  pointer-events: none;
   cursor: default;
 }
 
