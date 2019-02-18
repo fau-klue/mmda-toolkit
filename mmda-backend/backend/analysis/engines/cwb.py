@@ -497,7 +497,7 @@ def create_ucs_query(corpus_name,
     return ucs_cmd, add_cmd
 
 
-def format_ucs_collocates(ucs_return, assoc_measures):
+def format_ucs_collocates(ucs_return, assoc_measures, cut_off, order):
     """
     Adds association measures to data from ucs_tool_collocates.
 
@@ -508,6 +508,9 @@ def format_ucs_collocates(ucs_return, assoc_measures):
     """
 
     data = ucs_return.split('\n')
+    if len(data) < 3:
+        return DataFrame(), 0, 0
+
     # Last element is None because return string ends with \n
     data = [row.split('\t') for row in data[:-1]]
     collocates = DataFrame(data=data[1:], columns=data[0])
@@ -520,6 +523,9 @@ def format_ucs_collocates(ucs_return, assoc_measures):
 
     collocates = collocates[['f2', 'f'] + assoc_measures]
     collocates.columns = ['f2', 'O11'] + assoc_measures
+
+    collocates.sort_values(by=order, ascending=False)
+    collocates = collocates.head(cut_off)
 
     return collocates, f1, N
 
@@ -555,11 +561,10 @@ class CWBEngine(Engine):
         # format collocates
         collocates, f1, N = format_ucs_collocates(
             ucs_return=collocates_raw,
-            assoc_measures=self.corpus_settings['association_measures']
+            assoc_measures=self.corpus_settings['association_measures'],
+            cut_off=cut_off,
+            order=order
         )
-
-        collocates.sort_values(by=order, ascending=False)
-        collocates = collocates.head(cut_off)
 
         return Collocates(data=collocates, f1=f1, N=N)
 
@@ -568,8 +573,7 @@ class CWBEngine(Engine):
                              window_size,
                              collocates=None,
                              cut_off=100,
-                             order='random',
-                             compatability=True):
+                             order='random'):
         """
         Extract concordances from a CWB indexed corpus.
         See BaseClass for parameters.
@@ -609,7 +613,6 @@ class CWBEngine(Engine):
                 simple=False
             )
         else:
-            print(concordances_raw)
             concordances_raw = format_cqp_concordances(
                 cqp_return=concordances_raw,
                 cut_off=cut_off,
@@ -630,15 +633,4 @@ class CWBEngine(Engine):
 
         # sort concordances
         concordances = sort_concordances(concordances, order)
-
-        # for backwards compability
-        if compatability:
-            concordances_old = list()
-            for c in concordances:
-                c['tokens'] = c.pop('word')
-                c['lemmas'] = c.pop('tt_lemma')
-                c['emphas'] = c.pop('role')
-                concordances_old.append(c)
-            concordances = concordances_old
-
         return concordances
