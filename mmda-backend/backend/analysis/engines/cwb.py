@@ -310,7 +310,7 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
     lines = dict()
 
     # loop through CQP return value
-    for line in cqp_return.split("\n"):
+    for line in str(cqp_return).split("\n"):
 
         # get p_attribute
         t = search('<attribute type=positional name="(\w+)" anr=0>', line)

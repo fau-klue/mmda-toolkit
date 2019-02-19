@@ -141,7 +141,13 @@ def test_cqp_concordances_simple(mock_popen, conc_simple_file, conc_simple_p_att
     assert mock_popen.call_count == 2
 
 
-def test_cqp_concordances_complex(corpus_settings):
+@mock.patch("backend.analysis.engines.cwb.Popen")
+def test_cqp_concordances_complex(mock_popen, conc_complex_file, conc_complex_p_att_file, corpus_settings):
+
+    mock_popen.return_value.communicate.side_effect = [
+        (conc_complex_file,),
+        (conc_complex_p_att_file,)
+    ]
 
     actual = cqp_concordances(
         corpus_settings['corpus_name'],
@@ -152,107 +158,36 @@ def test_cqp_concordances_complex(corpus_settings):
         corpus_settings['items2'],
     )
 
-    expected = ("<concordanceInfo>", "<concordanceInfo>")
+    assert mock_popen.call_count == 2
+    assert 'CQP version 3.4.15\n' in actual[0]
 
-    assert((actual[0].split("\n")[1], actual[1].split("\n")[1]) == expected)
 
-
-def test_format_cqp_concordances_simple(corpus_settings):
-
-    cqp_return = cqp_concordances(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']['s_att'],
-        corpus_settings['association_settings']['p_att'],
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size']
-    )
+def test_format_cqp_concordances_simple(conc_simple_file, corpus_settings):
 
     actual = format_cqp_concordances(
-        cqp_return[0],
-        corpus_settings['cut_off_concordances'],
-        'first',
-        True
+        cqp_return=conc_simple_file,
+        cut_off=corpus_settings['cut_off_concordances'],
+        order='first',
+        simple=True
     )
+
+    # TODO Add assert
+
+
+def test_format_cqp_concordances_complex(conc_complex_file, corpus_settings):
 
     actual = format_cqp_concordances(
-        cqp_return[1],
-        corpus_settings['cut_off_concordances'],
-        'first',
-        True
+        cqp_return=conc_complex_file,
+        cut_off=corpus_settings['cut_off_concordances'],
+        order='first',
+        simple=True
     )
 
-
-def test_format_cqp_concordances_complex(corpus_settings):
-
-    cqp_return = cqp_concordances(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']['s_att'],
-        corpus_settings['association_settings']['p_att'],
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size'],
-        corpus_settings['items2']
-    )
-
-    actual = format_cqp_concordances(
-        cqp_return[0],
-        corpus_settings['cut_off_concordances'],
-        'first',
-        False
-    )
-
-    actual = format_cqp_concordances(
-        cqp_return[1],
-        1,
-        'first',
-        False
-    )
+    # TODO Add assert
 
 
-def test_merge_concordances(corpus_settings):
-
-    c1, c2 = cqp_concordances(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']['s_att'],
-        corpus_settings['association_settings']['p_att'],
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size'],
-        corpus_settings['items2']
-    )
-
-    actual = merge_concordances(
-        format_cqp_concordances(c1,
-                                corpus_settings['cut_off_concordances'],
-                                'first'),
-        format_cqp_concordances(c2,
-                                corpus_settings['cut_off_concordances'],
-                                'first'),
-    )
-
-
-def test_sort_concordances(corpus_settings):
-
-    c1, c2 = cqp_concordances(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']['s_att'],
-        corpus_settings['association_settings']['p_att'],
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size'],
-        corpus_settings['items2']
-    )
-
-    concordances = merge_concordances(
-        format_cqp_concordances(c1,
-                                corpus_settings['cut_off_concordances'],
-                                'first'),
-        format_cqp_concordances(c2,
-                                corpus_settings['cut_off_concordances'],
-                                'first')
-    )
-
-    actual = sort_concordances(concordances)
-
-
-def test_extract_concordances_simple(corpus_settings):
+@mock.patch("backend.analysis.engines.cwb.Popen")
+def test_extract_concordances_simple(mock_popen, corpus_settings):
 
     engine = CWBEngine(
         corpus_settings['corpus_name'],
@@ -265,21 +200,8 @@ def test_extract_concordances_simple(corpus_settings):
         cut_off=corpus_settings['cut_off_concordances']
     )
 
-
-
-def test_extract_concordances_complex(corpus_settings):
-
-    engine = CWBEngine(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']
-    )
-
-    actual = engine.extract_concordances(
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size'],
-        corpus_settings['items2'],
-        cut_off=corpus_settings['cut_off_concordances']
-    )
+    # TODO Add proper assert
+    assert mock_popen.call_count == 2
 
 
 def test_create_ucs_query(corpus_settings):
@@ -292,23 +214,17 @@ def test_create_ucs_query(corpus_settings):
                               corpus_settings['association_settings']['association_measures'],
                               corpus_settings['items2'])
 
+    assert 'ucs-tool' in actual[0]
+
 
 def test_evaluate_ucs_query(corpus_settings):
 
     ucs_cmd, ucs_add = create_ucs_query(corpus_settings['corpus_name'],
                                         corpus_settings['items1'],
-                                        corpus_settings['association_settings'][
-                                            'p_att'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            'window_size'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            's_att'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            'association_measures'
-                                        ])
+                                        corpus_settings['association_settings']['p_att'],
+                                        corpus_settings['association_settings']['window_size'],
+                                        corpus_settings['association_settings']['s_att'],
+                                        corpus_settings['association_settings']['association_measures'])
 
     actual = evaluate_ucs_query(
         corpus_settings['corpus_name'],
@@ -316,35 +232,8 @@ def test_evaluate_ucs_query(corpus_settings):
         ucs_add
     )
 
-
-def test_format_ucs_collocates(corpus_settings):
-    ucs_cmd, ucs_add = create_ucs_query(corpus_settings['corpus_name'],
-                                        corpus_settings['items1'],
-                                        corpus_settings['association_settings'][
-                                            'p_att'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            'window_size'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            's_att'
-                                        ],
-                                        corpus_settings['association_settings'][
-                                            'association_measures'
-                                        ])
-
-    ucs_return = evaluate_ucs_query(
-        corpus_settings['corpus_name'],
-        ucs_cmd,
-        ucs_add
-    )
-
-    actual = format_ucs_collocates(
-        ucs_return,
-        corpus_settings['association_settings'][
-            'association_measures'
-        ]
-    )
+    # TODO: Add proper assert
+    assert actual.empty == True
 
 
 def test_ucs_collocates(corpus_settings):
@@ -359,23 +248,15 @@ def test_ucs_collocates(corpus_settings):
         corpus_settings['items2']
     )
 
-
-def test_extract_collocates_simple(corpus_settings):
-
-    engine = CWBEngine(
-        corpus_settings['corpus_name'],
-        corpus_settings['association_settings']
-    )
-
-    actual = engine.extract_collocates(
-        corpus_settings['items1'],
-        corpus_settings['association_settings']['window_size'],
-        cut_off=corpus_settings['cut_off_collocates'],
-        order='am.Dice'
-    )
+    # TODO: Add proper assert
+    assert collocates.empty == True
 
 
-def test_extract_collocates_complex(corpus_settings):
+@mock.patch('backend.analysis.engines.cwb.ucs_collocates')
+@mock.patch('backend.analysis.engines.cwb.format_ucs_collocates')
+def test_extract_collocates_simple(mock_ucs, mock_collo, corpus_settings):
+
+    mock_ucs.return_value = ('data', 'f1', 'N')
 
     engine = CWBEngine(
         corpus_settings['corpus_name'],
@@ -385,7 +266,9 @@ def test_extract_collocates_complex(corpus_settings):
     actual = engine.extract_collocates(
         corpus_settings['items1'],
         corpus_settings['association_settings']['window_size'],
-        corpus_settings['items2'],
-        cut_off=corpus_settings['cut_off_collocates'],
-        order='am.Dice'
+        cut_off=corpus_settings['cut_off_collocates']
     )
+
+
+    # TODO: Add proper assert
+    assert actual == ('data', 'f1', 'N')
