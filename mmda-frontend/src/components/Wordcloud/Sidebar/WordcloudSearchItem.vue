@@ -56,6 +56,7 @@ export default {
         return Object.keys(this.coordinates).map(i=>{return{name:i, isItem:true};});
     },
     mappedDiscoursemes(){
+        //TODO:: watch for changes in this.wc.groups, as they might not be updated yet
         if(!this.wc) return [];
         else return [...this.wc.groups].map(g=>{return {name:g.name||g.contentString, isGroup:true, g:g, items: g.item_names};});
     },
@@ -68,7 +69,7 @@ export default {
         .concat( this.mappedDiscoursemes.filter(items => items.name.toLowerCase().search(this.search.toLowerCase()) >= 0 ||
                                                          items.items.join("").toLowerCase().search(this.search.toLowerCase()) >= 0 ));
                                        }
-      R.sort()
+      R.sort((x)=>x.name)
       return R
     }
   },

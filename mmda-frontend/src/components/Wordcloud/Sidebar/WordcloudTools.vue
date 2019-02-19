@@ -60,7 +60,6 @@ export default {
         icon: "map",
         call: "toggleMinimap"
       },
-//      { icon: "search", title: "search item or discourseme", call2:"openSearch" },
     ]
   }),
   computed: {
@@ -74,10 +73,6 @@ export default {
     ...mapActions({
       setSidebar:"wordcloud/setRightSidebar"
     }),
-    openSearch(){
-      this.setSidebar(true);
-      //TODO::
-    } 
   },
   mounted(){
     this.it=this;

@@ -33,7 +33,7 @@ export default {
       {
         text: 'Coordinates',
         align: 'left',
-        sortable: false,
+        //sortable: false,
         value: 'name'
       },
       { text: 'x (t-SNE)', value: 'tsne_x' },

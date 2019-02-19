@@ -8,6 +8,7 @@ const state = {
   windowSize: 3,
   rightSidebar: false,
   associationMeasure: null,
+  showMinimap: true,
 }
 
 const getters = {
@@ -19,6 +20,9 @@ const getters = {
   },
   associationMeasure (state) {
     return state.associationMeasure
+  },
+  showMinimap (state) {
+    return state.showMinimap
   }
 }
 
@@ -26,11 +30,14 @@ const actions = {
   setWindowSize ({commit}, size) {
     commit('setWindowSize', size)
   },
-  setRightSidebar ({commit}, val){
+  setRightSidebar ({commit}, val) {
     commit('setRightSidebar', val)
   },
-  setAssociationMeasure ({commit}, val){
+  setAssociationMeasure ({commit}, val) {
     commit("setAssociationMeasure", val)
+  },
+  setShowMinimap ({commit}, val) {
+    commit("setShowMinimap", val)
   }
 }
 
@@ -38,11 +45,14 @@ const mutations = {
   setWindowSize (state, size) {
     state.windowSize = size
   },
-  setRightSidebar (state, val){
+  setRightSidebar (state, val) {
     state.rightSidebar = val
   },
-  setAssociationMeasure (state, val){
+  setAssociationMeasure (state, val) {
     state.associationMeasure = val
+  },
+  setShowMinimap (state, val) {
+    state.showMinimap = val
   }
 }
 

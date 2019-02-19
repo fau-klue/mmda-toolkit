@@ -60,7 +60,10 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
+import { resolve } from 'q';
+import { rejects } from 'assert';
 //import * as data from '@/wordcloud/example_1.js'
+var vm=null;
 export default {
   name: "WordcloudContent",
   components: {
@@ -130,9 +133,28 @@ export default {
       collocates: "analysis/collocates",
       coordinates: "coordinates/coordinates",
       concordances: "corpus/concordances",
+      notMini:"wordcloud/rightSidebar",
       windowSize: "wordcloud/windowSize",
-      notMini:"wordcloud/rightSidebar"
+      AM: "wordcloud/associationMeasure",
+      showMinimap: "wordcloud/showMinimap"
     })
+  },
+  watch:{
+    AM () {
+      vm.wc.changeAM();
+    },
+    collocates () {
+      vm.wc.setupCollocates(vm.collocates);
+    },
+    coordinates () {
+      vm.wc.setupCoordinates(vm.coordinates);
+    },
+    discoursemes () {
+      vm.wc.setupDiscoursemes(vm.discoursemes);
+    },
+    windowSize () {
+      vm.loadCollocates(vm.windowSize);
+    }
   },
   methods: {
     ...mapActions({
@@ -145,15 +167,17 @@ export default {
       setUserCoordinates: "coordinates/setUserCoordinates",
       getAnalysisCoordinates: "coordinates/getAnalysisCoordinates",
       addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
+      setAM: 'wordcloud/setAssociationMeasure',
+      setShowMinimap: 'wordcloud/setShowMinimap'
     }),
-
+/*
     initializeData() {
       return Promise.all([
         this.loadCoordinates(),
-        this.loadCollocates(2),
+        this.loadCollocates(this.windowSize),
         this.loadDiscoursemes()
       ]);
-    },
+    },*/
 
     loadCoordinates() {
       const data = {
@@ -171,7 +195,8 @@ export default {
         analysis_id: this.id,
         request: request
       };
-      return this.getCollocates(data);
+      return this.getCollocates(data)
+      
     },
     loadDiscoursemes() {
       return this.getUserDiscoursemes(this.user.username).catch(error => {
@@ -275,11 +300,16 @@ export default {
   },
   created() {
     this.id = this.$route.params.id;
-    //console.log("ID: " + this.id);
-    //this.fetchConcordances(['test', 'anothertest'])
+    
+    
+/*
     this.initializeData()
       .then(() => {
-        this.error = null;
+        
+        //TODO:: do we want to select any present AM or a static one (e.g. MI)
+        var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
+        this.setAM( oneAM || 'MI' );
+
         if (this.wc)
           this.wc.setupContent(
             this.collocates,
@@ -288,18 +318,37 @@ export default {
           );
       })
       .catch(e => {
-        this.error = e;
         if (this.wc) this.wc.errors.set("No Data Available", "" + e);
         else console.error("Data Initialization Failed: " + e);
-      });
+      });*/
   },
   mounted() {
+    //console.log("IDM: " + this.id);
+    vm=this;
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
     window.addEventListener(
       "resize",
       (this.resizeEvent = (W => () => W.resize())(this.wc))
     );
+
+    this.wc.minimap.shown = this.showMinimap;
+    
+    //console.log("ID: " + this.id);
+    //this.fetchConcordances(['test', 'anothertest'])
+    this.loadCoordinates();
+    this.loadCollocates(this.windowSize).then(()=>{
+      //TODO:: do we want to select any present AM or a static one (e.g. MI)
+      var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
+      this.setAM( oneAM || 'MI' );
+    });
+    this.loadDiscoursemes();
+
+    
+    if(this.coordinates) this.wc.setupCoordinates(this.coordinates);
+    if(this.collocates) this.wc.setupCollocates(this.collocates);
+    if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
+
   },
   beforeDestroy() {
     //e.g. removing event listeners from document

@@ -123,6 +123,7 @@ class WordGroup {
     this.window.component.addDiscourseme(this.name || this.contentString, this.item_names).then((e)=>{
       //console.log("Discourseme ID: "+e);
       this.id = e;
+      this.color = random_color(this.id);
       console.log("A+");
       //this.window.component.addToAnalysis(this.id);
       if(this.unfinished_delete){

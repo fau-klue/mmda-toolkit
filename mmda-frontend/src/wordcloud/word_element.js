@@ -170,9 +170,15 @@ class WordElement {
     window.container.appendChild(this.el);
     this.window = window;
     this.pos = [0, 0];
-    this.size = 1 + Math.max(0,Math.min(1,this.normalized_size * 1));
+    this.size = 1 + Math.max(0,Math.min(1,this.normalized_size));
     this.mini.link();
   }
+
+  delete(){
+    this.window.container.removeChild(this.el);
+    this.mini.delete();
+  }
+
   get WH() {
     return [this.el.offsetWidth, this.el.offsetHeight];
   }

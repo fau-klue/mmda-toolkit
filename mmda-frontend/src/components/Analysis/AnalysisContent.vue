@@ -19,7 +19,8 @@
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Reload Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
 
-              <AnalysisCoordinates/>
+              <!--<AnalysisCoordinates/> -->
+              <AnalysisItemTable/>
               <AnalysisDiscoursemeList/>
             
             </v-form>
@@ -34,7 +35,8 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
-import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
+//import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
+import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
 
 import rules from '@/utils/validation'
 
@@ -42,7 +44,8 @@ export default {
   name: 'AnalysisContent',
   components: {
     AnalysisDiscoursemeList,
-    AnalysisCoordinates
+    AnalysisItemTable,
+    //AnalysisCoordinates
   },
   data: () => ({
     id: null,

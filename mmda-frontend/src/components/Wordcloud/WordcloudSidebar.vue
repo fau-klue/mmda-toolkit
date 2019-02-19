@@ -34,8 +34,10 @@
 
     <v-expansion-panel>
       <wordcloudTools v-bind:wc="wc"/>
+     <!-- 
       <WordcloudMetadata/>
-      <WordcloudWindowsize/>
+      <WordcloudWindowsize/> -->
+      <WordcloudCollocationParameters/>
       <WordcloudSearchItem v-bind:wc="wc"/>
     </v-expansion-panel>
   </v-navigation-drawer>
@@ -47,6 +49,7 @@ import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata"
 import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
 import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
 import WordcloudSearchItem from "@/components/Wordcloud/Sidebar/WordcloudSearchItem";
+import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/WordcloudCollocationParameters";
 
 export default {
   name: "WordcloudSidebar",
@@ -54,7 +57,8 @@ export default {
     WordcloudMetadata,
     WordcloudWindowsize,
     WordcloudTools,
-    WordcloudSearchItem
+    WordcloudSearchItem,
+    WordcloudCollocationParameters
   },
   props:["wc"],
   data: () => ({

@@ -87,6 +87,7 @@ class WordcloudWindow {
     this.selected_nodes = new Set();
     this.groups = new Set();
     this.groupMap = new Map();
+    this.am_minmax = {};
 
     this.options = {
       verbose: false,
@@ -283,7 +284,8 @@ class WordcloudWindow {
   }
 
   getSizeOf(data) {
-    return this.getAMWS(data, this.am); //, this.ws);
+    var val = this.getAMWS(data, this.component.AM); //, this.ws);
+    return val;
   }
   getCompareSizeOf(data) {
     return this.getAMWS(data, this.compare_am); //, this.compare_ws);
@@ -536,10 +538,10 @@ class WordcloudWindow {
 
   onkeydown(e) {
     //not every ctrlKey- combination reaches here in chrome ...:(
-    if (e.ctrlKey && e.key == "b") {
-      this.changeAM();
-      e.preventDefault();
-    }
+    //if (e.ctrlKey && e.key == "b") {
+    //  this.changeAM();
+    //  e.preventDefault();
+    //}
     if (e.ctrlKey && e.key == "g") {
       if (e.shiftKey) {
         //console.log("del");
@@ -606,6 +608,7 @@ class WordcloudWindow {
 
   toggleMinimap(){
     this.minimap.shown = !this.minimap.shown;
+    this.component.setShowMinimap(this.minimap.shown);
   }
 
   ///////////////////////////////////////
@@ -616,20 +619,99 @@ class WordcloudWindow {
 
 
 
-  changeAM(ws, am, cws, cam) {
-    this.compare_am = cam ? cam : this.am;
-    var AM = Object.keys(this.am_minmax);
-    this.am = am ? am : oneOf(AM);
-    console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
 
+  changeAM(ws, am, cws, cam) {
+    //this.compare_am = cam ? cam : this.am;
+    //var AM = Object.keys(this.am_minmax);
+    //this.am = am ? am : oneOf(AM);
+    //console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
     for (var [_, a] of this.Map.entries()) {
       //a.shown = !a.hidden;
-      a.size = 1 + a.normalized_size * 1;
+      a.size = 1 + Math.max(0,Math.min(1,a.normalized_size)) * 1;
       a.trend.evaluate();
     }
 
     this.request("layout");
   }
+
+
+  setupCollocates(collocates){
+    this.collocates = collocates;
+    this.am_minmax = {};
+    for (var am of Object.keys(collocates)) {
+      if (!collocates[am]) continue;
+      this.am_minmax[am] = {
+        min: Number.POSITIVE_INFINITY,
+        max: Number.NEGATIVE_INFINITY
+      };
+
+      var count = 0;
+      for (var word of Object.keys(collocates[am])) {
+        if(this.coordinates && !this.coordinates[word]){
+          count++;
+        }
+        if (!collocates[am][word]) continue;
+        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
+        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
+      }
+      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
+      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
+      //S.sort();
+      //console.log(S);
+      //this.compare_am = this.am;
+      //this.am = am;
+    }
+
+    this.changeAM();
+  }
+
+  setupCoordinates(coordinates){
+    for(var [_,a] of this.Map.entries()) a.delete();
+    this.Map = new Map();
+    this.coordinates = coordinates;
+
+    for (var word of Object.keys(coordinates)) {
+      coordinates[word].name = word;
+      this.addWord( coordinates[word] );
+    }
+
+    this.layoutTsnePositions();
+    if(this.discoursemes){
+      this.setupDiscoursemes(this.discoursemes);
+    }
+  }
+
+  setupDiscoursemes(discoursemes){
+    for(var g of this.groups) g.delete(); //!! Do not delete groups from server, only locally
+    this.groups.clear();
+
+    this.discoursemes = discoursemes;
+    for (var disc of discoursemes) {
+      var G = new WordGroup(undefined,this);
+      for(var name of disc.items){
+        var n = this.getItemByName(name);
+        if(!n){
+          //TODO:: what coordinates should these words have??
+          n = this.addWord({name:name, tsne_x:0,tsne_y:0})
+        } 
+        G.addItem(n);
+      }
+      // Only give name, if naming is meaningful
+      G.updateContentString();
+      if(G.contentString!=disc.name){
+        G.name = disc.name;
+      }
+      G.id = disc.id;
+      this.groups.add(G);
+    }
+    
+    this.timeout('layout');
+  }
+
+
+
+
+
 
   setupContent(collocates, coordinates, discoursemes) {
 
@@ -668,10 +750,15 @@ class WordcloudWindow {
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
       }
       if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
-      //console.log(this.am_minmax[am]);
+      
+      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
+      //S.sort();
+      //console.log(S);
       this.compare_am = this.am;
       this.am = am;
     }
+
+    
 
 
     for (var word of Object.keys(coordinates)) {
@@ -698,6 +785,7 @@ class WordcloudWindow {
         G.name = disc.name;
       }
       G.id = disc.id;
+      G.color = random_color(G.id);
       this.groups.add(G);
       //console.log("Discourseme " + disc.name);
     }
@@ -790,7 +878,7 @@ class WordcloudWindow {
       this.screenBorder = max2(a.WH, this.screenBorder);
     }
 
-    this.centerCamera();
+    this.timeout("centerCamera");
   }
 
 

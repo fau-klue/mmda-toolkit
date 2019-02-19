@@ -73,8 +73,11 @@
 
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
+                  <v-container>
+                    <h1 class="title">Advanced Options</h1>
 
-                  <AnalysisPosTagsSelection/> 
+                    <AnalysisPosTagsSelection/> 
+                  </v-container>
                 </v-form>
               </v-flex>
             </v-layout>

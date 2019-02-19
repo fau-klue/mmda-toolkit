@@ -1,9 +1,10 @@
 <template>
   <div>
-    <v-checkbox v-model="simple_postags" label="select POS-tags"></v-checkbox>
-    <v-checkbox v-if="simple_postags" v-model="advanced_postags" label="advanced POS-tag options"></v-checkbox>
+    <v-checkbox v-model="simple_postags" label="manually choose POS-tags"></v-checkbox>
+    <v-checkbox v-if="simple_postags" v-model="advanced_postags" label="advanced POS-tags"></v-checkbox>
+    <!-- if-advanced , ... we also might want to include a search option here -->
       <v-container v-if="simple_postags">
-        <v-layout row fluid class="xs12" wrap fill-height>
+        <v-layout row class="xs12" wrap fill-height justify-space-between>
           <v-flex v-for="tag in advanced_postags?posTags_advanced:posTags_simple" :key="tag.name">
             <v-checkbox v-model="tag.selected" :label="tag.name"></v-checkbox>
           </v-flex>
@@ -33,8 +34,9 @@ export default {
     }),
   },
   created () {
-    for(var i=0;i<10;i++) this.posTags_simple.push({name:'SPT'+i,selected:Math.random()<0.5})
-    for(var i=0;i<100;i++) this.posTags_advanced.push({name:'APT'+i,selected:Math.random()<0.5})
+    var Simple = ['NOUN','ADJ','ADV','VERB','INTJ','PROPN',"ADP","PUNCT","AUX","SYM","CCONJ","X","DET","NUM","PART","PRON","SCONJ"]
+    for(var i of Simple) this.posTags_simple.push({name:i,selected:Math.random()<0.5})
+    for(var i=0;i<5;i++) for(var j of Simple) this.posTags_advanced.push({name:j+i,selected:Math.random()<0.5})
   }
 }
 
