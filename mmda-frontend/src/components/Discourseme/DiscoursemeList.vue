@@ -41,13 +41,18 @@ export default {
       userDiscoursemes: 'discourseme/userDiscoursemes'
     }),
     filteredItems() {
+      var F = [];
+      if(!this.userDiscoursemes) return [];
       if (!this.search) {
-        return this.userDiscoursemes
+        F = this.userDiscoursemes
+
       } else {
-        return this.userDiscoursemes.filter(items =>
-                                            items.name.toLowerCase().search(this.search) >= 0 ||
-                                            items.items.join().toLowerCase().search(this.search) >= 0
+        F = this.userDiscoursemes.filter(items =>
+                                            items.name.toLowerCase().search(this.search.toLowerCase()) >= 0 ||
+                                            items.items.join().toLowerCase().search(this.search.toLowerCase()) >= 0
                                            )}
+      F.sort((x)=>x.id); //sort by latest creation-date //i.e. ~ id
+      return F;
     }
   },
   methods: {

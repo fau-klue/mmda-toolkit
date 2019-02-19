@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="structured_wordcloud_container">
-      <v-layout fill-height column ma-0>
+      <!--v-layout v-if="false && !notMini" fill-height column ma-0>
         <v-flex shrink class="text-xs-right">
           <v-btn-toggle class="wordcloud_tools" v-model="tool">
             <v-btn
@@ -19,12 +19,12 @@
             >
               <v-icon>{{button.icon}}</v-icon>
             </v-btn>
-            <!-- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
+            <!- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
               <v-icon>chevron_right</v-icon>
-            </v-btn>-->
+            </v-btn>->
           </v-btn-toggle>
         </v-flex>
-      </v-layout>
+      </v-layout -->
     </div>
 
     <!--
@@ -47,7 +47,7 @@
     </v-layout>
   </v-container>
     -->
-    <WordcloudSidebar/>
+    <WordcloudSidebar v-bind:wc="wc"/>
   </div>
 </template>
 
@@ -61,26 +61,24 @@ import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
 //import * as data from '@/wordcloud/example_1.js'
-var vm;
 export default {
   name: "WordcloudContent",
   components: {
     WordcloudSidebar
   },
   data: () => ({
+    mini : true,
     id: null,
     rules: rules,
-    tool: null,
     wc: null,
     resizeEvent: null,
     has_data: false,
-    tools: [
+    /*tools: [
       {
         title: "view all",
         icon: "aspect_ratio",
         color: "gray",
         call: () => {
-          vm.tool = null;
           vm.wc.centerCamera();
         }
       },
@@ -91,7 +89,6 @@ export default {
         color: "gray",
         call: () => {
           //TODO:: on finished box selection tool=null;
-          vm.tool = null;
           vm.wc.boxSelection = true;
         }
       },
@@ -101,7 +98,6 @@ export default {
         icon: "add_circle_outline",
         color: "gray",
         call: () => {
-          vm.tool = null;
           vm.wc.groupSelected();
         }
       },
@@ -110,7 +106,6 @@ export default {
         icon: "remove_circle_outline",
         color: "gray",
         call: () => {
-          vm.tool = null;
           vm.wc.deleteSelection();
         }
       },
@@ -125,7 +120,7 @@ export default {
           vm.wc.minimap.shown = !vm.wc.minimap.shown;
         }
       }
-    ]
+    ]*/
   }),
   computed: {
     ...mapGetters({
@@ -135,7 +130,8 @@ export default {
       collocates: "analysis/collocates",
       coordinates: "coordinates/coordinates",
       concordances: "corpus/concordances",
-      windowSize: "wordcloud/windowSize"
+      windowSize: "wordcloud/windowSize",
+      notMini:"wordcloud/rightSidebar"
     })
   },
   methods: {
@@ -273,11 +269,6 @@ export default {
     },
     
 
-    setupContent() {
-      if (this.has_data && this.wc) {
-      }
-    },
-
     centerItemLocation(item_string) {
       this.wc.centerAtWord(item_string);
     }
@@ -303,7 +294,6 @@ export default {
       });
   },
   mounted() {
-    vm = this;
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
     window.addEventListener(

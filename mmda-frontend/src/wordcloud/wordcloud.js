@@ -206,9 +206,11 @@ class WordcloudWindow {
   }
 
   resize() {
+
     //recalculate screen positions
     this.scale = this.scale;
     this.pos = this.pos;
+    if(this.camera_centered) this.centerCamera();
   }
 
 
@@ -311,23 +313,28 @@ class WordcloudWindow {
 
   groupSet(S) {
     //console.log("groupSet " + Array.from(S).map((s) => s.label ? s.label : ("(" + Array.from(s.items).map(n => n.label).join(",") + ")")));
+    if(!S || S.size==0) return;
+
     var N = new Set();
     var G = new Set();
     //distinguish between selected group or single-item
     for (var n of S)(n.isgroup ? G : N).add(n);
+    
+    if(G.size==0 && N.size<1) return;
 
     if (G.size == 1) {
       G = Array.from(G)[0];
       for (var n of N) G.addItem(n);
-      G.updateDatabase();
+      if(N.size>0) G.updateDatabase();
       return this.request("layout");
     }
 
     var any_group;
-    for (var g of G) { //Merge all selected groups (and delete old ones)
+    for (var g of G) { 
+      //Merge all selected groups (and delete all old ones, except one named group)
       //treat every element in selected group as selected
       for (var n of g.items) N.add(n);
-      if (g.hasUsefulName) any_group = g;
+      if (g.hasUsefulName && !any_group) any_group = g;
       else{
         g.deleteDatabase();
         g.delete();
@@ -394,7 +401,7 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   setupEventListeners() {
-    for (var v of ["mousedown", "mousemove"]) fwdEvent(this, this.el, v);
+    for (var v of ["mousedown", "mousemove", "mouseup"]) fwdEvent(this, this.el, v);
 
     function handleMouseWheel(t) {
       return e => {
@@ -406,7 +413,7 @@ class WordcloudWindow {
     this.el.addEventListener("mousewheel", handleMouseWheel(this)); //chrome
     this.el.addEventListener("DOMMouseScroll", handleMouseWheel(this), false); //firefox
 
-    document.addEventListener("mouseup", (t => t.mouseupevent = e => t.onmouseup(e))(this));
+    document.addEventListener("mouseup", (t => t.mouseupevent = e => t.onmouseupOutside(e))(this));
     document.addEventListener("keydown", (t => t.keydownevent = e => t.onkeydown(e))(this));
   }
 
@@ -423,6 +430,17 @@ class WordcloudWindow {
     this.el.classList.remove("dragging");
     //    this.boxSelection = false;
     e.preventDefault();
+  }
+  onmouseupOutside(e){
+    if(this.pressed_node){
+      this.pressed_node.dragging = false;
+    }
+    if(this.dragging) this.request("layout");
+    this.pressed_node = false;
+    this.dragging = false;
+    this.dragging_camera = false;
+    this.el.classList.remove("dragging");
+    this.window_downpos = null;
   }
   onmouseup(e) {
     if (!this.dragging && !this.dragging_camera && !this.clickedTools) {
@@ -451,7 +469,6 @@ class WordcloudWindow {
       if (this.hover_node) {
         this.pressed_node.dropAt(this.hover_node);
       }
-
       this.pressed_node.dragging = false;
     }
     this.pressed_node = null;
@@ -488,6 +505,7 @@ class WordcloudWindow {
         this.selectionBox.show(this.mouse_down_wpos, this.mouse_wpos);
       } else {
         this.dragging_camera = true;
+        this.camera_centered = false;
         // dragging camera
         this.pos = sub2(
           this.window_downpos,
@@ -501,6 +519,7 @@ class WordcloudWindow {
 
   onzoom(e, wheel) {
     this.log(wheel);
+    this.camera_centered=false;
     //    this.word_menu.shown = false;
     var wpos = this.mouse_wpos;
     var sf = 1;
@@ -543,6 +562,7 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   centerCamera() {
+    this.camera_centered = true;
     this.transition = true;
     //scale == screenPerWorld
     this.scale = Math.min(this.WH[0] / this.wWH[0], this.WH[1] / this.wWH[1]);
@@ -571,6 +591,21 @@ class WordcloudWindow {
     this.transition = true;
     this.pos = sub2(word.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
     this.transition = false;
+  }
+  
+  centerAtGroup( g ) {
+    this.transition = true;
+    this.pos = sub2(g.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
+    this.transition = false;
+  }
+
+
+  startBoxSelection(){
+    this.boxSelection = true;
+  }
+
+  toggleMinimap(){
+    this.minimap.shown = !this.minimap.shown;
   }
 
   ///////////////////////////////////////

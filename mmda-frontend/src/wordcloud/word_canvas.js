@@ -79,7 +79,7 @@ class WordCanvas {
         }
         return res;
     }
-    debugConvex(P, size, color, label) {
+    debugConvex(P, linesize, textsize, color, label) {
         var str = "";
         P = P.reverse();
         var s = lerp2(P[P.length - 1], P[0], 0.5);
@@ -111,12 +111,13 @@ class WordCanvas {
         //console.log(middlePercentage);
         middlePercentage = 5;
 
-        var wid = size * this.window.worldPerScreen;
+        var linewidth = linesize * this.window.worldPerScreen;
+        var textwidth = textsize * this.window.worldPerScreen;
 
         var path = this.svg_worldspace
             .path(str)
             .stroke({
-                width: wid,
+                width: linewidth,
                 color: hex_color_from_array(color)
             })
             .attr({
@@ -129,7 +130,7 @@ class WordCanvas {
             })
             .font({
                 family: "Helvetica",
-                size: 6 * wid,
+                size: 6 * textwidth,
                 weight: "bold"
                 //anchor: "middle"
             })

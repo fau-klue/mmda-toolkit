@@ -73,6 +73,8 @@
 
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
+
+                  <AnalysisPosTagsSelection/> 
                 </v-form>
               </v-flex>
             </v-layout>
@@ -87,9 +89,13 @@
   <script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
+import AnalysisPosTagsSelection from "@/components/Analysis/AnalysisPosTagsSelection";
 
 export default {
   name: 'AnalysisNewContent',
+  components:{
+    AnalysisPosTagsSelection
+  },
   data: () => ({
     error: null,
     items: [],
@@ -101,7 +107,7 @@ export default {
     selectCorpus: '',
     selectItems: [],
     selectWindow: 3,
-    rules: rules
+    rules: rules,
   }),
   computed: {
     ...mapGetters({

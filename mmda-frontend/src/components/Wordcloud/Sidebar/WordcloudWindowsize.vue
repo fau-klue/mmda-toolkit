@@ -1,7 +1,7 @@
 <template>
 <v-expansion-panel-content>
-  <div slot="header" v-if="!mini" >Window Size</div>
-  <v-card v-if="!mini">
+  <div slot="header" v-if="notMini" >Window Size</div>
+  <v-card v-if="notMini">
     <v-card-text>
       <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
     </v-card-text>
@@ -14,7 +14,6 @@ import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'WordcloudWindowsize',
-  props: ['mini'],
   data: () => ({
     min: 2,
     selectWindow: 3
@@ -23,6 +22,7 @@ export default {
     ...mapGetters({
       analysis: 'analysis/analysis',
       windowSize: 'wordcloud/windowSize',
+      notMini:   'wordcloud/rightSidebar'
     })
   },
   methods: {

@@ -38,7 +38,7 @@ import {
 class WordGroup {
   constructor(title, window) {
     this.window = window;
-    this.name = title;
+    this.name = title?title:undefined;
 
     this.__pos = [0, 0];
     this.items = new Set(); //[];
@@ -93,29 +93,37 @@ class WordGroup {
   }
 
   get hasUsefulName(){
-    return this.name !== null; //this.contentString;
+    return this.name !== undefined; //this.contentString;
   }
 
   deleteDatabase(){
+    console.log("DEL");
     if(this.id===null){
       this.unfinished_delete = true;
       return;
     }
-    this.window.component.deleteDiscourseme(this.id);
+    this.window.component.deleteDiscourseme(this.id).then(()=>{
+      console.log("D+");
+    });
   }
   updateDatabase(){
+    console.log("UP");
     if(this.id===null){
       this.unfinished_update = true;
       return;
     }
     this.updateContentString();
-    this.window.component.updateDiscourseme(this.id, this.name || this.contentString, this.item_names);
+    this.window.component.updateDiscourseme(this.id, this.name || this.contentString, this.item_names).then(()=>{
+      console.log("U+");
+    });
   }
   initDatabase(){
+    console.log("ADD");
     this.updateContentString();
     this.window.component.addDiscourseme(this.name || this.contentString, this.item_names).then((e)=>{
       //console.log("Discourseme ID: "+e);
       this.id = e;
+      console.log("A+");
       //this.window.component.addToAnalysis(this.id);
       if(this.unfinished_delete){
         this.deleteDatabase();
@@ -275,6 +283,7 @@ class WordGroup {
     this.visual_representation = this.window.canvas.debugConvex(
       this.border_path,
       this.linewidth * (this._selected ? 3 : 1),
+      this.linewidth,
       this.color,
       this.label
     );
