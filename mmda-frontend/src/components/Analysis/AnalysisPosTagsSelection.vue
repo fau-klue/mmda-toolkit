@@ -36,7 +36,7 @@ export default {
   created () {
     var Simple = ['NOUN','ADJ','ADV','VERB','INTJ','PROPN',"ADP","PUNCT","AUX","SYM","CCONJ","X","DET","NUM","PART","PRON","SCONJ"]
     for(var i of Simple) this.posTags_simple.push({name:i,selected:Math.random()<0.5})
-    for(var i=0;i<5;i++) for(var j of Simple) this.posTags_advanced.push({name:j+i,selected:Math.random()<0.5})
+    for(var k=0;k<5;k++) for(var j of Simple) this.posTags_advanced.push({name:j+k,selected:Math.random()<0.5})
   }
 }
 

@@ -60,8 +60,6 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
-import { resolve } from 'q';
-import { rejects } from 'assert';
 //import * as data from '@/wordcloud/example_1.js'
 var vm=null;
 export default {

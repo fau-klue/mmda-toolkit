@@ -45,8 +45,8 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
-import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
+//import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
+//import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
 import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
 import WordcloudSearchItem from "@/components/Wordcloud/Sidebar/WordcloudSearchItem";
 import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/WordcloudCollocationParameters";
@@ -54,8 +54,8 @@ import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/Wordc
 export default {
   name: "WordcloudSidebar",
   components: {
-    WordcloudMetadata,
-    WordcloudWindowsize,
+    //WordcloudMetadata,
+    //WordcloudWindowsize,
     WordcloudTools,
     WordcloudSearchItem,
     WordcloudCollocationParameters
