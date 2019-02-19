@@ -233,7 +233,7 @@ def test_evaluate_ucs_query(corpus_settings):
     )
 
     # TODO: Add proper assert
-    assert actual.empty == True
+    assert actual == ''
 
 
 def test_ucs_collocates(corpus_settings):
@@ -249,7 +249,7 @@ def test_ucs_collocates(corpus_settings):
     )
 
     # TODO: Add proper assert
-    assert collocates.empty == True
+    assert collocates == ''
 
 
 @mock.patch('backend.analysis.engines.cwb.ucs_collocates')

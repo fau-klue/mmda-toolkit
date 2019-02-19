@@ -1,8 +1,6 @@
-#!/usr/bin/python3 -*- coding: utf-8 -*-
 """
 Corpus Workbench Engine
 """
-
 
 from subprocess import Popen, PIPE, run, TimeoutExpired
 from logging import getLogger
@@ -49,10 +47,9 @@ def evaluate_cqp_query(corpus_name, cmd):
 
     try:
         cqp_return = cqp_process.communicate(cmd.encode())[0]
-
     except Exception:
         LOGGER.error('Error during execution of CQP command')
-        raise OSError('Error during execution of CQP command')
+        return ''
 
     return cqp_return.decode()
 
@@ -75,27 +72,25 @@ def evaluate_ucs_query(corpus_name, ucs_cmd, add_cmd):
 
     except TimeoutExpired:
         LOGGER.error('Error during ucs-add. Timeout during query.')
-        return DataFrame()
-
-    except Exception:           # pylint: disable=broad-except
+        return ''
+    except Exception:  # pylint: disable=broad-except
         LOGGER.error('Error during ucs-add.')
-        return DataFrame()
+        return ''
 
     ucs_return = add_process.stdout
+
     # error handling for UCS toolkit
     if len(ucs_return) == 0:
-        LOGGER.error(
-            'Collocation extraction failed. Empty return for UCS query.'
-        )
-        LOGGER.debug([ucs_cmd, add_cmd])
-        raise ValueError(
-            'Collocation extraction failed. Empty return for UCS query.'
-        )
+        LOGGER.error('Collocation extraction failed. Empty return for UCS query.')
+        return ''
 
     return ucs_return.decode()
 
 
-# CQP QUERIES ##########################################################
+###############
+# CQP QUERIES #
+###############
+
 def create_cqp_query_from_items(items, p_att):
     """
     Creates CQP query from item-list
@@ -106,10 +101,7 @@ def create_cqp_query_from_items(items, p_att):
     :rtype: str
     """
 
-    query = '[{p_att}="{items}"]'.format(
-        p_att=p_att,
-        items='|'.join(items)
-    )
+    query = '[{p_att}="{items}"]'.format(p_att=p_att, items='|'.join(items))
 
     return query
 
@@ -129,7 +121,9 @@ def create_topic_discourseme_query(topic_items,
     :return: topic-discourseme CQP query as string
     :rtype: str
     """
+
     query = 'MU (meet {discourseme_query} {topic_query} {s_att})'
+
     query = query.format(
         discourseme_query=create_cqp_query_from_items(discourseme_items, p_att),
         topic_query=create_cqp_query_from_items(topic_items, p_att),
@@ -168,7 +162,10 @@ def create_topic_discourseme_query_window(topic_items,
     return query
 
 
-# CONCORDANCES ##########################################################
+################
+# CONCORDANCES #
+################
+
 def cqp_concordances(corpus_name,
                      s_att,
                      p_att,
@@ -252,7 +249,10 @@ def cqp_concordances(corpus_name,
     return concordances_raw, concordances_p_att
 
 
-# CQP formatting
+##################
+# CQP formatting #
+##################
+
 def _process_simple_match(match):
     # matches have the tokens as children
     match_tokens = list()
@@ -297,14 +297,10 @@ def _process_match(match, simple):
 
 
 def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
+    # TODO: Add docstring
 
     if order != 'first':
-        LOGGER.error(
-            'can only format first "cut_off" concordances from CWB'
-        )
-        raise NotImplementedError(
-            'can only format first "cut_off" concordances from CWB'
-        )
+        raise NotImplementedError('can only format first "cut_off" concordances from CWB')
 
     # init output
     lines = dict()
@@ -362,7 +358,7 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
 
 
 def merge_concordances(conc1, conc2):
-
+    # TODO: Add docstring
     for s_pos in conc1.keys():
         if s_pos in conc1.keys():
             for key in (set(conc2[s_pos].keys()) - set(conc1[s_pos].keys())):
@@ -380,25 +376,24 @@ def sort_concordances(concordances, order='random'):
     """
 
     if order != 'random':
-        LOGGER.error(
-            'can only shuffle formatted concordances'
-        )
-        raise NotImplementedError(
-            'can only shuffle formatted concordances'
-        )
+        raise NotImplementedError('can only shuffle formatted concordances')
 
-    else:
-        shuffled_concordances = list()
-        shuffled_keys = list(concordances.keys())
-        shuffle(shuffled_keys)
-        for key in shuffled_keys:
-            conc = concordances[key]
-            conc['s_pos'] = key
-            shuffled_concordances.append(conc)
-        return shuffled_concordances
+    shuffled_concordances = list()
+    shuffled_keys = list(concordances.keys())
+    shuffle(shuffled_keys)
+
+    for key in shuffled_keys:
+        conc = concordances[key]
+        conc['s_pos'] = key
+        shuffled_concordances.append(conc)
+
+    return shuffled_concordances
 
 
-# COLLOCATES ##########################################################
+##############
+# COLLOCATES #
+##############
+
 def ucs_collocates(corpus_name,
                    s_att,
                    p_att,
@@ -530,7 +525,10 @@ def format_ucs_collocates(ucs_return, assoc_measures, cut_off, order):
     return collocates, f1, N
 
 
-# ENGINE #################################################
+##########
+# ENGINE #
+##########
+
 class CWBEngine(Engine):
     """
     Corpus Workbench Engine Class.
