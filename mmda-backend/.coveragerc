@@ -5,3 +5,5 @@ omit =
      backend/local_settings_production.py
      backend/corpora_settings_example.py
      backend/local_settings_example.py
+     backend/corpora_settings_development.py
+     backend/local_settings_development.py
