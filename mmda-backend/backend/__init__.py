@@ -32,9 +32,20 @@ migrate = Migrate()
 jwt = JWTManager()
 
 
+def preflight_check_vectors_passed(app):
+    """
+    Preflight: Check if the vector files are available.
+    """
+
+    for corpus_settings in app.config['CORPORA'].values():
+        if not os.path.exists(corpus_settings['wectors']):
+            return False
+
+    return True
+
 def preflight_check_config_passed(app):
     """
-    Check if app is ready to start.
+    Preflight: Check if config files are available to start the application.
     """
 
     local_settings_file = 'backend/local_settings_{ENV}.py'.format(ENV=app.config['APP_ENV'])
@@ -110,14 +121,19 @@ def create_app(extra_config_settings={}):
     # Load extra settings from extra_config_settings param
     app.config.update(extra_config_settings)
 
-    # Load environment settings
+    # Preflight: Check if config is available
     if not preflight_check_config_passed(app):
         print('Error: Config files not initialized')
         exit(1)
 
+    # Load environment settings
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
 
+    # Preflight: Check if wordvectors are available
+    if not preflight_check_vectors_passed(app):
+        print('Error: Wordvector files not available')
+        exit(1)
 
     # Setup Flask-SQLAlchemy
     db.init_app(app)
