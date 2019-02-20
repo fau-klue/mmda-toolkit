@@ -1,7 +1,7 @@
 <template>
 <v-expansion-panel-content>
-  <div slot="header" v-if="!mini" >Metadata</div>
-  <v-card v-if="!mini">
+  <div slot="header" v-if="notMini" >Metadata</div>
+  <v-card v-if="notMini">
     <v-card-text>{{ analysis }}</v-card-text>
   </v-card>
 </v-expansion-panel-content>
@@ -12,12 +12,12 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'WordcloudMetadata',
-  props: ['mini'],
   data: () => ({
   }),
   computed: {
     ...mapGetters({
-      analysis: 'analysis/analysis'
+      analysis: 'analysis/analysis',
+      notMini: "wordcloud/rightSidebar"
     })
   }
 }

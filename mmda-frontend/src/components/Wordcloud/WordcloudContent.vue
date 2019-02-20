@@ -1,28 +1,30 @@
 <template>
   <div>
     <div class="structured_wordcloud_container">
-      <v-layout fill-height column ma-0>
+      <!--v-layout v-if="false && !notMini" fill-height column ma-0>
         <v-flex shrink class="text-xs-right">
           <v-btn-toggle class="wordcloud_tools" v-model="tool">
             <v-btn
               flat
               icon
+              style="z-index:500;"
+              ripple
               :color="button.color"
               :value="i"
               v-for="(button,i) in tools"
               :key="button.icon+button.color"
               :title="button.title"
-              @click="(x)=>{if(button.call) button.call(x);}"
+              @click="(x)=>{ if(button.call) button.call(x);}"
               @mousedown="()=>wc.clickedTools=true"
             >
               <v-icon>{{button.icon}}</v-icon>
             </v-btn>
-            <!-- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
+            <!- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
               <v-icon>chevron_right</v-icon>
-            </v-btn>-->
+            </v-btn>->
           </v-btn-toggle>
         </v-flex>
-      </v-layout>
+      </v-layout -->
     </div>
 
     <!--
@@ -45,7 +47,7 @@
     </v-layout>
   </v-container>
     -->
-    <WordcloudSidebar/>
+    <WordcloudSidebar v-bind:wc="wc"/>
   </div>
 </template>
 
@@ -59,54 +61,67 @@ import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
 //import * as data from '@/wordcloud/example_1.js'
-var vm;
+var vm=null;
 export default {
   name: "WordcloudContent",
   components: {
     WordcloudSidebar
   },
   data: () => ({
+    mini : true,
     id: null,
     rules: rules,
-    tool: null,
     wc: null,
     resizeEvent: null,
-    tools: [
+    has_data: false,
+    /*tools: [
       {
         title: "view all",
         icon: "aspect_ratio",
         color: "gray",
-        call: () => vm.wc.centerCamera()
+        call: () => {
+          vm.wc.centerCamera();
+        }
       },
       //{ icon: "search", color: "gray", title: "find item" },
       {
         title: "box selection [shift]",
         icon: "select_all",
         color: "gray",
-        call: () => (vm.wc.boxSelection = true)
+        call: () => {
+          //TODO:: on finished box selection tool=null;
+          vm.wc.boxSelection = true;
+        }
       },
       {
         title:
           "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
         icon: "add_circle_outline",
         color: "gray",
-        call: () => vm.wc.groupSelected()
+        call: () => {
+          vm.wc.groupSelected();
+        }
       },
       {
         title: "remove (selected items from) (selected) discourseme [del]",
         icon: "remove_circle_outline",
         color: "gray",
-        call: () => vm.wc.deleteSelection()
+        call: () => {
+          vm.wc.deleteSelection();
+        }
       },
-      { icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
-      { icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
+      //{ icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
+      //{ icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
       {
         title: "minimap (hide/show)",
         icon: "map",
         color: "gray",
-        call: () => (vm.wc.minimap.shown = !vm.wc.minimap.shown)
+        call: () => {
+          vm.tool = null;
+          vm.wc.minimap.shown = !vm.wc.minimap.shown;
+        }
       }
-    ]
+    ]*/
   }),
   computed: {
     ...mapGetters({
@@ -116,15 +131,60 @@ export default {
       collocates: "analysis/collocates",
       coordinates: "coordinates/coordinates",
       concordances: "corpus/concordances",
-      windowSize: "wordcloud/windowSize"
+      notMini:"wordcloud/rightSidebar",
+      windowSize: "wordcloud/windowSize",
+      AM: "wordcloud/associationMeasure",
+      showMinimap: "wordcloud/showMinimap"
     })
+  },
+  watch:{
+    AM () {
+      vm.wc.changeAM();
+    },
+    collocates () {
+      vm.wc.setupCollocates(vm.collocates);
+    },
+    coordinates () {
+      vm.wc.setupCoordinates(vm.coordinates);
+    },
+    discoursemes () {
+      vm.wc.setupDiscoursemes(vm.discoursemes);
+    },
+    windowSize () {
+      vm.loadCollocates(vm.windowSize);
+    }
   },
   methods: {
     ...mapActions({
       getConcordances: "corpus/getConcordances",
-      getCollocates: "analysis/getAnalysisCollocates"
+      getCollocates: "analysis/getAnalysisCollocates",
+      addUserDiscourseme: "discourseme/addUserDiscourseme",
+      updateUserDiscourseme: "discourseme/updateUserDiscourseme",
+      deleteUserDiscourseme: "discourseme/deleteUserDiscourseme",
+      getUserDiscoursemes: "discourseme/getUserDiscoursemes",
+      setUserCoordinates: "coordinates/setUserCoordinates",
+      getAnalysisCoordinates: "coordinates/getAnalysisCoordinates",
+      addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
+      setAM: 'wordcloud/setAssociationMeasure',
+      setShowMinimap: 'wordcloud/setShowMinimap'
     }),
-    fetchCollocates(window_size) {
+/*
+    initializeData() {
+      return Promise.all([
+        this.loadCoordinates(),
+        this.loadCollocates(this.windowSize),
+        this.loadDiscoursemes()
+      ]);
+    },*/
+
+    loadCoordinates() {
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id
+      };
+      return this.getAnalysisCoordinates(data);
+    },
+    loadCollocates(window_size) {
       const request = {
         params: { window_size: window_size }
       };
@@ -133,20 +193,82 @@ export default {
         analysis_id: this.id,
         request: request
       };
-      this.getCollocates(data)
-        .then(() => {
-          this.error = null;
-          if (this.wc)
-            this.wc.setupContent(
-              this.collocates,
-              this.coordinates,
-              this.discoursemes
-            );
-        })
+      return this.getCollocates(data)
+      
+    },
+    loadDiscoursemes() {
+      return this.getUserDiscoursemes(this.user.username).catch(error => {
+        console.error(error);
+      });
+    },
+
+    addDiscourseme(name, items) {
+      return new Promise((resolve,reject)=>{
+        const data = {
+          name: name,
+          items: items,
+          username: this.user.username
+        };
+        this.addUserDiscourseme(data).catch(error => {
+          reject(error);
+        }).then((e)=>{
+          var id = e;
+
+          this.addToAnalysis(id).then(()=>{
+            resolve(id);
+          }).catch((error)=>{
+            reject(error);
+          })
+        });
+      }).catch((error)=>{
+        console.error(error);
+      });
+    },
+    addToAnalysis(discourseme_id){
+        const data = {
+          username: this.user.username,
+          analysis_id: this.id,
+          discourseme_id: discourseme_id
+        }
+        return this.addDiscoursemeToAnalysis(data);//.catch((error) => {
+         // console.error( error );
+        //});
+    },
+
+    deleteDiscourseme(id) {
+      const data = {
+        username: this.user.username,
+        discourseme_id: id
+      };
+      return this.deleteUserDiscourseme(data).catch(error => {
+        console.error(error);
+      });
+    },
+
+    updateDiscourseme(id, name, items) {
+      const data = {
+        discourseme_id: id,
+        name: name,
+        items: items,
+        username: this.user.username
+      };
+      return this.updateUserDiscourseme(data).catch(error => {
+        console.error(error);
+      });
+    },
+    setCoordinates( obj ) {
+      //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id,
+        user_coordinates: obj
+      };
+      return this.setUserCoordinates(data)
         .catch(error => {
-          this.error = error;
+          console.error(error);
         });
     },
+
     fetchConcordances(items) {
       let params = new URLSearchParams();
       // Concat item parameter
@@ -167,24 +289,64 @@ export default {
         .catch(error => {
           this.error = error;
         });
+    },
+    
+
+    centerItemLocation(item_string) {
+      this.wc.centerAtWord(item_string);
     }
-  },
-  centerItemLocation(item_string) {
-    this.wc.centerAtWord(item_string);
   },
   created() {
     this.id = this.$route.params.id;
-    //this.fetchConcordances(['test', 'anothertest'])
-    this.fetchCollocates(3);
+    
+    
+/*
+    this.initializeData()
+      .then(() => {
+        
+        //TODO:: do we want to select any present AM or a static one (e.g. MI)
+        var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
+        this.setAM( oneAM || 'MI' );
+
+        if (this.wc)
+          this.wc.setupContent(
+            this.collocates,
+            this.coordinates,
+            this.discoursemes
+          );
+      })
+      .catch(e => {
+        if (this.wc) this.wc.errors.set("No Data Available", "" + e);
+        else console.error("Data Initialization Failed: " + e);
+      });*/
   },
   mounted() {
-    vm = this;
+    //console.log("IDM: " + this.id);
+    vm=this;
     let A = document.getElementsByClassName("structured_wordcloud_container");
-    this.wc = new WordcloudWindow(A[0]);
+    this.wc = new WordcloudWindow(A[0], this);
     window.addEventListener(
       "resize",
       (this.resizeEvent = (W => () => W.resize())(this.wc))
     );
+
+    this.wc.minimap.shown = this.showMinimap;
+    
+    //console.log("ID: " + this.id);
+    //this.fetchConcordances(['test', 'anothertest'])
+    this.loadCoordinates();
+    this.loadCollocates(this.windowSize).then(()=>{
+      //TODO:: do we want to select any present AM or a static one (e.g. MI)
+      var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
+      this.setAM( oneAM || 'MI' );
+    });
+    this.loadDiscoursemes();
+
+    
+    if(this.coordinates) this.wc.setupCoordinates(this.coordinates);
+    if(this.collocates) this.wc.setupCollocates(this.collocates);
+    if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
+
   },
   beforeDestroy() {
     //e.g. removing event listeners from document

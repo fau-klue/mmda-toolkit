@@ -64,8 +64,8 @@ const actions = {
         return
       }
 
-      api.post(`/user/${data.username}/discourseme/`, data).then(function () {
-        resolve()
+      api.post(`/user/${data.username}/discourseme/`, data).then(function (response) {
+        resolve(response.data.msg) //return id
       }).catch(function (error) {
         reject(error)
       })

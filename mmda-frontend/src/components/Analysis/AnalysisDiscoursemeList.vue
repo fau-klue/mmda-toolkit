@@ -109,6 +109,7 @@ export default {
         analysis_id: this.id,
         discourseme_id: id
       }
+      console.log(data);
 
       this.loading = true
       this.addDiscoursemeToAnalysis(data).then(() => {

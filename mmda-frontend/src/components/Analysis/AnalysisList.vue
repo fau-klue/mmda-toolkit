@@ -40,11 +40,15 @@ export default {
       userAnalysis: 'analysis/userAnalysis'
     }),
     filteredItems() {
+      var F = [];
+      if(!this.userAnalysis) return [];
       if (!this.search) {
-        return this.userAnalysis
+        F = this.userAnalysis
       } else {
-        return this.userAnalysis.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
+        F = this.userAnalysis.filter(items => items.name.toLowerCase().search(this.search.toLowerCase()) >= 0 )
       }
+      F.sort((x)=>x.id); //sort by latest creation-date //i.e. ~ id
+      return F;
     }
   },
   methods: {

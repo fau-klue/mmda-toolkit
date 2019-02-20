@@ -14,6 +14,9 @@ class MinimapElement {
   link() {
     this.word.window.minimap.el.appendChild(this.el);
   }
+  delete(){
+    this.word.window.minimap.el.removeChild(this.el);
+  }
   get WH() {
     return [this.el.offsetWidth, this.el.offsetHeight];
   }

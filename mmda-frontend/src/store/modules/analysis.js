@@ -175,7 +175,7 @@ const actions = {
       }
 
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, data.request).then(function (response) {
-        commit('setCollocates', response.data)
+        commit('setCollocates', response.data);
         resolve()
       }).catch(function (error) {
         reject(error)

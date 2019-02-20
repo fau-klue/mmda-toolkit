@@ -13,14 +13,16 @@
               <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
               <v-text-field :value="analysis.corpus" label="Corpus" box readonly></v-text-field>
 
-              <AnalysisDiscoursemeList/>
-              <AnalysisCoordinates/>
 
               <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn>
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Reload Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
 
+              <!--<AnalysisCoordinates/> -->
+              <AnalysisItemTable/>
+              <AnalysisDiscoursemeList/>
+            
             </v-form>
           </v-flex>
         </v-layout>
@@ -33,7 +35,8 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
-import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
+//import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
+import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
 
 import rules from '@/utils/validation'
 
@@ -41,7 +44,8 @@ export default {
   name: 'AnalysisContent',
   components: {
     AnalysisDiscoursemeList,
-    AnalysisCoordinates
+    AnalysisItemTable,
+    //AnalysisCoordinates
   },
   data: () => ({
     id: null,

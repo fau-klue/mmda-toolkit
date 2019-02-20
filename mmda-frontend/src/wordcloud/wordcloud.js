@@ -79,13 +79,15 @@ class ErrorMessage {
 ///////////////////////////////////////
 
 class WordcloudWindow {
-  constructor(content_div) {
+  constructor(content_div, component) {
     this.el = content_div;
+    this.component = component;
 
     this.Map = new Map();
     this.selected_nodes = new Set();
     this.groups = new Set();
     this.groupMap = new Map();
+    this.am_minmax = {};
 
     this.options = {
       verbose: false,
@@ -205,9 +207,11 @@ class WordcloudWindow {
   }
 
   resize() {
+
     //recalculate screen positions
     this.scale = this.scale;
     this.pos = this.pos;
+    if(this.camera_centered) this.centerCamera();
   }
 
 
@@ -274,13 +278,14 @@ class WordcloudWindow {
 
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
-    if (!this.collocates[am][data.name]) return -1;
+    if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
     var v = (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
 
   getSizeOf(data) {
-    return this.getAMWS(data, this.am); //, this.ws);
+    var val = this.getAMWS(data, this.component.AM); //, this.ws);
+    return val;
   }
   getCompareSizeOf(data) {
     return this.getAMWS(data, this.compare_am); //, this.compare_ws);
@@ -310,28 +315,44 @@ class WordcloudWindow {
 
   groupSet(S) {
     //console.log("groupSet " + Array.from(S).map((s) => s.label ? s.label : ("(" + Array.from(s.items).map(n => n.label).join(",") + ")")));
+    if(!S || S.size==0) return;
+
     var N = new Set();
     var G = new Set();
     //distinguish between selected group or single-item
     for (var n of S)(n.isgroup ? G : N).add(n);
+    
+    if(G.size==0 && N.size<1) return;
 
     if (G.size == 1) {
       G = Array.from(G)[0];
       for (var n of N) G.addItem(n);
+      if(N.size>0) G.updateDatabase();
       return this.request("layout");
     }
 
-    var any_title;
-    for (var g of G) { //Merge all selected groups (and delete old ones)
+    var any_group;
+    for (var g of G) { 
+      //Merge all selected groups (and delete all old ones, except one named group)
       //treat every element in selected group as selected
       for (var n of g.items) N.add(n);
-      if (g.name) any_title = g.name;
-      g.delete();
+      if (g.hasUsefulName && !any_group) any_group = g;
+      else{
+        g.deleteDatabase();
+        g.delete();
+      }
     }
 
-    G = new WordGroup(any_title, this);
-    this.groups.add(G);
-    for (var n of N) G.addItem(n);
+    if(any_group){
+      G = any_group;
+      for (var n of N) G.addItem(n);
+      G.updateDatabase();
+    }else{
+      G = new WordGroup(undefined, this);
+      this.groups.add(G);
+      for (var n of N) G.addItem(n);
+      G.initDatabase();
+    }
     this.request("layout");
   }
 
@@ -340,21 +361,28 @@ class WordcloudWindow {
     var N = new Set();
     for (var i of S)(i.isgroup ? G : N).add(i);
     if (N.size == 0) {
-      for (var g of G) g.delete();
+      for (var g of G){
+        g.deleteDatabase();
+        g.delete();
+      }
     } else if (G.size == 0) {
       for (var n of N) {
         if (!n.groups.size) n.pin.reset();
-        for (var g of n.groups) g.removeItem(n);
+        for (var g of n.groups){
+          g.removeItem(n);
+          g.updateDatabase();
+        }
       }
     } else {
-      for (var n of N) {
-        for (var g of G) g.removeItem(n);
+      for (var g of G){
+        for (var n of N) g.removeItem(n);
+        g.updateDatabase();
       }
     }
     this.request("layout");
   }
 
-  formGroupByNames(item_names) {
+  /*formGroupByNames(item_names) {
     var G = new WordGroup(undefined, this);
     this.groups.add(G);
     G.addItemsByName(item_names);
@@ -365,7 +393,7 @@ class WordcloudWindow {
       a.groups.add(G);
     }
     return G;
-  }
+  }*/
 
 
   ///////////////////////////////////////
@@ -375,7 +403,7 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   setupEventListeners() {
-    for (var v of ["mousedown", "mousemove"]) fwdEvent(this, this.el, v);
+    for (var v of ["mousedown", "mousemove", "mouseup"]) fwdEvent(this, this.el, v);
 
     function handleMouseWheel(t) {
       return e => {
@@ -387,7 +415,7 @@ class WordcloudWindow {
     this.el.addEventListener("mousewheel", handleMouseWheel(this)); //chrome
     this.el.addEventListener("DOMMouseScroll", handleMouseWheel(this), false); //firefox
 
-    document.addEventListener("mouseup", (t => t.mouseupevent = e => t.onmouseup(e))(this));
+    document.addEventListener("mouseup", (t => t.mouseupevent = e => t.onmouseupOutside(e))(this));
     document.addEventListener("keydown", (t => t.keydownevent = e => t.onkeydown(e))(this));
   }
 
@@ -404,6 +432,17 @@ class WordcloudWindow {
     this.el.classList.remove("dragging");
     //    this.boxSelection = false;
     e.preventDefault();
+  }
+  onmouseupOutside(e){
+    if(this.pressed_node){
+      this.pressed_node.dragging = false;
+    }
+    if(this.dragging) this.request("layout");
+    this.pressed_node = false;
+    this.dragging = false;
+    this.dragging_camera = false;
+    this.el.classList.remove("dragging");
+    this.window_downpos = null;
   }
   onmouseup(e) {
     if (!this.dragging && !this.dragging_camera && !this.clickedTools) {
@@ -432,7 +471,6 @@ class WordcloudWindow {
       if (this.hover_node) {
         this.pressed_node.dropAt(this.hover_node);
       }
-
       this.pressed_node.dragging = false;
     }
     this.pressed_node = null;
@@ -469,6 +507,7 @@ class WordcloudWindow {
         this.selectionBox.show(this.mouse_down_wpos, this.mouse_wpos);
       } else {
         this.dragging_camera = true;
+        this.camera_centered = false;
         // dragging camera
         this.pos = sub2(
           this.window_downpos,
@@ -482,6 +521,7 @@ class WordcloudWindow {
 
   onzoom(e, wheel) {
     this.log(wheel);
+    this.camera_centered=false;
     //    this.word_menu.shown = false;
     var wpos = this.mouse_wpos;
     var sf = 1;
@@ -498,10 +538,10 @@ class WordcloudWindow {
 
   onkeydown(e) {
     //not every ctrlKey- combination reaches here in chrome ...:(
-    if (e.ctrlKey && e.key == "b") {
-      this.changeAM();
-      e.preventDefault();
-    }
+    //if (e.ctrlKey && e.key == "b") {
+    //  this.changeAM();
+    //  e.preventDefault();
+    //}
     if (e.ctrlKey && e.key == "g") {
       if (e.shiftKey) {
         //console.log("del");
@@ -524,6 +564,7 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   centerCamera() {
+    this.camera_centered = true;
     this.transition = true;
     //scale == screenPerWorld
     this.scale = Math.min(this.WH[0] / this.wWH[0], this.WH[1] / this.wWH[1]);
@@ -553,6 +594,22 @@ class WordcloudWindow {
     this.pos = sub2(word.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
     this.transition = false;
   }
+  
+  centerAtGroup( g ) {
+    this.transition = true;
+    this.pos = sub2(g.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
+    this.transition = false;
+  }
+
+
+  startBoxSelection(){
+    this.boxSelection = true;
+  }
+
+  toggleMinimap(){
+    this.minimap.shown = !this.minimap.shown;
+    this.component.setShowMinimap(this.minimap.shown);
+  }
 
   ///////////////////////////////////////
   //
@@ -562,26 +619,110 @@ class WordcloudWindow {
 
 
 
-  changeAM(ws, am, cws, cam) {
-    this.compare_am = cam ? cam : this.am;
-    var AM = Object.keys(this.am_minmax);
-    this.am = am ? am : oneOf(AM);
-    console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
 
+  changeAM(ws, am, cws, cam) {
+    //this.compare_am = cam ? cam : this.am;
+    //var AM = Object.keys(this.am_minmax);
+    //this.am = am ? am : oneOf(AM);
+    //console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
     for (var [_, a] of this.Map.entries()) {
       //a.shown = !a.hidden;
-      a.size = 1 + a.normalized_size * 1;
+      a.size = 1 + Math.max(0,Math.min(1,a.normalized_size)) * 1;
       a.trend.evaluate();
     }
 
     this.request("layout");
   }
 
+
+  setupCollocates(collocates){
+    this.collocates = collocates;
+    this.am_minmax = {};
+    for (var am of Object.keys(collocates)) {
+      if (!collocates[am]) continue;
+      this.am_minmax[am] = {
+        min: Number.POSITIVE_INFINITY,
+        max: Number.NEGATIVE_INFINITY
+      };
+
+      var count = 0;
+      for (var word of Object.keys(collocates[am])) {
+        if(this.coordinates && !this.coordinates[word]){
+          count++;
+        }
+        if (!collocates[am][word]) continue;
+        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
+        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
+      }
+      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
+      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
+      //S.sort();
+      //console.log(S);
+      //this.compare_am = this.am;
+      //this.am = am;
+    }
+
+    this.changeAM();
+  }
+
+  setupCoordinates(coordinates){
+    for(var [_,a] of this.Map.entries()) a.delete();
+    this.Map = new Map();
+    this.coordinates = coordinates;
+
+    for (var word of Object.keys(coordinates)) {
+      coordinates[word].name = word;
+      this.addWord( coordinates[word] );
+    }
+
+    this.layoutTsnePositions();
+    if(this.discoursemes){
+      this.setupDiscoursemes(this.discoursemes);
+    }
+  }
+
+  setupDiscoursemes(discoursemes){
+    for(var g of this.groups) g.delete(); //!! Do not delete groups from server, only locally
+    this.groups.clear();
+
+    this.discoursemes = discoursemes;
+    for (var disc of discoursemes) {
+      var G = new WordGroup(undefined,this);
+      for(var name of disc.items){
+        var n = this.getItemByName(name);
+        if(!n){
+          //TODO:: what coordinates should these words have??
+          n = this.addWord({name:name, tsne_x:0,tsne_y:0})
+        } 
+        G.addItem(n);
+      }
+      // Only give name, if naming is meaningful
+      G.updateContentString();
+      if(G.contentString!=disc.name){
+        G.name = disc.name;
+      }
+      G.id = disc.id;
+      this.groups.add(G);
+    }
+    
+    this.timeout('layout');
+  }
+
+
+
+
+
+
   setupContent(collocates, coordinates, discoursemes) {
 
-    console.log(collocates);
-    console.log(coordinates);
-    console.log(discoursemes);
+    /*
+    console.log(Array.from(Object.keys(collocates.MI)));
+    console.log(Array.from(Object.keys(coordinates)));
+    console.log(Array.from(Object.keys(discoursemes)));//coordinates)));
+    */
+    //console.log(collocates);
+    //console.log(coordinates);
+    //console.log(discoursemes);
 
     if (!collocates || !coordinates) {
       return console.error("Wordcloud:  No collocates loaded.");
@@ -591,40 +732,72 @@ class WordcloudWindow {
     this.coordinates = coordinates;
     this.am_minmax = {};
     for (var am of Object.keys(collocates)) {
+      //console.log("AM: "+am);
       if (!collocates[am]) continue;
       this.am_minmax[am] = {
         min: Number.POSITIVE_INFINITY,
         max: Number.NEGATIVE_INFINITY
       };
+      var count = 0;
       //console.log("setup " + am);
       for (var word of Object.keys(collocates[am])) {
+        if(!coordinates[word]){
+          count++;
+        }
         if (!collocates[am][word]) continue;
         //console.log(collocates[am][word]);
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
       }
-      //console.log(this.am_minmax[am]);
+      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
+      
+      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
+      //S.sort();
+      //console.log(S);
       this.compare_am = this.am;
       this.am = am;
     }
 
+    
+
 
     for (var word of Object.keys(coordinates)) {
+      //console.log("AM: "+am);
+
+      coordinates[word].name = word;
       this.addWord(coordinates[word]);
       //console.log(coordinates[word]);
     }
 
 
     for (var disc of discoursemes) {
-      console.log("Discourseme " + disc.title);
+      var G = new WordGroup(undefined,this);
+      for(var name of disc.items){
+        var n = this.getItemByName(name);
+        if(!n){
+          //console.log("ADD: "+name);
+          n = this.addWord({name:name,tsne_x:0,tsne_y:0})
+        } 
+        G.addItem(n);
+      }
+      G.updateContentString();
+      if(G.contentString!=disc.name){
+        G.name = disc.name;
+      }
+      G.id = disc.id;
+      G.color = random_color(G.id);
+      this.groups.add(G);
+      //console.log("Discourseme " + disc.name);
     }
 
+    /*
     var G = this.formGroupByNames([
       "wie",
       "wieso",
       "das",
     ]);
     G.name = "Gruppenname";
+*/
 
     this.layoutTsnePositions();
     this.request("layout");
@@ -677,13 +850,11 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   layout(x) {
-    layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.debugClear();
+    layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.drawContainmentEdges();
     for (var g of this.groups) g.draw();
 
-    for (var [_, n] of this.Map.entries())
-      if (!n.shown) this.debugPoint(n._pos);
     this.pos = this.pos;
     this.scale = this.scale;
   }
@@ -707,7 +878,7 @@ class WordcloudWindow {
       this.screenBorder = max2(a.WH, this.screenBorder);
     }
 
-    this.centerCamera();
+    this.timeout("centerCamera");
   }
 
 

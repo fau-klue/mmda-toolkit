@@ -18,8 +18,8 @@ function oneOf(A) {
 }
 
 var pseudorandomIndex = 0;
-function pseudorandom() {
-  var index = pseudorandomIndex++;
+function pseudorandom(i) {
+  var index = i ? i : (pseudorandomIndex++);
   var base = 3;
   var res = 0;
   var f = 1;
@@ -32,7 +32,8 @@ function pseudorandom() {
 }
 
 function random_color(pseudo) {
-  if (pseudo) return hsv_to_rgb(360 * pseudorandom(), 0.8, 0.5);
+  if (typeof pseudo === 'boolean') return hsv_to_rgb(360 * pseudorandom(), 0.8, 0.5);
+  if (typeof pseudo === 'number') return hsv_to_rgb(360 * pseudorandom(pseudo), 0.8, 0.5);
   return hsv_to_rgb(
     220 * Math.random(),
     0.8 + 0.1 * Math.random(),

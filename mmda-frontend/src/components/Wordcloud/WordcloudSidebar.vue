@@ -1,10 +1,18 @@
 <template>
-  <v-navigation-drawer v-model="sidebar" right app clipped :mini-variant.sync="mini">
+  <v-navigation-drawer
+    right 
+    clipped 
+    disable-resize-watcher
+    hide-overlay
+    permanent
+    app
+    :mini-variant="!notMini">
+    <!-- permanent --> 
     <v-toolbar flat class="transparent">
       <v-list class="pa-0">
         <v-list-tile avatar>
           <v-list-tile-avatar>
-            <v-btn icon v-if="mini">
+            <v-btn icon v-if="!notMini" @click.stop="setMini(true)">
               <v-icon>chevron_left</v-icon>
             </v-btn>
           </v-list-tile-avatar>
@@ -16,7 +24,7 @@
           </v-list-tile-content>
 
           <v-list-tile-action>
-            <v-btn icon @click.stop="mini = !mini">
+            <v-btn icon @click.stop="setMini(false)">
               <v-icon>chevron_right</v-icon>
             </v-btn>
           </v-list-tile-action>
@@ -25,35 +33,47 @@
     </v-toolbar>
 
     <v-expansion-panel>
-      <WordcloudMetadata v-bind:mini="mini"/>
-      <WordcloudWindowsize v-bind:mini="mini"/>
-      <!--<wordcloudTools v-bind:mini="mini"/>-->
+      <wordcloudTools v-bind:wc="wc"/>
+     <!-- 
+      <WordcloudMetadata/>
+      <WordcloudWindowsize/> -->
+      <WordcloudCollocationParameters/>
+      <WordcloudSearchItem v-bind:wc="wc"/>
     </v-expansion-panel>
   </v-navigation-drawer>
 </template>
 
 <script>
-import { mapGetters } from "vuex";
-import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
-import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
-//import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
+import { mapGetters, mapActions } from "vuex";
+//import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
+//import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
+import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
+import WordcloudSearchItem from "@/components/Wordcloud/Sidebar/WordcloudSearchItem";
+import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/WordcloudCollocationParameters";
 
 export default {
   name: "WordcloudSidebar",
   components: {
-    WordcloudMetadata,
-    WordcloudWindowsize
-    //    WordcloudTools
+    //WordcloudMetadata,
+    //WordcloudWindowsize,
+    WordcloudTools,
+    WordcloudSearchItem,
+    WordcloudCollocationParameters
   },
+  props:["wc"],
   data: () => ({
-    sidebar: true,
-    mini: true
   }),
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: "analysis/analysis"
+      analysis: "analysis/analysis",
+      notMini: "wordcloud/rightSidebar"
     })
+  },
+  methods: {
+    ...mapActions({
+      setMini: "wordcloud/setRightSidebar",
+    }),
   }
 };
 </script>

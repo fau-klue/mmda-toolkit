@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- TODO -->
+    <!-- TODO Currently unused -->
   </div>
 </template>
 

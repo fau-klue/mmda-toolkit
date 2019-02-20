@@ -89,15 +89,15 @@ def create_analysis(username):
     # Make unique list from tokens
     tokens = list(set(tokens))
 
-    # Generate Coordinates
-    wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
-    semantic_space = generate_semantic_space(tokens, wectors_path)
-    # TODO: What do we do here? Delete everything? Continue with empty?
-    if semantic_space.empty:
+    if len(tokens) == 0:
         db.session.delete(analysis)
         db.session.delete(topic_discourseme)
         db.session.commit()
-        return jsonify({'msg': 'Error during TSNE'}), 500
+        return jsonify({'msg': 'No collocates for query found.'}), 404
+
+    # Generate Coordinates
+    wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
+    semantic_space = generate_semantic_space(tokens, wectors_path)
 
     coordinates = Coordinates(analysis_id=analysis.id)
     coordinates.data = semantic_space
@@ -276,9 +276,11 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
 
     new_coordinates = generate_discourseme_coordinates(discourseme.items, semantic_space, wectors_path)
-    # Append new coordinates to semantic space
-    semantic_space.append(new_coordinates, sort=True)
-    coordinates.data = semantic_space
+    if not new_coordinates.empty:
+        # Append new coordinates to semantic space
+        semantic_space.append(new_coordinates, sort=True)
+        coordinates.data = semantic_space
+
     db.session.commit()
 
     return jsonify({'msg': 'Updated'}), 200

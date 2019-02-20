@@ -113,10 +113,15 @@ def generate_discourseme_coordinates(items, base_coordinates, vectors_filepath):
     :rtype: pandas.Dataframe
     """
 
-    # TODO: Add Comment: whats happending here
+    # Check if some if the items are already in the base_coordinates,
+    # If so remove those items
     intersect_items = set(items).intersection(set(base_coordinates.index))
     if len(intersect_items) > 0:
         items = list(set(items) - intersect_items)
+
+    # Handle empty list
+    if not items:
+        return DataFrame()
 
     base_embeddings = load_vectors(base_coordinates.index, vectors_filepath)
     new_embeddings = load_vectors(items, vectors_filepath)

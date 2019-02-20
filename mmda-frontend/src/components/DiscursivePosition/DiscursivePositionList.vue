@@ -39,11 +39,15 @@ export default {
       userPositions: 'discursive/userDiscursivePositions'
     }),
     filteredItems() {
+      var F = []
+      if(!this.userPositions) return [];
       if (!this.search) {
-        return this.userPositions
+        F = this.userPositions
       } else {
-        return this.userPositions.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
+        F = this.userPositions.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
       }
+      F.sort((x)=>x.id)
+      return F;
     }
   },
   methods: {
