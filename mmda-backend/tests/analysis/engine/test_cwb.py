@@ -165,25 +165,31 @@ def test_cqp_concordances_complex(mock_popen, conc_complex_file, conc_complex_p_
 def test_format_cqp_concordances_simple(conc_simple_file, corpus_settings):
 
     actual = format_cqp_concordances(
-        cqp_return=conc_simple_file,
+        cqp_return=conc_simple_file.decode(),
         cut_off=corpus_settings['cut_off_concordances'],
         order='first',
         simple=True
     )
 
-    # TODO Add assert
+    sentences = list(actual.values())
+
+    # Assert the dict has the correct keys and the sentence lists are equal
+    assert len(sentences[0]['word']) == len(sentences[0]['role'])
 
 
 def test_format_cqp_concordances_complex(conc_complex_file, corpus_settings):
 
     actual = format_cqp_concordances(
-        cqp_return=conc_complex_file,
+        cqp_return=conc_complex_file.decode(),
         cut_off=corpus_settings['cut_off_concordances'],
         order='first',
         simple=True
     )
 
-    # TODO Add assert
+    sentences = list(actual.values())
+
+    # Assert the dict has the correct keys and the sentence lists are equal
+    assert len(sentences[0]['word']) == len(sentences[0]['role'])
 
 
 @mock.patch("backend.analysis.engines.cwb.Popen")
