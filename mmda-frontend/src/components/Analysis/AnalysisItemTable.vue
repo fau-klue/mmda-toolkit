@@ -12,7 +12,15 @@
         <td v-for="el in headers" :key="props.item.name+el.text" 
           class="text-xs-center"
           >
-          <div v-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
+          <div v-if="el.value==='name'">
+            <v-layout row>
+              <v-btn @click="gotoConcordanceViewOf(props.item)" icon ripple :title="'show concordances of '+props.item.name">
+                <v-icon class="grey--text text--lighten-1">info</v-icon>
+              </v-btn>
+              <div style="margin:auto 0;">{{props.item.name}}</div>
+            </v-layout>
+          </div>
+          <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
           <div v-else> 
             <div :style="
             'margin:auto;'
@@ -105,12 +113,12 @@ export default {
     transposedCoordinates () {
       //TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
-      var R = {};
+      var R = {}, val;
       if(this.coordinates){
         for(var c of Object.keys(this.coordinates)){
           R[c] = {name:c};
           for(var x of Object.keys(this.coordinates[c])){
-            var val = this.coordinates[c][x];
+            val = this.coordinates[c][x];
             R[c][x] = typeof val ==="number" ? val.toPrecision(3): val;
           }
         }
@@ -119,7 +127,7 @@ export default {
         for(var am of Object.keys(this.computedCollocates)){
           for(var w of Object.keys(this.computedCollocates[am])){
             if(!R[w]) R[w] = { name: w };
-            var val = this.computedCollocates[am][w];
+            val = this.computedCollocates[am][w];
             R[w][am] = val.toPrecision(2);
             R[w][am.replace('.','_')] = val.toPrecision(2);
             R[w][am.replace('.','_')+'#Norm'] = this.map_range(val,this.minmaxAM[am]);
@@ -133,7 +141,12 @@ export default {
       var Coll = 
         this.computedCollocates 
       ? Object.keys(this.computedCollocates).map(k=>{
-          return {text:k, valueWithDot:k, value:k.replace('.','_'), align:'center'}
+          return {
+            text:k, 
+            valueWithDot:k, 
+            value:k.replace('.','_'), 
+            align:'center'
+          }
         }) 
       : [];
       return [
@@ -150,6 +163,7 @@ export default {
     ...mapActions({
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getCollocates:           "analysis/getAnalysisCollocates",
+      getConcordances: 'corpus/getConcordances',
     }),
     map_range (value,minmax){
       return (value-minmax.min)/(minmax.max-minmax.min);
@@ -177,6 +191,31 @@ export default {
       return this.getCollocates(data)
       
     },
+    gotoConcordanceViewOf (item) {
+      this.fetchConcordances([item.name]);
+    },
+    fetchConcordances(items) {
+      let params = new URLSearchParams();
+      // Concat item parameter
+      items.forEach(function(item) {
+        params.append("item", item);
+      });
+      const request = {
+        params: params
+      };
+      const data = {
+        corpus: this.analysis.corpus,
+        request: request
+      };
+      this.getConcordances(data)
+        .then(() => {
+          this.error = null;
+        })
+        .catch(error => {
+          this.error = error;
+        });
+    },
+    
   },
   created () {
     this.id = this.$route.params.id

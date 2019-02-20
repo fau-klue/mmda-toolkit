@@ -21,6 +21,7 @@
 
               <!--<AnalysisCoordinates/> -->
               <AnalysisItemTable/>
+              <ConcordancesKeywordInContextList/>
               <AnalysisDiscoursemeList/>
             
             </v-form>
@@ -37,6 +38,7 @@ import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
 //import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
 import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
+import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 
 import rules from '@/utils/validation'
 
@@ -45,6 +47,7 @@ export default {
   components: {
     AnalysisDiscoursemeList,
     AnalysisItemTable,
+    ConcordancesKeywordInContextList,
     //AnalysisCoordinates
   },
   data: () => ({
