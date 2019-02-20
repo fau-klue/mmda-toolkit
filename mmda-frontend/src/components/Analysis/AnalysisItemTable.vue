@@ -80,16 +80,23 @@ export default {
       collocates: 'analysis/collocates',
       windowSize: "wordcloud/windowSize",
     }),
+    computedCollocates () {
+      var R ={};
+      Object.assign(R,this.collocates);
+      //R['tScore'] = R['t.score'];
+      
+      return R;
+    },
     minmaxAM () {
       var R = {};
-      if(this.collocates){
-        for(var am of Object.keys(this.collocates)){
+      if(this.computedCollocates){
+        for(var am of Object.keys(this.computedCollocates)){
           if(!R[am]){
             R[am] = {min:Number.POSITIVE_INFINITY,max:Number.NEGATIVE_INFINITY};
           }
-          for(var w of Object.keys(this.collocates[am])){
-            R[am].min = Math.min(R[am].min,this.collocates[am][w]);
-            R[am].max = Math.max(R[am].max,this.collocates[am][w]);
+          for(var w of Object.keys(this.computedCollocates[am])){
+            R[am].min = Math.min(R[am].min,this.computedCollocates[am][w]);
+            R[am].max = Math.max(R[am].max,this.computedCollocates[am][w]);
           }
         }
       }
@@ -108,12 +115,14 @@ export default {
           }
         }
       }
-      if(this.collocates){
-        for(var am of Object.keys(this.collocates)){
-          for(var w of Object.keys(this.collocates[am])){
+      if(this.computedCollocates){
+        for(var am of Object.keys(this.computedCollocates)){
+          for(var w of Object.keys(this.computedCollocates[am])){
             if(!R[w]) R[w] = { name: w };
-            R[w][am] = this.collocates[am][w].toPrecision(2);
-            R[w][am+'#Norm'] = this.map_range(this.collocates[am][w],this.minmaxAM[am]);
+            var val = this.computedCollocates[am][w];
+            R[w][am] = val.toPrecision(2);
+            R[w][am.replace('.','_')] = val.toPrecision(2);
+            R[w][am.replace('.','_')+'#Norm'] = this.map_range(val,this.minmaxAM[am]);
           }
         }
       }
@@ -121,7 +130,12 @@ export default {
       //return Object.keys(items).map((key) => ( Object.assign(items[key], {name: key})))
     },
     headers () {
-      var Coll = this.collocates ? Object.keys(this.collocates).map(k=>{return{text:k,value:k,align:'center'}}) : [];
+      var Coll = 
+        this.computedCollocates 
+      ? Object.keys(this.computedCollocates).map(k=>{
+          return {text:k, valueWithDot:k, value:k.replace('.','_'), align:'center'}
+        }) 
+      : [];
       return [
         {text:'Items',value:'name',align:'center'},
         ...Coll,
