@@ -11,7 +11,7 @@ from backend.analysis.coordinates import tsne
 
 def test_coord_load_vectors_fail():
 
-    actual = tsne.load_vectors(['token1', 'token2', 'token1'], '/tmp/foo.pymagnitude')
+    actual = tsne.load_vectors(['token1', 'token2', 'token1'], '/tmp/imnothere.pymagnitude')
     expected = pandas.DataFrame()
     assert_frame_equal(actual, expected)
 

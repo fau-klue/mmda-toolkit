@@ -14,7 +14,7 @@ CORPORA = {
     'SZ_SMALL': {
         'name': 'Süddeutsche Zeitung',
         'name_api': 'SZ_SMALL',
-        'wectors': '/home/markus/Code/wector/wiki-news-300d-1M-subword.magnitude',
+        'wectors': '/tmp/foo.pymagnitude',
         'language': 'de',
         'genre': 'Social Media Discourse',
         'sentence_boundary': 's',
@@ -24,7 +24,7 @@ CORPORA = {
     'FAZ_SMALL': {
         'name': 'FAZ Zeitung',
         'name_api': 'FAZ_SMALL',
-        'wectors': '/home/markus/Code/wector/wiki-news-300d-1M-subword.magnitude',
+        'wectors': '/tmp/foo.pymagnitude',
         'language': 'de',
         'genre': 'Newspaper',
         'sentence_boundary': 'tweet',

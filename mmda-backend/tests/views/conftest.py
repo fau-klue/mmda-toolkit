@@ -8,6 +8,12 @@ from flask_jwt_extended import create_refresh_token, create_access_token
 
 from backend import create_app, db as the_db
 
+
+# Init test vectors
+test_vectors = open('/tmp/foo.pymagnitude', 'w')
+test_vectors.write('nothing to see here')
+test_vectors.close()
+
 # Initialize the Flask-App with test-specific settings
 the_app = create_app(dict(
     TESTING=True,  # Propagate exceptions
