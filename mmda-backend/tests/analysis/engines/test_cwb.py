@@ -1,4 +1,5 @@
 import pytest
+from pandas import DataFrame
 import unittest.mock as mock
 
 from backend.analysis.engines.cwb import evaluate_cqp_query
@@ -65,6 +66,11 @@ def conc_complex_file():
 @pytest.fixture
 def conc_complex_p_att_file():
     with open("tests/analysis/engines/cqp_output_examples/concordance_complex_p_att", "rb") as f:
+        return f.read()
+
+@pytest.fixture
+def ucs_simple_file():
+    with open("tests/analysis/engines/ucs_output_examples/ucs_simple", "rt") as f:
         return f.read()
 
 
@@ -183,7 +189,7 @@ def test_format_cqp_concordances_complex(conc_complex_file, corpus_settings):
         cqp_return=conc_complex_file.decode(),
         cut_off=corpus_settings['cut_off_concordances'],
         order='first',
-        simple=True
+        simple=False
     )
 
     sentences = list(actual.values())
@@ -203,6 +209,25 @@ def test_extract_concordances_simple(mock_popen, corpus_settings):
     actual = engine.extract_concordances(
         corpus_settings['items1'],
         corpus_settings['association_settings']['window_size'],
+        cut_off=corpus_settings['cut_off_concordances']
+    )
+
+    # TODO Add proper assert
+    assert mock_popen.call_count == 2
+
+
+@mock.patch("backend.analysis.engines.cwb.Popen")
+def test_extract_concordances_complex(mock_popen, corpus_settings):
+
+    engine = CWBEngine(
+        corpus_settings['corpus_name'],
+        corpus_settings['association_settings']
+    )
+
+    actual = engine.extract_concordances(
+        corpus_settings['items1'],
+        corpus_settings['association_settings']['window_size'],
+        collocates=corpus_settings['items2'],
         cut_off=corpus_settings['cut_off_concordances']
     )
 
@@ -254,6 +279,7 @@ def test_create_ucs_query_with_discoursemeitems(corpus_settings):
     assert 'ucs-add' in actual_add_cmd
     assert 'MU (meet [p_att="discourseme|items"] [p_att="topic|items"] s_att)' in actual_ucs_cmd
 
+
 def test_evaluate_ucs_query(corpus_settings):
 
     ucs_cmd, ucs_add = create_ucs_query(corpus_settings['corpus_name'],
@@ -287,6 +313,34 @@ def test_ucs_collocates(corpus_settings):
 
     # TODO: Add proper assert
     assert collocates == ''
+
+
+def test_format_ucs_collocates(corpus_settings, ucs_simple_file):
+
+    actual_collocates, actual_f1, actual_N = format_ucs_collocates(
+        ucs_simple_file,
+        corpus_settings['association_settings']['association_measures'],
+        corpus_settings['cut_off_collocates'],
+        'f2'
+    )
+
+    assert isinstance(actual_f1, int)
+    assert isinstance(actual_N, int)
+    assert isinstance(actual_collocates, DataFrame)
+
+
+def test_format_ucs_collocates_fails(corpus_settings):
+
+    actual_collocates, actual_f1, actual_N = format_ucs_collocates(
+        '',
+        corpus_settings['association_settings']['association_measures'],
+        corpus_settings['cut_off_collocates'],
+        'f2'
+    )
+
+    assert actual_f1 == 0
+    assert actual_N == 0
+    assert actual_collocates.empty
 
 
 @mock.patch('backend.analysis.engines.cwb.ucs_collocates')

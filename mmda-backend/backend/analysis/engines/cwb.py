@@ -304,7 +304,7 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
 
     # init output
     lines = dict()
-
+    p_att = 'word'              # default p-attribute
     # loop through CQP return value
     for line in str(cqp_return).split("\n"):
 
@@ -358,9 +358,12 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
 
 
 def merge_concordances(conc1, conc2):
-    # TODO: Add docstring
+    """
+    adds all entries of conc2 to conc1 for each s_pos
+    conc1 and conc2 have to comprise the same keys (s_pos)
+    """
     for s_pos in conc1.keys():
-        if s_pos in conc1.keys():
+        if s_pos in conc2.keys():
             for key in (set(conc2[s_pos].keys()) - set(conc1[s_pos].keys())):
                 conc1[s_pos][key] = conc2[s_pos][key]
         else:
