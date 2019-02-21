@@ -345,7 +345,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
 
     if (failedInsertions.length) {
       for(var n of failedInsertions){
-        wordset.debugPoint(n._pos);
+        //wordset.debugPoint(n._pos);
         n.shown = false;
       }
       

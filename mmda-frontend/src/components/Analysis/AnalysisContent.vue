@@ -69,7 +69,7 @@ export default {
       getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
       updateUserAnalysis: 'analysis/updateUserAnalysis',
       deleteUserAnalysis: 'analysis/deleteUserAnalysis',
-      reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates'
+      reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
     }),
     loadAnalysis () {
       const data = {

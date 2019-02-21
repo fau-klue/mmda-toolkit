@@ -154,8 +154,6 @@
 </template>
 
 <style>
-.kwic-view-table td{
-}
 .kwic-view-table .kwic-context{
   width:50%;
 }
@@ -163,11 +161,10 @@
   font-size:200%;
   font-weight:bold;
 }
-.kwic-view-table .concordance{}
 .kwic-view-table .concordance.none{
   color:#aaa;
 }
-.kwic-view-table .concordance.item, 
+.kwic-view-table .concordance.collocate, 
 .kwic-view-table .concordance.topic{
   font-weight:bold;
   cursor:pointer;
@@ -192,7 +189,8 @@ export default {
   },
   data: () => ({
     id: null,
-    keywordRole: 'item',
+    error: null,
+    keywordRole: 'topic',
     sentimentColor:['green','yellow','red'],
     sentimentEmotion:['😃','😐','😠'],
     /*mode:null,
@@ -227,18 +225,12 @@ export default {
 
         r.sentiment = Math.random()<0.333?0:Math.random()<0.5?1:2;
 
-        for(var i=0; i<c.lemmas.length; ++i){  
+        for(var i=0; i<c.word.length; ++i){  
           var el = {
-            text:c.tokens[i],
-            role:c.emphas[i]?c.emphas[i]:'none',
-            lemma:c.lemmas[i]
+            text:   c.word[i],
+            role:   c.role[i],
+            lemma:  c.tt_lemma[i]
           };
-           
-          if(true){
-            el.role = Math.random()<0.2?'none'
-            :Math.random()<0.5?'also_collocated'
-            :Math.random()<0.5?'topic':'item';
-          }
 
           if(beforeKeyword && el.role==this.keywordRole){
             beforeKeyword=false;
@@ -253,17 +245,16 @@ export default {
           //c.lemmas
         }
 
-        if(r.head.length>2){ 
+//TODO:: one conceptionally doesnt have to do this, when table positions are correct
+       /* if(r.head.length>2){ 
           r.head = r.head.slice(r.head.length-2,r.head.length); 
           r.head.splice(0,{text:'...',role:'none'});
         }
         if(r.tail.length>2){ 
           r.tail = r.tail.slice(0,2); 
           r.tail.push({text:'...',role:'none'});
-        }
+        }*/
 
-        //if(r.preSentence.length>100) r.preSentence = '...'+r.preSentence.substring(r.preSentence.length-100,r.preSentence.length-1);
-        //if(r.postSentence.length>100) r.postSentence=r.postSentence.substring(0,100)+'...';
         C.push(r);
       }
       return C;
@@ -282,37 +273,22 @@ export default {
       // e.g. setConcordances(null);
     },
     selectItem (item) {
-      if( item.role == 'item' || item.role == 'topic' ) this.toggleKwicMode(); 
+      if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
       else this.clickOnLemma(item.lemma); 
     },
     toggleKwicMode (){
-      this.keywordRole = this.keywordRole=='item'?'topic':'item';
+      this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
       //TODO:: update
-      console.log(this.tableContent);
     },
     clickOnLemma (name) {
-      this.fetchConcordances([name]);
-    },
-    fetchConcordances(items) {
-      let params = new URLSearchParams();
-      // Concat item parameter
-      items.forEach(function(item) {
-        params.append("item", item);
+      this.getConcordances({
+        corpus:           this.analysis.corpus,
+        topic_items:      this.analysis.topic_discourseme.items,
+        collocate_items:  [name],
+        window_size:      this.windowSize
+      }).catch((error)=>{
+        this.error = error
       });
-      const request = {
-        params: params
-      };
-      const data = {
-        corpus: this.analysis.corpus,
-        request: request
-      };
-      this.getConcordances(data)
-        .then(() => {
-          this.error = null;
-        })
-        .catch(error => {
-          this.error = error;
-        });
     },
   },
   created () {

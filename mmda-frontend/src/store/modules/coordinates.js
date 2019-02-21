@@ -16,14 +16,11 @@ const getters = {
 }
 
 const actions = {
-  getAnalysisCoordinates ({commit}, data) {
+  getAnalysisCoordinates ({commit}, data ) {
     // Get the coordinates of an analysis
     return new Promise((resolve, reject) => {
-
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`).then(function (response) {
         commit('setCoordinates', response.data)
@@ -36,11 +33,8 @@ const actions = {
   reloadAnalysisCoordinates ({dispatch}, data) {
     // Reload the coordinates of an analysis
     return new Promise((resolve, reject) => {
-
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/reload/`).then(function () {
         dispatch('getAnalysisCoordinates', data)
@@ -53,11 +47,8 @@ const actions = {
   setUserCoordinates ({dispatch}, data) {
       // Reload the coordinates of an analysis
       return new Promise((resolve, reject) => {
-  
-        if (!data.username) {
-          reject('No user provided')
-          return
-        }
+        if (!data.username)    return reject('No user provided')
+        if (!data.analysis_id) return reject('No analysis provided')
   
         api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`,data.user_coordinates).then(function () {
           dispatch('getAnalysisCoordinates', data)

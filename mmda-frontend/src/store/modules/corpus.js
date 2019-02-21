@@ -48,10 +48,26 @@ const actions = {
       })
     })
   },
-  getConcordances ({commit}, data) {
+  getConcordances ({commit}, data ) {
     // Get Concordances
     return new Promise((resolve, reject) => {
-      api.get(`/corpus/${data.corpus}/concordances/`, data.request).then(function (response) {
+      
+      if (!data.corpus) return reject('No corpus provided')
+      if (!data.topic_items) return reject('No topic items provided')
+
+      let params = new URLSearchParams()
+      // Concat item parameter
+      data.topic_items.forEach((item)=>{ params.append("item", item) })
+      if(data.collocation_items){
+        data.collocation_items.forEach((item)=>{ params.append("collocate", item) })
+      }
+      if(data.window_size){
+         params.append("window_size",data.window_size)
+      }
+      const request = {
+        params: params
+      };
+      api.get(`/corpus/${data.corpus}/concordances/`, request).then(function (response) {
         commit('setConcordances', response.data)
         resolve()
       }).catch(function (error) {

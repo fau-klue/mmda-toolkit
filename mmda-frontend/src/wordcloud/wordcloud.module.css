@@ -95,6 +95,7 @@
 
 .wordcloud_element .text {
   visibility: visible;
+  white-space: nowrap;
   top: -50%;
   left: -50%;
 }
@@ -111,7 +112,7 @@
 .wordcloud_element.hidden,
 .wordcloud_element.hidden .text {
   /*visibility: hidden;
-  */color: #0001 !important;
+  */color: #00000007 !important;
   pointer-events: none;
   cursor: default;
 }

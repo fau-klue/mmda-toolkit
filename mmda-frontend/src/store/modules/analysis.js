@@ -35,10 +35,8 @@ const actions = {
     // Get one analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username) return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/`).then(function (response) {
         commit('setAnalysisSingle', response.data)
@@ -52,10 +50,7 @@ const actions = {
     // Get all analysis of a user
     return new Promise((resolve, reject) => {
 
-      if (!username) {
-        reject('No user provided')
-        return
-      }
+      if (!username) return  reject('No user provided')
 
       api.get(`/user/${username}/analysis/`).then(function (response) {
         commit('setAnalysis', response.data)
@@ -69,10 +64,8 @@ const actions = {
     // Get list of discoursmes of the analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username) return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/`).then(function (response) {
         commit('setAnalysisDiscoursemes', response.data)
@@ -86,10 +79,7 @@ const actions = {
     // Get all users analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username) return reject('No user provided')
 
       api.post(`/user/${data.username}/analysis/`, data).then(function () {
         resolve()
@@ -102,10 +92,8 @@ const actions = {
       // Update analysis details
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.put(`/user/${data.username}/analysis/${data.analysis_id}/`, data).then(function () {
         resolve()
@@ -118,10 +106,8 @@ const actions = {
     // Delete an analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
       api.delete(`/user/${data.username}/analysis/${data.analysis_id}/`).then(function () {
         commit('setAnalysisSingle', null)
@@ -135,10 +121,9 @@ const actions = {
     // Add a discourseme to an analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.discourseme_id) return reject('No discourseme provided')
 
       api.put(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/${data.discourseme_id}/`).then(function () {
         dispatch('getAnalysisDiscoursemes', data)
@@ -152,10 +137,9 @@ const actions = {
     // Remove a discourseme from an analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.discourseme_id) return reject('No discourseme provided')
 
       api.delete(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/${data.discourseme_id}/`).then(function () {
         dispatch('getAnalysisDiscoursemes', data)
@@ -169,12 +153,13 @@ const actions = {
     // Get collocates analysis
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, data.request).then(function (response) {
+      const request={
+        params: data.window_size,
+      }
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
         commit('setCollocates', response.data);
         resolve()
       }).catch(function (error) {

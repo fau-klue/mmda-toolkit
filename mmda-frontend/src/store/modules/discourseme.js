@@ -25,10 +25,8 @@ const actions = {
     // Get one discourseme
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.discourseme_id) return reject('No discourseme provided')
 
       api.get(`/user/${data.username}/discourseme/${data.discourseme_id}/`).then(function (response) {
         commit('setDiscourseme', response.data)
@@ -42,10 +40,7 @@ const actions = {
     // Get all of users discoursemes
     return new Promise((resolve, reject) => {
 
-      if (!username) {
-        reject('No user provided')
-        return
-      }
+      if (!username)    return reject('No user provided')
 
       api.get(`/user/${username}/discourseme/`).then(function (response) {
         commit('setDiscoursemes', response.data)
@@ -75,10 +70,8 @@ const actions = {
     // Delete a dicourseme
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.discourseme_id) return reject('No discourseme provided')
 
       api.delete(`/user/${data.username}/discourseme/${data.discourseme_id}/`).then(function () {
         commit('setDiscourseme', null)
@@ -92,10 +85,8 @@ const actions = {
     // Update discourseme details
     return new Promise((resolve, reject) => {
 
-      if (!data.username) {
-        reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.discourseme_id) return reject('No discourseme provided')
 
       api.put(`/user/${data.username}/discourseme/${data.discourseme_id}/`, data).then(function () {
         resolve()

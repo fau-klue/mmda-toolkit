@@ -23,7 +23,7 @@ const store = new Vuex.Store({
     discursive: discursive,
     login: login,
     profile: profile,
-    wordcloud: wordcloud
+    wordcloud: wordcloud,
   }
 })
 

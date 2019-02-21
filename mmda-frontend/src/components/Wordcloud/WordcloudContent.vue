@@ -69,6 +69,7 @@ export default {
   },
   data: () => ({
     mini : true,
+    error : null,
     id: null,
     rules: rules,
     wc: null,
@@ -139,7 +140,7 @@ export default {
   },
   watch:{
     AM () {
-      vm.wc.changeAM();
+      this.wc.changeAM();
     },
     collocates () {
       vm.wc.setupCollocates(vm.collocates);
@@ -152,12 +153,15 @@ export default {
     },
     windowSize () {
       vm.loadCollocates(vm.windowSize);
+    },
+    error (){
+      console.error(this.error);
     }
   },
   methods: {
     ...mapActions({
       getConcordances: "corpus/getConcordances",
-      getCollocates: "analysis/getAnalysisCollocates",
+      getAnalysisCollocates: "analysis/getAnalysisCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
       updateUserDiscourseme: "discourseme/updateUserDiscourseme",
       deleteUserDiscourseme: "discourseme/deleteUserDiscourseme",
@@ -178,119 +182,85 @@ export default {
     },*/
 
     loadCoordinates() {
-      const data = {
-        username: this.user.username,
-        analysis_id: this.id
-      };
-      return this.getAnalysisCoordinates(data);
+      return this.getAnalysisCoordinates({
+        username:     this.user.username,
+        analysis_id:  this.analysis.id
+      }).catch((error)=>{
+        this.error = error;
+      })
     },
     loadCollocates(window_size) {
-      const request = {
-        params: { window_size: window_size }
-      };
-      const data = {
-        username: this.user.username,
-        analysis_id: this.id,
-        request: request
-      };
-      return this.getCollocates(data)
-      
+      return this.getAnalysisCollocates({
+        username:     this.user.username,
+        analysis_id:  this.analysis.id,
+        window_size:  window_size
+      }).catch((error)=>{
+        this.error = error;
+      });
     },
     loadDiscoursemes() {
-      return this.getUserDiscoursemes(this.user.username).catch(error => {
-        console.error(error);
+      return this.getUserDiscoursemes(
+        this.user.username
+      ).catch(error => {
+        this.error = error;
       });
     },
 
     addDiscourseme(name, items) {
       return new Promise((resolve,reject)=>{
-        const data = {
+        this.addUserDiscourseme({
           name: name,
           items: items,
           username: this.user.username
-        };
-        this.addUserDiscourseme(data).catch(error => {
+        }).catch(error => {
           reject(error);
-        }).then((e)=>{
-          var id = e;
+        }).then(result =>{
+          var id = result;
 
-          this.addToAnalysis(id).then(()=>{
-            resolve(id);
+          this.addDiscoursemeToAnalysis({
+            username: this.user.username,
+            analysis_id: this.analysis.id,
+            discourseme_id: id
+          }).then(()=>{
+            resolve( id );
           }).catch((error)=>{
-            reject(error);
+            reject( error );
           })
         });
-      }).catch((error)=>{
-        console.error(error);
+      }).catch(error=>{
+        this.error = error;
       });
-    },
-    addToAnalysis(discourseme_id){
-        const data = {
-          username: this.user.username,
-          analysis_id: this.id,
-          discourseme_id: discourseme_id
-        }
-        return this.addDiscoursemeToAnalysis(data);//.catch((error) => {
-         // console.error( error );
-        //});
     },
 
     deleteDiscourseme(id) {
-      const data = {
+      return this.deleteUserDiscourseme({
         username: this.user.username,
         discourseme_id: id
-      };
-      return this.deleteUserDiscourseme(data).catch(error => {
-        console.error(error);
+      }).catch(error => {
+        this.error = error;
       });
     },
 
     updateDiscourseme(id, name, items) {
-      const data = {
+      return this.updateUserDiscourseme({
         discourseme_id: id,
         name: name,
         items: items,
         username: this.user.username
-      };
-      return this.updateUserDiscourseme(data).catch(error => {
-        console.error(error);
+      }).catch(error => {
+        this.error = error;
       });
     },
     setCoordinates( obj ) {
       //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
-      const data = {
+      return this.setUserCoordinates({
         username: this.user.username,
-        analysis_id: this.id,
+        analysis_id: this.analysis.id,
         user_coordinates: obj
-      };
-      return this.setUserCoordinates(data)
-        .catch(error => {
-          console.error(error);
-        });
-    },
-
-    fetchConcordances(items) {
-      let params = new URLSearchParams();
-      // Concat item parameter
-      items.forEach(function(item) {
-        params.append("item", item);
+      }).catch(error => {
+        this.error = error;
       });
-      const request = {
-        params: params
-      };
-      const data = {
-        corpus: this.analysis.corpus,
-        request: request
-      };
-      this.getConcordances(data)
-        .then(() => {
-          this.error = null;
-        })
-        .catch(error => {
-          this.error = error;
-        });
-    },
-    
+    },   
 
     centerItemLocation(item_string) {
       this.wc.centerAtWord(item_string);
@@ -298,30 +268,8 @@ export default {
   },
   created() {
     this.id = this.$route.params.id;
-    
-    
-/*
-    this.initializeData()
-      .then(() => {
-        
-        //TODO:: do we want to select any present AM or a static one (e.g. MI)
-        var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
-        this.setAM( oneAM || 'MI' );
-
-        if (this.wc)
-          this.wc.setupContent(
-            this.collocates,
-            this.coordinates,
-            this.discoursemes
-          );
-      })
-      .catch(e => {
-        if (this.wc) this.wc.errors.set("No Data Available", "" + e);
-        else console.error("Data Initialization Failed: " + e);
-      });*/
   },
   mounted() {
-    //console.log("IDM: " + this.id);
     vm=this;
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
@@ -330,10 +278,13 @@ export default {
       (this.resizeEvent = (W => () => W.resize())(this.wc))
     );
 
+    //setup already present data
     this.wc.minimap.shown = this.showMinimap;
+    if(this.coordinates) this.wc.setupCoordinates(this.coordinates);
+    if(this.collocates)  this.wc.setupCollocates(this.collocates);
+    if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
     
-    //console.log("ID: " + this.id);
-    //this.fetchConcordances(['test', 'anothertest'])
+    //fetch new data
     this.loadCoordinates();
     this.loadCollocates(this.windowSize).then(()=>{
       //TODO:: do we want to select any present AM or a static one (e.g. MI)
@@ -341,12 +292,6 @@ export default {
       this.setAM( oneAM || 'MI' );
     });
     this.loadDiscoursemes();
-
-    
-    if(this.coordinates) this.wc.setupCoordinates(this.coordinates);
-    if(this.collocates) this.wc.setupCollocates(this.collocates);
-    if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
-
   },
   beforeDestroy() {
     //e.g. removing event listeners from document
