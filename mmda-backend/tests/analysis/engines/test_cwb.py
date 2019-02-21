@@ -24,6 +24,7 @@ def corpus_settings():
         'cqp_query': 'show +tt_lemma; A=[tt_lemma="Natur"]; cat A;',
         'items1': ['Hessen', 'Bayern'],
         'items2': ['Angela', 'Merkel'],
+        'items3': ['Horst', 'Seehofer'],
         'cut_off_concordances': 10,
         'cut_off_collocates': 100,
         'association_settings': {
@@ -389,3 +390,23 @@ def test_extract_collocates_simple(mock_ucs, mock_collo, corpus_settings):
 
     # TODO: Add proper assert
     assert actual == ('data', 'f1', 'N')
+
+@mock.patch("backend.analysis.engines.cwb.Popen")
+def test_extract_discursive_position(mock_popen, conc_simple_file, conc_simple_p_att_file, corpus_settings):
+
+    mock_popen.return_value.communicate.side_effect = [
+        (conc_simple_file,),
+        (conc_simple_p_att_file,)
+    ]
+
+    engine = CWBEngine(
+        corpus_settings['corpus_name'],
+        corpus_settings['association_settings']
+    )
+
+    actual = engine.extract_discursive_posistion(
+        corpus_settings['items1'],
+        [corpus_settings['items2'], corpus_settings['items3']]
+    )
+
+    assert mock_popen.call_count == 2

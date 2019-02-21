@@ -244,6 +244,79 @@ def cqp_concordances(corpus_name,
     return concordances_raw, concordances_p_att
 
 
+def cqp_concordances_disc_positions(corpus_name,
+                                    s_att,
+                                    p_att,
+                                    topic_items,
+                                    discoursemes):
+
+    # cqp settings
+    cqp_settings = 'set PrintOptions hdr;' +\
+                   'set ShowTagAttributes on;' +\
+                   'set PrintMode sgml;' +\
+                   'set Context 1 {s_att};'
+    cqp_settings = cqp_settings.format(
+        s_att=s_att
+    )
+
+    if p_att != "word":
+        cqp_settings_p_att = 'set PrintOptions hdr;' +\
+                   'set ShowTagAttributes on;' +\
+                   'set PrintMode sgml;' +\
+                   'set Context 1 {s_att};' +\
+                   'show -word +{p_att};'
+        cqp_settings_p_att = cqp_settings_p_att.format(
+            p_att=p_att,
+            s_att=s_att
+        )
+
+    # define topic sub-corpus
+    topic_query = create_cqp_query_from_items(
+        topic_items,
+        p_att=p_att
+    )
+    cqp_exec = 'A={topic_query} expand to {s_att}; A;'.format(
+        topic_query=topic_query,
+        s_att=s_att
+    )
+
+    # iteratively define discourseme subcorpora
+    for i in range(len(discoursemes)):
+        d = discoursemes[i]
+        if isinstance(d, list) and len(d) > 0:
+            d_query = create_cqp_query_from_items(
+                d,
+                p_att=p_att
+            )
+            cqp_exec += 'A{i}={d_query} expand to {s_att}; A{i};'.format(
+                d_query=d_query,
+                s_att=s_att,
+                i=i
+            )
+        else:
+            raise ValueError('Discourseme items not a list')
+
+    # add cat statement
+    cqp_exec += 'cat A{i};'.format(i=i)
+
+    # get raw concordances
+    concordances_raw = evaluate_cqp_query(
+        corpus_name,
+        cqp_settings + cqp_exec
+    )
+    # get concordances of queried p-attribute
+    if p_att != "word":
+        concordances_p_att = evaluate_cqp_query(
+            corpus_name,
+            cqp_settings_p_att + cqp_exec
+        )
+    else:
+        concordances_p_att = concordances_raw
+
+    # give back the raw concordances
+    return concordances_raw, concordances_p_att
+
+
 ##################
 # CQP formatting #
 ##################
@@ -299,7 +372,7 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
 
     # init output
     lines = dict()
-    p_att = 'word' # default p-attribute
+    p_att = 'word'              # default p-attribute
 
     # loop through CQP return value
     for line in str(cqp_return).split("\n"):
@@ -615,6 +688,56 @@ class CWBEngine(Engine):
                 order='first',
                 simple=True
             )
+
+        concordances = merge_concordances(
+            concordances_raw,
+            concordances_p
+        )
+
+        # sort concordances
+        concordances = sort_concordances(concordances, order)
+        return concordances
+
+    def extract_discursive_posistion(self,
+                                     items,
+                                     discoursemes,
+                                     cut_off=100,
+                                     order='random'):
+        """
+        Extract concordances for discursive positions with CWB.
+        """
+
+        # extract concordances with CWB CQP
+        concordances_raw, concordances_p = cqp_concordances_disc_positions(
+            corpus_name=self.corpus_name,
+            s_att=self.corpus_settings['s_att'],
+            p_att=self.corpus_settings['p_att'],
+            topic_items=items,
+            discoursemes=discoursemes
+        )
+
+        # error handling for CWB
+        if not concordances_raw or not concordances_p:
+            LOGGER.error(
+                'Concordance extraction failed. Empty return for CQP query.'
+            )
+            LOGGER.debug(items)
+            raise ValueError(
+                'Concordance extraction failed. Empty return for CQP query.'
+            )
+
+        concordances_raw = format_cqp_concordances(
+            cqp_return=concordances_raw,
+            cut_off=cut_off,
+            order='first',
+            simple=True
+        )
+        concordances_p = format_cqp_concordances(
+            cqp_return=concordances_p,
+            cut_off=cut_off,
+            order='first',
+            simple=True
+        )
 
         concordances = merge_concordances(
             concordances_raw,
