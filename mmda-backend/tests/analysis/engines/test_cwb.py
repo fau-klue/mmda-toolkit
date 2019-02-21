@@ -40,31 +40,31 @@ def corpus_settings():
 
 @pytest.fixture
 def cqp_simple_file():
-    with open("tests/analysis/engine/cqp_output_examples/cqp_simple", "rb") as f:
+    with open("tests/analysis/engines/cqp_output_examples/cqp_simple", "rb") as f:
         return f.read()
 
 
 @pytest.fixture
 def conc_simple_file():
-    with open("tests/analysis/engine/cqp_output_examples/concordance_simple", "rb") as f:
+    with open("tests/analysis/engines/cqp_output_examples/concordance_simple", "rb") as f:
         return f.read()
 
 
 @pytest.fixture
 def conc_simple_p_att_file():
-    with open("tests/analysis/engine/cqp_output_examples/concordance_simple_p_att", "rb") as f:
+    with open("tests/analysis/engines/cqp_output_examples/concordance_simple_p_att", "rb") as f:
         return f.read()
 
 
 @pytest.fixture
 def conc_complex_file():
-    with open("tests/analysis/engine/cqp_output_examples/concordance_complex", "rb") as f:
+    with open("tests/analysis/engines/cqp_output_examples/concordance_complex", "rb") as f:
         return f.read()
 
 
 @pytest.fixture
 def conc_complex_p_att_file():
-    with open("tests/analysis/engine/cqp_output_examples/concordance_complex_p_att", "rb") as f:
+    with open("tests/analysis/engines/cqp_output_examples/concordance_complex_p_att", "rb") as f:
         return f.read()
 
 
@@ -274,7 +274,6 @@ def test_extract_collocates_simple(mock_ucs, mock_collo, corpus_settings):
         corpus_settings['association_settings']['window_size'],
         cut_off=corpus_settings['cut_off_collocates']
     )
-
 
     # TODO: Add proper assert
     assert actual == ('data', 'f1', 'N')
