@@ -12,10 +12,11 @@
             <v-form>
               <v-text-field v-model="theDiscursivePosition.name" :value="theDiscursivePosition.name" label="Discursive Position Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
 
-               <DiscursivePositionDiscoursemeList/>
-
+               <v-btn color="info" class="text-lg-right">Display Concordances</v-btn>
               <v-btn color="success" class="text-lg-right" @click="updatePosition">Update Name</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deletePosition">Delete</v-btn>
+
+               <DiscursivePositionDiscoursemeList/>
 
             </v-form>
           </v-flex>
