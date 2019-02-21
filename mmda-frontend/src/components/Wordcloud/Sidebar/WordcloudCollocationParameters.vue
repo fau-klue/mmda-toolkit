@@ -20,6 +20,7 @@
           </v-flex>
       </v-layout>
 
+  <!--
       <v-checkbox v-model="compare" label="compare to"></v-checkbox>
       <v-slider v-if="compare" v-model="selectWindow2" :max="analysis.window_size" :min="min" thumb-label="always" 
         thumb-size="28" @change="setSize2"
@@ -39,6 +40,7 @@
             </v-radio-group>
           </v-flex>
       </v-layout>
+      -->
     </v-card-text>
   </v-card>
 </v-expansion-panel-content>

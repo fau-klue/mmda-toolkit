@@ -186,7 +186,8 @@ class WordElement {
     return scale2(this.WH, this.window.worldPerScreen);
   }
   get normalized_size() {
-    return this.window.getSizeOf(this.data);
+    var val = this.window.getSizeOf(this.data);
+    return val;
   }
   get normalized_size_compare() {
     return this.window.getCompareSizeOf(this.data);

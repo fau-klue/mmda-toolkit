@@ -279,16 +279,18 @@ class WordcloudWindow {
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
     if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
-    var v = (this.collocates[am][data.name] - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    var val = this.collocates[am][data.name];
+    val = Number.parseFloat(val);
+    if(val!=val) return -1;
+    var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
 
   getSizeOf(data) {
-    var val = this.getAMWS(data, this.component.AM); //, this.ws);
-    return val;
+    return this.getAMWS(data, this.component.AM); //, this.ws);
   }
   getCompareSizeOf(data) {
-    return this.getAMWS(data, this.compare_am); //, this.compare_ws);
+    return this.getAMWS(data, this.component.AM); //, this.compare_ws);
   }
 
   ///////////////////////////////////////
@@ -651,8 +653,11 @@ class WordcloudWindow {
           count++;
         }
         if (!collocates[am][word]) continue;
-        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
-        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
+        var val = Number.parseFloat(collocates[am][word]);
+        //console.log(collocates[am][word]);
+        if(val!=val) continue;
+        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
+        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }
       if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
       //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
@@ -745,9 +750,11 @@ class WordcloudWindow {
           count++;
         }
         if (!collocates[am][word]) continue;
+        var val = Number.parseFloat(collocates[am][word]);
         //console.log(collocates[am][word]);
-        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, collocates[am][word]);
-        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, collocates[am][word]);
+        if(val!=val) continue;
+        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
+        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }
       if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
       

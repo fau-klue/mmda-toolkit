@@ -193,7 +193,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
     for (var G of sorted_groups) {
       G.accumulated_size = 0;
       for (var i of G.uniqueItems) {
-        G.accumulated_size += i.normalized_size > 0 ? i.normalized_size : 0;
+        G.accumulated_size += i.normalized_size >= 0 ? i.normalized_size : 0;
       }
     }
     sorted_groups.sort((a, b) => {
@@ -335,7 +335,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
         },
         n => {
           //failed Insertion
-          if (n.normalized_size > 0 || n.normalized_size_compare > 0) {
+          if (n.normalized_size >= 0 || n.normalized_size_compare >= 0) {
             //if should be visible...
             failedInsertions.push(n);
           }

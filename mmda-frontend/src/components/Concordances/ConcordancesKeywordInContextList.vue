@@ -111,7 +111,7 @@
               <th class="text-xs-right kwic-context">... context</th>
               <th class="text-xs-center">keyword</th>
               <th class="text-xs-left kwic-context">context ...</th>
-              <th class="text-xs-center">sentiment</th>
+              <th v-if="useSentiment" class="text-xs-center">sentiment</th>
             </template>
 
             <template slot="items" slot-scope="props">
@@ -138,7 +138,7 @@
                   :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
-            <td class="text-xs-center kwic-sentiment"
+            <td v-if="useSentiment" class="text-xs-center kwic-sentiment"
               :value="props.item.sentiment"
               :style="'color:'+sentimentColor[ props.item.sentiment ]">
               {{ sentimentEmotion[ props.item.sentiment ] }}
@@ -191,18 +191,15 @@ export default {
     id: null,
     error: null,
     keywordRole: 'topic',
+    useSentiment:false,
     sentimentColor:['green','yellow','red'],
     sentimentEmotion:['😃','😐','😠'],
-    /*mode:null,
-    modes:[],
-    size:'',
-    sizes:[],*/
-    headers:[
+    /*headers:[
       {text:'s_pos',value:'s_pos'},
       {text:'...',value:'preSentence',align:'right'},
       {text:'keyword',value:'keyword',align:'center'},
       {text:'...',value:'postSentence',align:'left'},
-    ]
+    ]*/
   }),
   computed: {
     ...mapGetters({
@@ -260,11 +257,11 @@ export default {
       return C;
     }
   },
-  watch:{
+  /*watch:{
     concordances () {
       console.log(this.tableContent);
     },
-  },
+  },*/
   methods: {
     ...mapActions({
       getConcordances: 'corpus/getConcordances',

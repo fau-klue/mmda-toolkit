@@ -76,7 +76,7 @@
                   <v-container>
                     <h1 class="title">Advanced Options</h1>
 
-                    <AnalysisPosTagsSelection/> 
+                    <!-- <AnalysisPosTagsSelection/>  -->
                   </v-container>
                 </v-form>
               </v-flex>
@@ -92,12 +92,12 @@
   <script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
-import AnalysisPosTagsSelection from "@/components/Analysis/AnalysisPosTagsSelection";
+//import AnalysisPosTagsSelection from "@/components/Analysis/AnalysisPosTagsSelection";
 
 export default {
   name: 'AnalysisNewContent',
   components:{
-    AnalysisPosTagsSelection
+    //AnalysisPosTagsSelection
   },
   data: () => ({
     error: null,
