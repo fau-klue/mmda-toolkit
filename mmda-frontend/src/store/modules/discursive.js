@@ -159,6 +159,22 @@ const actions = {
         reject(error)
       })
     })
+  },
+  getDiscursivePositionConcordances ({commit}, data) {
+    // Get Discursive Positions discoursemes
+    return new Promise((resolve, reject) => {
+
+      if (!data.username) { reject('No user provided')
+        return
+      }
+
+      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordance/`).then(function (response) {
+        // commit('setDiscursivePositionConcordances', response.data)
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 

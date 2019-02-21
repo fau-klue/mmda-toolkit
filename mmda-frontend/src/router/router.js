@@ -97,6 +97,12 @@ const router = new Router({
       props: true,
       name: 'discursivecontent',
       component: () => import(/* webpackChunkName: "discursivecontent" */ '@/views/DiscursivePositionContent.vue')
+    },
+    {
+      path: '/discursive/:id/concordances',
+      props: true,
+      name: 'discursiveconcordances',
+      component: () => import(/* webpackChunkName: "discursiveconcordances" */ '@/views/DiscursivePositionConcordances.vue')
     }
   ]
 })
