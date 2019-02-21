@@ -168,6 +168,19 @@ def test_cqp_concordances_complex(mock_popen, conc_complex_file, conc_complex_p_
     assert 'CQP version 3.4.15\n' in actual[0]
 
 
+def test_format_cqp_concordances_simple_boom(conc_simple_file, corpus_settings):
+
+    f = conc_simple_file.decode()
+    f = f.replace('<attribute type=positional', 'foo')
+
+    actual = format_cqp_concordances(
+        cqp_return=f,
+        cut_off=corpus_settings['cut_off_concordances'],
+        order='first',
+        simple=True
+    )
+
+
 def test_format_cqp_concordances_simple(conc_simple_file, corpus_settings):
 
     actual = format_cqp_concordances(
