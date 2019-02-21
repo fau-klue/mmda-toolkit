@@ -132,8 +132,7 @@ def create_app(extra_config_settings={}):
 
     # Preflight: Check if wordvectors are available
     if not preflight_check_vectors_passed(app):
-        print('Error: Wordvector files not available')
-        exit(1)
+        print('Info: Wordvector files currently not available')
 
     # Setup Flask-SQLAlchemy
     db.init_app(app)

@@ -37,9 +37,5 @@ RUN set -ex; \
 # We copy the application here, so that the previous layers can be cached
 COPY . /app
 
-# Initialize database (runs idempotently) and run migrations.
-RUN python3 manage.py db upgrade
-RUN python3 manage.py init_db
-
-# Start the WSGI production server
-CMD ["python3", "manage.py", "run_wsgi"]
+# Start the Application
+CMD ["/app/entrypoint.sh"]
