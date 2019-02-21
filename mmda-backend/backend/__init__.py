@@ -39,9 +39,8 @@ def preflight_check_vectors_passed(app):
 
     for corpus_settings in app.config['CORPORA'].values():
         if not os.path.exists(corpus_settings['wectors']):
-            return False
+            print('INFO: Wordvectors {path} not available'.format(path=corpus_settings['wectors']))
 
-    return True
 
 def preflight_check_config_passed(app):
     """
@@ -127,12 +126,12 @@ def create_app(extra_config_settings={}):
         exit(1)
 
     # Load environment settings
+    print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
 
     # Preflight: Check if wordvectors are available
-    if not preflight_check_vectors_passed(app):
-        print('Info: Wordvector files currently not available')
+    preflight_check_vectors_passed(app)
 
     # Setup Flask-SQLAlchemy
     db.init_app(app)
