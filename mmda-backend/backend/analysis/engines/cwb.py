@@ -206,15 +206,8 @@ def cqp_concordances(corpus_name,
             s_att=s_att
         )
 
-    # retrieve topic concordances if no discourseme items are provided
-    if discourseme_items is None:
-        cqp_exec = 'A = {query}; cat A;'
-        cqp_exec = cqp_exec.format(
-            query=create_cqp_query_from_items(topic_items, p_att)
-        )
-
     # retrieve topic-discourseme concordances
-    elif isinstance(discourseme_items, list):
+    if isinstance(discourseme_items, list) and len(discourseme_items) > 1:
         cqp_exec = 'A = {query}; cat A;'
         cqp_exec = cqp_exec.format(
             query=create_topic_discourseme_query_window(
@@ -226,10 +219,12 @@ def cqp_concordances(corpus_name,
             )
         )
 
-    # raise an Error if discourseme items are not a list
+    # retrieve topic concordances if no discourseme items are provided
     else:
-        LOGGER.error('discourseme items are not a list')
-        raise TypeError('discourseme items are not a list')
+        cqp_exec = 'A = {query}; cat A;'
+        cqp_exec = cqp_exec.format(
+            query=create_cqp_query_from_items(topic_items, p_att)
+        )
 
     # get raw concordances
     concordances_raw = evaluate_cqp_query(
