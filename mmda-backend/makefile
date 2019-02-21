@@ -14,3 +14,5 @@ database:
 	pipenv run python3 manage.py init_db
 run:
 	pipenv run python3 manage.py runserver
+clean:
+	pipenv clean
