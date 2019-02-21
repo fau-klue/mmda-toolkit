@@ -299,7 +299,8 @@ def format_cqp_concordances(cqp_return, cut_off, order, simple=True):
 
     # init output
     lines = dict()
-    p_att = 'word'              # default p-attribute
+    p_att = 'word' # default p-attribute
+
     # loop through CQP return value
     for line in str(cqp_return).split("\n"):
 
