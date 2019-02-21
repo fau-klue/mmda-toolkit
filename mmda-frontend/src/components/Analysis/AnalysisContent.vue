@@ -16,14 +16,14 @@
 
               <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn>
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
-              <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Reload Coordinates</v-btn>
+              <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
 
               <!--<AnalysisCoordinates/> -->
               <AnalysisItemTable/>
               <ConcordancesKeywordInContextList/>
               <AnalysisDiscoursemeList/>
-            
+
             </v-form>
           </v-flex>
         </v-layout>
