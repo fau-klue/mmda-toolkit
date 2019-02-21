@@ -210,18 +210,49 @@ def test_extract_concordances_simple(mock_popen, corpus_settings):
     assert mock_popen.call_count == 2
 
 
-def test_create_ucs_query(corpus_settings):
+def test_create_ucs_query_regular(corpus_settings):
 
-    actual = create_ucs_query(corpus_settings['corpus_name'],
-                              corpus_settings['items1'],
-                              corpus_settings['association_settings']['p_att'],
-                              corpus_settings['association_settings']['window_size'],
-                              corpus_settings['association_settings']['s_att'],
-                              corpus_settings['association_settings']['association_measures'],
-                              corpus_settings['items2'])
+    actual_ucs_cmd, actual_add_cmd = create_ucs_query(
+        'corpus',
+        ['topic', 'items'],
+        'p_att',
+        10,
+        's_att',
+        ['assoc', 'measures']
+    )
 
-    assert 'ucs-tool' in actual[0]
+    assert 'ucs-tool' in actual_ucs_cmd
+    assert 'ucs-add' in actual_add_cmd
+    assert '[p_att="topic|items"]' in actual_ucs_cmd
 
+    # Test what happens if the list if empty
+    actual_ucs_cmd, actual_add_cmd = create_ucs_query(
+        'corpus',
+        ['topic', 'items'],
+        'p_att',
+        10,
+        's_att',
+        []
+    )
+
+    assert '[p_att="topic|items"]' in actual_ucs_cmd
+
+
+def test_create_ucs_query_with_discoursemeitems(corpus_settings):
+
+    actual_ucs_cmd, actual_add_cmd = create_ucs_query(
+        'corpus',
+        ['topic', 'items'],
+        'p_att',
+        10,
+        's_att',
+        ['assoc', 'measures'],
+        ['discourseme', 'items']
+    )
+
+    assert 'ucs-tool' in actual_ucs_cmd
+    assert 'ucs-add' in actual_add_cmd
+    assert 'MU (meet [p_att="discourseme|items"] [p_att="topic|items"] s_att)' in actual_ucs_cmd
 
 def test_evaluate_ucs_query(corpus_settings):
 

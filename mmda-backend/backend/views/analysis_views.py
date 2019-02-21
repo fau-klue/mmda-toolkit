@@ -328,7 +328,10 @@ def get_collocate_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
-    collocates = request.args.getlist('item', None)
+    # Second order collocates
+    collocates = request.args.getlist('collocate', None)
+
+    print(collocates)
 
     if not window_size and not collocates:
         return jsonify({'msg': 'No request data provided'}), 400
@@ -343,11 +346,14 @@ def get_collocate_for_analysis(username, analysis):
 
     # Get Topic Discourseme
     discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    items = discourseme.items
+    topic_items = discourseme.items
 
     # Get topic and items
-    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items+collocates)
-    collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=collocates)
-    df = collocate_data.data
+    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=topic_items+collocates)
+    collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=topic_items, window_size= window_size, identifier=identifier, collocates=collocates)
+    df = collocate_data.data.to_dict()
 
-    return jsonify(df.to_dict()), 200
+    if not df:
+        return jsonify({'msg': 'No collocates available'}), 404
+
+    return jsonify(df), 200

@@ -93,7 +93,7 @@ def test_update_analysis(client, header):
 
 def test_get_collocate_for_analysis(client, header):
 
-    data = 'item=foobar&item=barfoo'
+    data = 'collocate=foobar&collocate=barfoo'
     response = client.get(url_for('analysis.get_collocate_for_analysis', username='student1', analysis=1),
                           query_string=data,
                           follow_redirects=True,

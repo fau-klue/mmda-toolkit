@@ -438,26 +438,16 @@ def create_ucs_query(corpus_name,
     :rtype: list
     """
 
-    # retrieve topic collocates if no discourseme items are provided
-    if discourseme_items is None:
+    if isinstance(discourseme_items, list) and len(discourseme_items) > 1:
+        if window_size:
+            LOGGER.info('Window size will be ignored while retrieving discourse collocates.')
+        # Retrieve topic-discourseme collocates
+        query = create_topic_discourseme_query(topic_items, discourseme_items, p_att, s_att)
+    else:
+        # Retrieve topic collocates if no discourseme items are provided
         query = create_cqp_query_from_items(topic_items, p_att)
 
-    # retrieve topic-discourseme collocates
-    elif isinstance(discourseme_items, list):
-        if window_size:
-            LOGGER.warning('Window size provided, but retrieving discourse collocates. ' +
-                           'Window size will be ignored')
-        query = create_topic_discourseme_query(topic_items,
-                                               discourseme_items,
-                                               p_att,
-                                               s_att)
-
-    # raise an Error if discourseme items are not a list
-    else:
-        LOGGER.error('discourseme items are not a list')
-        raise TypeError('discourseme items are not a list')
-
-    # return UCS command as list
+    # Create UCS command as list for system call
     ucs_cmd = [
         "ucs-tool",
         "surface-from-cwb-query",
@@ -484,7 +474,7 @@ def create_ucs_query(corpus_name,
         'NODE'
     ]
 
-    # create query
+    # Create query
     add_cmd = ["ucs-add"] + assoc_measures
 
     LOGGER.debug("UCS pipe:  " + " ".join(ucs_cmd) + " | " + " ".join(add_cmd))
