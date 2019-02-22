@@ -3,8 +3,13 @@
   <v-flex xs12 sm12>
     <h1 class="my-3 title">Collocation and Coordinates:</h1>
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+    <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
+      <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <p v-if="loadingCoordinates">Loading Coordinates...</p>
+      <p v-if="loadingCollocates">Loading Collocation...</p>
+    </div>
     <v-data-table
-      v-if="coordinates"
+      v-else
       :headers="headers"
       :items="transposedCoordinates"
       class="elevation-1"
@@ -65,7 +70,31 @@ export default {
     search: '',
     error: null,
     loading: false,
+    loadingConcordances:false,
+    loadingCollocates:false,
+    loadingCoordinates:false
   }),
+  watch:{
+    /* analysis(){
+      this.requestData();
+    },
+    user(){
+      if(!this.user){
+        //TODO:: route to login
+        return;
+      }
+      this.requestData();
+    }
+     minmaxAM(){
+      console.log("MinmaxUpdate");
+    },
+    transposedCoordinates(){
+      console.log("transposedUpdate");
+    },
+    headers(){
+      console.log("headersUpdate");
+    }*/
+  },
   computed: {
     ...mapGetters({
       user: 'login/user',
@@ -150,6 +179,7 @@ export default {
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
+      this.loadingConcordances = true;
       this.getConcordances({
         corpus:         this.analysis.corpus, 
         topic_items:    this.analysis.topic_discourseme.items, 
@@ -157,26 +187,33 @@ export default {
         window_size:    this.windowSize
       }).catch((e)=>{
         this.error = e;
+      }).then(()=>{
+        this.loadingConcordances = false;
       });
     },
   },
   created () {
     this.id = this.$route.params.id
-
+    this.loadingCoordinates = true;
+    this.loadingCollocates = true;
     this.getAnalysisCoordinates({
       username:     this.user.username, 
-      analysis_id:  this.analysis.id
+      analysis_id:  this.id
     }).catch((error)=>{
-      this.error=error;
+      this.error = error;
+    }).then(()=>{
+      this.loadingCoordinates = false;
     });
 
     this.getAnalysisCollocates({
       username:     this.user.username, 
-      analysis_id:  this.analysis.id, 
+      analysis_id:  this.id, 
       window_size:  this.windowSize
-    }).catch((e)=>{
-      this.error=e;
-    });
+    }).catch((error)=>{
+      this.error = error;
+    }).then(()=>{
+      this.loadingCollocates = false;
+    })
   }
 }
 

@@ -21,10 +21,10 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (!data.username)    return reject('No user provided')
       if (!data.analysis_id) return reject('No analysis provided')
-
+     
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`).then(function (response) {
         commit('setCoordinates', response.data)
-        resolve()
+        resolve( response.data )
       }).catch(function (error) {
         reject(error)
       })
