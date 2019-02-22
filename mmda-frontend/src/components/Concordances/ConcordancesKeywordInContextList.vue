@@ -21,28 +21,28 @@
 
         <v-data-table v-else
           :items="tableContent"
-          hide-headers
+          :headers="headers"
           :disable-initial-sort="false"
           :hide-actions="tableContent.length<=5"
           class="kwic-view-table"
+          @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))"
           >
-         <!--   <template slot="headers">
-              <template v-for="h in [{
-                title:'ID',align:'c'
-              }]">
-                <th class="text-xs-center column sortable" :key="h.title">
+          <!--:headers="headers"
+            <template slot="headers" slot-scope="props">
+              <template v-for="h in headers">
+                <th :class="'column text-xs-'+h.align+' '+h.class?h.class:''" :value="h.value" :key="h.title">
                   {{h.title}}
                 </th>
               </template>
-              <th class="text-xs-right kwic-context">... context</th>
+             <!- <th class="text-xs-right kwic-context">... context</th>
               <th class="text-xs-center">keyword</th>
               <th class="text-xs-left kwic-context">context ...</th>
-              <th v-if="useSentiment" class="text-xs-center">sentiment</th>
-            </template> -->
+              <th v-if="useSentiment" class="text-xs-center">sentiment</th>->
+            </template> --> 
 
             <template slot="items" slot-scope="props">
-            <td class="text-xs-center">{{props.item.s_pos}}</td>
-            <td class="text-xs-right kwic-context">
+            <td class="text-xs-center"><span class="kwic-id">{{ props.item.s_pos }}</span></td>
+            <td class="text-xs-right kwic-context kwic-left">
               <template v-for="(el,idx) in props.item.head">
                 <span :key="'s_'+idx">&#160;</span>
                 <span :key="'h_'+idx" 
@@ -51,10 +51,10 @@
                 :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
-            <td class="text-xs-center" 
+            <td class="text-xs-center keyword" 
               @click="toggleKwicMode" 
               :class="'concordance '+props.item.keyword.role"
-              :title="props.item.keyword.lemma">{{ props.item.keyword.text }}</td>
+              :title="props.item.keyword.lemma"><span class="kwic-keyword">{{ props.item.keyword.text }}</span></td>
             <td class="text-xs-left kwic-context">
               <template v-for="(el,idx) in props.item.tail">
                 <span :key="'s2_'+idx">&#160;</span>
@@ -80,9 +80,33 @@
 </template>
 
 <style>
-.kwic-view-table .kwic-context{
-  width:50%;
+.kwic-view-table table{
+  table-layout: fixed;
+  overflow: hidden;
+  width:100%;
 }
+.kwic-view-table td,
+.kwic-view-table th{
+  overflow: hidden;
+  white-space: nowrap;
+}
+.kwic-view-table .kwic-context{
+  table-layout: fixed;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  width:auto;
+}
+.kwic-view-table .kwic-context.kwic-left{
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  /* "overflow" value must be different from "visible" */
+  direction: rtl;
+  text-align: right;
+}
+
+
 .kwic-view-table .kwic-sentiment{
   font-size:200%;
   font-weight:bold;
@@ -132,6 +156,8 @@ export default {
   watch:{
     concordances(){
       this.concordancesRequested = true;
+      //the required data (see setupIt) is available only after two ticks
+      this.$nextTick(()=>this.$nextTick(()=>this.setupTableSize()));
     }
   },
   computed: {
@@ -140,6 +166,17 @@ export default {
       analysis: 'analysis/analysis',
       concordances: 'corpus/concordances'
     }),
+   
+   
+    headers () {
+      return [
+        { class:'kwic-id-head',text:'ID',value:'s_pos',align:'center'},
+        { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
+        { class:'kwic-keyword-head',align:'center', text:'keyword', value:'keyword.text'},
+        { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
+        ...this.useSentiment?[{text:"sentiment",value:'sentiment'}]:[]
+      ];
+    },
     tableContent () {
       var C = [];
       if(!this.concordances) return C;
@@ -148,12 +185,16 @@ export default {
           head:[],
           keyword:{text:'',role:'',lemma:''},
           tail:[],
-          seltiment:''
+          sentiment:0,
+          //these are for sorting context -purposes
+          reverse_head_text:'',
+          tail_text:''
           };
         Object.assign(r, c);
         var beforeKeyword = true;
 
-        r.sentiment = Math.random()<0.333?0:Math.random()<0.5?1:2;
+        //TODO:: assign correct sentiment
+        r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
 
         for(var i=0; i<c.word.length; ++i){  
           var el = {
@@ -169,11 +210,15 @@ export default {
           }
           if(beforeKeyword){
             r . head.push(el);
+            r. reverse_head_text += el.text;
           }else{
             r . tail.push(el);
+            r. tail_text += el.text;
           }
           //c.lemmas
         }
+
+        r.reverse_head_text = r.reverse_head_text.split("").reverse().join("");
 
 //TODO:: one conceptionally doesnt have to do this, when table positions are correct
        /* if(r.head.length>2){ 
@@ -195,12 +240,38 @@ export default {
       console.log(this.tableContent);
     },
   },*/
+  
   methods: {
     ...mapActions({
       getConcordances: 'corpus/getConcordances',
     }),
     hideView () {
       // e.g. setConcordances(null);
+    },
+    setupTableSize(){
+      //This function takes care that:
+      // - the id and keyword column of the table match their content
+      // while:
+      // - the context columns are equally sized, and ellipse their content
+      /// TODO:: can wee do it better? 
+      // much work has been done to reach this state. 
+      // it doesnt seem much easier, given we want to stay with the vue data-table
+
+      var E = document.getElementsByClassName("kwic-id");
+      var id = document.getElementsByClassName("kwic-id-head")[0];
+      var pad;
+      if(id!=undefined){
+        pad = window.getComputedStyle(id, null).getPropertyValue('padding-left');
+        pad = Number.parseInt(pad.substring(0,pad.length-2));
+        var w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
+        id.style.width = w+2*pad+"px";      
+
+        E = document.getElementsByClassName("kwic-keyword");
+        w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
+        var kw = document.getElementsByClassName("kwic-keyword-head")[0];
+        if(kw===undefined) return;
+        kw.style.width = w+2*pad+"px";
+      }
     },
     selectItem (item) {
       if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
