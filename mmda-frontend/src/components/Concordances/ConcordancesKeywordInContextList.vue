@@ -1,67 +1,4 @@
 <template>
-  <!-- <v-data-table
-    v-if="concordances"
-    :headers="headers"
-    :items="tableContent"
-    class="elevation-1"
-    >
-    <template slot="items" slot-scope="props">
-      <td>{{ props.item.s_pos }}</td>
-      <td class="text-xs-right" style="width:0;">{{ props.item.preSentence }}</td>
-      <td class="text-xs-center">{{ props.item.keyword }}</td>
-      <td class="text-xs-left" style="width:0;">{{ props.item.postSentence }}</td>
-    </template>
-  </v-data-table>
-  <h1 v-else class="title">Click on any item to show concordances.</h1>
--->
-<!--
-<div>
-    <v-card v-if=" !concordances || !concordances.length ">
-      <v-card-text>
-        <v-layout row>
-          <v-flex justify-center>
-            <v-avatar><v-icon class="red--text darken-1">warning</v-icon></v-avatar>No concordances found</v-flex>
-        </v-layout>
-      </v-card-text>
-    </v-card>
-    <v-card v-else>
-      <v-card-text>
-        <v-layout row flex avatar>
-          <v-flex xs9 class="text-xs-center">
-            <v-subheader inset>
-              Keyword in context view
-            </v-subheader>
-          </v-flex>
-        </v-layout>
-        <v-divider></v-divider>
-        <v-data-table
-          :items="tableContent"
-          class="kwic-view-table"
-          hide-headers
-          disable-initial-sort
-          :hide-actions="tableContent.length<=5"
-          >
-            <template slot="items" slot-scope="props">
-            <td class="text-xs-center">{{props.item.s_pos}}</td>
-            <td class="text-xs-right kwic-context">
-              <template v-for="(el,idx) in props.item.head">
-                <span :key="'s_'+idx">&nbsp;</span>
-                <span :key="'h_'+idx" :class="el.role">{{el.text}}</span>
-              </template>
-            </td>
-            <td :class="'text-xs-center '+props.item.keyword.role">{{ props.item.keyword.text }}</td>
-            <td class="text-xs-left kwic-context">
-              <template v-for="(el,idx) in props.item.tail">
-                <span :key="'s2_'+idx">&nbsp;</span>
-                <span :key="'t_'+idx" :class="el.role">{{el.text}}</span>
-              </template>
-            </td>
-            <td>{{props.item.sentiment}}</td>
-          </template>
-        </v-data-table>
-      </v-card-text>
-    </v-card>
--->
 <!--
   <v-bottom-sheet
     value=true
@@ -71,36 +8,25 @@
     persistent
     ref="bottomsheet"
     > -->
-
-    <v-card v-if="!concordances || !concordances.length">
+    <v-card class="kwic-view-card">
       <v-card-text>
-        <v-layout row>
-          <v-flex justify-center>
-            <v-avatar><v-icon class="red--text darken-1">warning</v-icon></v-avatar>
-            No concordances found
-          </v-flex>
-        </v-layout>
-      </v-card-text>
-    </v-card>
-    <v-card v-else class="kwic-view-card">
-      <v-card-text>
-        <!--<v-btn
-          v-if="showConcordances"
-          absolute icon ripple slot="activator"
-          right
-          @click="showConcordances=false"
-          >
-          <v-icon color="grey lighten-1">close</v-icon>
-        </v-btn> -->
+        <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+        <v-alert v-else-if="!concordancesRequested" value="true" color="warning" icon="priority_high" outline>No Concordances requested</v-alert>
+        <div v-else-if="loadingConcordances" class="text-md-center">
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          <p v-if="loadingConcordances">Loading Concordances...</p>
+        </div>
 
-        <v-data-table
+
+
+        <v-data-table v-else
           :items="tableContent"
-          :hide-headers="false"
+          hide-headers
           :disable-initial-sort="false"
           :hide-actions="tableContent.length<=5"
           class="kwic-view-table"
           >
-            <template slot="headers">
+         <!--   <template slot="headers">
               <template v-for="h in [{
                 title:'ID',align:'c'
               }]">
@@ -112,7 +38,7 @@
               <th class="text-xs-center">keyword</th>
               <th class="text-xs-left kwic-context">context ...</th>
               <th v-if="useSentiment" class="text-xs-center">sentiment</th>
-            </template>
+            </template> -->
 
             <template slot="items" slot-scope="props">
             <td class="text-xs-center">{{props.item.s_pos}}</td>
@@ -192,6 +118,8 @@ export default {
     error: null,
     keywordRole: 'topic',
     useSentiment:false,
+    concordancesRequested: false,
+    loadingConcordances: false,
     sentimentColor:['green','yellow','red'],
     sentimentEmotion:['😃','😐','😠'],
     /*headers:[
@@ -201,6 +129,11 @@ export default {
       {text:'...',value:'postSentence',align:'left'},
     ]*/
   }),
+  watch:{
+    concordances(){
+      this.concordancesRequested = true;
+    }
+  },
   computed: {
     ...mapGetters({
       user: 'login/user',
@@ -278,6 +211,8 @@ export default {
       //TODO:: update
     },
     clickOnLemma (name) {
+      this.loadingConcordances = true;
+      this.concordancesRequested = true;
       this.getConcordances({
         corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
@@ -285,6 +220,8 @@ export default {
         window_size:      this.windowSize
       }).catch((error)=>{
         this.error = error
+      }).then(()=>{
+        this.loadingConcordances = false;
       });
     },
   },

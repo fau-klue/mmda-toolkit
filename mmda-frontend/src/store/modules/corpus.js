@@ -58,8 +58,11 @@ const actions = {
       let params = new URLSearchParams()
       // Concat item parameter
       data.topic_items.forEach((item)=>{ params.append("item", item) })
-      if(data.collocation_items){
-        data.collocation_items.forEach((item)=>{ params.append("collocate", item) })
+      if(data.collocate_items){
+        data.collocate_items.forEach((item)=>{ params.append("collocates", item) })
+        //TODO:: this is a reply to a possible backend-bug where
+        // collocates have to be more than one elements in size
+        if(data.collocate_items.length==1) params.append("collocates", data.collocate_items[0]);
       }
       if(data.window_size){
          params.append("window_size",data.window_size)

@@ -12,6 +12,7 @@
             <v-form>
               <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
               <v-text-field :value="analysis.corpus" label="Corpus" box readonly></v-text-field>
+              <v-text-field :value="analysis.topic_discourseme.items" label="Topic Items" box readonly></v-text-field>
 
 
               <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn>
@@ -21,6 +22,8 @@
 
               <!--<AnalysisCoordinates/> -->
               <AnalysisItemTable/>
+
+              <h1 class="my-3 title">Concordances:</h1>
               <ConcordancesKeywordInContextList/>
               <AnalysisDiscoursemeList/>
 

@@ -1,7 +1,7 @@
 <template>
 <div>
 
-  <h1 class="title">Associated Discoursemes:</h1>
+  <h1 class="my-3 title">Associated Discoursemes:</h1>
   <v-list two-line subheader v-if="analysisDiscoursemes">
     <v-list-tile v-for="discourseme in analysisDiscoursemes" :key="discourseme.id" avatar>
       <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
@@ -26,7 +26,7 @@
     <h2 v-if="analysisDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
   </v-list>
 
-  <h1 class="title">Available Discoursemes:</h1>
+  <h1 class="my-3 title">Available Discoursemes:</h1>
   <v-list two-line subheader v-if="userDiscoursemes">
     <v-list-tile v-for="discourseme in discoursemeUnion" :key="discourseme.id" avatar>
       <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
