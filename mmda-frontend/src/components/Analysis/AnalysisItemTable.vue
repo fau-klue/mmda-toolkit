@@ -140,8 +140,8 @@ export default {
             val = this.collocates[am][w];
             val = Number.parseFloat(val);
             R[w][am] = val.toPrecision(2);
-            R[w][am.replace('.','_')] = val.toPrecision(2);
-            R[w][am.replace('.','_')+'#Norm'] = this.map_range(val,this.minmaxAM[am]);
+            R[w][am.replace(/\./g,'_')] = val.toPrecision(2);
+            R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(val,this.minmaxAM[am]);
           }
         }
       }
@@ -154,7 +154,7 @@ export default {
           return {
             text:k, 
             valueWithDot:k, 
-            value:k.replace('.','_'), 
+            value:k.replace(/\./g,'_'), 
             align:'center'
           }
         }) 
