@@ -31,8 +31,8 @@ const router = new Router({
     },
     {
       path: '/admin/users',
-      name: 'adminusers',
-      component: () => import(/* webpackChunkName: "adminusers" */ '@/views/AdminUsers.vue')
+      name: 'adminuserlist',
+      component: () => import(/* webpackChunkName: "adminuserlist" */ '@/views/AdminUserList.vue')
     },
     {
       path: '/admin/users/new',
@@ -46,8 +46,8 @@ const router = new Router({
     },
     {
       path: '/analysis',
-      name: 'analysis',
-      component: () => import(/* webpackChunkName: "analysis" */ '@/views/Analysis.vue')
+      name: 'analysislist',
+      component: () => import(/* webpackChunkName: "analysislist" */ '@/views/AnalysisList.vue')
     },
     {
       path: '/analysis/new',
@@ -57,8 +57,8 @@ const router = new Router({
     {
       path: '/analysis/:id',
       props: true,
-      name: 'analysisshow',
-      component: () => import(/* webpackChunkName: "analysisshow" */ '@/views/AnalysisView.vue')
+      name: 'analysiscontent',
+      component: () => import(/* webpackChunkName: "analysiscontent" */ '@/views/AnalysisContent.vue')
     },
     {
       path: '/analysis/:id/wordcloud',
@@ -68,8 +68,8 @@ const router = new Router({
     },
     {
       path: '/discourseme',
-      name: 'discourseme',
-      component: () => import(/* webpackChunkName: "discourseme" */ '@/views/Discourseme.vue')
+      name: 'discoursemelist',
+      component: () => import(/* webpackChunkName: "discoursemelist" */ '@/views/DiscoursemeList.vue')
     },
     {
       path: '/discourseme/new',
@@ -79,13 +79,13 @@ const router = new Router({
     {
       path: '/discourseme/:id',
       props: true,
-      name: 'discoursemeshow',
-      component: () => import(/* webpackChunkName: "discoursemeshow" */ '@/views/DiscoursemeView.vue')
+      name: 'discoursemecontent',
+      component: () => import(/* webpackChunkName: "discoursemecontent" */ '@/views/DiscoursemeContent.vue')
     },
     {
       path: '/discursive',
-      name: 'discursive',
-      component: () => import(/* webpackChunkName: "discursive" */ '@/views/DiscursivePosition.vue')
+      name: 'discursivelist',
+      component: () => import(/* webpackChunkName: "discursivelist" */ '@/views/DiscursivePositionList.vue')
     },
     {
       path: '/discursive/new',
@@ -95,8 +95,8 @@ const router = new Router({
     {
       path: '/discursive/:id',
       props: true,
-      name: 'discursiveshow',
-      component: () => import(/* webpackChunkName: "discursiveshow" */ '@/views/DiscursivePositionView.vue')
+      name: 'discursivecontent',
+      component: () => import(/* webpackChunkName: "discursivecontent" */ '@/views/DiscursivePositionContent.vue')
     }
   ]
 })
