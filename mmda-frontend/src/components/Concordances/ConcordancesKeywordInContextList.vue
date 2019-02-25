@@ -41,15 +41,43 @@
             </template> --> 
 
             <template slot="items" slot-scope="props">
-            <td class="text-xs-center"><span class="kwic-id">{{ props.item.s_pos }}</span></td>
+            <td class="text-xs-center"
+                :title="props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text"
+              >
+              <v-menu open-on-hover top offset-y>
+              
+              <span slot="activator" class="kwic-id">{{ props.item.s_pos }}</span>
+              
+              <v-list>
+        <v-list-tile>
+          <v-list-tile-content>
+            {{props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text}}
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+    </v-menu>
+
+              <!-- <span class="kwic-id">{{ props.item.s_pos }}</span>-->
+            </td>
             <td class="text-xs-right kwic-context kwic-left">
-              <template v-for="(el,idx) in props.item.head">
-                <span :key="'s_'+idx">&#160;</span>
-                <span :key="'h_'+idx" 
-                @click="selectItem(el)"
-                :class="'concordance '+el.role"
-                :title="el.lemma">{{el.text}}</span>
-              </template>
+              <!--<span class="reverse-ellipsis">
+                <span class="reverse-ellipsis-span">-->
+                <!-- spans at the beginning required for direction=rtl to not place the a possible first @-char at the end of the sentence -->
+                  <span style="color:#0000;">x</span> 
+                  <!-- invisible x at the beginning,
+                  preventing special characters like @#,.- etc to be moved to the end of the sentence by ellipsis/rtl -->
+                  <template v-for="(el,idx) in props.item.head">
+                    <span :key="'s_'+idx">&#160;</span>
+                    <span :key="'h_'+idx" 
+                    @click="selectItem(el)"
+                    :class="'concordance '+el.role"
+                    :title="el.lemma">{{el.text}}</span>
+                  </template>
+                  <!-- invisible x at the end,
+                  preventing special characters like @#,.- etc to be moved to the front of the sentence by ellipsis/rtl -->
+                  <span style="color:#0000;">x</span> 
+                <!--</span>
+              </span>-->
             </td>
             <td class="text-xs-center keyword" 
               @click="toggleKwicMode" 
@@ -114,16 +142,56 @@
 .kwic-view-table .concordance.none{
   color:#aaa;
 }
+.kwic-view-table .concordance.token{
+  cursor:pointer;
+}
 .kwic-view-table .concordance.collocate, 
 .kwic-view-table .concordance.topic{
   font-weight:bold;
   cursor:pointer;
-  padding: 0;
 }
 
 .kwic-view-card{
   overflow: auto;
 }
+
+.reverse-ellipsis {
+  text-overflow: clip;
+  position: relative;
+  background-color: white;
+}
+
+.reverse-ellipsis:before {
+  content: '\02026';
+  position: absolute;
+  z-index: 1;
+  left: -3em;
+  background-color: inherit;
+  padding-left: 3em;
+  margin-left: 0.5em;
+}
+
+.reverse-ellipsis .reverse-ellipsis-span {
+  min-width: 100%;
+  position: relative;
+  display: inline-block;
+  float: right;
+  overflow: visible;
+  background-color: inherit;
+  text-indent: 0.5em;
+}
+
+.reverse-ellipsis .reverse-ellipsis-span:before {
+  content: '';
+  position: absolute;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: inherit;
+  z-index: 200;
+  left: -0.5em;
+}
+
 </style>
 
 <script>
@@ -188,6 +256,7 @@ export default {
           sentiment:0,
           //these are for sorting context -purposes
           reverse_head_text:'',
+          head_text:'',
           tail_text:''
           };
         Object.assign(r, c);
@@ -210,15 +279,15 @@ export default {
           }
           if(beforeKeyword){
             r . head.push(el);
-            r. reverse_head_text += el.text;
+            r. head_text += ' '+el.text;
           }else{
             r . tail.push(el);
-            r. tail_text += el.text;
+            r. tail_text += ' '+el.text;
           }
           //c.lemmas
         }
 
-        r.reverse_head_text = r.reverse_head_text.split("").reverse().join("");
+        r.reverse_head_text = r.head_text.split("").reverse().join("");
 
 //TODO:: one conceptionally doesnt have to do this, when table positions are correct
        /* if(r.head.length>2){ 
