@@ -1,10 +1,11 @@
 <template>
 <v-expansion-panel-content>
-  <div slot="header" v-if="notMini" >Find</div>
+  <div slot="header" v-if="notMini" >Search Item</div>
   <div slot="header" v-else @click="openSidebar">
     <v-btn
               flat
               icon
+              small
               ripple
               title="search for discourseme or item"
             >
@@ -17,9 +18,9 @@
           <v-flex xs12 sm12>
             <v-text-field label="Search" prepend-inner-icon="search" v-model="search" clearable @click:clear="clearSearch"></v-text-field>
 
-            <v-list two-line subheader>
+            <v-list dense two-line subheader>
               <v-list-tile v-for="item in filteredItems" :key="item.name+(item.isGroup?'GROUP':'')" avatar @click="findElement(item)">
-                <v-list-tile-avatar>
+                <v-list-tile-avatar size="28">
                   <v-icon v-if="!item.isItem" class="grey lighten-1 white--text">subject</v-icon>
                   <v-icon v-if="item.isItem" class="grey lighten-1 white--text">short_text</v-icon>
                 </v-list-tile-avatar>
@@ -75,13 +76,13 @@ export default {
   },
   methods: {
     ...mapActions({
-      setRightSidebar:"wordcloud/setRightSidebar"
+      setRightSidebar: "wordcloud/setRightSidebar"
     }),
     clearSearch(){
-      this.search="";
+      this.search = ""
     },
     openSidebar(){
-      this.setRightSidebar(true);
+      this.setRightSidebar(true)
     },
     findElement(item){
       if(item.isItem) this.wc.centerAtWord(item.name)

@@ -1,52 +1,9 @@
 <template>
   <div>
     <div class="structured_wordcloud_container">
-      <!--v-layout v-if="false && !notMini" fill-height column ma-0>
-        <v-flex shrink class="text-xs-right">
-          <v-btn-toggle class="wordcloud_tools" v-model="tool">
-            <v-btn
-              flat
-              icon
-              style="z-index:500;"
-              ripple
-              :color="button.color"
-              :value="i"
-              v-for="(button,i) in tools"
-              :key="button.icon+button.color"
-              :title="button.title"
-              @click="(x)=>{ if(button.call) button.call(x);}"
-              @mousedown="()=>wc.clickedTools=true"
-            >
-              <v-icon>{{button.icon}}</v-icon>
-            </v-btn>
-            <!- <v-btn flat icon color="gray" title="hide tools" @click="show_tools=!show_tools">
-              <v-icon>chevron_right</v-icon>
-            </v-btn>->
-          </v-btn-toggle>
-        </v-flex>
-      </v-layout -->
+      <!-- This is controlled by the wordcloud.js -->
     </div>
 
-    <!--
-  <v-container grid-list-md>
-    <v-layout row wrap>
-      <v-flex xs12>
-        <p>
-          Window Size {{ windowSize }}
-        </p>
-        <p>
-          {{ coordinates }}
-        </p>
-        <p>
-          {{ concordances }}
-        </p>
-        <p>
-          {{ collocates }}
-        </p>
-      </v-flex>
-    </v-layout>
-  </v-container>
-    -->
     <WordcloudSidebar v-bind:wc="wc"/>
   </div>
 </template>
@@ -60,8 +17,8 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
-//import * as data from '@/wordcloud/example_1.js'
-var vm=null;
+var vm = null;
+
 export default {
   name: "WordcloudContent",
   components: {
@@ -74,55 +31,7 @@ export default {
     rules: rules,
     wc: null,
     resizeEvent: null,
-    has_data: false,
-    /*tools: [
-      {
-        title: "view all",
-        icon: "aspect_ratio",
-        color: "gray",
-        call: () => {
-          vm.wc.centerCamera();
-        }
-      },
-      //{ icon: "search", color: "gray", title: "find item" },
-      {
-        title: "box selection [shift]",
-        icon: "select_all",
-        color: "gray",
-        call: () => {
-          //TODO:: on finished box selection tool=null;
-          vm.wc.boxSelection = true;
-        }
-      },
-      {
-        title:
-          "create new discourseme for selected items, or add selected items to selected discourseme [ctrl-g]",
-        icon: "add_circle_outline",
-        color: "gray",
-        call: () => {
-          vm.wc.groupSelected();
-        }
-      },
-      {
-        title: "remove (selected items from) (selected) discourseme [del]",
-        icon: "remove_circle_outline",
-        color: "gray",
-        call: () => {
-          vm.wc.deleteSelection();
-        }
-      },
-      //{ icon: "undo", color: "lightgray", title: "undo (not yet implemented)" },
-      //{ icon: "redo", color: "lightgray", title: "redo (not yet implemented)" },
-      {
-        title: "minimap (hide/show)",
-        icon: "map",
-        color: "gray",
-        call: () => {
-          vm.tool = null;
-          vm.wc.minimap.shown = !vm.wc.minimap.shown;
-        }
-      }
-    ]*/
+    has_data: false
   }),
   computed: {
     ...mapGetters({
@@ -172,15 +81,6 @@ export default {
       setAM: 'wordcloud/setAssociationMeasure',
       setShowMinimap: 'wordcloud/setShowMinimap'
     }),
-/*
-    initializeData() {
-      return Promise.all([
-        this.loadCoordinates(),
-        this.loadCollocates(this.windowSize),
-        this.loadDiscoursemes()
-      ]);
-    },*/
-
     loadCoordinates() {
       return this.getAnalysisCoordinates({
         username:     this.user.username,
@@ -260,7 +160,7 @@ export default {
       }).catch(error => {
         this.error = error;
       });
-    },   
+    },
 
     centerItemLocation(item_string) {
       this.wc.centerAtWord(item_string);
@@ -270,7 +170,8 @@ export default {
     this.id = this.$route.params.id;
   },
   mounted() {
-    vm=this;
+    vm = this;
+
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
     window.addEventListener(
@@ -283,7 +184,7 @@ export default {
     if(this.coordinates) this.wc.setupCoordinates(this.coordinates);
     if(this.collocates)  this.wc.setupCollocates(this.collocates);
     if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
-    
+
     //fetch new data
     this.loadCoordinates();
     this.loadCollocates(this.windowSize).then(()=>{

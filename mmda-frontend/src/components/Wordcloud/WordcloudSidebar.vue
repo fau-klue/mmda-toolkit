@@ -1,13 +1,13 @@
 <template>
   <v-navigation-drawer
-    right 
-    clipped 
+    right
+    clipped
     disable-resize-watcher
     hide-overlay
     permanent
     app
     :mini-variant="!notMini">
-    <!-- permanent --> 
+    <!-- permanent -->
     <v-toolbar flat class="transparent">
       <v-list class="pa-0">
         <v-list-tile avatar>
@@ -34,9 +34,6 @@
 
     <v-expansion-panel>
       <wordcloudTools v-bind:wc="wc"/>
-     <!-- 
-      <WordcloudMetadata/>
-      <WordcloudWindowsize/> -->
       <WordcloudCollocationParameters/>
       <WordcloudSearchItem v-bind:wc="wc"/>
     </v-expansion-panel>
@@ -45,8 +42,6 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-//import WordcloudMetadata from "@/components/Wordcloud/Sidebar/WordcloudMetadata";
-//import WordcloudWindowsize from "@/components/Wordcloud/Sidebar/WordcloudWindowsize";
 import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
 import WordcloudSearchItem from "@/components/Wordcloud/Sidebar/WordcloudSearchItem";
 import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/WordcloudCollocationParameters";
@@ -54,8 +49,6 @@ import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/Wordc
 export default {
   name: "WordcloudSidebar",
   components: {
-    //WordcloudMetadata,
-    //WordcloudWindowsize,
     WordcloudTools,
     WordcloudSearchItem,
     WordcloudCollocationParameters
