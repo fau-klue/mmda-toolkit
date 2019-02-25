@@ -2,13 +2,17 @@
 <div>
   <DiscursivePositionSelection/>
 
+  <p v-if="concordances">
+    {{ concordances }}
+  </p>
+
   <v-card flat>
     <v-card-text>
       <v-container>
         <v-layout>
           <v-flex xs12 sm12>
             <v-tabs color="cyan darken-2" dark slider-color="yellow">
-              <v-tab v-for="n in 3" :key="n"ripple>
+              <v-tab v-for="n in 3" :key="n" ripple>
                 Item {{ n }}
               </v-tab>
               <v-tab-item
@@ -32,7 +36,7 @@
 <script>
 import DiscursivePositionSelection from '@/components/DiscursivePosition/DiscursivePositionCorporaSelection.vue'
 
-import { mapActions, mapGetters } from 'vuex'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'DiscursivePositionConcordances',
@@ -44,10 +48,9 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      user: 'login/user'
+      user: 'login/user',
+      concordances: 'discursive/concordances'
     })
-  },
-  methods: {
   }
 }
 

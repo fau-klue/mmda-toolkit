@@ -71,7 +71,7 @@
 </v-container>
 </template>
 
-  <script>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
@@ -104,7 +104,7 @@ export default {
     addPosition () {
       this.nodata = false
 
-      if (!this.name) {
+      if (!this.name || this.selectDiscoursemes.length === 0) {
         this.nodata = true
         return
       }

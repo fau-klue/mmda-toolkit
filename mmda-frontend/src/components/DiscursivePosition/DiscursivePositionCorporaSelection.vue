@@ -22,7 +22,15 @@
 
               </v-flex>
               <v-flex xs6 sm6>
-                <v-form>
+                <div v-if="loading" class="text-md-center">
+                  <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                  <p>Loading Concordances...</p>
+                </div>
+
+                <v-form v-else>
+                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Concordance extraction</v-alert>
+
                   <v-select
                     v-model="selectedCorpora"
                     :items="corpora"
@@ -36,7 +44,7 @@
 
                   <v-autocomplete v-model="selectedAnalysis" clearable :items="userAnalysis" item-text="name" label="Analysis"></v-autocomplete>
 
-                  <v-btn color="success" class="text-lg-right">Submit</v-btn>
+                  <v-btn color="success" class="text-lg-right" @click="loadConcordances">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
               </v-flex>
@@ -46,7 +54,6 @@
       </v-card>
     </v-flex>
   </v-layout>
-</v-container>
 </div>
 </template>
 
@@ -56,6 +63,7 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'DiscursivePositionCorporaSelection',
   data: () => ({
+    id: null,
     error: null,
     loading: false,
     nodata: false,
@@ -65,6 +73,7 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
+      analysis: 'analysis/analysis',
       corpora: 'corpus/corpora',
       userAnalysis: 'analysis/userAnalysis',
     })
@@ -72,7 +81,9 @@ export default {
   methods: {
     ...mapActions({
       getCorpora: 'corpus/getCorpora',
-      getUserAnalysis: 'analysis/getUserAnalysis'
+      getUserAnalysis: 'analysis/getUserAnalysis',
+      getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
+      getDiscursivePositionConcordances: 'discursive/getDiscursivePositionConcordances'
     }),
     clear () {
       this.error = null
@@ -83,11 +94,24 @@ export default {
     clearSearch () {
       this.search = ''
     },
-    loadAnalysis () {
+    loadAnalysisList () {
       this.getUserAnalysis(this.user.username).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
+      })
+    },
+    loadAnalysis (id) {
+      const data = {
+        username: this.user.username,
+        analysis_id: id
+      }
+      this.getUserSingleAnalysis(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      }).then(() => {
+        this.loading = false
       })
     },
     loadCorpora () {
@@ -96,10 +120,41 @@ export default {
       }).catch((error) => {
         this.error = error
       })
+    },
+    loadConcordances () {
+      this.nodata = false
+
+      if (!this.selectedAnalysis || this.selectedCorpora.length === 0) {
+        this.nodata = true
+        return
+      }
+
+      this.loading = true
+
+      this.loadAnalysis()
+
+      console.log(this.analysis)
+
+      const data = {
+        username: this.user.username,
+        position_id: this.id,
+        items: ['foo'],
+        corpora: this.selectedCorpora
+      }
+
+      this.getDiscursivePositionConcordances(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      }).then(() => {
+        this.loading = false
+      })
+
     }
   },
   created () {
-    this.loadAnalysis()
+    this.id = this.$route.params.id
+    this.loadAnalysisList()
     this.loadCorpora()
   }
 }

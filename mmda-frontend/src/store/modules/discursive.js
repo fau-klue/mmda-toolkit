@@ -9,6 +9,8 @@ const state = {
   userDiscursivePositions: null,
   // One single position
   discursivePosition: null,
+  // DiscursivePosition Concordances
+  concordances: [],
   // DiscursivePosition Discoursemes
   discoursemes: []
 }
@@ -19,6 +21,9 @@ const getters = {
   },
   discursivePosition (state) {
     return state.discursivePosition
+  },
+  concordances (state) {
+    return state.discursivePositionConcordances
   },
   discoursemes (state) {
     return state.discoursemes
@@ -164,12 +169,22 @@ const actions = {
     // Get Discursive Positions discoursemes
     return new Promise((resolve, reject) => {
 
-      if (!data.username) { reject('No user provided')
-        return
-      }
+      if (!data.username)    return reject('No user provided')
+      if (!data.position_id) return reject('No Discursive Position provided')
+      if (!data.corpora) return reject('No Corpora provided')
+      if (!data.items) return reject('No Items provided')
 
-      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordance/`).then(function (response) {
-        // commit('setDiscursivePositionConcordances', response.data)
+      let params = new URLSearchParams()
+      // Concat item parameter. api/?item=foo&item=bar
+      data.items.forEach((item)=>{ params.append("item", item) })
+      // Concat corpus parameter. api/?corpus=foo&corpus=bar
+      data.corpora.forEach((corpus)=>{ params.append("corpus", corpus) })
+
+      const request = {
+        params: params
+      }
+      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordances/`, request).then(function (response) {
+        commit('setDiscursivePositionConcordances', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -184,8 +199,12 @@ const mutations = {
     state.userDiscursivePositions = discursivePositions
   },
   setDiscursivePositionDiscoursemes (state, discoursemes) {
-    // List of discursivePosition
+    // List of Discoursemes
     state.discoursemes = discoursemes
+  },
+  setDiscursivePositionConcordances (state, concordances) {
+    // List of Concordances: [{corpusName: concordances}]
+    state.concordances = concordances
   },
   setDiscursivePositionSingle (state, discursivePosition) {
     // One discursivePosition
