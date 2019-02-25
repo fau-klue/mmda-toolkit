@@ -404,7 +404,7 @@ def test_extract_discursive_position(mock_popen, conc_simple_file, conc_simple_p
         corpus_settings['association_settings']
     )
 
-    actual = engine.extract_discursive_posistion(
+    actual = engine.extract_discursive_position(
         corpus_settings['items1'],
         [corpus_settings['items2'], corpus_settings['items3']]
     )

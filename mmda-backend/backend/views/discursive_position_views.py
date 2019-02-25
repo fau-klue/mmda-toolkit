@@ -3,7 +3,7 @@ Discursive Position views
 """
 
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
 
 from backend import db
@@ -229,3 +229,51 @@ def delete_discourseme_from_discursive_position(username, discursive_position, d
     db.session.commit()
 
     return jsonify({'msg': 'Deleted'}), 200
+
+
+# READ
+@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordances/', methods=['GET'])
+@user_required
+def get_discursive_position_concordances(username, discursive_position):
+    """
+    Get concordances for a discursive position.
+    """
+
+    # Check Request
+    corpora = request.args.getlist('corpus', None)
+    items = request.args.getlist('item', None)
+
+    if not items:
+        return jsonify({'msg': 'No items provided'}), 400
+
+    if not corpora:
+        return jsonify({'msg': 'No corpora provided'}), 400
+
+    # Get Corpus
+    corpora_available = current_app.config['CORPORA']
+    for corpus in corpora:
+        if corpus not in corpora_available.keys():
+            return jsonify({'msg': 'No such corpus: {corpus}'.format(corpus=corpus)}), 404
+
+    # Get User
+    user = User.query.filter_by(username=username).first()
+
+    # Get from DB
+    discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
+    if not discursive:
+        return jsonify({'msg': 'No such discursive position'}), 404
+
+    # Get Associated Discoursemes
+    discoursemes = [discourseme.serialize for discourseme in discursive.discourseme]
+    if not discoursemes:
+        return jsonify([]), 200
+
+    discoursemes_items = [discourseme['items'] for discourseme in discoursemes]
+
+    ret = {}
+    for corpus in corpora:
+        engine = current_app.config['ENGINES'][corpus]
+        concordances = engine.extract_discursive_position(items=items, discoursemes=discoursemes_items)
+        ret[corpus] = concordances
+
+    return jsonify(ret), 200

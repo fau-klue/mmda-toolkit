@@ -698,11 +698,11 @@ class CWBEngine(Engine):
         concordances = sort_concordances(concordances, order)
         return concordances
 
-    def extract_discursive_posistion(self,
-                                     items,
-                                     discoursemes,
-                                     cut_off=100,
-                                     order='random'):
+    def extract_discursive_position(self,
+                                    items,
+                                    discoursemes,
+                                    cut_off=100,
+                                    order='random'):
         """
         Extract concordances for discursive positions with CWB.
         """
