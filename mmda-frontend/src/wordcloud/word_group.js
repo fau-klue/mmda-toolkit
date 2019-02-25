@@ -97,34 +97,34 @@ class WordGroup {
   }
 
   deleteDatabase(){
-    console.log("DEL");
+    //console.log("DEL");
     if(this.id===null){
       this.unfinished_delete = true;
       return;
     }
     this.window.component.deleteDiscourseme(this.id).then(()=>{
-      console.log("D+");
+      //console.log("D+");
     });
   }
   updateDatabase(){
-    console.log("UP");
+    //console.log("UP");
     if(this.id===null){
       this.unfinished_update = true;
       return;
     }
     this.updateContentString();
     this.window.component.updateDiscourseme(this.id, this.name || this.contentString, this.item_names).then(()=>{
-      console.log("U+");
+      //console.log("U+");
     });
   }
   initDatabase(){
-    console.log("ADD");
+    //console.log("ADD");
     this.updateContentString();
     this.window.component.addDiscourseme(this.name || this.contentString, this.item_names).then((e)=>{
       //console.log("Discourseme ID: "+e);
       this.id = e;
       this.color = random_color(this.id);
-      console.log("A+");
+      //console.log("A+");
       //this.window.component.addToAnalysis(this.id);
       if(this.unfinished_delete){
         this.deleteDatabase();

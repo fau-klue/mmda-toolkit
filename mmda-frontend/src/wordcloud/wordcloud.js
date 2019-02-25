@@ -707,6 +707,7 @@ class WordcloudWindow {
         G.name = disc.name;
       }
       G.id = disc.id;
+      G.color = random_color(G.id);
       this.groups.add(G);
     }
     
