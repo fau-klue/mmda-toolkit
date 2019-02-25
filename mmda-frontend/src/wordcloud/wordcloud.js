@@ -460,6 +460,7 @@ class WordcloudWindow {
         this.pressed_node.selected = e.shiftKey ?
           !this.pressed_node.selected :
           true;
+        if(this.pressed_node.getConcordances) this.pressed_node.getConcordances();
       }
     }
     if (this.dragging) {

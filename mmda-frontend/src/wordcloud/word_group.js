@@ -62,6 +62,11 @@ class WordGroup {
     this.unfinished_update = false;
     this.unfinished_delete = false;
   }
+  
+  getConcordances () {
+    this.window.component.getTopicConcordancesFromList ( this.item_names );
+  }  
+  
   addItemsByName(item_names) {
     for (var n of item_names) {
       var it = this.window.Map.get(n);

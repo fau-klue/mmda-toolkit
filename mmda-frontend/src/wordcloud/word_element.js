@@ -173,6 +173,10 @@ class WordElement {
     this.size = 1 + Math.max(0,Math.min(1,this.normalized_size));
     this.mini.link();
   }
+  
+  getConcordances () {
+    this.window.component.getTopicConcordancesFromList ( [this.label] );
+  }  
 
   delete(){
     this.window.container.removeChild(this.el);

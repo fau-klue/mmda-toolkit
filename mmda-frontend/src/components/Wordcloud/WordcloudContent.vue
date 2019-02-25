@@ -5,6 +5,7 @@
     </div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
+    <WordcloudBottomSheet />
   </div>
 </template>
 
@@ -17,12 +18,14 @@ import { mapActions, mapGetters } from "vuex";
 import { WordcloudWindow } from "@/wordcloud/wordcloud.js";
 import rules from "@/utils/validation";
 import WordcloudSidebar from "@/components/Wordcloud/WordcloudSidebar";
+import WordcloudBottomSheet from "@/components/Wordcloud/WordcloudBottomSheet";
 var vm = null;
 
 export default {
   name: "WordcloudContent",
   components: {
-    WordcloudSidebar
+    WordcloudSidebar,
+    WordcloudBottomSheet
   },
   data: () => ({
     mini : true,
@@ -79,7 +82,8 @@ export default {
       getAnalysisCoordinates: "coordinates/getAnalysisCoordinates",
       addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
       setAM: 'wordcloud/setAssociationMeasure',
-      setShowMinimap: 'wordcloud/setShowMinimap'
+      setShowMinimap: 'wordcloud/setShowMinimap',
+      
     }),
     loadCoordinates() {
       return this.getAnalysisCoordinates({
@@ -164,7 +168,21 @@ export default {
 
     centerItemLocation(item_string) {
       this.wc.centerAtWord(item_string);
-    }
+    },
+    getTopicConcordancesFromList (names) {
+      this.loadingConcordances = true;
+      this.concordancesRequested = true;
+      this.getConcordances({
+        corpus:           this.analysis.corpus,
+        topic_items:      this.analysis.topic_discourseme.items,
+        collocate_items:  names,
+        window_size:      this.windowSize
+      }).catch((error)=>{
+        this.error = error
+      }).then(()=>{
+        this.loadingConcordances = false;
+      });
+    },
   },
   created() {
     this.id = this.$route.params.id;

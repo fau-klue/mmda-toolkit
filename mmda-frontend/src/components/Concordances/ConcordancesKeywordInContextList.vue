@@ -42,8 +42,8 @@
 
             <template slot="items" slot-scope="props">
             <td class="text-xs-center"
-                :title="props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text"
               >
+               <!--:title="props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text" -->
               <v-menu open-on-hover top offset-y>
               
               <span slot="activator" class="kwic-id">{{ props.item.s_pos }}</span>
