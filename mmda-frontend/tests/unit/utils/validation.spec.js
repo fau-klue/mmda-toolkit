@@ -18,6 +18,7 @@ describe('Alphanum rules', () => {
   it('validate correct string', () => {
     expect(rules.alphanum('happystring')).toBe(true)
     expect(rules.alphanum('VERYHAPPY')).toBe(true)
+    expect(rules.alphanum('foo_bar')).toBe(true)
   })
 
   it('validate invalid string', () => {
