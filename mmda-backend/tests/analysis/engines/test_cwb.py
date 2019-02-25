@@ -145,6 +145,7 @@ def test_cqp_concordances_simple(mock_popen, conc_simple_file, conc_simple_p_att
     )
 
     assert mock_popen.call_count == 2
+    assert 'CQP version 3.4.15\n' in actual[0]
 
 
 @mock.patch("backend.analysis.engines.cwb.Popen")
@@ -291,6 +292,19 @@ def test_create_ucs_query_with_discoursemeitems(corpus_settings):
     assert 'ucs-tool' in actual_ucs_cmd
     assert 'ucs-add' in actual_add_cmd
     assert 'MU (meet [p_att="discourseme|items"] [p_att="topic|items"] s_att)' in actual_ucs_cmd
+
+    # With only one list elem
+    actual_ucs_cmd, actual_add_cmd = create_ucs_query(
+        'corpus',
+        ['topic', 'items'],
+        'p_att',
+        10,
+        's_att',
+        ['assoc', 'measures'],
+        ['onlyone']
+    )
+
+    assert 'MU (meet [p_att="onlyone"] [p_att="topic|items"] s_att)' in actual_ucs_cmd
 
 
 def test_evaluate_ucs_query(corpus_settings):

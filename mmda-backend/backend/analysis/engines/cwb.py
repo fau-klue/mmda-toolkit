@@ -207,7 +207,7 @@ def cqp_concordances(corpus_name,
         )
 
     # retrieve topic-discourseme concordances
-    if isinstance(discourseme_items, list) and len(discourseme_items) > 1:
+    if isinstance(discourseme_items, list) and len(discourseme_items) > 0:
         cqp_exec = 'A = {query}; cat A;'
         cqp_exec = cqp_exec.format(
             query=create_topic_discourseme_query_window(
@@ -437,7 +437,7 @@ def create_ucs_query(corpus_name,
     :rtype: list
     """
 
-    if isinstance(discourseme_items, list) and len(discourseme_items) > 1:
+    if isinstance(discourseme_items, list) and len(discourseme_items) > 0:
         if window_size:
             LOGGER.info('Window size will be ignored while retrieving discourse collocates.')
         # Retrieve topic-discourseme collocates
