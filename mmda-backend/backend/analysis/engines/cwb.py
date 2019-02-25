@@ -502,13 +502,16 @@ def format_ucs_collocates(ucs_return, assoc_measures, cut_off, order):
     f1 = int(collocates['f1'][0])
     N = int(collocates['N'][0])
 
+    # sort deterministically (if not sorted by l2: probabilistic sorting function on hapaxes)
+    collocates.sort_values(by=[order, 'l2'], ascending=[False, True], inplace=True)
+
+    # rename index and drop l2
     collocates.index = collocates['l2']
     collocates.index.name = 'item'
-
     collocates = collocates[['f2', 'f'] + assoc_measures]
     collocates.columns = ['f2', 'O11'] + assoc_measures
 
-    collocates.sort_values(by=order, ascending=False)
+    # cut off
     collocates = collocates.head(cut_off)
 
     return collocates, f1, N
