@@ -1,8 +1,17 @@
 <template>
-  <v-bottom-sheet hide-overlay v-model="sheet">
-    <ConcordancesKeywordInContextList/>
+  <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
+    <v-card class="card">
+      <ConcordancesKeywordInContextList v-bind:concordances="concordances"/>
+    </v-card>
   </v-bottom-sheet>
 </template>
+
+<style>
+.wordcloud-bottom-sheet .card{
+  max-height: 50%;
+  overflow: scroll; /*does not work like that*/
+}
+</style>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
@@ -33,5 +42,3 @@ export default {
 };
 </script>
 
-<style>
-</style>
