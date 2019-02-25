@@ -51,25 +51,27 @@ const actions = {
   getConcordances ({commit}, data ) {
     // Get Concordances
     return new Promise((resolve, reject) => {
-      
+
       if (!data.corpus) return reject('No corpus provided')
       if (!data.topic_items) return reject('No topic items provided')
 
       let params = new URLSearchParams()
-      // Concat item parameter
+      // Concat item parameter. api/?item=foo&item=bar
       data.topic_items.forEach((item)=>{ params.append("item", item) })
+
       if(data.collocate_items){
-        data.collocate_items.forEach((item)=>{ params.append("collocates", item) })
-        //TODO:: this is a reply to a possible backend-bug where
-        // collocates have to be more than one elements in size
-        if(data.collocate_items.length==1) params.append("collocates", data.collocate_items[0]);
+        // Concat item parameter. api/?collocate=foo&collocate=bar
+        data.collocate_items.forEach((item)=>{ params.append("collocate", item) })
       }
+
       if(data.window_size){
-         params.append("window_size",data.window_size)
+         // Append api/?window_size=12
+         params.append("window_size", data.window_size)
       }
+
       const request = {
         params: params
-      };
+      }
       api.get(`/corpus/${data.corpus}/concordances/`, request).then(function (response) {
         commit('setConcordances', response.data)
         resolve()

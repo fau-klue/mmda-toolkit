@@ -54,7 +54,7 @@ def get_concordances(corpus):
     # Check Request
     window_size = request.args.get('window_size', 8)
     items = request.args.getlist('item', None)
-    collocates = request.args.getlist('collocates', None)
+    collocates = request.args.getlist('collocate', None)
 
     if not items:
         return jsonify({'msg': 'No items provided'}), 400

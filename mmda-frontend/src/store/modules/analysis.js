@@ -155,9 +155,14 @@ const actions = {
 
       if (!data.username)    return reject('No user provided')
       if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.window_size) return reject('No window size provided')
 
-      const request={
-        params: data.window_size,
+      let params = new URLSearchParams()
+      // Append api/?window_size=12
+      params.append("window_size", data.window_size)
+
+      const request = {
+        params: params
       }
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
         commit('setCollocates', response.data);
