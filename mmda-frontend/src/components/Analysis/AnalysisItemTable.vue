@@ -2,22 +2,24 @@
 <v-layout row>
   <v-flex xs12 sm12>
     <h1 class="my-3 title">Collocation and Coordinates:</h1>
+
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p v-if="loadingCoordinates">Loading Coordinates...</p>
       <p v-if="loadingCollocates">Loading Collocation...</p>
     </div>
+
     <v-data-table
       v-else
       :headers="headers"
       :items="transposedCoordinates"
       class="elevation-1"
       >
+
       <template slot="items" slot-scope="props">
-        <td v-for="el in headers" :key="props.item.name+el.text" 
-          class="text-xs-center"
-          >
+        <td v-for="el in headers" :key="props.item.name+el.text" class="text-xs-center">
           <div v-if="el.value==='name'">
             <v-layout row>
               <v-btn @click="gotoConcordanceViewOf(props.item)" icon ripple :title="'show concordances of '+props.item.name">
@@ -27,7 +29,7 @@
             </v-layout>
           </div>
           <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
-          <div v-else> 
+          <div v-else>
             <div class="analysis-table-sphere" :style="
             'width:'+props.item[el.value+'#Norm']*2+'rem;'
             +'height:'+props.item[el.value+'#Norm']*2+'rem;'
@@ -74,27 +76,6 @@ export default {
     loadingCollocates:false,
     loadingCoordinates:false
   }),
-  watch:{
-    /* analysis(){
-      this.requestData();
-    },
-    user(){
-      if(!this.user){
-        //TODO:: route to login
-        return;
-      }
-      this.requestData();
-    }
-     minmaxAM(){
-      console.log("MinmaxUpdate");
-    },
-    transposedCoordinates(){
-      console.log("transposedUpdate");
-    },
-    headers(){
-      console.log("headersUpdate");
-    }*/
-  },
   computed: {
     ...mapGetters({
       user: 'login/user',

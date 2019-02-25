@@ -20,10 +20,10 @@
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
 
-              <!--<AnalysisCoordinates/> -->
               <AnalysisItemTable/>
 
               <h1 class="my-3 title">Concordances:</h1>
+
               <ConcordancesKeywordInContextList/>
               <AnalysisDiscoursemeList/>
 
@@ -39,7 +39,6 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
-//import AnalysisCoordinates from '@/components/Analysis/AnalysisCoordinates.vue'
 import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 
