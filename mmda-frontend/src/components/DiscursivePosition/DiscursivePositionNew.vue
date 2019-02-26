@@ -22,19 +22,19 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                <h1 class="title">What is a Discursive Position?</h1>
+                <h1 class="title">{{ $t("position.new.helpTitle") }}</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                  {{ $t("position.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">Name</h1>
+                <h1 class="subheading">{{ $t("position.new.name") }}</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("position.new.helpName") }}
                 </p>
 
-                <h1 class="subheading">Discoursemes</h1>
+                <h1 class="subheading">{{ $t("position.new.discoursemes") }}</h1>
                 <p>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  {{ $t("position.new.helpDiscoursemes") }}
                 </p>
 
               </v-flex>
@@ -71,7 +71,7 @@
 </v-container>
 </template>
 
-  <script>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
@@ -104,7 +104,7 @@ export default {
     addPosition () {
       this.nodata = false
 
-      if (!this.name) {
+      if (!this.name || this.selectDiscoursemes.length === 0) {
         this.nodata = true
         return
       }

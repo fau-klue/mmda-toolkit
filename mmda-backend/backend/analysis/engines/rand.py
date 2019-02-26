@@ -70,3 +70,23 @@ class RandomEngine(Engine):
             ret_concordances.append(random_concordance)
 
         return ret_concordances
+
+
+    # pylint: disable=unused-argument, no-self-use
+    def extract_discursive_position(self, items, discoursemes, order='random'):
+        """
+        See Base Engine for details.
+        """
+
+        ret_concordances = []
+
+        for idx in range(0, randint(1, 10)):
+            sentence_length = randint(5,15)
+            sentence = random_words(num=sentence_length)
+            random_concordance = {'s_pos': 323122,
+                                  'word': sentence,
+                                  'role': ['token'] * sentence_length,
+                                  'tt_lemma': sentence}
+            ret_concordances.append(random_concordance)
+
+        return ret_concordances

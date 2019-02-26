@@ -66,3 +66,22 @@ class Engine(ABC):
         """
 
         raise NotImplementedError
+
+
+    def extract_discursive_position(self, items, discoursemes, order='random'):
+        """
+        Extract concordances from a corpus.
+
+        :param list items: List of strings (words) for concordance extraction.
+        :param list discoursemes: List of lists with strings (words) for concordance extraction.
+        :param str order: How to sort the concordances. Options: (random)
+        :return: list of dictionaries containing the concordances, keys:
+            s_pos
+            sentiment
+            tokens
+            emphas
+            lemmas
+        :rtype: list
+        """
+
+        raise NotImplementedError

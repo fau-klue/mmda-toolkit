@@ -24,7 +24,7 @@
 
               <h1 class="my-3 title">Concordances:</h1>
 
-              <ConcordancesKeywordInContextList/>
+              <ConcordancesKeywordInContextList v-bind:concordances="concordances"/>
               <AnalysisDiscoursemeList/>
 
             </v-form>
@@ -63,7 +63,8 @@ export default {
     ...mapGetters({
       user: 'login/user',
       analysis: 'analysis/analysis',
-      coordinates: 'coordinates/coordinates'
+      coordinates: 'coordinates/coordinates',
+      concordances:'corpus/concordances'
     })
   },
   methods: {

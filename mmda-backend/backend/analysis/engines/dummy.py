@@ -5,6 +5,17 @@ from .engine import Engine
 from .engine import Collocates
 
 
+EXAMPLE_CONCORDANCES = [
+    {'word': ['RT', '@AndreaSchlegel3', ':', 'Die', 'Grünen', 'werden', 'von', 'der', 'Presse', 'nur', 'hochgepuscht', ',', 'weil', 'Schwarz', 'Grün', 'das', 'ist', ',', 'was', 'sie', 'in', 'Bayern', 'wollen', '.', 'Auch', 'Merkel', '…'],
+             'role': ['token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'topic', 'token', 'token', 'token', 'collocate', 'token'],
+             'tt_lemma': ['RT', '@AndreaSchlegel3', ':', 'die', 'Grüne', 'werden', 'von', 'die', 'Presse', 'nur', 'hochgepuscht', ',', 'weil', 'Schwarz', 'grün', 'die', 'sein', ',', 'was', 'sie', 'in', 'Bayern', 'wollen', '.', 'auch', 'Merkel', '…'],
+             's_pos': '466849'},
+            {'word': ['Bouffier', '43', '%', 'Bravo', '!', 'CDU', '27', '%', 'Was', 'sagt', 'uns', 'das', '?', 'Vielleicht', 'wäre', 'Merkel', 'besser', 'nicht', 'in', 'Hessen', 'aufgetreten', '?', '@CDU', '@cducsubt', '@CSU', '@BILD', 'Umfrage', 'und', 'Prognose', 'zur', 'Landtagswahl', 'Hessen', ':', 'So', 'sieht', 'es', 'für', 'CDU', ',', 'SPD', ',', 'Grüne', ',', 'AfD', 'und', 'Co.', 'aus', '|', 'Landtagswahl', 'Hessen', 'https://t.co/W2RfELUnvC'],
+             'role': ['token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'collocate', 'token', 'token', 'token', 'topic', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token'],
+             'tt_lemma': ['Bouffier', '43', '%', 'Bravo', '!', 'CDU', '27', '%', 'was', 'sagen', 'wir', 'die', '?', 'vielleicht', 'sein', 'Merkel', 'gut', 'nicht', 'in', 'Hessen', 'auftreten', '?', '@CDU', '@cducsubt', '@CSU', '@BILD', 'Umfrage', 'und', 'Prognose', 'zu', 'Landtagswahl', 'Hessen', ':', 'so', 'sehen', 'es', 'für', 'CDU', ',', 'SPD', ',', 'Grüne', ',', 'AfD', 'und', 'Co.', 'aus', '|', 'Landtagswahl', 'Hessen', 'https://t.co/W2RfELUnvC'],
+             's_pos': '381844'}]
+
+
 class DummyEngine(Engine):
     """
     DummyEngine Class for testing purposes. Returns fixed values in the correct format.
@@ -41,15 +52,18 @@ class DummyEngine(Engine):
         See Base Engine for details.
         """
 
-        ret_concordances = [
-            {'word': ['RT', '@AndreaSchlegel3', ':', 'Die', 'Grünen', 'werden', 'von', 'der', 'Presse', 'nur', 'hochgepuscht', ',', 'weil', 'Schwarz', 'Grün', 'das', 'ist', ',', 'was', 'sie', 'in', 'Bayern', 'wollen', '.', 'Auch', 'Merkel', '…'],
-             'role': ['token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'topic', 'token', 'token', 'token', 'collocate', 'token'],
-             'tt_lemma': ['RT', '@AndreaSchlegel3', ':', 'die', 'Grüne', 'werden', 'von', 'die', 'Presse', 'nur', 'hochgepuscht', ',', 'weil', 'Schwarz', 'grün', 'die', 'sein', ',', 'was', 'sie', 'in', 'Bayern', 'wollen', '.', 'auch', 'Merkel', '…'],
-             's_pos': '466849'},
-            {'word': ['Bouffier', '43', '%', 'Bravo', '!', 'CDU', '27', '%', 'Was', 'sagt', 'uns', 'das', '?', 'Vielleicht', 'wäre', 'Merkel', 'besser', 'nicht', 'in', 'Hessen', 'aufgetreten', '?', '@CDU', '@cducsubt', '@CSU', '@BILD', 'Umfrage', 'und', 'Prognose', 'zur', 'Landtagswahl', 'Hessen', ':', 'So', 'sieht', 'es', 'für', 'CDU', ',', 'SPD', ',', 'Grüne', ',', 'AfD', 'und', 'Co.', 'aus', '|', 'Landtagswahl', 'Hessen', 'https://t.co/W2RfELUnvC'],
-             'role': ['token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'collocate', 'token', 'token', 'token', 'topic', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token', 'token'],
-             'tt_lemma': ['Bouffier', '43', '%', 'Bravo', '!', 'CDU', '27', '%', 'was', 'sagen', 'wir', 'die', '?', 'vielleicht', 'sein', 'Merkel', 'gut', 'nicht', 'in', 'Hessen', 'auftreten', '?', '@CDU', '@cducsubt', '@CSU', '@BILD', 'Umfrage', 'und', 'Prognose', 'zu', 'Landtagswahl', 'Hessen', ':', 'so', 'sehen', 'es', 'für', 'CDU', ',', 'SPD', ',', 'Grüne', ',', 'AfD', 'und', 'Co.', 'aus', '|', 'Landtagswahl', 'Hessen', 'https://t.co/W2RfELUnvC'],
-             's_pos': '381844'}
-        ]
+        ret_concordances = EXAMPLE_CONCORDANCES
+
+        return ret_concordances
+
+
+    # pylint: disable=unused-argument, no-self-use
+    def extract_discursive_position(self, items, discoursemes, order='random'):
+        """
+        Return a fixed list you would expect from a real engine.
+        See Base Engine for details.
+        """
+
+        ret_concordances = EXAMPLE_CONCORDANCES
 
         return ret_concordances
