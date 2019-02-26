@@ -111,6 +111,14 @@
       "helpText": "A discursive position represents an attitudes towards a topic. On the surface, a user-created list of previously created discoursemes.",
       "helpName": "User-defined name for the new discursive position",
       "helpDiscoursemes": "A selection of available discoursemes that are included in the discursive position. Can be adjusted at a later time."
+    },
+    "extraction": {
+      "helpTitle": "Discursive Position Concordance Extraction",
+      "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
+      "corpora": "Corpora",
+      "helpCorpora": "Selection of corpora to extract (random) concordances from.",
+      "analysis": "Analysis",
+      "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
     }
   },
   "admin": {

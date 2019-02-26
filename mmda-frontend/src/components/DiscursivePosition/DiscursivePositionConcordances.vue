@@ -2,7 +2,7 @@
 <div>
   <DiscursivePositionSelection/>
 
-  <v-card flat>
+  <v-card flat v-if="concordances.length!==0">
     <v-card-text>
       <v-container>
         <v-layout>
