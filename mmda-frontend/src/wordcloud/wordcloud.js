@@ -276,12 +276,18 @@ class WordcloudWindow {
     return W;
   }
 
+  map_value(val){
+    return Math.log(1 + Math.max(0,val));
+  }
+
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
     if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
     var val = this.collocates[am][data.name];
     val = Number.parseFloat(val);
     if(val!=val) return -1;
+    if(val<0) return -1;
+    val=this.map_value(val);
     var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
@@ -657,6 +663,7 @@ class WordcloudWindow {
         var val = Number.parseFloat(collocates[am][word]);
         //console.log(collocates[am][word]);
         if(val!=val) continue;
+        val = this.map_value(val);
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }

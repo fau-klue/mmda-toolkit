@@ -94,6 +94,7 @@ export default {
           for(var w of Object.keys(this.collocates[am])){
             var val = Number.parseFloat(this.collocates[am][w]);
             if(val!=val) continue;
+            val = this.map_value(val);
             R[am].min = Math.min(R[am].min,val);
             R[am].max = Math.max(R[am].max,val);
           }
@@ -122,7 +123,7 @@ export default {
             val = Number.parseFloat(val);
             R[w][am] = val.toPrecision(2);
             R[w][am.replace(/\./g,'_')] = val.toPrecision(2);
-            R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(val,this.minmaxAM[am]);
+            R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(this.map_value(val),this.minmaxAM[am]);
           }
         }
       }
@@ -156,7 +157,10 @@ export default {
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
       getConcordances:        'corpus/getConcordances',
     }),
-    map_range (value,minmax){
+    map_value(value){
+      return Math.log(1 + Math.max(0,value));
+    },
+    map_range (value, minmax){
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
