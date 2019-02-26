@@ -2,7 +2,7 @@
 <div>
   <v-container>
     <v-layout>
-      <v-flex xs12 sm12>
+      <v-flex xs6 sm6>
         <h1 class="title">Associated Discoursemes:</h1>
         <v-list two-line subheader v-if="positionDiscoursemes">
           <v-list-tile v-for="discourseme in positionDiscoursemes" :key="discourseme.id" avatar>
@@ -27,6 +27,9 @@
           </v-list-tile>
           <h2 v-if="positionDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
         </v-list>
+
+      </v-flex>
+      <v-flex xs6 sm6>
 
         <h1 class="title">Available Discoursemes:</h1>
         <v-list two-line subheader v-if="userDiscoursemes">

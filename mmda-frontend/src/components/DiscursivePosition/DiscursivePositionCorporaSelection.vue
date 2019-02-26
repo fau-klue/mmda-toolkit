@@ -42,7 +42,7 @@
                     persistent-hint
                     ></v-select>
 
-                  <v-autocomplete v-model="selectedAnalysis" clearable :items="userAnalysis" item-text="name" label="Analysis"></v-autocomplete>
+                  <v-autocomplete v-model="selectedAnalysisId" clearable :items="userAnalysis" item-value="id" item-text="name" label="Analysis"></v-autocomplete>
 
                   <v-btn color="success" class="text-lg-right" @click="loadConcordances">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
@@ -68,7 +68,7 @@ export default {
     loading: false,
     nodata: false,
     selectedCorpora: [],
-    selectedAnalysis: null
+    selectedAnalysisId: null
   }),
   computed: {
     ...mapGetters({
@@ -88,7 +88,7 @@ export default {
     clear () {
       this.error = null
       this.nodata = false
-      this.selectedAnalysis = null,
+      this.selectedAnalysisId = null,
       this.selectedCorpora = []
     },
     clearSearch () {
@@ -106,13 +106,8 @@ export default {
         username: this.user.username,
         analysis_id: id
       }
-      this.getUserSingleAnalysis(data).then(() => {
-        this.error = null
-      }).catch((error) => {
-        this.error = error
-      }).then(() => {
-        this.loading = false
-      })
+      // Return Promise
+      return this.getUserSingleAnalysis(data)
     },
     loadCorpora () {
       this.getCorpora().then(() => {
@@ -124,32 +119,33 @@ export default {
     loadConcordances () {
       this.nodata = false
 
-      if (!this.selectedAnalysis || this.selectedCorpora.length === 0) {
+      if (!this.selectedAnalysisId || this.selectedCorpora.length === 0) {
         this.nodata = true
         return
       }
 
       this.loading = true
-
-      this.loadAnalysis()
-
-      console.log(this.analysis)
-
-      const data = {
-        username: this.user.username,
-        position_id: this.id,
-        items: ['foo'],
-        corpora: this.selectedCorpora
-      }
-
-      this.getDiscursivePositionConcordances(data).then(() => {
+      this.loadAnalysis(this.selectedAnalysisId).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
       }).then(() => {
-        this.loading = false
-      })
 
+        const data = {
+          username: this.user.username,
+          position_id: this.id,
+          items: this.analysis.topic_discourseme.items,
+          corpora: this.selectedCorpora
+        }
+
+        this.getDiscursivePositionConcordances(data).then(() => {
+          this.error = null
+        }).catch((error) => {
+          this.error = error
+        }).then(() => {
+          this.loading = false
+        })
+      })
     }
   },
   created () {

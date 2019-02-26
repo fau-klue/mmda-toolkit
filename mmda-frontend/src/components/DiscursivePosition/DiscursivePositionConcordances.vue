@@ -2,29 +2,24 @@
 <div>
   <DiscursivePositionSelection/>
 
-  <p v-if="concordances">
-    {{ concordances }}
-  </p>
-
   <v-card flat>
     <v-card-text>
       <v-container>
         <v-layout>
           <v-flex xs12 sm12>
             <v-tabs color="cyan darken-2" dark slider-color="yellow">
-              <v-tab v-for="n in 3" :key="n" ripple>
-                Item {{ n }}
+              <v-tab v-for="(concordance, corpus) in concordances" :key="corpus" ripple>
+                {{ corpus }}
               </v-tab>
-              <v-tab-item
-                v-for="n in 3"
-                :key="n"
-                >
+              <v-tab-item v-for="(concordance, corpus) in concordances" :key="corpus">
                 <v-card flat>
-                  <v-card-text>Lorem Ipsum</v-card-text>
+                  <v-card-text>
+                    <ConcordancesKeywordInContextList v-if="concordance.length!==0" v-bind:concordances="concordance"/>
+                    <v-alert v-else value="true" color="info" outline>No concordances found</v-alert>
+                  </v-card-text>
                 </v-card>
               </v-tab-item>
             </v-tabs>
-
           </v-flex>
         </v-layout>
       </v-container>
@@ -35,13 +30,15 @@
 
 <script>
 import DiscursivePositionSelection from '@/components/DiscursivePosition/DiscursivePositionCorporaSelection.vue'
+import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 
 import { mapGetters } from 'vuex'
 
 export default {
   name: 'DiscursivePositionConcordances',
   components: {
-    DiscursivePositionSelection
+    DiscursivePositionSelection,
+    ConcordancesKeywordInContextList
   },
   data: () => ({
     search: ''

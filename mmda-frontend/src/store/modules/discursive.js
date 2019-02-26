@@ -23,7 +23,7 @@ const getters = {
     return state.discursivePosition
   },
   concordances (state) {
-    return state.discursivePositionConcordances
+    return state.concordances
   },
   discoursemes (state) {
     return state.discoursemes
