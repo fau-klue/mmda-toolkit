@@ -168,8 +168,9 @@ export default {
     },
     tableContent () {
       var C = [];
-      //TODO::
-      //getCorpus of analysis, in order to get the "tt_lamma" [p_att]
+      if(!this.corpus) return C;
+      var p_att = this.corpus.p_att;
+      
       if(!this.concordances) return C;
       for(var c of this.concordances){
         var r = { 
@@ -192,7 +193,7 @@ export default {
           var el = {
             text:   c.word[i],
             role:   c.role[i],
-            lemma:  c.tt_lemma[i]
+            lemma:  c[p_att][i]
           };
 
           if(beforeKeyword && el.role==this.keywordRole){
@@ -219,6 +220,7 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: 'corpus/getConcordances',
+      getCorpus: 'corpus/getCorpus'
     }),
     update(){
       //the required data (see setupIt) is available only after two ticks
@@ -272,7 +274,10 @@ export default {
     },
   },
   created () {
-    this.id = this.$route.params.id
+    this.id = this.$route.params.id;
+    this.getCorpus(this.analysis.corpus).catch((error)=>{
+      this.error = error;
+    });
   }
 }
 

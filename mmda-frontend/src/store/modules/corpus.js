@@ -40,7 +40,10 @@ const actions = {
   getCorpus ({commit}, corpus) {
     // Get corpus details
     return new Promise((resolve, reject) => {
-      api.get(`/corpus/${corpus}`).then(function (response) {
+
+      if (!corpus) return reject('No corpus provided')
+
+      api.get(`/corpus/${corpus}/`).then(function (response) {
         commit('setCorpus', response.data)
         resolve()
       }).catch(function (error) {
