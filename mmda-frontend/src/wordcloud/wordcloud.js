@@ -668,13 +668,7 @@ class WordcloudWindow {
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }
       if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
-      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
-      //S.sort();
-      //console.log(S);
-      //this.compare_am = this.am;
-      //this.am = am;
     }
-
     this.changeAM();
   }
 
@@ -700,15 +694,29 @@ class WordcloudWindow {
 
     this.discoursemes = discoursemes;
     for (var disc of discoursemes) {
+      var avgX = 0, avgY = 0, avgC = 0;
+      var unknownWords = [];
       var G = new WordGroup(undefined,this);
       for(var name of disc.items){
         var n = this.getItemByName(name);
         if(!n){
-          //TODO:: what coordinates should these words have??
-          n = this.addWord({name:name, tsne_x:0,tsne_y:0})
+          unknownWords.push(name);
         } 
         G.addItem(n);
+        avgX += n.data.tsne_x;
+        avgY += n.data.tsne_y;
+        avgC ++;
       }
+      if(avgC){
+        avgX /= avgC; avgY /= avgC;
+      }
+      for(var name of unknownWords){
+        //TODO:: what coordinates should these words have??
+        // place them at the average of the other words in the discourseme
+        n = this.addWord({name:name, tsne_x:avgX ,tsne_y:avgY})
+        G.addItem(n);
+      }
+
       // Only give name, if naming is meaningful
       G.updateContentString();
       if(G.contentString!=disc.name){
@@ -723,101 +731,6 @@ class WordcloudWindow {
   }
 
 
-
-
-
-
-  setupContent(collocates, coordinates, discoursemes) {
-
-    /*
-    console.log(Array.from(Object.keys(collocates.MI)));
-    console.log(Array.from(Object.keys(coordinates)));
-    console.log(Array.from(Object.keys(discoursemes)));//coordinates)));
-    */
-    //console.log(collocates);
-    //console.log(coordinates);
-    //console.log(discoursemes);
-
-    if (!collocates || !coordinates) {
-      return console.error("Wordcloud:  No collocates loaded.");
-    }
-
-    this.collocates = collocates;
-    this.coordinates = coordinates;
-    this.am_minmax = {};
-    for (var am of Object.keys(collocates)) {
-      //console.log("AM: "+am);
-      if (!collocates[am]) continue;
-      this.am_minmax[am] = {
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      };
-      var count = 0;
-      //console.log("setup " + am);
-      for (var word of Object.keys(collocates[am])) {
-        if(!coordinates[word]){
-          count++;
-        }
-        if (!collocates[am][word]) continue;
-        var val = Number.parseFloat(collocates[am][word]);
-        //console.log(collocates[am][word]);
-        if(val!=val) continue;
-        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
-        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
-      }
-      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
-      
-      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
-      //S.sort();
-      //console.log(S);
-      this.compare_am = this.am;
-      this.am = am;
-    }
-
-    
-
-
-    for (var word of Object.keys(coordinates)) {
-      //console.log("AM: "+am);
-
-      coordinates[word].name = word;
-      this.addWord(coordinates[word]);
-      //console.log(coordinates[word]);
-    }
-
-
-    for (var disc of discoursemes) {
-      var G = new WordGroup(undefined,this);
-      for(var name of disc.items){
-        var n = this.getItemByName(name);
-        if(!n){
-          //console.log("ADD: "+name);
-          n = this.addWord({name:name,tsne_x:0,tsne_y:0})
-        } 
-        G.addItem(n);
-      }
-      G.updateContentString();
-      if(G.contentString!=disc.name){
-        G.name = disc.name;
-      }
-      G.id = disc.id;
-      G.color = random_color(G.id);
-      this.groups.add(G);
-      //console.log("Discourseme " + disc.name);
-    }
-
-    /*
-    var G = this.formGroupByNames([
-      "wie",
-      "wieso",
-      "das",
-    ]);
-    G.name = "Gruppenname";
-*/
-
-    this.layoutTsnePositions();
-    this.request("layout");
-  }
 
   ///////////////////////////////////////
   //
