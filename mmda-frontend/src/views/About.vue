@@ -19,7 +19,9 @@
 
       <h2>{{ $t("about.headlinePublications") }}</h2>
       <ul>
-        <li>2018. A Transnational Analysis of News and Tweets about Nuclear Phase-Outin the Aftermath of the Fukushima Incident</li>
+	<li>Evert, Stefan and Philipp Heinrich (2019). Introducing MMDA: An interactive toolkit for CDA. 7th Göttingen/Hildesheim-Workshop on CL and DH.
+        <li>Heinrich, Philipp and Fabian Schäfer (2018). Extending Corpus-Based Discourse Analysis for Exploring Japanese Social Media. Proceedings of 4th Asia Pacific Corpus Linguistics Conference (APCLC2018), pages 135–140. Takamatsu, Japan.</li>
+        <li>Heinrich, Philipp, Christoph Adrian, Olena Kalashnikova, Fabian Schäfer, and Stefan Evert (2018). A Transnational Analysis of News and Tweets about Nuclear Phase-Out in the Aftermath of the Fukushima Incident. In Proceedings of the LREC 2018 “Workshop on Computational Impact Detection from Text Data” (CIDTD 2018), pages 8–16. Miyazaki, Japan.</li>
       </ul>
 
     </v-flex>
