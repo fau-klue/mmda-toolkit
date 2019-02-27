@@ -694,6 +694,12 @@ class CWBEngine(Engine):
             concordances_p
         )
 
+        # work-around for hard-coded tt_lemma in GUI
+        p_att = self.corpus_settings['p_att']
+        if p_att != "tt_lemma":
+            for v in concordances.values():
+                v["tt_lemma"] = v[p_att]
+
         # sort concordances
         concordances = sort_concordances(concordances, order)
         return concordances
@@ -743,6 +749,22 @@ class CWBEngine(Engine):
             concordances_raw,
             concordances_p
         )
+
+        # Goettingen_2019 fixes
+        for v in concordances.values():
+            # work-around for hard-coded tt_lemma in GUI
+            p_att = self.corpus_settings['p_att']
+            if p_att != "tt_lemma":
+                v["tt_lemma"] = v[p_att]
+            # fix discursive position roles
+            all_discourseme_items = [item for sublist in discoursemes for item in sublist]
+            for i in range(len(v["word"])):
+                if v["tt_lemma"][i] in items:
+                    v["role"][i] = "topic"
+                elif v["tt_lemma"][i] in all_discourseme_items:
+                    v["role"][i] = "collocate"
+                else:
+                    v["role"][i] = "token"
 
         # sort concordances
         concordances = sort_concordances(concordances, order)
