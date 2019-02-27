@@ -693,6 +693,12 @@ class CWBEngine(Engine):
             concordances_raw,
             concordances_p
         )
+        
+        # work-around for hard-coded tt_lemma in GUI
+        p_att = self.corpus_settings['p_att']
+        if p_att != "tt_lemma":
+            for v in  concordances.values():
+                v["tt_lemma"] = v[p_att]
 
         # sort concordances
         concordances = sort_concordances(concordances, order)
@@ -743,6 +749,12 @@ class CWBEngine(Engine):
             concordances_raw,
             concordances_p
         )
+        
+        # work-around for hard-coded tt_lemma in GUI
+        p_att = self.corpus_settings['p_att']
+        if p_att != "tt_lemma":
+            for v in  concordances.values():
+                v["tt_lemma"] = v[p_att]
 
         # sort concordances
         concordances = sort_concordances(concordances, order)
