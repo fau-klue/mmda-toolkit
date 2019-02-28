@@ -7,5 +7,5 @@ python3 manage.py db upgrade
 python3 manage.py init_db
 
 # Start the WSGI production server
-echo 'Staring Application'
+echo 'Starting Application'
 python3 manage.py run_wsgi
