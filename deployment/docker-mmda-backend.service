@@ -1,0 +1,39 @@
+# I'm a systemd service file that lives in /etc/systemd/system/
+[Unit]
+Description=Daemon for MMDA Backend
+After=docker.service
+Wants=
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+StartLimitInterval=20
+StartLimitBurst=5
+TimeoutStartSec=0
+RestartSec=5
+Environment="HOME=/root"
+SyslogIdentifier=docker-mmda-backend
+ExecStartPre=-/usr/bin/docker kill mmda-backend
+ExecStartPre=-/usr/bin/docker rm  mmda-backend
+
+ExecStart=/usr/bin/docker run \
+ -e ENVIRONMENT=production \
+ -e SECRET_KEY=CHANGEME! \
+ -e TLS_ENABLE=true \
+ -e TLS_CERTFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/fullchain.pem \
+ -e TLS_KEYFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/privkey.pem \
+ -v /opt/data/mmda/database:/var/local/ \
+ -v /opt/data/mmda/wectors:/opt/wectors:ro \
+ -v /opt/data/mmda/cwb:/opt/cwb:ro \
+ -v /etc/letsencrypt:/certs/letsencrypt:ro \
+ -p 5000:5000 \
+  \
+ --name mmda-backend \
+ fau.de/mmda-backend:latest \
+
+ExecStop=-/usr/bin/docker stop --time=0 mmda-backend
+ExecStop=-/usr/bin/docker rm  mmda-backend
+
+[Install]
+WantedBy=multi-user.target
+
