@@ -14,8 +14,7 @@ LABEL maintainer="markus.opolka@fau.de"
 # Use the .env.production for settings
 
 COPY --from=builder /usr/src/app/dist /usr/share/nginx/html/
-# TODO: nginx.config
-# COPY nginx-mmda.conf /etc/nginx/conf.d/default.conf
+COPY nginx-mmda.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 EXPOSE 443

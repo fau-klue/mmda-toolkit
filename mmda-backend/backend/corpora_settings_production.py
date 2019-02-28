@@ -11,26 +11,48 @@ association_measures: Available ssociation measures in the Engine
 """
 
 CORPORA = {
-    'SZ_SMALL': {
-        'name': 'Süddeutsche Zeitung',
-        'name_api': 'SZ_SMALL',
-        'wectors': '/opt/wector/wiki-news-300d-1M-subword.magnitude',
+    'LTWBY2018': {
+        'name': 'Tweets zur Landtagswahl in Bayern 2018',
+        'name_api': 'LTWBY2018',
+        'wectors': '/opt/wectors/deTwitterWord2Vec.magnitude',
         'language': 'de',
         'genre': 'Social Media Discourse',
-        'sentence_boundary': 's',
-        'association_measures': ['am.simple.ll', 'am.log.likelihood', 'am.Dice,am.MI'],
+        's_att': 'tweet',
+        'p_att': 'tt_lemma',
+        'association_measures': ['am.simple.ll',
+                                 'am.log.likelihood',
+                                 'am.Dice',
+                                 'am.MI'],
         'engine': 'CWBEngine'
     },
-    'FAZ_SMALL': {
-        'name': 'FAZ Zeitung',
-        'name_api': 'FAZ_SMALL',
-        'wectors': '/opt/wector/wiki-news-300d-1M-subword.magnitude',
+    'LTWBY2018': {
+        'name': 'Austerity 0925',
+        'name_api': 'AUSTERITY_0925',
+        'wectors': '/opt/wectors/enWikiWord2Vec.magnitude',
+        'language': 'en',
+        'genre': 'Newspaper',
+        's_att': 's',
+        'p_att': 'tt_lemma',
+        'association_measures': ['am.simple.ll',
+                                 'am.log.likelihood',
+                                 'am.Dice',
+                                 'am.MI'],
+        'engine': 'CWBEngine'
+    },
+    'LTWBY2018': {
+        'name': 'Nachrichten zur Landtagswahl in Bayern 2018',
+        'name_api': 'LTWBY2018',
+        'wectors': '/opt/wectors/deWikiWord2Vec.magnitude',
         'language': 'de',
         'genre': 'Newspaper',
-        'sentence_boundary': 'tweet',
-        'association_measures': ['am.simple.ll', 'am.log.likelihood', 'am.Dice,am.MI'],
+        's_att': 's',
+        'p_att': 'tt_lemma',
+        'association_measures': ['am.simple.ll',
+                                 'am.log.likelihood',
+                                 'am.Dice',
+                                 'am.MI'],
         'engine': 'CWBEngine'
-    }
+    },
 }
 
 
