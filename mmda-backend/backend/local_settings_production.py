@@ -10,7 +10,7 @@ MAIL_SERVER = 'localhost'
 MAIL_PORT = 1025
 MAIL_USE_SSL = False
 MAIL_USE_TLS = False
-MAIL_USERNAME = 'yourname@gmail.com'
+MAIL_USERNAME = 'mmda@fau.de'
 MAIL_PASSWORD = 'password'
 
 # Flask-User settings
