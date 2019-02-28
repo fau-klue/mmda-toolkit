@@ -2,7 +2,7 @@
 
 The MMDA Demo currently (January 2019) runs on the server *geuselambix.phil.uni-erlangen.de*
 
-For deploying a new version please use the custom shell script on the server:
+For deploying a new version please use the custom shell script provided:
 
 ```bash
 /root/mmda-deploy.sh
@@ -34,7 +34,6 @@ docker build --pull --force-rm -t fau.de/mmda-frontend:latest .
 
 The nginx webserver is configured using a custom configuration file (see repository). For extra protection a htpasswd file is provided on the server and then mounted into the Docker Container.
 
-
 ```bash
 # htpasswd location
 ls /opt/nginx
@@ -51,6 +50,7 @@ openssl passwd -apr1
 
 SSL encrypttion is provided using Let's Encrypt. For this automated certificates have been created using [certbot](https://hub.docker.com/r/certbot/certbot/).
 
+Hint: You just have to do this when installing the server. Use the provided systemd Timers to automate the renewal.
 
 ```bash
 docker run -ti --rm -v /etc/letsencrypt:/etc/letsencrypt certbot/certbot certonly --webroot -w /etc/letsencrypt -d geuselambix.phil.uni-erlangen.de
