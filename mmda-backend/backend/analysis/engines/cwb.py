@@ -603,8 +603,8 @@ class CWBEngine(Engine):
                            items,
                            window_size,
                            collocates=None,
-                           cut_off=100,
-                           order='f2'):
+                           cut_off=500,
+                           order='f'):
         """
         Extract collocates from a CWB corpus.
         See BaseClass for parameters.
