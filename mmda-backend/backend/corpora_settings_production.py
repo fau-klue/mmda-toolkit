@@ -25,7 +25,7 @@ CORPORA = {
                                  'am.MI'],
         'engine': 'CWBEngine'
     },
-    'LTWBY2018': {
+    'AUSTERITY_0925': {
         'name': 'Austerity 0925',
         'name_api': 'AUSTERITY_0925',
         'wectors': '/opt/wectors/enWikiWord2Vec.magnitude',
@@ -39,9 +39,9 @@ CORPORA = {
                                  'am.MI'],
         'engine': 'CWBEngine'
     },
-    'LTWBY2018': {
+    'LTWBY2018_NEWS': {
         'name': 'Nachrichten zur Landtagswahl in Bayern 2018',
-        'name_api': 'LTWBY2018',
+        'name_api': 'LTWBY2018_NEWS',
         'wectors': '/opt/wectors/deWikiWord2Vec.magnitude',
         'language': 'de',
         'genre': 'Newspaper',
