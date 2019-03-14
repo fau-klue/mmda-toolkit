@@ -11,7 +11,7 @@ from backend import db
 from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.commands.init_db import find_or_create_user
 from backend import admin_required
-from backend.models.user_models import User
+from backend.models.user_models import User, Role
 from backend.models.analysis_models import Analysis, Discourseme, DiscursivePosition
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
@@ -32,7 +32,14 @@ def create_user():
     password = request.json.get('password', None)
     email = request.json.get('email', None)
     email_confirmed_at = request.json.get('email_confirmed_at', datetime.datetime.utcnow())
-    role = request.json.get('role', None)
+    role_name = request.json.get('role', None)
+    role = None
+
+    # Check if role exists
+    if role_name:
+        role = Role.query.filter(Role.name == role_name).first()
+        if not role:
+            return jsonify({'msg': 'No such role'}), 404
 
     # Create user
     user = find_or_create_user(username, first_name, last_name, email, password, role)
