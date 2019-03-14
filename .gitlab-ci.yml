@@ -31,17 +31,19 @@ frontend-lint:
 
 frontend-test:
   stage: test
-  image: node:alpine
+  image: node:8-alpine
   before_script:
     - cd mmda-frontend/
     - yarn install
   script:
+    - node --version; yarn --version
     - yarn run test:unit
 
 backend-test:python3-6:
   stage: test
   image: python:3.6
   before_script:
+    - python --version; pip --version
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
     - pipenv install --system --dev
@@ -53,6 +55,7 @@ backend-test:python3-5:
   image: python:3.5
   allow_failure: true
   before_script:
+    - python --version; pip --version
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
     - pipenv install --system --dev
