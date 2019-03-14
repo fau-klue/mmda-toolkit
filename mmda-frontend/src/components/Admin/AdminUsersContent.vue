@@ -3,9 +3,9 @@
   <v-card flat>
     <v-card-text>
       <v-layout wrap row>
-        <v-flex xs12>
+        <v-flex xs12 v-if="users">
           <p class="headline">Users ({{ users.length }})</p>
-          <v-list v-if="users">
+          <v-list>
             <v-list-tile v-for="user in users" :key="user" avatar>
               <v-list-tile-avatar>
                 <v-icon v-if="user === 'admin'" class="red--text">perm_identity</v-icon>

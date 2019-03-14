@@ -82,6 +82,7 @@ def find_or_create_role(name, description):
 def find_or_create_user(username, first_name, last_name, email, password, role=None):
     """
     Find existing user or create new user
+    role must be of type Role.
     """
 
     user = User.query.filter(User.email == email).first()
