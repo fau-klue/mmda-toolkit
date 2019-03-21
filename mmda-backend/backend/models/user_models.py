@@ -35,6 +35,8 @@ class User(db.Model, UserMixin):
     def serialize(self):
        """
        Return object data in easily serializeable format
+       :return: Dictionary containing the user values
+       :rtype: dict
        """
 
        return {

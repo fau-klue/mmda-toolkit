@@ -11,7 +11,7 @@ from gevent.pywsgi import WSGIServer
 
 class WSGICommand(Command):
     """
-    Run the production server
+    Run the production server. Flask Command Interface.
     """
 
     def run(self):
@@ -20,7 +20,7 @@ class WSGICommand(Command):
 
 def run_wsgi():
     """
-    Where the magic happens
+    Starts the API with a WSGI Server for production use.
     """
 
     app = create_app()
