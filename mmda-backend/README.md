@@ -52,6 +52,12 @@ See https://help.yahoo.com/kb/SLN27791.html
 
 # Development
 
+## Sphinx Documentation
+
+    # Create HTML Documentation
+    cd docs/
+    make html
+
 ## Running pylint
 
     # Running pylint
