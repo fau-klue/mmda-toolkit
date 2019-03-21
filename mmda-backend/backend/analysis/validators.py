@@ -3,6 +3,7 @@ For Flask API data validation.
 Contains data models for the Endpoint validation
 """
 
+
 LOGIN_SCHEMA = {
     'type': 'object',
     'properties': {
