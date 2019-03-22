@@ -27,12 +27,19 @@
     # Run the migrations
     python manage.py migrate
 
-## Running the app (development)
+# Running in development
 
     # Start the Flask development web server
     python manage.py runserver
 
 Point your web browser to http://localhost:5000/
+
+# Running in production
+
+    # Start the wGSI production web server
+    python manage.py run_wsgi
+
+See http://flask.pocoo.org/docs/1.0/deploying/
 
 ## Configuring SMTP
 
@@ -71,17 +78,7 @@ See https://help.yahoo.com/kb/SLN27791.html
     # With coverage
     py.test --cov-report term-missing -v --cov=backend/
 
-
-# Deployment
-
-# Running in production
-
-    # Start the wGSI production web server
-    python manage.py run_wsgi
-
-See http://flask.pocoo.org/docs/1.0/deploying/
-
-# cUrl Examples
+# cUrl API Examples
 
 Here are some examples on how to use the API.
 
@@ -132,5 +129,3 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
 
     # Get corpus
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X GET http://localhost:5000/api/corpus/FAZ_SMALL
-
-

@@ -13,7 +13,7 @@ Project co-ordination: Prof. Dr. Stefan Evert, stefan.evert@fau.de
 
 This section will provide a high-level overview of the implementation.
 
-For details on the productive deployment, see [DEPLOYMENT.md](DEPLOYMENT.md)
+For details on the productive deployment, see the [deployment documenation](deployment/README.md)
 
 ## Backend
 

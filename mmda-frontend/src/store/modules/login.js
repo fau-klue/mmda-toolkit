@@ -53,6 +53,7 @@ const getters = {
 
 const actions = {
   clearJWT ({commit}) {
+    // Removes all user data from the local storage
     return new Promise((resolve) => {
       commit('setAuthenticated', false)
       commit('setUser', null)
@@ -63,9 +64,11 @@ const actions = {
     })
   },
   fetchJWT ({commit}, credentials ) {
+    // Get a fresh JWT from the backend
     localStorage.removeItem('jwt')
     return new Promise((resolve, reject) => {
       api.post('/login/', credentials).then(function (response) {
+        // Stores the return values and the expiration date in the browser's local storags
         localStorage.jwt = response.data.access_token
         localStorage.jwt_refresh = response.data.refresh_token
         localStorage.jwt_expiration = calculateExpirationDate(new Date())
@@ -89,10 +92,12 @@ const actions = {
     })
   },
   refreshJWT () {
+    // Use the refresh token to get a new JWT token
     const config = {'headers': {'Authorization': 'Bearer ' + localStorage.getItem('jwt_refresh')}}
 
     return new Promise((resolve, reject) => {
       api.post('/refresh/', null, config).then(function (response) {
+        // Store the new JWT and expiration date in the local storage
         localStorage.jwt = response.data.access_token
         localStorage.jwt_expiration = calculateExpirationDate(new Date())
         resolve()
@@ -111,8 +116,10 @@ const actions = {
 
   },
   testJWT ({commit, dispatch, getters} ) {
+    // Rest if the JWT is still valid
     return new Promise((resolve, reject) => {
 
+      // If we're already authenticated, we're good
       if (getters.isAuthenticated) {
         resolve()
         return
@@ -127,7 +134,7 @@ const actions = {
         return
       }
 
-      // Is is expired? If so, refresh.
+      // Ok, we have one, but is is expired? If so, try to refresh.
       if (refreshToken && isExpired()){
         dispatch('refreshJWT').catch(function (error) {
           reject(error)

@@ -4,45 +4,31 @@
 
 ## Install dependencies
 
-    # Install with npm
-    npm install
+    # Install with npm or yarn
+    npm install || yarn install
 
-    # or yarn
-    yarn install
+#  Running in development
 
-#  Running the app
-
-    # Run with npm in development
-    npm run serve
-
-    # Run with yarn in development
-    yarn run serve
+    # Run development server with hot-reload
+    npm run serve || yarn run serve
 
 Point your web browser to http://localhost:8080/
 
+#  Running in production
+
+    # Compile code for production
+    npm run build || yarn run build
+
+Hint: You need a webserver to serve the page
 
 # Development
 
 ## Running eslint
 
     # Run ESLint
-    npm run lint
-    yarn run lint
+    npm run lint || yarn run lint
 
 ## Running the automated tests
 
     # Run JEST Unittest
-    npm run test:unit
-    yarn run test:unit
-
-# Deployment
-
-# Compile for production
-
-    # Compile code for production
-    npm run build
-
-    # Compile code for production with yarn
-    yarn run build
-
-You need a webserver to serve the page
+    npm run test:unit || yarn run test:unit

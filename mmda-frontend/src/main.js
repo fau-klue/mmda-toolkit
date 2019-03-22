@@ -1,3 +1,4 @@
+// Main entrypoint for Applikation
 import Vue from 'vue'
 import './plugins/axios'
 import './plugins/vuetify'
@@ -8,6 +9,7 @@ import i18n from './i18n'
 
 Vue.config.productionTip = false
 
+// Setting up Vue instance
 new Vue({
   router,
   store,
