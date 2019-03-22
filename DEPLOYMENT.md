@@ -99,4 +99,3 @@ All resources required for running the application are at */opt*. These get moun
     - /opt/mmda/cwb/data # CWB Corpus Data
     - /opt/mmda/cwb/registry # CWB Registry
     - /opt/mmda/cwb/vrt # Raw Corpus Files for import
-

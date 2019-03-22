@@ -45,7 +45,6 @@ const actions = {
   createNewUser ({dispatch}, data) {
     // Create a new User
     return new Promise((resolve, reject) => {
-
       api.post(`/admin/user/`, data).then(function () {
         dispatch('getAllUsers')
         resolve()
@@ -69,7 +68,6 @@ const actions = {
   deleteObject ({dispatch}, data) {
     // Delete a single element
     return new Promise((resolve, reject) => {
-
       api.delete(`/admin/${data.object}/${data.object_id}/`).then(function () {
         dispatch('getAllAnalysis')
         dispatch('getAllDiscoursemes')

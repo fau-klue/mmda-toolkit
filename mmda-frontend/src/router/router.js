@@ -1,3 +1,4 @@
+// Configuration the router
 import Vue from 'vue'
 import Router from 'vue-router'
 import Index from '@/views/Index.vue'

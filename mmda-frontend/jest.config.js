@@ -1,3 +1,4 @@
+// Configuration for Jest Unittests
 module.exports = {
   moduleFileExtensions: [
     'js',

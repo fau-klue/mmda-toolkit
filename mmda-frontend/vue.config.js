@@ -1,3 +1,5 @@
+// Configuration for Vue.JS
+// Hint: See .env files for Variables setup
 module.exports = {
   pluginOptions: {
     i18n: {
