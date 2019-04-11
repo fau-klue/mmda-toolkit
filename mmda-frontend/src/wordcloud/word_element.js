@@ -363,7 +363,7 @@ class WordElement {
       && Math.abs(this.data.tsne_y - data.tsne_y) < eps
       && Math.abs(this.data.user_x - data.user_x) < eps
       && Math.abs(this.data.user_y - data.user_y) < eps
-
+/*
     if(!match){
       console.log(this.data.name
         +" "+(this.data.tsne_x-data.tsne_x)
@@ -371,7 +371,7 @@ class WordElement {
         +" "+(this.data.user_x-data.user_x)
         +" "+(this.data.user_y-data.user_y)
         );
-    }
+    }*/
     return match;
   }
 

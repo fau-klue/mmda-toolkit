@@ -675,14 +675,13 @@ class WordcloudWindow {
   }
 
   setupCoordinates(coordinates){
-    //TODO:: check consistency,... only update when new data arrives.
+    //check consistency,... only update when new data arrives.
     var data_consistent = true;
     for(var word of Object.keys(coordinates)){
       var el = this.Map.get(word);
-      if(!el){ data_consistent=false; console.log(word); break;}
+      if(!el){ data_consistent=false; break;}
       if(! el.matches( coordinates[ word ] )){ data_consistent=false; break;};
     }
-
     if(data_consistent) return;
 
     for(var [_,a] of this.Map.entries()) a.delete();
