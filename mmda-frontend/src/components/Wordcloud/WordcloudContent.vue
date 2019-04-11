@@ -155,7 +155,13 @@ export default {
         this.error = error;
       });
     },
+    setUserCoordinate(name,x,y){
+      var obj = {};
+      obj[name] = {user_x:x, user_y:y};
+      this.setCoordinates(obj);
+    },
     setCoordinates( obj ) {
+      //console.log("Set User Coordinates");
       //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
       return this.setUserCoordinates({
         username: this.user.username,

@@ -61,7 +61,7 @@ class Pin {
   reset(e) {
     this.pinned = false;
     this.parent.selected = false;
-    this.parent._user_defined_position = null;
+    this.parent.deleteUserPosition();
     this.parent.pos = this.parent.computed_position;
     this.parent.window.request("layout");
     //this.parent.window.word_menu.shown = false;
@@ -154,6 +154,7 @@ class WordElement {
     this.txt.appendChild(document.createTextNode(this.label));
     this.el.appendChild(this.txt);
 
+
     this.groups = new Set();
 
     this.pin = new Pin(this);
@@ -163,6 +164,13 @@ class WordElement {
     this.mini = new MinimapElement(this);
     for (var v of ["mouseover", "mouseout", "mousedown"])
       fwdEvent(this, this.el, v);
+    
+    var eps = 0.00000001;
+    if(w.user_x!==null 
+    && (Math.abs(w.user_x-w.tsne_x) > eps
+    ||  Math.abs(w.user_y-w.tsne_y) > eps )){
+      this.user_defined_position = [w.user_x,w.user_y];
+    }
   }
   link(window) {
     //window.container.appendChild(this.shadow);
@@ -333,6 +341,12 @@ class WordElement {
   }
   set user_defined_position(p) {
     this.pin.pinned = true;
+    
+   // this.window.component.setUserCoordinate(this.data.name, p[0], p[1]);
+
+    this.data.user_x = p[0];
+    this.data.user_y = p[1];
+
 
     if (this.groups.size == 1) {
       //group-local user position:
@@ -341,6 +355,41 @@ class WordElement {
     }
 
     return (this._user_defined_position = p);
+  }
+
+  matches(data){
+    var eps = 0.000000001;
+    var match = Math.abs(this.data.tsne_x - data.tsne_x) < eps
+      && Math.abs(this.data.tsne_y - data.tsne_y) < eps
+      && Math.abs(this.data.user_x - data.user_x) < eps
+      && Math.abs(this.data.user_y - data.user_y) < eps
+
+    if(!match){
+      console.log(this.data.name
+        +" "+(this.data.tsne_x-data.tsne_x)
+        +" "+(this.data.tsne_y-data.tsne_y)
+        +" "+(this.data.user_x-data.user_x)
+        +" "+(this.data.user_y-data.user_y)
+        );
+    }
+    return match;
+  }
+
+
+  drop(){
+    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
+  }
+    
+  deleteUserPosition(){
+    this._user_defined_position = null;
+    this.data.user_x = this.data.tsne_x;
+    this.data.user_y = this.data.tsne_y;
+
+    //TODO::: make this work in backend
+    //this.data.user_x = null;  
+    //this.data.user_y = null;
+
+    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
   }
 
   dropAt(el) {
