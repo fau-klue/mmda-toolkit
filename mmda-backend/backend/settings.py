@@ -25,6 +25,7 @@ REGISTRY_PATH = getenv('CQP_REGISTRY_PATH', default='/usr/local/cwb-3.4.13/share
 APP_NAME = "MMDA Backend"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 APP_ENV = MMDA_APP_ENV
+APP_LOG_FILE = None
 
 # DO NOT use an Unsecure Secrets in production environments
 SECRET_KEY = MMDA_SECRET_KEY

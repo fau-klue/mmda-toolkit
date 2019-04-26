@@ -5,6 +5,7 @@ Coordinates view
 
 from pandas import notnull, DataFrame
 from flask import Blueprint, request, jsonify, current_app
+from logging import getLogger
 
 from backend import db
 from backend import user_required
@@ -13,6 +14,7 @@ from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
 
 coordinates_blueprint = Blueprint('coordinates', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # READ
@@ -29,6 +31,7 @@ def get_coordinates(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Load Coordinates from DB
@@ -57,6 +60,7 @@ def reload_coordinates(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get the current coordinates and tokens
@@ -65,12 +69,14 @@ def reload_coordinates(username, analysis):
     tokens = df.index.values
 
     # Generate new coordinates
+    log.debug('Regenerating semantic space for analysis %s', analysis.id)
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
     semantic_space = generate_semantic_space(tokens, wectors_path)
 
     coordinates.data = semantic_space
     db.session.commit()
 
+    log.debug('Updated semantic space for analysis %s', analysis)
     return jsonify({'msg': 'Updated'}), 200
 
 
@@ -84,6 +90,7 @@ def update_coordinates(username, analysis):
     """
 
     if not request.is_json:
+        log.debug('No coordinate data provided')
         return jsonify({'msg': 'No request data provided'}), 400
 
     # TODO Validate request. Should be:
@@ -96,6 +103,7 @@ def update_coordinates(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Load Coordinates from DB
@@ -108,4 +116,5 @@ def update_coordinates(username, analysis):
 
     db.session.commit()
 
+    log.debug('Updated semantic space for analysis %s', analysis)
     return jsonify({'msg': 'Updated'}), 200

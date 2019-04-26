@@ -7,12 +7,14 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity, jwt_refresh_token_required
 from flask_jwt_extended import create_refresh_token, create_access_token
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend.analysis.validators import PASSWORD_SCHEMA
 from backend import admin_required, user_required
 from backend.models.user_models import User
 
 login_blueprint = Blueprint('login', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 @login_blueprint.route('/api/login/', methods=['POST'])
@@ -29,12 +31,15 @@ def login():
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'Unauthorized'}), 401
 
     # Check User
     if not user.is_active:
+        log.debug('User %s is deactivated', username)
         return jsonify({'msg': 'Unauthorized'}), 401
     if not current_app.user_manager.verify_password(password, user.password):
+        log.debug('Incorrect Password for %s', username)
         return jsonify({'msg': 'Unauthorized'}), 401
 
     # Create Token
