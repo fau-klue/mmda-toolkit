@@ -5,9 +5,10 @@ Central entrypoint for Flask
 
 import os
 import logging
-from logging.handlers import SMTPHandler
 from datetime import datetime
 from functools import wraps
+from logging.handlers import SMTPHandler
+from sys import stdout
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
@@ -30,6 +31,36 @@ db = SQLAlchemy()
 mail = Mail()
 migrate = Migrate()
 jwt = JWTManager()
+
+
+def create_logger(name, log_format='%(asctime)s [%(levelname)s]: %(message)s', log_file=None, is_debug=False):
+    """
+    Creates a Logger with the config provided. Logs are printed to stdout and optionally into a file.
+
+   :param str name: Name of the Logger
+   :param str log_format: Logformat for Output Handlers
+   :param str log_file: Optional Logfile to use
+   :param bool is_debug: Optional Logfile to use
+   :return: Configured Logger
+   :rtype: logging.Logger
+    """
+
+    logger = logging.getLogger(name)
+    formatter = logging.Formatter(log_format)
+
+    stdout_handler = logging.StreamHandler(stdout)
+    stdout_handler.setFormatter(formatter)
+    logger.addHandler(stdout_handler)
+
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    if is_debug:
+        logger.setLevel(logging.DEBUG)
+
+    return logger
 
 
 def preflight_check_vectors_passed(app):
@@ -129,6 +160,9 @@ def create_app(extra_config_settings={}):
     print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
+
+    # Create central logging instance
+    logger = create_logger('mmda-logger', log_file=app.config['APP_LOG_FILE'], is_debug=app.config['DEBUG'])
 
     # Preflight: Check if wordvectors are available
     preflight_check_vectors_passed(app)

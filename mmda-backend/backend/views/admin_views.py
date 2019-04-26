@@ -6,6 +6,7 @@ Admin view
 import datetime
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend import db
 from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
@@ -15,6 +16,7 @@ from backend.models.user_models import User, Role
 from backend.models.analysis_models import Analysis, Discourseme, DiscursivePosition
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # CREATE
@@ -35,16 +37,18 @@ def create_user():
     role_name = request.json.get('role', None)
     role = None
 
-    # Check if role exists
     if role_name:
+        log.debug('Get instance for role %s', role_name)
         role = Role.query.filter(Role.name == role_name).first()
         if not role:
+            log.debug('No such role %s', role)
             return jsonify({'msg': 'No such role'}), 404
 
-    # Create user
+    log.debug('Create user %s', username)
     user = find_or_create_user(username, first_name, last_name, email, password, role)
     db.session.commit()
 
+    log.debug('User created with ID %s', user.id)
     return jsonify({'msg': user.id}), 201
 
 
@@ -76,18 +80,21 @@ def put_user_password(username):
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'No such user'}), 404
 
     # Generate salted password hash
     hashed_password = current_app.user_manager.password_manager.hash_password(new_password)
 
     if not hashed_password:
+        log.debug('Password could not be changed. No hash generated')
         return jsonify({'msg': 'Password could not be changed'}), 500
 
     # Only set if we got a valid hash
     user.password = hashed_password
     db.session.commit()
 
+    log.debug('Password updated for user %s', user.id)
     return jsonify({'msg': 'Updated'}), 200
 
 
@@ -102,6 +109,7 @@ def delete_user(username):
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'No such user'}), 404
 
     # Cannot delete admin
@@ -111,6 +119,7 @@ def delete_user(username):
     db.session.delete(user)
     db.session.commit()
 
+    log.debug('Deleted user %s', username)
     return jsonify({'msg': 'Deleted'}), 200
 
 
@@ -167,11 +176,13 @@ def delete_analysis(analysis):
 
     item = Analysis.query.filter_by(id=analysis).first()
     if not item:
+        log.debug('No such item %s', analysis)
         return jsonify({'msg': 'No such item'}), 404
 
     db.session.delete(item)
     db.session.commit()
 
+    log.debug('Deleted analysis %s', analysis)
     return jsonify({'msg': 'Deleted'}), 200
 
 
@@ -185,11 +196,13 @@ def delete_discourseme(discourseme):
 
     item = Discourseme.query.filter_by(id=discourseme).first()
     if not item:
+        log.debug('No such item %s', discourseme)
         return jsonify({'msg': 'No such item'}), 404
 
     db.session.delete(item)
     db.session.commit()
 
+    log.debug('Deleted discourseme %s', discourseme)
     return jsonify({'msg': 'Deleted'}), 200
 
 
@@ -204,9 +217,11 @@ def delete_discursive_position(discursive_position):
 
     item = DiscursivePosition.query.filter_by(id=discursive_position).first()
     if not item:
+        log.debug('No such item %s', discursive_position)
         return jsonify({'msg': 'No such item'}), 404
 
     db.session.delete(item)
     db.session.commit()
 
+    log.debug('Deleted position %s', discursive_position)
     return jsonify({'msg': 'Deleted'}), 200

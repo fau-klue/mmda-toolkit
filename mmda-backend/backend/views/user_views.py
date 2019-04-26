@@ -5,6 +5,7 @@ Users view
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend import db
 from backend.analysis.validators import PASSWORD_SCHEMA, USER_UPDATE_SCHEMA
@@ -12,6 +13,7 @@ from backend import user_required
 from backend.models.user_models import User
 
 user_blueprint = Blueprint('user', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # READ
@@ -25,6 +27,7 @@ def get_user(username):
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'No such user'}), 404
 
     return jsonify(user.serialize), 200
@@ -45,18 +48,21 @@ def put_user_password(username):
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'No such user'}), 404
 
     # Generate salted password hash
     hashed_password = current_app.user_manager.password_manager.hash_password(new_password)
 
     if not hashed_password:
+        log.debug('Password could not be changed. No hash generated')
         return jsonify({'msg': 'Password could not be changed'}), 500
 
     # Only set if we got a valid hash
     user.password = hashed_password
     db.session.commit()
 
+    log.debug('Password updated for user %s', user.id)
     return jsonify({'msg': 'Updated'}), 200
 
 
@@ -77,6 +83,7 @@ def put_user(username):
     # Get User
     user = User.query.filter_by(username=username).first()
     if not user:
+        log.debug('No such user %s', username)
         return jsonify({'msg': 'No such user'}), 404
 
     user.first_name = first_name
@@ -84,4 +91,5 @@ def put_user(username):
     user.email = email
     db.session.commit()
 
+    log.debug('Updated details for user %s', user.id)
     return jsonify({'msg': 'Updated'}), 200

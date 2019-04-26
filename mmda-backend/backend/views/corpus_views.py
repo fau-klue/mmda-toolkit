@@ -5,8 +5,10 @@ Corpus view
 
 from flask import Blueprint, jsonify, request, current_app
 from flask_jwt_extended import jwt_required
+from logging import getLogger
 
 corpus_blueprint = Blueprint('corpus', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # READ
@@ -36,6 +38,7 @@ def get_corpus(corpus):
     # Get Corpus
     corpora = current_app.config['CORPORA']
     if corpus not in corpora.keys():
+        log.debug('No such corpus %s', corpus)
         return jsonify({'msg': 'No such corpus'}), 404
 
     corpus = corpora[corpus]
@@ -57,17 +60,19 @@ def get_concordances(corpus):
     collocates = request.args.getlist('collocate', None)
 
     if not items:
+        log.debug('No items provided')
         return jsonify({'msg': 'No items provided'}), 400
 
     # Get Corpus
     corpora = current_app.config['CORPORA']
     if corpus not in corpora.keys():
+        log.debug('No such corpus %s', corpus)
         return jsonify({'msg': 'No such corpus'}), 404
 
     corpus = corpora[corpus]
     # Get Engine
     engine = current_app.config['ENGINES'][corpus['name_api']]
+    log.debug('Extracting concordances from %s', corpus)
     concordances = engine.extract_concordances(items=items, window_size=window_size, collocates=collocates)
 
-    # TODO: Test if format is OK
     return jsonify(concordances), 200
