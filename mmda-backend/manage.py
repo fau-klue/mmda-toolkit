@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+
 """
 This file sets up a command line manager.
 
