@@ -9,6 +9,7 @@ const state = {
   rightSidebar: false,
   associationMeasure: null,
   showMinimap: true,
+  secondOrderCollocationDiscoursemeIDs: [],
 }
 
 const getters = {
@@ -23,6 +24,9 @@ const getters = {
   },
   showMinimap (state) {
     return state.showMinimap
+  },
+  secondOrderCollocationDiscoursemeIDs(state){
+    return state.secondOrderCollocationDiscoursemeIDs;
   }
 }
 
@@ -38,6 +42,9 @@ const actions = {
   },
   setShowMinimap ({commit}, val) {
     commit("setShowMinimap", val)
+  },
+  setSecondOrderCollocationDiscoursemeIDs({commit}, val){
+    commit("setSecondOrderCollocationDiscoursemeIDs",val)
   }
 }
 
@@ -53,6 +60,9 @@ const mutations = {
   },
   setShowMinimap (state, val) {
     state.showMinimap = val
+  },
+  setSecondOrderCollocationDiscoursemeIDs (state, val){
+    state.secondOrderCollocationDiscoursemeIDs = val;
   }
 }
 

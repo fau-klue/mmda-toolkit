@@ -452,37 +452,53 @@ class WordcloudWindow {
     this.el.classList.remove("dragging");
     this.window_downpos = null;
   }
+  clickEmptySpace(){
+    this.component.cancelConcordanceRequest();
+    this.clearSelection();
+  }
+  clickNode(n, e){
+    n.selected = e.shiftKey ?  !n.selected : true;
+    if(n.getConcordances) n.getConcordances();
+  }
+  dragEnd(){
+    this.component.cancelConcordanceRequest();
+  }
+
   onmouseup(e) {
     if (!this.dragging && !this.dragging_camera && !this.clickedTools) {
-      //      this.word_menu.shown = false;
+      // this.word_menu.shown = false;
       if (!e.shiftKey && !this.boxSelection) {
-        if (this.pressed_node && this.pressed_node.selected) {
+        if (this.pressed_node){
+          if(this.pressed_node.selected) {
           //this.openWordMenuAt(this.pressed_node);
-        } else {
-          this.clearSelection();
+          } else {
+            this.clickEmptySpace();
+          }
+        }else{
+          this.clickEmptySpace();
         }
       }
-      if (this.pressed_node) {
-        this.pressed_node.selected = e.shiftKey ?
-          !this.pressed_node.selected :
-          true;
-        if(this.pressed_node.getConcordances) this.pressed_node.getConcordances();
-      }
+      if (this.pressed_node) this.clickNode(this.pressed_node, e);
     }
     if (this.dragging) {
+      this.dragEnd()
       //if dragging node ends:
       this.request("layout");
+    }
+    if(this.dragging_camera){
+      this.dragEnd();
     }
     if (this.boxSelection) {
       this.selectionBox.hide();
     }
     if (this.pressed_node && this.dragging) {
+      let n = this.pressed_node;
       if (this.hover_node) {
-        this.pressed_node.dropAt(this.hover_node);
+        n.dropAt(this.hover_node);
       }else{
-        this.pressed_node.drop();
+        n.drop();
       }
-      this.pressed_node.dragging = false;
+      n.dragging = false;
     }
     this.pressed_node = null;
     this.hover_node = null;
@@ -647,6 +663,12 @@ class WordcloudWindow {
 
 
   setupCollocates(collocates){
+    //collocations may freely change ....
+    // - always accept them
+    // TODO:: a special case of collocates are the SOCs
+    // - hold them and the compare-collocations always present in memory
+    // - to be able to switch between them fast.
+
     this.collocates = collocates;
     this.am_minmax = {};
     for (var am of Object.keys(collocates)) {
@@ -669,12 +691,16 @@ class WordcloudWindow {
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }
-      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
+      //if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
     }
     this.changeAM();
   }
 
   setupCoordinates(coordinates){
+    //TODO:: only accept new coordinates (that are not already present here)
+    // - we do not assume others are changeing our data while we're at it.
+    
+    
     //check consistency,... only update when new data arrives.
     var data_consistent = true;
     for(var word of Object.keys(coordinates)){
@@ -682,7 +708,7 @@ class WordcloudWindow {
       if(!el){ data_consistent=false; break;}
       if(! el.matches( coordinates[ word ] )){ data_consistent=false; break;};
     }
-    if(data_consistent) return;
+    if(data_consistent) return; //console.log("drop consistent wc setup");
 
     for(var [_,a] of this.Map.entries()) a.delete();
     this.Map = new Map();
@@ -700,6 +726,10 @@ class WordcloudWindow {
   }
 
   setupDiscoursemes(discoursemes){
+
+    //TODO:: only accept new discoursemes (that are not already present here)
+    // - we do not assume others are changeing our data while we're at it.
+
     for(var g of this.groups) g.delete(); //!! Do not delete groups from server, only locally
     this.groups.clear();
 
@@ -712,7 +742,8 @@ class WordcloudWindow {
         var n = this.getItemByName(name);
         if(!n){
           unknownWords.push(name);
-        } 
+          continue;
+        }
         G.addItem(n);
         avgX += n.data.tsne_x;
         avgY += n.data.tsne_y;
@@ -724,7 +755,7 @@ class WordcloudWindow {
       for(var name of unknownWords){
         //TODO:: what coordinates should these words have??
         // place them at the average of the other words in the discourseme
-        n = this.addWord({name:name, tsne_x:avgX ,tsne_y:avgY})
+        n = this.addWord({name:name, tsne_x:avgX ,tsne_y:avgY, user_x:null, user_y:null});
         G.addItem(n);
       }
 

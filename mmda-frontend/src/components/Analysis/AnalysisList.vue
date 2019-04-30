@@ -32,12 +32,13 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'AnalysisList',
   data: () => ({
-    search: ''
+    search: '',
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
-      userAnalysis: 'analysis/userAnalysis'
+      userAnalysis: 'analysis/userAnalysis',
+      isAuthenticated : 'login/isAuthenticated'
     }),
     filteredItems() {
       var F = [];
@@ -53,7 +54,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getUserAnalysis: 'analysis/getUserAnalysis'
+      getUserAnalysis: 'analysis/getUserAnalysis',
+      clearJWT: 'login/clearJWT'
     }),
     clearSearch () {
       this.search = ''
@@ -67,7 +69,15 @@ export default {
     }
   },
   created () {
-    this.loadAnalysis()
+    if(!this.user || !this.user.username){
+      //fallback if user-token expired
+      // Logout and go back to loginscreen
+      this.clearJWT().then(() => {
+        this.$router.push('/login')
+      })
+    }else{
+      this.loadAnalysis()
+    } 
   }
 }
 

@@ -1,7 +1,7 @@
 <template>
   <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
     <v-card class="wordcloud-bottom-card">
-      <ConcordancesKeywordInContextList v-bind:concordances="concordances"/>
+      <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="loading"/>
     </v-card>
   </v-bottom-sheet>
 </template>
@@ -27,13 +27,20 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      concordances: 'corpus/concordances'
+      concordances: 'corpus/concordances',
+      loading: 'corpus/concordances_loading'
     })
   },
   watch:{
     concordances(){
-      this.sheet=true;
-    }
+      this.sheet = true;
+    },
+    loading(){
+      // show the sheet after timeout, because:
+      // - loading happens on user input
+      // - after the input the sheet is automatically set false
+      if(this.loading) setTimeout(()=>{this.sheet=true},200);
+    },
   },
   methods: {
     ...mapActions({

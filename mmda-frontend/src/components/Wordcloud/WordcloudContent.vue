@@ -73,6 +73,7 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: "corpus/getConcordances",
+      cancelConcordanceRequest:'corpus/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
       updateUserDiscourseme: "discourseme/updateUserDiscourseme",
@@ -83,7 +84,7 @@ export default {
       addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
       setAM: 'wordcloud/setAssociationMeasure',
       setShowMinimap: 'wordcloud/setShowMinimap',
-      
+       
     }),
     loadCoordinates() {
       return this.getAnalysisCoordinates({
@@ -195,6 +196,10 @@ export default {
   },
   mounted() {
     vm = this;
+    if(!this.analysis){
+      this.$router.push('/analysis'); 
+      return;
+    }
 
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
@@ -220,8 +225,10 @@ export default {
   },
   beforeDestroy() {
     //e.g. removing event listeners from document
-    this.wc.destroy();
-    delete this.wc;
+    if(this.wc){
+      this.wc.destroy();
+      delete this.wc;
+    }
     window.removeEventListener("resize", this.resizeEvent);
   }
 };

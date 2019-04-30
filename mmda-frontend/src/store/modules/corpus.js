@@ -10,7 +10,9 @@ const state = {
   // One corpus
   corpus: null,
   // Currently selected concordances
-  concordances: null
+  concordances: null,
+  // Current concordance request object  // for immediate feedback to the user, if loading concordances takes too long
+  concordances_loading : null,
 }
 
 const getters = {
@@ -22,6 +24,9 @@ const getters = {
   },
   concordances (state) {
     return state.concordances
+  },
+  concordances_loading (state) {
+    return state.concordances_loading
   }
 }
 
@@ -75,13 +80,29 @@ const actions = {
       const request = {
         params: params
       }
+      //console.log("req called");
+      commit('setConcordancesLoading', data);
       api.get(`/corpus/${data.corpus}/concordances/`, request).then(function (response) {
-        commit('setConcordances', response.data)
+        // only accept the loading, if data is the latest call
+        // otherwise another request has happened and this one is invalid
+        //  TODO:: cancel prevous requests upon a new one (i.e. notify the server to drop the activity)
+        if(data == state.concordances_loading){
+          //console.log("req fullfilled");
+          commit('setConcordances', response.data)
+          commit('setConcordancesLoading',null)
+        //}else{
+        //  console.log("req dropped");
+        }
         resolve()
       }).catch(function (error) {
+        commit('setConcordancesLoading',null)
         reject(error)
       })
     })
+  },
+  cancelConcordanceRequest({commit}){
+    //console.log("req canceled");
+    commit('setConcordancesLoading',null);
   }
 }
 
@@ -94,6 +115,9 @@ const mutations = {
   },
   setConcordances (state, concordances) {
     state.concordances = concordances
+  },
+  setConcordancesLoading(state,concordances_loading){
+    state.concordances_loading = concordances_loading;
   }
 }
 

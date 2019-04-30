@@ -48,7 +48,7 @@ class Pin {
     this.el.title = "unpin item/group";
     this.el.appendChild(ic);
 
-    this.el.addEventListener("click", ((t) => (e) => t.reset(e))(this));
+    this.el.addEventListener("mouseup", ((t) => (e) => t.reset(e))(this));
   }
   get pinned() {
     return this._pinned;
@@ -59,9 +59,10 @@ class Pin {
     return (this._pinned = p);
   }
   reset(e) {
+    if( this.parent.window.pressed_node == this.parent ) this.parent.window.pressed_node = null;
     this.pinned = false;
     this.parent.selected = false;
-    this.parent.deleteUserPosition();
+    if(this.parent.deleteUserPosition) this.parent.deleteUserPosition();
     this.parent.pos = this.parent.computed_position;
     this.parent.window.request("layout");
     //this.parent.window.word_menu.shown = false;
@@ -359,11 +360,13 @@ class WordElement {
 
   matches(data){
     var eps = 0.000000001;
-    var match = Math.abs(this.data.tsne_x - data.tsne_x) < eps
-      && Math.abs(this.data.tsne_y - data.tsne_y) < eps
-      && Math.abs(this.data.user_x - data.user_x) < eps
-      && Math.abs(this.data.user_y - data.user_y) < eps
-/*
+
+    var match = (this.data.tsne_x == data.tsne_x || Math.abs(this.data.tsne_x - data.tsne_x) < eps)
+      && (this.data.tsne_y == data.tsne_y || Math.abs(this.data.tsne_y - data.tsne_y) < eps)
+      && (this.data.user_x == data.user_x || Math.abs(this.data.user_x - data.user_x) < eps)
+      && (this.data.user_y == data.user_y || Math.abs(this.data.user_y - data.user_y) < eps)
+
+      /*
     if(!match){
       console.log(this.data.name
         +" "+(this.data.tsne_x-data.tsne_x)
@@ -382,12 +385,14 @@ class WordElement {
     
   deleteUserPosition(){
     this._user_defined_position = null;
-    this.data.user_x = this.data.tsne_x;
-    this.data.user_y = this.data.tsne_y;
+    //this.data.user_x = this.data.tsne_x;
+    //this.data.user_y = this.data.tsne_y;
 
     //TODO::: make this work in backend
     //this.data.user_x = null;  
     //this.data.user_y = null;
+    this.data.user_x = "null";
+    this.data.user_y = "null";
 
     this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
   }

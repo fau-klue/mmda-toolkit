@@ -21,11 +21,16 @@
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="editAnalysis">Edit</v-btn>
 
+
+            <!--  <h3 class="my-3 body-2">Window Size</h3>
+              <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+                thumb-size="28" @change="setSize"></v-slider>-->
+
               <AnalysisItemTable/>
 
               <h1 class="my-3 title">Concordances:</h1>
 
-              <ConcordancesKeywordInContextList v-bind:concordances="concordances"/>
+              <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
               <AnalysisDiscoursemeList/>
 
             </v-form>
@@ -58,14 +63,15 @@ export default {
     error: null,
     nodata: false,
     updated: false,
-    rules: rules
+    rules: rules,
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
       analysis: 'analysis/analysis',
       coordinates: 'coordinates/coordinates',
-      concordances:'corpus/concordances'
+      concordances:'corpus/concordances',
+      concordances_loading:'corpus/concordances_loading',
     })
   },
   methods: {
