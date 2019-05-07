@@ -30,11 +30,10 @@ tags:
 paths:
   /login:
     post:
-      summary: "Request JWT Access Token"
-      description: ""
+      description: "Request JWT Access Token to consume the API."
+      operationId: "login"
       tags:
         - "user"
-      operationId: "login"
       produces:
         - "application/json"
       parameters:
@@ -48,44 +47,41 @@ paths:
           required: true
       responses:
         200:
-          description: "JWT Acess Token"
+          description: "JWT Access Token and JWT Refresh Token."
           schema: "string"
         401:
           description: "Unauthorized"
   /refresh:
     post:
-      summary: "Request new JWT Access Token"
-      description: ""
+      description: "Request new JWT Access Token with a JWT Refresh Token."
+      operationId: "refresh"
       tags:
         - "user"
-      operationId: "refresh"
       produces:
         - "application/json"
       responses:
         200:
-          description: "New JWT Acess Token"
+          description: "New JWT Access Token."
           schema: "string"
         401:
           description: "Unauthorized"
   /user/{userName}:
     get:
-      summary: "Return details of a user"
-      description: ""
+      description: "Return the details of a given User."
+      operationId: "getUser"
       tags:
         - "user"
-      operationId: "getUser"
       produces:
         - "application/json"
       responses:
         200:
-          description: "User details"
+          description: "User details."
           schema:
             $ref: "#/definitions/User"
         404:
-          description: "No such user"
+          description: "No such user."
     put:
-      summary: "Update details of a user"
-      description: ""
+      description: "Update details of a given user."
       operationId: "putUserDetails"
       tags:
         - "user"
@@ -96,99 +92,89 @@ paths:
       parameters:
       - in: "first_name"
         name: "first_name"
-        description: "First Name"
+        description: "New First Name."
         required: true
       - in: "last_name"
         name: "last_name"
-        description: "Last Name"
+        description: "New Last Name."
         required: true
       - in: "email"
         name: "email"
-        description: "Email"
+        description: "New Email."
         required: true
       responses:
         200:
-          description: "Updated user details"
+          description: "User details updated."
         404:
-          description: "No such user"
+          description: "No such user."
   /user/{userName}/password:
     put:
-      summary: "Update password of a user"
-      description: ""
+      description: "Update password of a given user."
+      operationId: "putUserPassword"
       tags:
         - "user"
-      operationId: "putUserPassword"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
       parameters:
       - in: "password"
         name: "password"
-        description: "New user password"
+        description: "New User password."
         required: true
       responses:
         200:
-          description: "Updated password"
+          description: "Password updated."
         404:
-          description: "No such user"
+          description: "No such user."
         500:
-          description: "Password could not be changed "
+          description: "Password could not be changed. Old password remains valid."
   /corpus:
     get:
-      summary: "Returns list of all corpora"
-      description: "Returns list of all corpora"
+      description: "Returns list of all available corpora."
+      operationId: "getCorpora"
       tags:
         - "corpus"
-      operationId: "getCorpora"
       produces:
         - "application/json"
       responses:
         200:
-          description: "List of Corpora"
+          description: "List of available corpora."
           type: "array"
-          items:
-            type: "string"
   /corpus/{corpusName}:
     get:
-      summary: "Returns details for one corpus"
-      description: "Returns details for one corpus"
+      description: "Returns details for a given corpus."
+      operationId: "getCorpusDetails"
       tags:
         - "corpus"
-      operationId: "getCorpus"
       produces:
         - "application/json"
       responses:
         200:
-          description: "Corpus Details"
-          schema: "string"
+          description: "Details of a diven corpus."
         404:
-          description: "Corpus not found"
+          description: "No such corpus."
   /corpus/{corpusName}/concordances:
     get:
-      summary: "Returns concordances for a list of tokens"
-      description: "Returns concordances for a list of tokens"
+      description: "Returns concordances for a list of tokens."
+      operationId: "getConcordances"
       tags:
         - "corpus"
-      operationId: "getConcordances"
       produces:
         - "application/json"
       responses:
         200:
-          description: "Concordances"
+          description: "Concordances for the given tokens."
           schema:
-            $ref: "#/definitions/Analysis"
+            $ref: "#/definitions/Concordances"
         400:
-          description: "Invalid input. No items provided"
+          description: "Invalid input."
         404:
-          description: "Corpus not found"
+          description: "No such corpus."
   /user/{userID}/analysis:
     post:
-      summary: "Generate a new Analysis object"
-      description: ""
+      description: "Generate a new Analysis object."
+      operationId: "postAnalysis"
       tags:
         - "analysis"
-      operationId: "postAnalysis"
       consumes:
         - "application/json"
       produces:
@@ -202,82 +188,108 @@ paths:
           $ref: "#/definitions/Analysis"
       responses:
         201:
-          description: "Analysis ID"
+          description: "Newly generated Analysis ID."
         400:
-          description: "Invalid input. Corpus not found"
+          description: "Invalid input."
         404:
-          description: "No Collocates for query"
+          description: "No Collocates for given tokens."
     get:
-      summary: "Get list of Analysis objects"
-      description: ""
+      description: "Get list of the user's Analysis objects."
+      operationId: "getUserAnalysis"
       tags:
         - "analysis"
-      operationId: "getUserAnalysis"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "List of user's analysis objects."
   /user/{userID}/analysis/{analysisID}:
     get:
-      summary: "Get Analysis object"
-      description: ""
+      description: "Get Details of a given Analysis object."
+      operationId: "getAnalysisDetails"
       tags:
         - "analysis"
-      operationId: "getAnalysis"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "Details of analysis objects."
+          schema:
+            $ref: "#/definitions/Analysis"
+        404:
+          description: "No such analysis."
     delete:
-      summary: "Delete Analysis object"
-      description: ""
-      tags:
-        - "analysis"
+      description: "Delete a given Analysis object."
       operationId: "deleteAnalysis"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-    put:
-      summary: "Update Analysis object"
-      description: ""
       tags:
         - "analysis"
+      consumes:
+        - "application/json"
+      200:
+        description: "Analysis deleted."
+      404:
+        description: "No such analysis."
+    put:
+      description: "Update details of a given Analysis object."
       operationId: "updateAnalysis"
+      tags:
+        - "analysis"
       consumes:
         - "application/json"
       produces:
         - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "New Analysis name."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Analysis updated."
+        404:
+          description: "No such analysis."
+
   /user/{userID}/analysis/{analysisID}/discourseme:
     get:
-      summary: "Get list of Discoursemes of Analysis object"
-      description: ""
+      description: "Return list of Discoursemes of Analysis."
+      operationId: "getAnalysisDiscoursemes"
       tags:
         - "analysis"
-      operationId: "getAnalysisDiscourseme"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "List of Discoursemes."
+        404:
+          description: "No such analysis."
   /user/{userID}/analysis/{analysisID}/discourseme/{discoursemeID}:
     put:
-      summary: "Attach Discoursemes to Analysis object"
-      description: ""
-      tags:
-        - "analysis"
+      desc]: "Attach Discoursemes to an Analysis."
       operationId: "putAnalysisDiscourseme"
-      consumes:
-        - "application/json"
-      produces:
-        - "application/json"
-    delete:
-      summary: "Delete Discoursemes from Analysis object"
-      description: ""
       tags:
         - "analysis"
-      operationId: "deleteAnalysisDiscourseme"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "Discoursemes linked."
+        404:
+          description: "No such analysis or discourseme."
+        409:
+          description: "Discourseme is already topic discourseme."
+    delete:
+      description: "Delete Discoursemes from an Analysis."
+      operationId: "deleteAnalysisDiscourseme"
+      tags:
+        - "analysis"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Discoursemes link deleted."
+        404:
+          description: "No such analysis or discourseme."
   /user/{userID}/analysis/{analysisID}/collocate:
     get:
       summary: "Get collocate table of Analysis object"
