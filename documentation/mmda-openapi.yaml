@@ -21,6 +21,8 @@ tags:
     description: "Corpus Endpoint"
   - name: "analysis"
     description: "Analysis Endpoint"
+  - name: "coordinate"
+    description: "Coordinate Endpoint"
   - name: "discourseme"
     description: "Discourseme Endpoint"
   - name: "position"
@@ -274,8 +276,6 @@ paths:
       tags:
         - "analysis"
       operationId: "deleteAnalysisDiscourseme"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
   /user/{userID}/analysis/{analysisID}/collocate:
@@ -285,10 +285,66 @@ paths:
       tags:
         - "analysis"
       operationId: "getAnalysisCollocate"
-      consumes:
-        - "application/json"
       produces:
         - "application/json"
+  /user/{userID}/analysis/{analysisID}/coordinates:
+    get:
+      summary: "Get coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "getAnalysisCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates"
+        404:
+          description: "No such analysis"
+    put:
+      summary: "Update user coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "putAnalysisUserCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Updated"
+        400:
+          description: "Invalid input data"
+        404:
+          description: "No such analysis"
+    delete:
+      summary: "Delete user coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "deleteAnalysisUserCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Deleted"
+        400:
+          description: "Invalid input data"
+        404:
+          description: "No such analysis"
+  /user/{userID}/analysis/{analysisID}/coordinates/reload:
+    put:
+      summary: "Reload coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "putAnalysisCoordinatesReload"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Reloaded"
+        404:
+          description: "No such analysis"
   /user/{userID}/discourseme:
     get:
       summary: "Get User Discoursemes"
