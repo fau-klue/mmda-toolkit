@@ -21,6 +21,10 @@ tags:
     description: "Corpus Endpoint"
   - name: "analysis"
     description: "Analysis Endpoint"
+  - name: "discourseme"
+    description: "Discourseme Endpoint"
+  - name: "position"
+    description: "Disursive Position Endpoint"
 paths:
   /login:
     post:
@@ -285,12 +289,98 @@ paths:
         - "application/json"
       produces:
         - "application/json"
+  /user/{userID}/discourseme:
+    get:
+      summary: "Get User Discoursemes"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "getDiscoursemes"
+      responses:
+        200:
+          description: "Discoursemes"
+    post:
+      summary: "Generate a new Discourseme object"
+      description: "Generate a new Discourseme object"
+      tags:
+        - "discourseme"
+      operationId: "postDiscourseme"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discourseme"
+        required: true
+        type: "string"
+      - in: "items"
+        name: "items"
+        description: "Lexical Items"
+        required: true
+        type: "array"
+      responses:
+        201:
+          description: "Discourseme ID"
+  /user/{userID}/discourseme/{discoursemeID}:
+    get:
+      summary: "Get Discoursemes Details"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "getDiscoursemeDetails"
+      responses:
+        200:
+          description: "Discourseme Details"
+        404:
+          description: "No such Discourseme"
+    put:
+      summary: "Update Discoursemes Details"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "putDiscoursemeDetails"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discourseme"
+        required: true
+        type: "string"
+      - in: "items"
+        name: "items"
+        description: "Lexical Items"
+        required: true
+        type: "array"
+      responses:
+        200:
+          description: "Discourseme ID"
+        404:
+          description: "No such Discourseme"
+        409:
+          description: "Cannot edit topic Discourseme"
+    delete:
+      summary: "Delete Discoursemes"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "DeleteDiscourseme"
+      responses:
+        200:
+          description: "Discourseme Deleted"
+        404:
+          description: "No such Discourseme"
 definitions:
   User:
     type: "object"
     properties:
       id:
-        type: "string"
+        type: "integer"
+        format: "int64"
       username:
         type: "string"
       email:
@@ -336,6 +426,20 @@ definitions:
       window_size:
         type: "integer"
         format: "int64"
+  Discourseme:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      items:
+        type: "array"
+        items:
+          type: "string"
+  DiscursivePosition:
+    type: "object"
+    properties:
+      name:
+        type: "string"
 externalDocs:
   description: "Exploring the Fukushima Effect (EFE)"
   url: "https://www.fau.eu/research/research-institutions/emerging-fields-initiative/current-projects/"
