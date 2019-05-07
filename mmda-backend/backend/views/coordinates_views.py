@@ -4,6 +4,8 @@ Coordinates view
 
 
 from pandas import notnull, DataFrame
+from numpy import nan
+
 from flask import Blueprint, request, jsonify, current_app
 from logging import getLogger
 
@@ -87,6 +89,7 @@ def update_coordinates(username, analysis):
     """
     Update the coordinates for an analysis.
     To change user_x and user_y.
+    Hint: Non numeric values are treated as NaN
     """
 
     if not request.is_json:
@@ -112,8 +115,11 @@ def update_coordinates(username, analysis):
 
     # Update coordinates dataframe, and save
     df.update(DataFrame.from_dict(items, orient='index'))
-    coordinates.data = df
 
+    # Sanity checks, non-numeric get treated as NaN
+    df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
+
+    coordinates.data = df
     db.session.commit()
 
     log.debug('Updated semantic space for analysis %s', analysis)
