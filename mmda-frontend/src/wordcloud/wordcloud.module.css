@@ -117,7 +117,7 @@
   cursor: default;
 }
 
-.wordcloud_element.disappeared .text {
+.wordcloud_element.disappeared.inserted .text {
   text-decoration: line-through !important;
   color: #0006 !important;
 }
@@ -217,6 +217,7 @@
   text-shadow: 0.05rem 0.1rem 0.02rem black;
 }
 
+.wordcloud_element.hidden .wordcloud_trend,
 .wordcloud_trend.hidden {
   visibility: hidden;
 }

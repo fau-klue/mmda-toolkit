@@ -81,6 +81,9 @@ export default {
     selectWindow: 3,
     min: 2,
   }),
+  watch:{
+    windowSize(){ this.selectWindow=this.windowSize; }
+  },
   computed: {
     ...mapGetters({
       user: 'login/user',

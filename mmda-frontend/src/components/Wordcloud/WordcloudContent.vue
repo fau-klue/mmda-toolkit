@@ -47,7 +47,9 @@ export default {
       notMini:"wordcloud/rightSidebar",
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
-      showMinimap: "wordcloud/showMinimap"
+      showMinimap: "wordcloud/showMinimap",
+      SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
+      collocatesCompare: 'wordcloud/collocatesToCompare',
     })
   },
   watch:{
@@ -68,6 +70,9 @@ export default {
     },
     error (){
       console.error(this.error);
+    },
+    collocatesCompare(){
+      this.wc.changeAM();
     }
   },
   methods: {
@@ -215,11 +220,12 @@ export default {
     if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
 
     //fetch new data
-    this.loadCoordinates();
+    //this.loadCoordinates(); // this is already done in the analysis window?!
     this.loadCollocates(this.windowSize).then(()=>{
-      //TODO:: do we want to select any present AM or a static one (e.g. MI)
-      var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
-      this.setAM( oneAM || 'MI' );
+      if(!this.collocates[this.AM]){
+        var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
+        this.setAM( oneAM || 'MI' );
+      }
     });
     this.loadDiscoursemes();
   },

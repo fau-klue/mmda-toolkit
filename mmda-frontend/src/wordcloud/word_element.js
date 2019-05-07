@@ -109,7 +109,8 @@ class WordTrend {
   }
   evaluate() {
     this.word.el.classList.remove("disappeared");
-    if (!this.word.window.options.word_trend_show) return this.hide();
+    if (!this.word.window.options.word_trend_show
+    ||  !this.word.window.component.collocatesCompare) return this.hide();
     var eps = 0.1;
     var eps2 = 0.4;
     var nu = this.word.normalized_size;
@@ -294,6 +295,13 @@ class WordElement {
   get shown() {
     return this._shown;
   }
+
+  set failedInserting(s){
+    if (!s) this.el.classList.add("inserted");
+    else this.el.classList.remove("inserted");
+  }
+
+
   get hidden() {
     return this.normalized_size < 0 && this.normalized_size_compare < 0;
   }

@@ -184,10 +184,8 @@ const actions = {
       let params = new URLSearchParams()
       // Append api/?window_size=12
       params.append("window_size", data.window_size)
-
-      
-      //TODO:: params add discoursemeIDs
-
+     
+      for(var id of data.discourseme_ids) params.append("discourseme_id",id);
 
       const request = {
         params: params

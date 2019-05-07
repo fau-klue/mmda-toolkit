@@ -88,6 +88,7 @@ class WordcloudWindow {
     this.groups = new Set();
     this.groupMap = new Map();
     this.am_minmax = {};
+    this.mouse = [0,0];
 
     this.options = {
       verbose: false,
@@ -291,13 +292,30 @@ class WordcloudWindow {
     var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
+  
+  getAMWSCompare(data) { //}, ws) {
+    let comp = this.component.collocatesCompare;
+    if(!comp) return .5;
+    let am = comp.am;
+    if (!am || !this.am_minmax[am] ) return .5;
+    let coll = comp.collocates;
+    if (!coll[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
+    var val = coll[am][data.name];
+    val = Number.parseFloat(val);
+    if(val!=val) return -1;
+    if(val<0) return -1;
+    val=this.map_value(val);
+    var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    return v;
+  }
 
   getSizeOf(data) {
     return this.getAMWS(data, this.component.AM); //, this.ws);
   }
   getCompareSizeOf(data) {
-    return this.getAMWS(data, this.component.AM); //, this.compare_ws);
+    return this.getAMWSCompare(data); //, this.compare_ws);
   }
+
 
   ///////////////////////////////////////
   //
@@ -669,6 +687,8 @@ class WordcloudWindow {
     // - hold them and the compare-collocations always present in memory
     // - to be able to switch between them fast.
 
+    var total_count = 0;
+    var missing_coordinates = new Set();
     this.collocates = collocates;
     this.am_minmax = {};
     for (var am of Object.keys(collocates)) {
@@ -682,6 +702,7 @@ class WordcloudWindow {
       for (var word of Object.keys(collocates[am])) {
         if(this.coordinates && !this.coordinates[word]){
           count++;
+          missing_coordinates.add(word);
         }
         if (!collocates[am][word]) continue;
         var val = Number.parseFloat(collocates[am][word]);
@@ -694,6 +715,12 @@ class WordcloudWindow {
       //if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
     }
     this.changeAM();
+    if(missing_coordinates.size != 0){
+      console.warn("The following collocated items are not present in coordinates-list: " + new Array(...missing_coordinates) );
+      //TODO:: reload Coordinates
+      console.warn("Reloading Coordinates");
+      this.component.loadCoordinates();
+    }
   }
 
   setupCoordinates(coordinates){
