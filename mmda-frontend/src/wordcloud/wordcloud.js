@@ -283,12 +283,12 @@ class WordcloudWindow {
 
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
-    if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
+    if (!this.collocates[am][data.name]) return Number.NEGATIVE_INFINITY;//this.am_minmax[am].min; //TODO:  hide//-1;
     var val = this.collocates[am][data.name];
     val = Number.parseFloat(val);
-    if(val!=val) return -1;
-    if(val<0) return -1;
-    val=this.map_value(val);
+    if(val!=val) return Number.NEGATIVE_INFINITY;
+    if(val<=0) return Number.NEGATIVE_INFINITY;
+    val = this.map_value(val);
     var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
     return v;
   }
@@ -306,6 +306,7 @@ class WordcloudWindow {
     if(val<0) return -1;
     val=this.map_value(val);
     var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    v = Math.min(1,Math.max(0,v));
     return v;
   }
 
@@ -716,9 +717,9 @@ class WordcloudWindow {
     }
     this.changeAM();
     if(missing_coordinates.size != 0){
-      console.warn("The following collocated items are not present in coordinates-list: " + new Array(...missing_coordinates) );
+      //console.warn("The following collocated items are not present in coordinates-list: " + new Array(...missing_coordinates) );
       //TODO:: reload Coordinates
-      console.warn("Reloading Coordinates");
+      //console.warn("Reloading Coordinates");
       this.component.loadCoordinates();
     }
   }

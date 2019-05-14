@@ -159,13 +159,24 @@ export default {
       SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
       collocatesCompare: 'wordcloud/collocatesToCompare',
     })
+    /*,SOC_items(){
+      var res = new Set();
+      for(var id of this.SOC){
+        var i = this.analysisDiscoursemes.findIndex((d)=>d.id==id);
+        if(i!=-1){
+          for(var it of this.analysisDiscoursemes[i].items ) res.add(it);
+        }
+      }
+      console.log(Array.from(res));
+      return Array.from(res);
+    }*/
   },
   methods: {
     ...mapActions({
       setWindowSize: 'wordcloud/setWindowSize',
       _setAM : 'wordcloud/setAssociationMeasure',
       _setSOC : 'wordcloud/setSecondOrderCollocationDiscoursemeIDs',
-      getSOCs: 'analysis/getAnalysisDisoursemeCollocates',
+    //  getSOCs: 'analysis/getAnalysisDiscoursemeCollocates',
       getCollocates: 'analysis/getAnalysisCollocates',
       setCompare:'wordcloud/setCollocatesToCompare',
     }),
@@ -181,15 +192,15 @@ export default {
     },
     setSOC(){
       this._setSOC(this.secondOrderIDs);
-      this.requestSecondOrderCollocates();
+      //this.requestSecondOrderCollocates();
       //console.log("Second order collocation with Discourseme ID:"+this.secondOrderIDs);
     },
-    requestSecondOrderCollocates(){
+    /*requestSecondOrderCollocates(){  //THIS is already done by WCContent
       let data = {
         username: this.user.username,
         analysis_id: this.analysis.id,
         window_size: this.windowSize,
-        discourseme_ids: this.SOC
+        discourseme_items: this.SOC_items
       };
       if( this.SOC.length > 0 ){
         this.getSOCs(data).then((result)=>{
@@ -207,7 +218,7 @@ export default {
           this.error = error;
         });
       }
-    },
+    },*/
     SOCNames(){
       var result = "";
       var i = 0;

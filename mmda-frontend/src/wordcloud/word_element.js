@@ -303,7 +303,7 @@ class WordElement {
 
 
   get hidden() {
-    return this.normalized_size < 0 && this.normalized_size_compare < 0;
+    return this.normalized_size < 0 && ( !this.window.container.collocatesCompare || this.normalized_size_compare < 0);
   }
 
 
@@ -411,6 +411,11 @@ class WordElement {
       this.selected = true;
       el.selected = true;
       this.window.groupSet(this.window.selected_nodes, el.label);
+    } else if(el.groups.size){
+      this.selected = true;
+      var G = el.groups.values().next().value;
+      G.selected = true;
+      this.window.groupSet(this.window.selected_nodes);
     } else {
       this.selected = true;
       el.selected = true;

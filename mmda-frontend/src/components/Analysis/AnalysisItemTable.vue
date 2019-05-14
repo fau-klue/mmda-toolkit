@@ -177,6 +177,7 @@ export default {
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
+      if(!this.analysis) return;
       this.loadingConcordances = true;
       this.getConcordances({
         corpus:         this.analysis.corpus, 

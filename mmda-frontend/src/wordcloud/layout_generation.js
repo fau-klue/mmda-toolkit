@@ -39,9 +39,11 @@ function iterativelyInsertObjectsTo(
   for (var n of Objects) {
     n.outer_offset = null;
     var found_position = false;
-    var avg = total_insertion_tests/total_objects;
-    var MAX_INSERTION_TESTS = Math.min(100,Math.max(1,100 / avg));
+    var avg = total_insertion_tests/Math.max(10,total_objects);
+    var MAX_INSERTION_TESTS = Math.min(100,Math.max(1, 100 / Math.max(1,avg)));
     total_objects ++;
+    
+
     for (var i = 0; i < MAX_INSERTION_TESTS; ++i) {
       ++total_intersections;
       ++total_insertion_tests;
@@ -260,7 +262,9 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
           undefined,
           undefined,
           n => {
-            failedInsertions.push(n);
+            if ( !n.hidden ) {
+              failedInsertions.push(n);
+            }
           }
         );
 
@@ -345,7 +349,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
         },
         n => {
           //failed Insertion
-          if (n.normalized_size >= 0 || n.normalized_size_compare >= 0) {
+          if ( !n.hidden ) {
             //if should be visible...
             failedInsertions.push(n);
           }

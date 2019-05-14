@@ -279,6 +279,8 @@ export default {
   },
   created () {
     this.id = this.$route.params.id;
+    if(!this.analysis) return this.$router.push('/analysis'); //fallback
+
     this.getCorpus(this.analysis.corpus).catch((error)=>{
       this.error = error;
     });

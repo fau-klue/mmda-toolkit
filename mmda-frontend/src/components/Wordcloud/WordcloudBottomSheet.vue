@@ -2,6 +2,7 @@
   <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
     <v-card class="wordcloud-bottom-card">
       <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="loading"/>
+      <!-- <ConcordancesContextWordTree v-bind:concordances="concordances" v-bind:loading="loading"/> -->
     </v-card>
   </v-bottom-sheet>
 </template>
@@ -16,11 +17,13 @@
 <script>
 import { mapGetters, mapActions } from "vuex";
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
+//import ConcordancesContextWordTree from '@/components/Concordances/ConcordancesContextWordTree.vue'
 
 export default {
   name: "WordcloudBottomSheet",
   components: {
     ConcordancesKeywordInContextList,
+//    ConcordancesContextWordTree
   },
   data: () => ({
     sheet:true,

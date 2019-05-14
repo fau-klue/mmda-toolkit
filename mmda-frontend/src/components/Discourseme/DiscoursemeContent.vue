@@ -26,6 +26,7 @@
             <v-btn color="success" v-else class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
             <v-btn color="error" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
             <v-btn color="error" v-else outline class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
+            <v-btn color="error" outline class="text-lg-right" @click="createAnalysis">Use For New Analysis</v-btn>
 
           </v-flex>
         </v-layout>
@@ -60,6 +61,12 @@ export default {
       deleteUserDiscourseme: 'discourseme/deleteUserDiscourseme',
       getUserDiscourseme: 'discourseme/getUserDiscourseme'
     }),
+    createAnalysis () {
+      if(!this.discourseme) return;
+      var q = "?name="+this.discourseme.name;
+      for(var i of this.discourseme.items) q+="&item="+i;
+      this.$router.push('/analysis/new'+q);
+    },
     loadDiscourseme () {
 
       const data = {

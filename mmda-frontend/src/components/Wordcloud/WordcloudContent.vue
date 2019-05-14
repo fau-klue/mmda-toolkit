@@ -50,9 +50,22 @@ export default {
       showMinimap: "wordcloud/showMinimap",
       SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
       collocatesCompare: 'wordcloud/collocatesToCompare',
-    })
+    }),
+    SOC_items(){
+      var res = new Set();
+      for(var id of this.SOC){
+        var i = this.discoursemes.findIndex((d)=>d.id==id);
+        if(i!=-1){
+          for(var it of this.discoursemes[i].items ) res.add(it);
+        }
+      }
+      return Array.from(res);
+    }
   },
   watch:{
+    SOC(){
+      vm.loadCollocates();
+    },
     AM () {
       this.wc.changeAM();
     },
@@ -66,9 +79,10 @@ export default {
       vm.wc.setupDiscoursemes(vm.discoursemes);
     },
     windowSize () {
-      vm.loadCollocates(vm.windowSize);
+      vm.loadCollocates();
     },
     error (){
+      console.error("WordcloudContent")
       console.error(this.error);
     },
     collocatesCompare(){
@@ -80,6 +94,7 @@ export default {
       getConcordances: "corpus/getConcordances",
       cancelConcordanceRequest:'corpus/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
+      getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
       updateUserDiscourseme: "discourseme/updateUserDiscourseme",
       deleteUserDiscourseme: "discourseme/deleteUserDiscourseme",
@@ -92,6 +107,7 @@ export default {
        
     }),
     loadCoordinates() {
+      if(!this.analysis) return;
       return this.getAnalysisCoordinates({
         username:     this.user.username,
         analysis_id:  this.analysis.id
@@ -99,14 +115,26 @@ export default {
         this.error = error;
       })
     },
-    loadCollocates(window_size) {
-      return this.getAnalysisCollocates({
-        username:     this.user.username,
-        analysis_id:  this.analysis.id,
-        window_size:  window_size
-      }).catch((error)=>{
-        this.error = error;
-      });
+    loadCollocates() {
+      if(!this.analysis) return;
+      if(this.SOC.length){
+        return this.getAnalysisDiscoursemeCollocates({
+          username:     this.user.username,
+          analysis_id:  this.analysis.id,
+          window_size:  this.windowSize,
+          discourseme_items: this.SOC_items,
+        }).catch((error)=>{
+          this.error = error;
+        });
+      }else{
+        return this.getAnalysisCollocates({
+          username:     this.user.username,
+          analysis_id:  this.analysis.id,
+          window_size:  this.windowSize
+        }).catch((error)=>{
+          this.error = error;
+        });
+      }
     },
     loadDiscoursemes() {
       return this.getUserDiscoursemes(
@@ -118,6 +146,9 @@ export default {
 
     addDiscourseme(name, items) {
       return new Promise((resolve,reject)=>{
+
+        if(!this.analysis){reject(); return;}
+
         this.addUserDiscourseme({
           name: name,
           items: items,
@@ -133,6 +164,7 @@ export default {
             discourseme_id: id
           }).then(()=>{
             resolve( id );
+            this.loadDiscoursemes();
           }).catch((error)=>{
             reject( error );
           })
@@ -148,6 +180,8 @@ export default {
         discourseme_id: id
       }).catch(error => {
         this.error = error;
+      }).then(()=>{
+        this.loadDiscoursemes();
       });
     },
 
@@ -159,6 +193,8 @@ export default {
         username: this.user.username
       }).catch(error => {
         this.error = error;
+      }).then(()=>{
+        this.loadDiscoursemes();
       });
     },
     setUserCoordinate(name,x,y){
@@ -167,6 +203,7 @@ export default {
       this.setCoordinates(obj);
     },
     setCoordinates( obj ) {
+      if(!this.analysis) return;
       //console.log("Set User Coordinates");
       //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
       return this.setUserCoordinates({
@@ -182,6 +219,7 @@ export default {
       this.wc.centerAtWord(item_string);
     },
     getTopicConcordancesFromList (names) {
+      if(!this.analysis) return;
       this.loadingConcordances = true;
       this.concordancesRequested = true;
       this.getConcordances({
@@ -201,10 +239,7 @@ export default {
   },
   mounted() {
     vm = this;
-    if(!this.analysis){
-      this.$router.push('/analysis'); 
-      return;
-    }
+    if(!this.analysis) return this.$router.push('/analysis');  //fallback
 
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
@@ -221,7 +256,7 @@ export default {
 
     //fetch new data
     //this.loadCoordinates(); // this is already done in the analysis window?!
-    this.loadCollocates(this.windowSize).then(()=>{
+    this.loadCollocates().then(()=>{
       if(!this.collocates[this.AM]){
         var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];
         this.setAM( oneAM || 'MI' );

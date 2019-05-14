@@ -172,20 +172,20 @@ const actions = {
       })
     })
   },
-  getAnalysisDisoursemeCollocates ({commit}, data) {
+  getAnalysisDiscoursemeCollocates ({commit}, data) {
     // Get collocates analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
       if (!data.analysis_id) return reject('No analysis provided')
       if (!data.window_size) return reject('No window size provided')
-      if (!data.discourseme_ids) return reject('No discourseme_ids')
+      if (!data.discourseme_items) return reject('No discourseme_items')
 
       let params = new URLSearchParams()
       // Append api/?window_size=12
       params.append("window_size", data.window_size)
      
-      for(var id of data.discourseme_ids) params.append("discourseme_id",id);
+      for(var it of data.discourseme_items) params.append("collocate", it);
 
       const request = {
         params: params
