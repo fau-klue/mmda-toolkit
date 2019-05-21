@@ -5,7 +5,7 @@
     </div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
-    <WordcloudBottomSheet />
+    <WordcloudBottomSheet v-bind:onclickitem="centerItemLocation" />
   </div>
 </template>
 

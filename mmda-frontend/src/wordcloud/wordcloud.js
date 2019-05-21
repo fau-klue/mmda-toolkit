@@ -850,6 +850,10 @@ class WordcloudWindow {
 
   layout(x) {
     this.debugClear();
+    //layout.layoutWordcloudFormGroupsHideOverlap(this);
+    
+    //layout.layoutWordcloudFormGroups2ResolveOverlap(this);
+    
     layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.drawContainmentEdges();
     for (var g of this.groups) g.draw();

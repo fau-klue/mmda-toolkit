@@ -41,7 +41,7 @@
                 <span :key="'s_'+idx">&#160;</span>
                 <span :key="'h_'+idx" 
                   @click="selectItem(el)"
-                  :class="'concordance '+el.role"
+                  :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
                   :title="el.lemma">{{el.text}}</span>
               </template>
               <!-- invisible x at the end,
@@ -57,7 +57,7 @@
                 <span :key="'s2_'+idx">&#160;</span>
                 <span :key="'t_'+idx"
                   @click="selectItem(el)"
-                  :class="'concordance '+el.role"
+                  :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
                   :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
@@ -109,7 +109,7 @@
   font-size:200%;
   font-weight:bold;
 }
-.kwic-view-table .concordance.none{
+.kwic-view-table .concordance.nocollocate:not(.topic){
   color:#aaa;
 }
 .kwic-view-table .concordance.token{
@@ -134,7 +134,7 @@ export default {
   name: 'ConcordancesKeywordInContextList',
   components: {
   },
-  props:['concordances','loading'],
+  props:['concordances','loading','onclickitem'],
   data: () => ({
     id: null,
     error: null,
@@ -162,6 +162,9 @@ export default {
       user: 'login/user',
       analysis: 'analysis/analysis',
       corpus: 'corpus/corpus',
+      collocates: 'analysis/collocates',
+      windowSize: "wordcloud/windowSize",
+      AM: "wordcloud/associationMeasure",
     }),
     headers () {
       return [
@@ -201,6 +204,7 @@ export default {
             role:   c.role[i],
             lemma:  c[p_att][i]
           };
+
 
           if(beforeKeyword && el.role==this.keywordRole){
             beforeKeyword=false;
@@ -256,8 +260,13 @@ export default {
         kw.style.width = w+2*pad+"px";
       }
     },
+    isCollocate(lemma){
+      if(!this.collocates || !this.AM || !this.windowSize) return true;
+      return this.collocates[this.AM][lemma] !== undefined;
+    },
     selectItem (item) {
       if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
+      else if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
     },
     toggleKwicMode (){

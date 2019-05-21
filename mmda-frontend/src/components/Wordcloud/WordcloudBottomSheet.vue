@@ -1,7 +1,10 @@
 <template>
   <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
     <v-card class="wordcloud-bottom-card">
-      <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="loading"/>
+      <ConcordancesKeywordInContextList 
+      v-bind:concordances="concordances" 
+      v-bind:loading="loading"
+      v-bind:onclickitem="onclickitem"/>
       <!-- <ConcordancesContextWordTree v-bind:concordances="concordances" v-bind:loading="loading"/> -->
     </v-card>
   </v-bottom-sheet>
@@ -21,6 +24,7 @@ import ConcordancesKeywordInContextList from '@/components/Concordances/Concorda
 
 export default {
   name: "WordcloudBottomSheet",
+  props:['onclickitem'],
   components: {
     ConcordancesKeywordInContextList,
 //    ConcordancesContextWordTree
