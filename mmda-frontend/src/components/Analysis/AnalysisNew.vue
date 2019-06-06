@@ -106,7 +106,8 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      corpora: 'corpus/corpora'
+      corpora: 'corpus/corpora',
+      analysis: 'analysis/analysis',
     })
   },
   methods: {
@@ -149,12 +150,22 @@ export default {
       }).then(() => {
         this.loading = false
       })
-
+    },
+    getParametersFromRoute(){
+      let r = this.$route.query
+      if(r.name) this.name = r.name
+      if(r.window) this.selectWindow = Number.parseInt(r.window)
+      if(r.corpus) this.selectCorpus = r.corpus
+      if(r.item){
+        if(typeof r.item === 'string') this.selectItems = [r.item]
+        else                           this.selectItems = r.item
+      }
     }
   },
   created () {
     this.getCorpora().then(() => {
       this.error = null
+      this.getParametersFromRoute();
     }).catch((error) => {
       this.error = error
     }).then(() => {
@@ -163,4 +174,4 @@ export default {
   }
 }
 
-</Script>
+</script>

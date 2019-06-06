@@ -2,6 +2,9 @@
 <v-layout row>
   <v-flex xs12 sm12>
     <h1 class="my-3 title">Collocation and Coordinates:</h1>
+    <h3 class="my-3 body-2">Window Size</h3>
+    <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+      thumb-size="28" @change="setSize"></v-slider>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
 
@@ -74,8 +77,13 @@ export default {
     loading: false,
     loadingConcordances:false,
     loadingCollocates:false,
-    loadingCoordinates:false
+    loadingCoordinates:false,
+    selectWindow: 3,
+    min: 2,
   }),
+  watch:{
+    windowSize(){ this.selectWindow=this.windowSize; }
+  },
   computed: {
     ...mapGetters({
       user: 'login/user',
@@ -156,7 +164,12 @@ export default {
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
       getConcordances:        'corpus/getConcordances',
+      setWindowSize: 'wordcloud/setWindowSize',
     }),
+    setSize(){
+      this.setWindowSize(this.selectWindow);
+      this.getCollocates();
+    },
     map_value(value){
       return Math.log(1 + Math.max(0,value));
     },
@@ -164,6 +177,7 @@ export default {
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
+      if(!this.analysis) return;
       this.loadingConcordances = true;
       this.getConcordances({
         corpus:         this.analysis.corpus, 
@@ -176,11 +190,23 @@ export default {
         this.loadingConcordances = false;
       });
     },
+    getCollocates(){
+      this.loadingCollocates = true;
+      this.getAnalysisCollocates({
+        username:     this.user.username, 
+        analysis_id:  this.id, 
+        window_size:  this.windowSize
+      }).catch((error)=>{
+        this.error = error;
+      }).then(()=>{
+        this.loadingCollocates = false;
+      })
+    }
   },
   created () {
     this.id = this.$route.params.id
     this.loadingCoordinates = true;
-    this.loadingCollocates = true;
+    this.selectWindow = this.windowSize;
     this.getAnalysisCoordinates({
       username:     this.user.username, 
       analysis_id:  this.id
@@ -189,16 +215,7 @@ export default {
     }).then(()=>{
       this.loadingCoordinates = false;
     });
-
-    this.getAnalysisCollocates({
-      username:     this.user.username, 
-      analysis_id:  this.id, 
-      window_size:  this.windowSize
-    }).catch((error)=>{
-      this.error = error;
-    }).then(()=>{
-      this.loadingCollocates = false;
-    })
+    this.getCollocates();
   }
 }
 

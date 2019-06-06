@@ -172,6 +172,32 @@ const actions = {
       })
     })
   },
+  getAnalysisDiscoursemeCollocates ({commit}, data) {
+    // Get collocates analysis
+    return new Promise((resolve, reject) => {
+
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.window_size) return reject('No window size provided')
+      if (!data.discourseme_items) return reject('No discourseme_items')
+
+      let params = new URLSearchParams()
+      // Append api/?window_size=12
+      params.append("window_size", data.window_size)
+     
+      for(var it of data.discourseme_items) params.append("collocate", it);
+
+      const request = {
+        params: params
+      }
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
+        commit('setCollocates', response.data);
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
+  },
 }
 
 const mutations = {

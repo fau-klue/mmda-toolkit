@@ -46,7 +46,7 @@ const actions = {
       })
     })
   },
-  setUserCoordinates ({dispatch}, data) {
+  setUserCoordinates (unused, data) {
       // Reload the coordinates of an analysis
       return new Promise((resolve, reject) => {
 
@@ -54,7 +54,7 @@ const actions = {
         if (!data.analysis_id) return reject('No analysis provided')
 
         api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`, data.user_coordinates).then(function () {
-          dispatch('getAnalysisCoordinates', data)
+          //dispatch('getAnalysisCoordinates', data)
           resolve()
         }).catch(function (error) {
           reject(error)
