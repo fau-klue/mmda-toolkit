@@ -3,7 +3,7 @@ LABEL maintainer="markus.opolka@fau.de"
 
 ENV CQP_REGISTRY_PATH '/var/registry'
 ENV DEBIAN_FRONTEND noninteractive
-ENV ENVIRONMENT development
+ENV ENVIRONMENT 'development'
 ENV HOST 0.0.0.0
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8

@@ -13,7 +13,7 @@ from backend.models.user_models import User, Role
 
 class InitDbCommand(Command):
     """
-    Initialize the database.
+    Initialize the database. Flask Command Interface
     """
 
     def run(self):
@@ -68,6 +68,11 @@ def create_users():
 def find_or_create_role(name, description):
     """
     Find existing role or create new role
+
+    :param str name: Name of the role
+    :param str description: Description of the role
+    :return: Role Object for this role
+    :rtype: Role
     """
 
     role = Role.query.filter(Role.name == name).first()
@@ -82,6 +87,16 @@ def find_or_create_role(name, description):
 def find_or_create_user(username, first_name, last_name, email, password, role=None):
     """
     Find existing user or create new user
+    role must be of type Role.
+
+    :param str username: Username of the user
+    :param str first_name: First Name of the user
+    :param str last_name: Last Name of the user
+    :param str email: Email of the user
+    :param str password: Password in clear (will get encrypted/salted)
+    :param Role role: Role for this user
+    :return: User Object
+    :rtype: User
     """
 
     user = User.query.filter(User.email == email).first()

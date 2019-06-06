@@ -59,6 +59,26 @@ def test_create_user(client, admin_header):
     assert response.status_code==400
 
 
+def test_no_such_role_createuser(client, admin_header):
+
+    new_user = {
+        'username': 'nedstark',
+        'first_name': 'Ned',
+        'last_name': 'Stark',
+        'email': 'ned@stark.wst',
+        'password': 'winteriscoming',
+        'role': 'NOSUCHROLE'
+    }
+
+    response = client.post(url_for('admin.create_user'),
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=admin_header,
+                          json=new_user)
+
+    assert response.status_code==404
+
+
 def test_create_admin_user(client, admin_header):
 
     new_user = {
@@ -67,7 +87,7 @@ def test_create_admin_user(client, admin_header):
         'last_name': 'Stark',
         'email': 'ned@stark.wst',
         'password': 'winteriscoming',
-        'roles': ['admin']
+        'role': 'admin'
     }
 
     response = client.post(url_for('admin.create_user'),

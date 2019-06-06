@@ -5,6 +5,7 @@ Discursive Position views
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend import db
 from backend import user_required
@@ -13,6 +14,7 @@ from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
 discursive_blueprint = Blueprint('discursive_position', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # CREATE

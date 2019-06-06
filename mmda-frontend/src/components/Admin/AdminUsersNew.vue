@@ -118,7 +118,7 @@ export default {
       }
 
       if (this.willBeAdmin) {
-        this.newUser['roles'] = ['admin']
+        this.newUser['role'] = 'admin'
       }
 
       this.loading = true

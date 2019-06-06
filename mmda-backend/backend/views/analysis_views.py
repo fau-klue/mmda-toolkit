@@ -5,6 +5,7 @@ Analysis view
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend import db, cache
 from backend import user_required
@@ -15,6 +16,7 @@ from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
 
 analysis_blueprint = Blueprint('analysis', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 def create_identifier(analysis_id, window_size, items):
@@ -37,6 +39,7 @@ def extract_collocates_from_cache(corpus, window_size, items, identifier, colloc
     collocate_data = cache.get(identifier)
 
     if not collocate_data:
+        log.debug('No collocate data available. Extracting for %s', identifier)
         engine = current_app.config['ENGINES'][corpus]
         collocate_data = engine.extract_collocates(items=items, window_size=window_size, collocates=collocates)
         cache.set(identifier, collocate_data)
@@ -62,6 +65,7 @@ def create_analysis(username):
 
     # Check corpus
     if corpus not in current_app.config['CORPORA']:
+        log.debug('No such corpus %s', corpus)
         return jsonify({'msg': 'Corpus not available'}), 400
 
     # Get User
@@ -71,11 +75,13 @@ def create_analysis(username):
     topic_discourseme = Discourseme(name=name, items=items, user_id=user.id, topic=True)
     db.session.add(topic_discourseme)
     db.session.commit()
+    log.debug('Created topic discourseme %s', topic_discourseme.id)
 
     # Add Analysis to DB
     analysis = Analysis(name=name, corpus=corpus, user_id=user.id, topic_id=topic_discourseme.id, window_size=maximal_window_size)
     db.session.add(analysis)
     db.session.commit()
+    log.debug('Created analysis %s', analysis.id)
 
     # Load Collocates
     tokens = []
@@ -90,12 +96,15 @@ def create_analysis(username):
     tokens = list(set(tokens))
 
     if len(tokens) == 0:
+        log.warn('No collocates for query found for %s', items)
         db.session.delete(analysis)
         db.session.delete(topic_discourseme)
         db.session.commit()
+        log.debug('Analysis deleted from database')
         return jsonify({'msg': 'No collocates for query found.'}), 404
 
     # Generate Coordinates
+    log.debug('Generating semantic space for analysis %s', analysis.id)
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
     semantic_space = generate_semantic_space(tokens, wectors_path)
 
@@ -105,6 +114,7 @@ def create_analysis(username):
     db.session.add(coordinates)
     db.session.commit()
 
+    log.debug('Analysis created with ID %s', analysis.id)
     return jsonify({'msg': analysis.id}), 201
 
 
@@ -122,6 +132,7 @@ def get_analysis(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get and add topic discourseme details
@@ -161,6 +172,7 @@ def update_analysis(username, analysis):
     # Check request
     name = request.json.get('name', None)
     if not name:
+        log.debug('No name provided for analysis %s', analysis)
         return jsonify({'msg': 'Incorrect request data provided'}), 400
 
     # Get User
@@ -172,6 +184,7 @@ def update_analysis(username, analysis):
 
     db.session.commit()
 
+    log.debug('Updated Analysis with ID %s', analysis)
     return jsonify({'msg': analysis.id}), 200
 
 
@@ -189,6 +202,7 @@ def delete_analysis(username, analysis):
     # Remove Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Change topic discourseme to regular discourseme
@@ -198,6 +212,7 @@ def delete_analysis(username, analysis):
     db.session.delete(analysis)
     db.session.commit()
 
+    log.debug('Deleted Analysis with ID %s', analysis)
     return jsonify({'msg': 'Deleted'}), 200
 
 
@@ -215,11 +230,13 @@ def get_discoursemes_for_analysis(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Discoursemes list from DB
     analysis_discoursemes = [discourseme.serialize for discourseme in analysis.discourseme]
     if not analysis_discoursemes:
+        log.debug('No disoursemes associated')
         return jsonify([]), 200
 
     return jsonify(analysis_discoursemes), 200
@@ -239,12 +256,14 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
 
     if not discourseme:
+        log.debug('No such discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if already linked or discourseme is topic discourseme of the analysis
@@ -252,9 +271,11 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
 
     is_own_topic_discourseme = discourseme.id == analysis.topic_id
     if is_own_topic_discourseme:
+        log.debug('Discourseme %s is already topic discourseme if the analysis', discourseme)
         return jsonify({'msg': 'Is already topic'}), 409
 
     if analysis_discourseme:
+        log.debug('Discourseme %s is already linked', discourseme)
         return jsonify({'msg': 'Already linked'}), 200
 
     # Add Link to DB
@@ -270,19 +291,20 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         collocates = engine.extract_collocates(items=discourseme.items, window_size=5)
         cache.set(identifier, collocates)
 
-    # Generate Coordinates for missing collocates
+    log.debug('Generating Coordinates for missing collocates')
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
     semantic_space = coordinates.data
     wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
 
     new_coordinates = generate_discourseme_coordinates(discourseme.items, semantic_space, wectors_path)
     if not new_coordinates.empty:
-        # Append new coordinates to semantic space
+        log.debug('Appending new coordinates to semantic space')
         semantic_space.append(new_coordinates, sort=True)
         coordinates.data = semantic_space
 
     db.session.commit()
 
+    log.debug('Added discourseme %s to analysis %s', discourseme, analysis)
     return jsonify({'msg': 'Updated'}), 200
 
 
@@ -300,21 +322,25 @@ def delete_discourseme_from_analysis(username, analysis, discourseme):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check Link
     analysis_discourseme = AnalysisDiscoursemes.query.filter_by(analysis_id=analysis.id, discourseme_id=discourseme.id).first()
     if not analysis_discourseme:
+        log.warn('Discourseme %s not linked to analysis %s', discourseme, analysis)
         return jsonify({'msg': 'Not found'}), 404
 
     db.session.delete(analysis_discourseme)
     db.session.commit()
 
+    log.debug('Removed discourseme %s to analysis %s', discourseme, analysis)
     return jsonify({'msg': 'Deleted'}), 200
 
 
@@ -331,9 +357,8 @@ def get_collocate_for_analysis(username, analysis):
     # Second order collocates
     collocates = request.args.getlist('collocate', None)
 
-    print(collocates)
-
     if not window_size and not collocates:
+        log.debug('No window size and collocates provided')
         return jsonify({'msg': 'No request data provided'}), 400
 
     # Get User
@@ -342,6 +367,7 @@ def get_collocate_for_analysis(username, analysis):
     # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
+        log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Topic Discourseme
@@ -350,10 +376,12 @@ def get_collocate_for_analysis(username, analysis):
 
     # Get topic and items
     identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=topic_items+collocates)
+    log.debug('Extracting collocates with %s', identifier)
     collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=topic_items, window_size= window_size, identifier=identifier, collocates=collocates)
     df = collocate_data.data.to_dict()
 
     if not df:
+        log.debug('No collocates available for analysis %s', analysis)
         return jsonify({'msg': 'No collocates available'}), 404
 
     return jsonify(df), 200

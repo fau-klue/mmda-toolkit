@@ -17,6 +17,7 @@ const getters = {
 
 const actions = {
   getUserProfile ({commit}, username) {
+    // Get the users profile
     return new Promise((resolve, reject) => {
 
       if (!username) {
@@ -33,6 +34,7 @@ const actions = {
     })
   },
   updateUserPassword ({commit}, data) { // eslint-disable-line no-unused-vars
+    // Update the users password.
     return new Promise((resolve, reject) => {
 
       if (!data.username) {
@@ -48,6 +50,7 @@ const actions = {
     })
   },
   updateUserProfile ({commit}, data) { // eslint-disable-line no-unused-vars
+    // Update the user profile
     return new Promise((resolve, reject) => {
 
       if (!data.username) {

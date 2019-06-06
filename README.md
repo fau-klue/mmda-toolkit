@@ -3,17 +3,29 @@
 
 # MMDA
 
-The digitalisation of society and media systems has had a major impact on (political) discourses and the formation of public opinion. The purpose of this project is to investigate the transnational algorithmic public sphere, a complex phenomenon that has arisen in an era of globalised mass media and social media connectivity across national borders.
+The digitalisation of society and media systems has had a major impact
+on (political) discourses and the formation of public opinion. In “[Exploring the Fukushima Effect](https://www.linguistik.phil.fau.de/projects/efe/)”, a project
+that is financed by the [Emerging Fields Initiative](https://www.fau.eu/research/research-institutions/emerging-fields-initiative/)
+at [FAU](https://www.fau.eu/), we investigate the transnational
+algorithmic public sphere, a complex phenomenon that has arisen in an
+era of globalised mass media and social media connectivity across
+national borders.
 
-An interdisciplinary combination of computational linguistics, network visualisation, intercultural hermeneutics and communication science enables us to analyse and map the processes underlying this phenomenon. The project addresses the current political discussion on nuclear power and renewable energy in Germany and Japan following the Fukushima accident.
+An interdisciplinary combination of computational linguistics, network
+visualisation, intercultural hermeneutics and communication science
+enables us to analyse and map the processes underlying this
+phenomenon. The project addresses the current political discussion on
+nuclear power and renewable energy in Germany and Japan following the
+Fukushima accident.
 
-Project co-ordination: Prof. Dr. Stefan Evert, stefan.evert@fau.de
+Project co-ordination: [Prof. Dr. Stefan Evert](www.stefan-evert.de),
+stefan.evert@fau.de
 
 # Overview
 
 This section will provide a high-level overview of the implementation.
 
-For details on the productive deployment, see [DEPLOYMENT.md](DEPLOYMENT.md)
+For details on the productive deployment, see the [deployment documenation](deployment/README.md)
 
 ## Backend
 

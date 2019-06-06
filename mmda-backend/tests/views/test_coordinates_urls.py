@@ -55,3 +55,18 @@ def test_update_coordinates(client, header):
                           json=data)
 
     assert response.status_code == 200
+
+
+def test_delete_coordinates(client, header):
+
+    data = {'das': {'user_x': 100, 'user_y': 100}}
+
+    response = client.delete(url_for('coordinates.delete_coordinates',
+                                  username='student1',
+                                  analysis=1),
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header,
+                          json=data)
+
+    assert response.status_code == 200

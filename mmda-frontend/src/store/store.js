@@ -1,3 +1,4 @@
+// Centrail Entrypoint for the store
 import Vue from 'vue'
 import Vuex from 'vuex'
 import admin from './modules/admin'

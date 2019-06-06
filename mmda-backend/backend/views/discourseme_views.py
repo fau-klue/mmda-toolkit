@@ -5,6 +5,7 @@ Discourseme view
 
 from flask import Blueprint, request, jsonify
 from flask_expects_json import expects_json
+from logging import getLogger
 
 from backend import db
 from backend import user_required
@@ -13,6 +14,7 @@ from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme
 
 discourseme_blueprint = Blueprint('discourseme', __name__, template_folder='templates')
+log = getLogger('mmda-logger')
 
 
 # CREATE
@@ -32,10 +34,12 @@ def create_discourseme(username):
     user = User.query.filter_by(username=username).first()
 
     # Add Discourseme to DB
+    log.debug('Creating discourseme with %s', items)
     discourseme = Discourseme(name=name, items=items, user_id=user.id)
     db.session.add(discourseme)
     db.session.commit()
 
+    log.debug('Discourseme created %s', discourseme.id)
     return jsonify({'msg': discourseme.id}), 201
 
 
@@ -52,6 +56,7 @@ def get_discoursemes(username):
 
     discoursemes = Discourseme.query.filter_by(user_id=user.id).all()
     discoursemes_list = [discourseme.serialize for discourseme in discoursemes]
+    log.debug('Discoursemes retrived %s', discoursemes)
 
     return jsonify(discoursemes_list), 200
 
@@ -70,6 +75,7 @@ def get_discourseme(username, discourseme):
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     return jsonify(discourseme.serialize), 200
@@ -95,12 +101,14 @@ def update_discourseme(username, discourseme):
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
 
     if discourseme.topic:
+        log.debug('Cannot edit topic discourseme %s', discourseme)
         return jsonify({'msg': 'Cannot edit topic discourseme'}), 409
 
     discourseme.name = name
     discourseme.items = items
     db.session.commit()
 
+    log.debug('Updated discourseme %s', discourseme)
     return jsonify({'msg': discourseme.id}), 200
 
 
@@ -118,13 +126,16 @@ def delete_discourseme(username, discourseme):
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if topic, cause you cant delete these without deleting the analysis
     if discourseme.topic:
+        log.debug('Cannot delete topic discourseme %s', discourseme)
         return jsonify({'msg': 'Cannot delete topic discourseme'}), 409
 
     db.session.delete(discourseme)
     db.session.commit()
 
+    log.debug('Deleted discourseme %s', discourseme)
     return jsonify({'msg': 'Deleted'}), 200

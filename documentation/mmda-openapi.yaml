@@ -1,0 +1,341 @@
+swagger: "2.0"
+info:
+  description: "MMDA Backend API"
+  version: "1.0.0"
+  title: "MMDA API"
+  termsOfService: "http://www.linguistik.uni-erlangen.de/"
+  contact:
+    email: "stefan.evert@fau.de"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+host: "linguistik.uni-erlangen.de"
+basePath: "/api"
+schemes:
+  - "http"
+  - "https"
+tags:
+  - name: "user"
+    description: "User Endpoint"
+  - name: "corpus"
+    description: "Corpus Endpoint"
+  - name: "analysis"
+    description: "Analysis Endpoint"
+paths:
+  /login:
+    post:
+      summary: "Request JWT Access Token"
+      description: ""
+      tags:
+        - "user"
+      operationId: "login"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "username"
+          name: "username"
+          description: "username"
+          required: true
+        - in: "password"
+          name: "password"
+          description: "password"
+          required: true
+      responses:
+        200:
+          description: "JWT Acess Token"
+          schema: "string"
+        401:
+          description: "Unauthorized"
+  /refresh:
+    post:
+      summary: "Request new JWT Access Token"
+      description: ""
+      tags:
+        - "user"
+      operationId: "refresh"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "New JWT Acess Token"
+          schema: "string"
+        401:
+          description: "Unauthorized"
+  /user/{userName}:
+    get:
+      summary: "Return details of a user"
+      description: ""
+      tags:
+        - "user"
+      operationId: "getUser"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "User details"
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: "No such user"
+    put:
+      summary: "Update details of a user"
+      description: ""
+      operationId: "putUserDetails"
+      tags:
+        - "user"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "first_name"
+        name: "first_name"
+        description: "First Name"
+        required: true
+      - in: "last_name"
+        name: "last_name"
+        description: "Last Name"
+        required: true
+      - in: "email"
+        name: "email"
+        description: "Email"
+        required: true
+      responses:
+        200:
+          description: "Updated user details"
+        404:
+          description: "No such user"
+  /user/{userName}/password:
+    put:
+      summary: "Update password of a user"
+      description: ""
+      tags:
+        - "user"
+      operationId: "putUserPassword"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "password"
+        name: "password"
+        description: "New user password"
+        required: true
+      responses:
+        200:
+          description: "Updated password"
+        404:
+          description: "No such user"
+        500:
+          description: "Password could not be changed "
+  /corpus:
+    get:
+      summary: "Returns list of all corpora"
+      description: "Returns list of all corpora"
+      tags:
+        - "corpus"
+      operationId: "getCorpora"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "List of Corpora"
+          type: "array"
+          items:
+            type: "string"
+  /corpus/{corpusName}:
+    get:
+      summary: "Returns details for one corpus"
+      description: "Returns details for one corpus"
+      tags:
+        - "corpus"
+      operationId: "getCorpus"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Corpus Details"
+          schema: "string"
+        404:
+          description: "Corpus not found"
+  /corpus/{corpusName}/concordances:
+    get:
+      summary: "Returns concordances for a list of tokens"
+      description: "Returns concordances for a list of tokens"
+      tags:
+        - "corpus"
+      operationId: "getConcordances"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Concordances"
+          schema:
+            $ref: "#/definitions/Analysis"
+        400:
+          description: "Invalid input. No items provided"
+        404:
+          description: "Corpus not found"
+  /user/{userID}/analysis:
+    post:
+      summary: "Generate a new Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "postAnalysis"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Analysis to generate"
+        required: true
+        schema:
+          $ref: "#/definitions/Analysis"
+      responses:
+        201:
+          description: "Analysis ID"
+        400:
+          description: "Invalid input. Corpus not found"
+        404:
+          description: "No Collocates for query"
+    get:
+      summary: "Get list of Analysis objects"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "getUserAnalysis"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+  /user/{userID}/analysis/{analysisID}:
+    get:
+      summary: "Get Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "getAnalysis"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+    delete:
+      summary: "Delete Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "deleteAnalysis"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+    put:
+      summary: "Update Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "updateAnalysis"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+  /user/{userID}/analysis/{analysisID}/discourseme:
+    get:
+      summary: "Get list of Discoursemes of Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "getAnalysisDiscourseme"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+  /user/{userID}/analysis/{analysisID}/discourseme/{discoursemeID}:
+    put:
+      summary: "Attach Discoursemes to Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "putAnalysisDiscourseme"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+    delete:
+      summary: "Delete Discoursemes from Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "deleteAnalysisDiscourseme"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+  /user/{userID}/analysis/{analysisID}/collocate:
+    get:
+      summary: "Get collocate table of Analysis object"
+      description: ""
+      tags:
+        - "analysis"
+      operationId: "getAnalysisCollocate"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      username:
+        type: "string"
+      email:
+        type: "string"
+      first_name:
+        type: "string"
+      last_name:
+        type: "string"
+      active:
+        type: "string"
+  Concordances:
+    type: "object"
+    properties:
+      word:
+        type: "array"
+        items:
+          type: "string"
+  Coordinates:
+    type: "object"
+    properties:
+      word:
+        type: "array"
+        items:
+          type: "string"
+  Analysis:
+    type: "object"
+    required:
+    - "name"
+    - "corpus"
+    - "items"
+    - "window_size"
+    properties:
+      name:
+        type: "string"
+        example: "My Analysis"
+      corpus:
+        type: "string"
+        example: "sz_small"
+      items:
+        type: "array"
+        items:
+          type: "string"
+      window_size:
+        type: "integer"
+        format: "int64"
+externalDocs:
+  description: "Exploring the Fukushima Effect (EFE)"
+  url: "https://www.fau.eu/research/research-institutions/emerging-fields-initiative/current-projects/"

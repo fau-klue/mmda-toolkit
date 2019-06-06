@@ -30,6 +30,8 @@ class Analysis(db.Model):
     def serialize(self):
        """
        Return object data in easily serializeable format
+       :return: Dictionary containing the analysis values
+       :rtype: dict
        """
 
        return {
@@ -54,6 +56,7 @@ class Discourseme(db.Model):
     name = db.Column(db.Unicode(255), nullable=True)
     # topic means it's a topic discourseme, associated with an analysis
     topic = db.Column(db.Boolean(), nullable=True, server_default='0')
+    # Items are a string containing the lexical items, will be returned as a list.
     _items = db.Column(db.Unicode(), nullable=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
 
@@ -64,6 +67,8 @@ class Discourseme(db.Model):
     def items(self):
         """
         Read string and turn into list
+       :return: Items as list
+       :rtype: list
         """
         return self._items.split(self._separator)
 
@@ -71,6 +76,8 @@ class Discourseme(db.Model):
     def items(self, items):
         """
         Turn list into String
+       :return: Items as str
+       :rtype: str
         """
         self._items = self._separator.join(items)
 
@@ -78,6 +85,8 @@ class Discourseme(db.Model):
     def serialize(self):
        """
        Return object data in easily serializeable format
+       :return: Dictionary containing the discourseme values
+       :rtype: dict
        """
 
        return {
@@ -131,6 +140,8 @@ class DiscursivePosition(db.Model):
     def serialize(self):
        """
        Return object data in easily serializeable format
+       :return: Dictionary containing the discursive position values
+       :rtype: dict
        """
 
        return {
@@ -155,6 +166,8 @@ class Coordinates(db.Model):
     def data(self):
         """
         Read JSON String an create DataFrame
+        :return: Pandas DataFrame from JSON
+        :rtype: DataFrame
         """
 
         return read_json(self._data)
@@ -163,6 +176,8 @@ class Coordinates(db.Model):
     def data(self, dataframe):
         """
         Turn DataFrame into JSON String
+        :return: JSON from DataFrame
+        :rtype: str
         """
 
         self._data = dataframe.to_json()

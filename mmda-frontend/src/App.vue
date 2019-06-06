@@ -9,9 +9,10 @@
 </template>
 
 <script>
+// Central Entrypoint for the App
 import { mapGetters } from 'vuex'
 
-import ToolBar from './components/TheToolBar.vue'
+import ToolBar from '@/components/TheToolBar.vue'
 import SideBar from '@/components/TheSideBar.vue'
 
 export default {

@@ -2,10 +2,14 @@
 
 The MMDA Demo currently (January 2019) runs on the server *geuselambix.phil.uni-erlangen.de*
 
-For deploying a new version please use the custom shell script on the server:
+For deploying a new version please use the custom shell script provided:
 
 ```bash
 /root/mmda-deploy.sh
+
+# With version (branch or tag):
+/root/mmda-deploy.sh branch-name
+/root/mmda-deploy.sh tag
 ```
 
 ## Docker
@@ -32,8 +36,7 @@ The Frontend uses multilayered build. All dependencies are collected using the [
 docker build --pull --force-rm -t fau.de/mmda-frontend:latest .
 ```
 
-The nginx webserver is configured using a custom configuration file (see repository). For extra protection a htpasswd file is provided on the server and then mounted into the Docker Container.
-
+The nginx webserver is configured using a custom configuration file (see repository). For extra protection a htpasswd file can be provided on the server and then mounted into the Docker Container.
 
 ```bash
 # htpasswd location
@@ -51,6 +54,7 @@ openssl passwd -apr1
 
 SSL encrypttion is provided using Let's Encrypt. For this automated certificates have been created using [certbot](https://hub.docker.com/r/certbot/certbot/).
 
+Hint: You just have to do this when installing the server. Use the provided systemd Timers to automate the renewal.
 
 ```bash
 docker run -ti --rm -v /etc/letsencrypt:/etc/letsencrypt certbot/certbot certonly --webroot -w /etc/letsencrypt -d geuselambix.phil.uni-erlangen.de
@@ -99,4 +103,3 @@ All resources required for running the application are at */opt*. These get moun
     - /opt/mmda/cwb/data # CWB Corpus Data
     - /opt/mmda/cwb/registry # CWB Registry
     - /opt/mmda/cwb/vrt # Raw Corpus Files for import
-
