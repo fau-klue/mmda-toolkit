@@ -269,6 +269,10 @@ class WordGroup {
     }
   }
 
+  drop(){
+    //TODO:: set user positions for each element?
+  }
+
   dropAt(el) {
     if (el.isgroup) {
       this.selected = true;

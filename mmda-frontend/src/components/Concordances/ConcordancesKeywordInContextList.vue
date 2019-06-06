@@ -4,9 +4,10 @@
         <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
         <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No Concordances requested</v-alert>
 
-        <div v-else-if="loadingConcordances" class="text-md-center">
+        <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <p v-if="loadingConcordances">Loading Concordances...</p>
+          <p v-if="loading">Loading Concordances...</p>
+          <p v-if="loading && typeof loading==='object'">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
         </div>
 
         <v-data-table v-else
@@ -133,14 +134,14 @@ export default {
   name: 'ConcordancesKeywordInContextList',
   components: {
   },
-  props:['concordances'],
+  props:['concordances','loading'],
   data: () => ({
     id: null,
     error: null,
     keywordRole: 'topic',
     useSentiment:false,
     concordancesRequested: false,
-    loadingConcordances: false,
+    //loadingConcordances: false,
     sentimentColor:['green','yellow','red'],
     sentimentEmotion:['😃','😐','😠'],
   }),
@@ -149,7 +150,12 @@ export default {
       this.concordancesRequested = true;
       //the required data (see setupIt) is available only after two ticks
       this.update();
+    },
+    loading(){
+      if(this.loading) this.concordancesRequested = true;
+      //console.log("load "+this.loading);
     }
+
   },
   computed: {
     ...mapGetters({
@@ -168,8 +174,9 @@ export default {
     },
     tableContent () {
       var C = [];
-      //TODO::
-      //getCorpus of analysis, in order to get the "tt_lamma" [p_att]
+      if(!this.corpus) return C;
+      var p_att = this.corpus.p_att;
+      
       if(!this.concordances) return C;
       for(var c of this.concordances){
         var r = { 
@@ -192,7 +199,7 @@ export default {
           var el = {
             text:   c.word[i],
             role:   c.role[i],
-            lemma:  c.tt_lemma[i]
+            lemma:  c[p_att][i]
           };
 
           if(beforeKeyword && el.role==this.keywordRole){
@@ -219,6 +226,7 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: 'corpus/getConcordances',
+      getCorpus: 'corpus/getCorpus'
     }),
     update(){
       //the required data (see setupIt) is available only after two ticks
@@ -257,7 +265,6 @@ export default {
       this.update();
     },
     clickOnLemma (name) {
-      this.loadingConcordances = true;
       this.concordancesRequested = true;
       this.getConcordances({
         corpus:           this.analysis.corpus,
@@ -267,12 +274,16 @@ export default {
       }).catch((error)=>{
         this.error = error
       }).then(()=>{
-        this.loadingConcordances = false;
       });
-    },
+    }
   },
   created () {
-    this.id = this.$route.params.id
+    this.id = this.$route.params.id;
+    if(!this.analysis) return this.$router.push('/analysis'); //fallback
+
+    this.getCorpus(this.analysis.corpus).catch((error)=>{
+      this.error = error;
+    });
   }
 }
 

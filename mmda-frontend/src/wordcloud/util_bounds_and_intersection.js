@@ -110,7 +110,7 @@ class GridAccelerationStructure {
   constructor(num_elements, bounds) {
     // Initialize acceleration-Structure:
     // 2D array (ms x ms) of lists  <word collisions>
-    this.size = Math.ceil(Math.sqrt(2 * num_elements));
+    this.size = Math.ceil(Math.sqrt(2*num_elements));
     this.grid = new Array(this.size * this.size).fill(null).map(() => []);
     this.min = bounds.min;
     this.max = bounds.max;

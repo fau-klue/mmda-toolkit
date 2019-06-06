@@ -25,6 +25,9 @@ import {
   GridAccelerationStructure
 } from "./util_bounds_and_intersection.js";
 
+var total_insertion_tests = 0;
+var total_objects = 0;
+
 function iterativelyInsertObjectsTo(
   Objects,
   accGrid,
@@ -36,16 +39,22 @@ function iterativelyInsertObjectsTo(
   for (var n of Objects) {
     n.outer_offset = null;
     var found_position = false;
-    const MAX_INSERTION_TESTS = 100;
+    var avg = total_insertion_tests/Math.max(10,total_objects);
+    var MAX_INSERTION_TESTS = Math.min(100,Math.max(1, 100 / Math.max(1,avg)));
+    total_objects ++;
+    
+
     for (var i = 0; i < MAX_INSERTION_TESTS; ++i) {
       ++total_intersections;
+      ++total_insertion_tests;
       // Offsetting the Word to pseudo-random positions in increasing distances
       // around their desired position
       var world_footprint = sub2(n.max, n.min);
       var mf = Math.min(world_footprint[0], world_footprint[1]);
+      var tid = i / MAX_INSERTION_TESTS * 100;
       n.offset = [
-        Math.sin(1.8 * 2 * Math.sqrt(i) * mf) * i * mf * 0.0126,
-        Math.cos(1.8 * 2 * Math.sqrt(i) * mf) * i * mf * 0.0126
+        Math.sin(1.8 * 2 * Math.sqrt(tid) * mf) * tid * mf * 0.0126,
+        Math.cos(1.8 * 2 * Math.sqrt(tid) * mf) * tid * mf * 0.0126
       ];
       n._pos = add2(n.layout_position, n.offset);
       var intersection = false;
@@ -111,6 +120,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
     n.layout_position = n._pos;
     all_nodes.push(n);
     n.shown = !n.hidden;
+    n.failedInserting = false;
   }
 
   var failedInsertions = [];
@@ -146,7 +156,6 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
 
 
 
-
   function hierarchically_insert_groups(all_nodes, set_of_parent_groups, vm) {
     if (!all_nodes.length) return;
     var min = inf2();
@@ -155,6 +164,9 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
       min = min2(min, n.computed_position);
       max = max2(max, n.computed_position);
     }
+
+    total_insertion_tests = 0;
+    total_objects = 0;
 
     var accGrid = new GridAccelerationStructure(all_nodes.length, {
       min,
@@ -250,7 +262,9 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
           undefined,
           undefined,
           n => {
-            failedInsertions.push(n);
+            if ( !n.hidden ) {
+              failedInsertions.push(n);
+            }
           }
         );
 
@@ -335,7 +349,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
         },
         n => {
           //failed Insertion
-          if (n.normalized_size >= 0 || n.normalized_size_compare >= 0) {
+          if ( !n.hidden ) {
             //if should be visible...
             failedInsertions.push(n);
           }
@@ -347,6 +361,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
       for(var n of failedInsertions){
         //wordset.debugPoint(n._pos);
         n.shown = false;
+        n.failedInserting = true;
       }
       
       vm.error.set(
@@ -358,7 +373,7 @@ function layoutWordcloudFormGroupsResolveOverlap(wordset) {
 
     wordset.sorted_groups = sorted_groups;
   }
-
+  //console.log("tests: "+total_insertion_tests);
 }
 
 export {

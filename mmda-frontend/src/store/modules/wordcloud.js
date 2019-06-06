@@ -9,6 +9,9 @@ const state = {
   rightSidebar: false,
   associationMeasure: null,
   showMinimap: true,
+  secondOrderCollocationDiscoursemeIDs: [],
+  
+  collocatesToCompare: null,
 }
 
 const getters = {
@@ -23,7 +26,13 @@ const getters = {
   },
   showMinimap (state) {
     return state.showMinimap
-  }
+  },
+  secondOrderCollocationDiscoursemeIDs(state){
+    return state.secondOrderCollocationDiscoursemeIDs;
+  },
+  collocatesToCompare(state){
+    return state.collocatesToCompare;
+  },
 }
 
 const actions = {
@@ -38,7 +47,13 @@ const actions = {
   },
   setShowMinimap ({commit}, val) {
     commit("setShowMinimap", val)
-  }
+  },
+  setSecondOrderCollocationDiscoursemeIDs({commit}, val){
+    commit("setSecondOrderCollocationDiscoursemeIDs",val)
+  },
+  setCollocatesToCompare({commit},val){
+    commit("setCollocatesToCompare",val);
+  },
 }
 
 const mutations = {
@@ -53,7 +68,13 @@ const mutations = {
   },
   setShowMinimap (state, val) {
     state.showMinimap = val
-  }
+  },
+  setSecondOrderCollocationDiscoursemeIDs (state, val){
+    state.secondOrderCollocationDiscoursemeIDs = val;
+  },
+  setCollocatesToCompare(state,val){
+    state.collocatesToCompare = val;
+  },
 }
 
 export default {
