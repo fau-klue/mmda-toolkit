@@ -12,12 +12,6 @@ from backend.analysis.ccc import _df_dp_nodes_to_cooc
 from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
 
 
-REGISTRY_PATH = os.getenv(
-    'MMDA_CQP_REGISTRY',
-    default='/usr/local/cwb-3.4.16/share/cwb/registry/'
-)
-
-
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 LOGGER = logging.getLogger('mmda-logger')
 
@@ -29,7 +23,7 @@ def timeit(func):
         start = timer()
         result = func(*args, **kwargs)
         end = timer()
-        LOGGER.info("{} ran in {}s".format(func.__name__, round(end - start, 2)))
+        # LOGGER.info("{} ran in {}s".format(func.__name__, round(end - start, 2)))
         return result
     return wrapper
 
@@ -42,19 +36,17 @@ t = {
 
     'corpus_settings': {
         'name': 'MMDA_DE_TWEETS',
-        # 'name': 'LTWBY2018_TWEETS',
-        'registry_path': REGISTRY_PATH
+        'registry_path': '/usr/local/cwb-3.4.16/share/cwb/registry/'
     },
 
     'corpus_settings_fail': {
         'name': 'MMDA_DE_TWEETS2',
-        'registry_path': REGISTRY_PATH
+        'registry_path': '/usr/local/cwb-3.4.16/share/cwb/registry/'
     },
 
     'analysis_settings': {
         'idx': 1,
         'p_query': 'lemma',
-        # 'p_query': 'tt_lemma',
         's_break': 'tweet',
         'max_window_size': 10
     },
@@ -71,6 +63,7 @@ t = {
 }
 
 
+# @pytest.fixture(scope='session')
 class Discourseme():
 
     def __init__(self, idx, items):
@@ -137,6 +130,10 @@ def test_combine_df_nodes_single():
             '2': df_nodes_single2
         }
     )
+
+    assert df_nodes.shape == (52, 5)
+    # TODO: Extend
+    assert 'topic_match' in df_nodes.columns
     assert len(df_nodes) > 1
 
 
@@ -145,9 +142,16 @@ def test_combine_df_nodes_single():
 def test_CCC_retrieve_discourseme_dfs():
 
     ccc = CCC(t['analysis_settings'], ENGINE)
-    df_node, df_cooc, f1 = ccc._retrieve_discourseme_dfs(t['items1'])
-    assert len(df_node) > 10
+    df_node, df_cooc, match_pos = ccc._retrieve_discourseme_dfs(t['items1'])
 
+    assert 'matchend' in df_node.columns
+    assert df_node.shape == (34, 3)
+
+    assert 'offset' in df_cooc.columns
+    assert df_cooc.shape == (566, 3)
+
+    assert isinstance(match_pos, set)
+    assert len(match_pos) == 34
 
 @pytest.mark.ccc
 @timeit
@@ -180,7 +184,9 @@ def test_slice_discoursemes_topic():
         t['analysis_settings']['max_window_size']
     )
 
-    assert len(match_pos_set) > 100
+
+    assert isinstance(match_pos_set, set)
+    assert len(match_pos_set) == 1260
 
 
 @pytest.mark.ccc
@@ -213,8 +219,11 @@ def test_df_dp_nodes_to_cooc():
         },
         t['analysis_settings']['max_window_size']
     )
+
     df_cooc_glob = _df_dp_nodes_to_cooc(topic_df_cooc, df_dp_nodes)
-    assert len(df_cooc_glob) > 10
+
+    assert df_cooc_glob.shape == (248, 3)
+    assert 'match' in df_cooc_glob.columns
 
 
 @pytest.mark.ccc
@@ -223,10 +232,19 @@ def test_CCC_extract_concordances():
 
     ccc = CCC(t['analysis_settings'], ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
+
     concordances = ccc.extract_concordances(
         topic_discourseme
     )
-    assert len(concordances) > 1
+
+    assert isinstance(concordances, dict)
+    assert len(concordances.keys()) == 10
+
+    for concordance in concordances.values():
+        assert 'word' in concordance.columns
+        assert 'role' in concordance.columns
+        assert 'offset' in concordance.columns
+        assert len(concordance) > 1
 
 
 @pytest.mark.ccc
@@ -237,11 +255,20 @@ def test_CCC_extract_concordances_dp():
     topic_discourseme = Discourseme(1, t['items1'])
     disc2 = Discourseme(2, t['items2'])
     disc3 = Discourseme(3, t['items3'])
+
     concordances = ccc.extract_concordances(
         topic_discourseme,
         [disc2, disc3]
     )
-    assert len(concordances) > 1
+
+    assert isinstance(concordances, dict)
+    assert len(concordances.keys()) == 10
+
+    for concordance in concordances.values():
+        assert 'word' in concordance.columns
+        assert 'role' in concordance.columns
+        assert 'offset' in concordance.columns
+        assert len(concordance) > 1
 
 
 @pytest.mark.ccc
@@ -250,10 +277,20 @@ def test_CCC_extract_collocates():
 
     ccc = CCC(t['analysis_settings'], ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
+
     collocates = ccc.extract_collocates(
         topic_discourseme
     )
-    assert len(collocates) == 10
+
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 10
+
+    for collocate in collocates.values():
+        assert 'O11' in collocate.columns
+        assert 'f2' in collocate.columns
+        assert 'N' in collocate.columns
+        assert len(collocate) > 1
 
 
 @pytest.mark.ccc
@@ -264,8 +301,17 @@ def test_CCC_extract_collocates_dp():
     topic_discourseme = Discourseme(1, t['items1'])
     disc2 = Discourseme(2, t['items2'])
     disc3 = Discourseme(3, t['items3'])
+
     collocates = ccc.extract_collocates(
         topic_discourseme,
         [disc2, disc3]
     )
-    assert len(collocates) == 10
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 10
+
+    for collocate in collocates.values():
+        assert 'O11' in collocate.columns
+        assert 'f2' in collocate.columns
+        assert 'N' in collocate.columns
+        assert len(collocate) > 1
