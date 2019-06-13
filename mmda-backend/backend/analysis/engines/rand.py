@@ -35,7 +35,7 @@ class RandomEngine(Engine):
         return pandas.DataFrame.from_dict({"f2":{"wählt":181,"morgen":38}})
 
     # pylint: disable=unused-argument, no-self-use
-    def prepare_discourseme(self, p_att, s_att, items, max_window_size):
+    def prepare_df_node(self, p_att, s_att, items):
         data_cooc = {
             'node_id': [1,1,1,1,2,2,2,2,2,3,3,3,3],
             'offset': [-2, -1, 1, 2, -2, -1, 1, 2, -2, -1, 1, 2,],

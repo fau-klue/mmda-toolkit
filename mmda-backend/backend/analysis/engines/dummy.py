@@ -15,7 +15,8 @@ class DummyEngine(Engine):
 
     # pylint: disable=unused-argument, no-self-use
     def get_marginals(self, items, p_att):
-        return DataFrame.from_dict({"f2":{"wählt":181,"morgen":38}})
+        N = 1234
+        return DataFrame.from_dict({"f2":{"wählt":181,"morgen":38}}), N
 
     # pylint: disable=unused-argument, no-self-use
     def prepare_df_node(self, p_query, s_breaks, items):

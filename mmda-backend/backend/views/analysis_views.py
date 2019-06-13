@@ -7,9 +7,10 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
 from logging import getLogger
 
-from backend import db, cache
+from backend import db
 from backend import user_required
-from backend.analysis.utils import generate_hash
+from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
+
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User
@@ -17,35 +18,6 @@ from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Disco
 
 analysis_blueprint = Blueprint('analysis', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
-
-
-def create_identifier(analysis_id, window_size, items):
-    """
-    Create unique identifier
-    """
-
-    identifier_str = '{analysis_id}{window_size}{items}'.format(analysis_id=analysis_id,
-                                                         window_size=window_size,
-                                                         items=''.join(items))
-
-    return generate_hash(identifier_str)
-
-
-def extract_collocates_from_cache(corpus, window_size, items, identifier, collocates=None):
-    """
-    Extract collocates from cache or create and store in cache
-    """
-
-    collocate_data = cache.get(identifier)
-
-    if not collocate_data:
-        log.debug('No collocate data available. Extracting for %s', identifier)
-        engine = current_app.config['ENGINES'][corpus]
-        collocate_data = engine.extract_collocates(items=items, window_size=window_size, collocates=collocates)
-        cache.set(identifier, collocate_data)
-
-    return collocate_data
-
 
 
 # CREATE
@@ -61,6 +33,9 @@ def create_analysis(username):
     name = request.json.get('name', None)
     corpus = request.json.get('corpus', None)
     maximal_window_size = request.json.get('window_size', 3)
+    p_query = request.json.get('p_query', None)
+    s_break = request.json.get('s_break', None)
+    association_measures = request.json.get('association_measures', [])
     items = request.json.get('items', [])
 
     # Check corpus
@@ -78,21 +53,27 @@ def create_analysis(username):
     log.debug('Created topic discourseme %s', topic_discourseme.id)
 
     # Add Analysis to DB
-    analysis = Analysis(name=name, corpus=corpus, user_id=user.id, topic_id=topic_discourseme.id, window_size=maximal_window_size)
+    analysis = Analysis(name=name,
+                        corpus=corpus,
+                        user_id=user.id,
+                        topic_id=topic_discourseme.id,
+                        window_size=maximal_window_size,
+                        p_query=p_query,
+                        s_break=s_break,
+                        association_measures=association_measures)
+
     db.session.add(analysis)
     db.session.commit()
     log.debug('Created analysis %s', analysis.id)
 
     # Load Collocates
-    tokens = []
-    # +1 to include upper boundary
-    for window_size in range(2, maximal_window_size + 1):
-        # String concatenation to create hash
-        identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
-        collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=None)
-        tokens += list(collocate.data.index)
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
 
-    # Make unique list from tokens
+    collocates = ccc.extract_collocates(topic_discourseme)
+
+    # dict of dataframes with key === window_size
+    tokens = [df.index for df in collcates.values()]
     tokens = list(set(tokens))
 
     if len(tokens) == 0:
@@ -170,6 +151,7 @@ def update_analysis(username, analysis):
     """
 
     # Check request
+    # TODO: Update other settings
     name = request.json.get('name', None)
     if not name:
         log.debug('No name provided for analysis %s', analysis)
@@ -282,14 +264,16 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     analysis_discourseme = AnalysisDiscoursemes(analysis_id=analysis.id, discourseme_id=discourseme.id)
     db.session.add(analysis_discourseme)
 
-    # Generate Collocates, Store in Cache
-    identifier = generate_hash(str(analysis.id) + str(discourseme.id) + ''.join(discourseme.items))
-    collocates = cache.get(identifier)
+    # Load Collocates
+    corpus = current_app.config['CORPORA'][analysis.corpus]
+    ccc = CCC(analysis, corpus)
 
-    if not collocates:
-        engine = current_app.config['ENGINES'][analysis.corpus]
-        collocates = engine.extract_collocates(items=discourseme.items, window_size=5)
-        cache.set(identifier, collocates)
+    # Extract Second Order Collocates
+    # TODO: Parameter? Cut Off?
+    collocates = ccc.extract_collocates(topic_dicouseme, [discourseme])
+    # dict of dataframes with key === window_size
+    tokens = set([df.index for df in collcates.values()])
+    tokens = list(set(tokens))
 
     log.debug('Generating Coordinates for missing collocates')
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()

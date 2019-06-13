@@ -21,6 +21,8 @@ from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from wtforms.fields import HiddenField
 
+import backend.analysis.engines as Engines
+
 
 # Instantiate Flask extensions
 cache = Cache(config={'CACHE_TYPE': 'simple'})
@@ -196,6 +198,9 @@ def create_app(extra_config_settings={}):
     # Setup an error-logger to send emails to app.config.ADMINS
     init_email_error_handler(app)
 
+    # Setup corpora Engines
+    init_engines(app)
+
     # Setup Flask-User to handle user account related forms
     from .models.user_models import User
     user_manager = UserManager(app, db, User)
@@ -240,3 +245,19 @@ def init_email_error_handler(app):
     # Log errors using: app.logger.error('Some error message')
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
+
+
+def init_engines(app):
+    """
+    Initialize Corpus Engines.
+    Every corpus has a specific Engine that handles the data extraction.
+    """
+
+    engines = {}
+
+    for corpus_name, corpus_settings in app.config['CORPORA'].items():
+        engine_class = getattr(Engines, corpus_settings['engine'])
+        engine = engine_class(corpus_settings)
+        engines[corpus_name] = engine
+
+    app.config['ENGINES'] = engines

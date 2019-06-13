@@ -60,6 +60,9 @@ def upgrade():
     sa.Column('topic_id', sa.Integer(), nullable=True),
     sa.Column('user_id', sa.Integer(), nullable=True),
     sa.Column('window_size', sa.Integer(), nullable=True),
+    sa.Column('p_query', sa.String(length=255), nullable=False),
+    sa.Column('s_break', sa.String(length=255), nullable=False),
+    sa.Column('association_measures', sa.String(length=255), nullable=False),
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['topic_id'], ['discourseme.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id')
