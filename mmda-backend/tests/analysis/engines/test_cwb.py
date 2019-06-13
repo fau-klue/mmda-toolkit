@@ -5,8 +5,7 @@ from backend.analysis.engines.cwb import _execute_cqp_query
 from backend.analysis.engines.cwb import _dump_corpus_positions
 from backend.analysis.engines.cwb import _dump_to_df_node
 from backend.analysis.engines.cwb import CWBEngine
-
-from backend.analysis.engines import *
+from backend.analysis.engines import Engine
 
 
 REGISTRY_PATH = os.getenv(
@@ -118,10 +117,8 @@ def test_dump_to_df_node():
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_CWB_df_node():
-    engine = CWBEngine(
-        t['corpus_settings']
-    )
-    df_node = engine.prepare_node_df(
+    engine = CWBEngine(t['corpus_settings'])
+    df_node = engine.prepare_df_node(
         t['analysis_settings']['p_query'],
         t['analysis_settings']['s_break'],
         t['items1']

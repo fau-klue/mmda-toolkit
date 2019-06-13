@@ -3,7 +3,6 @@
 Concordance and Collocation Calculation
 """
 
-import os
 import logging
 import shelve
 from hashlib import sha256
@@ -33,12 +32,6 @@ class Cache:
             db[key] = value
 
 
-DATA_PATH = os.getenv(
-    'MMDA_DATA',
-    default='/tmp/'
-)
-
-
 def create_identifier(*args):
     """
     Generate a hash from a string.
@@ -54,6 +47,7 @@ def create_identifier(*args):
 
 # concordance ##################################################################
 def _get_disc_positions(df_dp_nodes_loc):
+    """ converts a local region into a dictionary of discourseme positions """
     disc_matches = defaultdict(list)
     for row in df_dp_nodes_loc.iterrows():
         disc_matches[row[1]['disc_match']].append(row[1]['disc_id'])
@@ -66,6 +60,7 @@ def _df_node_to_concordance(engine,
                             order,
                             cut_off,
                             df_dp_nodes=None):
+    """ retrieves concordances for a df_node and an optional df_dp_nodes """
 
     # avoid trying to get more concordances than there are
     if df_dp_nodes is not None:
@@ -150,7 +145,7 @@ def _df_node_to_concordance(engine,
 
 # slicing discoursemes #########################################################
 def _calculate_offset(row):
-    """ calculate appropriate of y offset considering match and matchend of x """
+    """ calculates appropriate offset of y considering match and matchend of x """
     match_x = row['match_x']
     matchend_x = row['matchend_x']
     match_y = row['match_y']
@@ -163,8 +158,27 @@ def _calculate_offset(row):
     return offset
 
 
+def _combine_df_nodes_single(df_nodes_single_dict):
+    """ combines a dictionary of single df_nodes into df_dp_nodes """
+    # only take relevant topic_matches
+    relevant_topic_matches = set.intersection(
+        *[set(r['topic_match']) for r in df_nodes_single_dict.values()]
+    )
+
+    # init output
+    df_dp_nodes = DataFrame()
+    for idx in df_nodes_single_dict:
+        # get relevant subset of df_node of discourseme
+        df_node = df_nodes_single_dict[idx].copy()
+        df_node = df_node[df_node['topic_match'].isin(relevant_topic_matches)]
+        df_node['disc_id'] = idx
+        # add to df_dp_nodes
+        df_dp_nodes = df_dp_nodes.append(df_node)
+    return df_dp_nodes
+
+
 def slice_discourseme_topic(topic_df_node, disc_df_node, window_size):
-    """ combines discourseme df_node and topic df_node """
+    """ combines df_node of a discourseme with topic df_node """
     df_topic = topic_df_node
     df_topic['match'] = df_topic.index  # move match from index to column
     df_disc = disc_df_node  # positions occupied by discourseme in corpus
@@ -185,7 +199,7 @@ def slice_discoursemes_topic(topic_df_node,
                              topic_match_pos_set,
                              disc_df_node_dict,
                              window_size):
-    """ combines df_node of several discoursemes with topic df_node """
+    """ combines df_nodes of several discoursemes with topic df_node """
     df_topic = topic_df_node
     df_topic['match'] = df_topic.index  # move match from index to column
 
@@ -200,31 +214,14 @@ def slice_discoursemes_topic(topic_df_node,
             window_size
         )
         nodes_match_pos = nodes_match_pos.union(disc_match_pos_set)  # book-keeping
-    df_dp_nodes = combine_df_nodes_single(dfs_single_nodes_dict)
+    df_dp_nodes = _combine_df_nodes_single(dfs_single_nodes_dict)
     return df_dp_nodes, nodes_match_pos
-
-
-def combine_df_nodes_single(df_nodes_single_dict):
-
-    # only take relevant topic_matches
-    relevant_topic_matches = set.intersection(
-        *[set(r['topic_match']) for r in df_nodes_single_dict.values()]
-    )
-
-    # init output
-    df_nodes = DataFrame()
-    for idx in df_nodes_single_dict:
-        df_node = df_nodes_single_dict[idx].copy()
-        df_node = df_node[df_node['topic_match'].isin(relevant_topic_matches)]
-        df_node['disc_id'] = idx
-        df_nodes = df_nodes.append(df_node)
-    return df_nodes
 
 
 # nodes to cooc ################################################################
 def _df_node_to_df_cooc(df_node,
                         max_window_size):
-
+    """ converts a (topic) df_node to df_cooc """
     # fill cooc lists
     match_list = list()
     cpos_list = list()
@@ -267,7 +264,7 @@ def _df_node_to_df_cooc(df_node,
 
 
 def _df_dp_nodes_to_cooc(topic_df_cooc, df_dp_nodes):
-    """ creates global df cooc """
+    """ creates global df cooc from the topic_df_cooc and the df_dp_nodes """
 
     # drop irrelevant topic matches
     df_cooc_glob = topic_df_cooc[
@@ -315,7 +312,7 @@ def df_cooc_to_counts(engine,
 
 # reference frequencies ########################################################
 def get_reference_freq(engine, items, p_query, reference='whole'):
-
+    """ gets the reference frequencies for a list of items """
     if reference == 'whole':
         f2, N = engine.get_marginals(items, p_query)
     else:
@@ -326,8 +323,7 @@ def get_reference_freq(engine, items, p_query, reference='whole'):
 
 # counts to contingencies ######################################################
 def counts_to_contingencies(counts, f1, f1_inflated, f2, N):
-
-    """ window counts + f1 counts to contingency table"""
+    """ window counts + marginals to contingency table"""
 
     # create contingency table
     N_deflated = N - f1
@@ -339,7 +335,7 @@ def counts_to_contingencies(counts, f1, f1_inflated, f2, N):
 
 
 def add_ams(contingencies):
-
+    """ annotates a contingency table with AM information """
     # rename for convenience
     df = contingencies
 

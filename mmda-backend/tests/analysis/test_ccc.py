@@ -6,7 +6,7 @@ import logging
 
 from staticengine import StaticEngine
 from backend.analysis.ccc import slice_discourseme_topic
-from backend.analysis.ccc import combine_df_nodes_single
+from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic
 from backend.analysis.ccc import _df_dp_nodes_to_cooc
 from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
@@ -23,7 +23,7 @@ def timeit(func):
         start = timer()
         result = func(*args, **kwargs)
         end = timer()
-        # LOGGER.info("{} ran in {}s".format(func.__name__, round(end - start, 2)))
+        LOGGER.info("{} ran in {}s".format(func.__name__, round(end - start, 2)))
         return result
     return wrapper
 
@@ -133,7 +133,7 @@ def test_combine_df_nodes_single(analysis):
     df_nodes_single2 = slice_discourseme_topic(
         topic_df_node, disc2_df_node, 10
     )
-    df_nodes = combine_df_nodes_single(
+    df_nodes = _combine_df_nodes_single(
         {
             '1': df_nodes_single1,
             '2': df_nodes_single2
