@@ -3,7 +3,6 @@
 from random import sample, randint, random
 from pandas import DataFrame
 from .engine import Engine
-from .engine import Collocates
 
 
 WORD_FILE = '/usr/share/dict/words'
@@ -28,65 +27,30 @@ class RandomEngine(Engine):
     """
 
     # pylint: disable=unused-argument, no-self-use
-    def extract_collocates(self, items, window_size, collocates=None):
-        """
-        See Base Engine for details.
-        """
-
-        num = randint(5,15)
-        columns=['011', 'f2', 'Dice', 'MI', 'simple.ll', 't.score']
-        index = random_words(num=num)
-        data = []
-
-        for idx in range(0, num):
-            random_data = [idx,
-                           randint(1,100),
-                           random(),
-                           random()*10,
-                           random()*100,
-                           random()]
-            data.append(random_data)
-
-        dataframe = DataFrame(data=data, columns=columns, index=index)
-        collocates = Collocates(data=dataframe, f1=15, N=1000)
-
-        return collocates
+    def lexicalize_positions(self, positions, p_att):
+        return ['Weitblick', 'RT', '@neos_eu', ':', '.', '@BMeinl', ':', 'Nie', 'war', 'es', 'so', 'wichtig', ',', 'in', 'Europa', 'Haltung', 'zu', 'zeigen', ',', 'wie', 'jetzt', '.', 'Da', 'gehört', 'die', 'Unterstützung', 'unserer', 'europäischen', 'Freu', '…']
 
     # pylint: disable=unused-argument, no-self-use
-    def extract_concordances(self, items, window_size=None, collocates=None, order='random'):
-        """
-        See Base Engine for details.
-        """
-
-        ret_concordances = []
-
-        for idx in range(0, randint(1, 10)):
-            sentence_length = randint(5,15)
-            sentence = random_words(num=sentence_length)
-            random_concordance = {'s_pos': 323122,
-                                  'word': sentence,
-                                  'role': ['token'] * sentence_length, # token, topic, collocate
-                                  'tt_lemma': sentence}
-            ret_concordances.append(random_concordance)
-
-        return ret_concordances
-
+    def get_marginals(self, items, p_att):
+        return pandas.DataFrame.from_dict({"f2":{"wählt":181,"morgen":38}})
 
     # pylint: disable=unused-argument, no-self-use
-    def extract_discursive_position(self, items, discoursemes, order='random'):
-        """
-        See Base Engine for details.
-        """
+    def prepare_discourseme(self, p_att, s_att, items, max_window_size):
+        data_cooc = {
+            'node_id': [1,1,1,1,2,2,2,2,2,3,3,3,3],
+            'offset': [-2, -1, 1, 2, -2, -1, 1, 2, -2, -1, 1, 2,],
+            'collocate':  ['Weitblick', 'RT', '@neos_eu', ':', '.', '@BMeinl', ':', 'Nie', 'war', 'es', 'so', 'wichtig', ',']}
 
-        ret_concordances = []
+        data_node = {
+            'node_id': [1,2,3],
+            'node_start': [319, 345, 1469],
+            'node_end': [319, 345, 1469],
+            'node': ['Weitblick', 'RT', 'Nie'],
+            's_start': [315, 337, 1467],
+            's_end': [336, 346, 1471],
+        }
 
-        for idx in range(0, randint(1, 10)):
-            sentence_length = randint(5,15)
-            sentence = random_words(num=sentence_length)
-            random_concordance = {'s_pos': 323122,
-                                  'word': sentence,
-                                  'role': ['token'] * sentence_length,
-                                  'tt_lemma': sentence}
-            ret_concordances.append(random_concordance)
+        df_cooc = pandas.Dataframe(data_cooc)
+        df_node = pandas.Dataframe(data_node)
 
-        return ret_concordances
+        return df_cooc, df_node
