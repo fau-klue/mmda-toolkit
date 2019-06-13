@@ -62,8 +62,17 @@ t = {
     }
 }
 
+class Analysis():
+    def __init__(self, p_query='lemma', s_break='tweet', window_size=10):
+        self.idx = 1
+        self.p_query = p_query
+        self.s_break = s_break
+        self.window_size = window_size
 
-# @pytest.fixture(scope='session')
+@pytest.fixture
+def analysis():
+    return Analysis()
+
 class Discourseme():
 
     def __init__(self, idx, items):
@@ -75,17 +84,17 @@ ENGINE = StaticEngine(t['corpus_settings'])
 
 
 @timeit
-def test_slice_discourseme_topic():
+def test_slice_discourseme_topic(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items1']
     )
 
     disc_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items2']
     )
 
@@ -99,25 +108,25 @@ def test_slice_discourseme_topic():
 
 @pytest.mark.ccc
 @timeit
-def test_combine_df_nodes_single():
+def test_combine_df_nodes_single(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items1']
     )
 
     disc1_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items2']
     )
 
     df_nodes_single1 = slice_discourseme_topic(topic_df_node, disc1_df_node, 10)
 
     disc2_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items3']
     )
 
@@ -139,9 +148,9 @@ def test_combine_df_nodes_single():
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_retrieve_discourseme_dfs():
+def test_CCC_retrieve_discourseme_dfs(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     df_node, df_cooc, match_pos = ccc._retrieve_discourseme_dfs(t['items1'])
 
     assert 'matchend' in df_node.columns
@@ -155,22 +164,22 @@ def test_CCC_retrieve_discourseme_dfs():
 
 @pytest.mark.ccc
 @timeit
-def test_slice_discoursemes_topic():
+def test_slice_discoursemes_topic(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_df_node, topic_df_cooc, topic_match_pos = ccc._retrieve_discourseme_dfs(
         t['items1']
     )
 
     disc1_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items2']
     )
 
     disc2_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items3']
     )
 
@@ -191,22 +200,22 @@ def test_slice_discoursemes_topic():
 
 @pytest.mark.ccc
 @timeit
-def test_df_dp_nodes_to_cooc():
+def test_df_dp_nodes_to_cooc(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_df_node, topic_df_cooc, topic_match_pos = ccc._retrieve_discourseme_dfs(
         t['items1']
     )
 
     disc1_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items2'],
     )
 
     disc2_df_node = ENGINE.prepare_df_node(
-        t['analysis_settings']['p_query'],
-        t['analysis_settings']['s_break'],
+        analysis.p_query,
+        analysis.s_break,
         t['items3'],
     )
 
@@ -228,9 +237,9 @@ def test_df_dp_nodes_to_cooc():
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_concordances():
+def test_CCC_extract_concordances(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
 
     concordances = ccc.extract_concordances(
@@ -249,9 +258,9 @@ def test_CCC_extract_concordances():
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_concordances_dp():
+def test_CCC_extract_concordances_dp(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
     disc2 = Discourseme(2, t['items2'])
     disc3 = Discourseme(3, t['items3'])
@@ -273,9 +282,9 @@ def test_CCC_extract_concordances_dp():
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_collocates():
+def test_CCC_extract_collocates(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
 
     collocates = ccc.extract_collocates(
@@ -295,9 +304,9 @@ def test_CCC_extract_collocates():
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_collocates_dp():
+def test_CCC_extract_collocates_dp(analysis):
 
-    ccc = CCC(t['analysis_settings'], ENGINE)
+    ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
     disc2 = Discourseme(2, t['items2'])
     disc3 = Discourseme(3, t['items3'])

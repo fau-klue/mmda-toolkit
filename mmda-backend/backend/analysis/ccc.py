@@ -373,12 +373,12 @@ class ConcordanceCollocationCalculator():
         """
 
         df_node = self.engine.prepare_df_node(
-            self.analysis['p_query'],
-            self.analysis['s_break'],
+            self.analysis.p_query,
+            self.analysis.s_break,
             items
         )
         df_cooc, match_pos = _df_node_to_df_cooc(
-            df_node, self.analysis['max_window_size']
+            df_node, self.analysis.window_size
         )
         return df_node, df_cooc, match_pos
 
@@ -393,7 +393,7 @@ class ConcordanceCollocationCalculator():
         concordance = _df_node_to_concordance(
             self.engine,
             df_node,
-            self.analysis['max_window_size'],
+            self.analysis.window_size,
             order,
             cut_off,
             df_dp_nodes
@@ -406,16 +406,16 @@ class ConcordanceCollocationCalculator():
         collocates = dict()
 
         # get contingencies
-        for window in range(1, self.analysis['max_window_size'] + 1):
+        for window in range(1, self.analysis.window_size + 1):
             counts, f1_inflated = df_cooc_to_counts(
                 self.engine,
-                self.analysis['p_query'],
+                self.analysis.p_query,
                 df_cooc,
                 window
             )
             f2, N = get_reference_freq(self.engine,
                                        counts.index,
-                                       self.analysis['p_query'],
+                                       self.analysis.p_query,
                                        reference='whole')
             contingencies = counts_to_contingencies(
                 counts, f1, f1_inflated, f2, N
@@ -430,8 +430,8 @@ class ConcordanceCollocationCalculator():
         cached_data = self.cache.get(identifier)
         if cached_data is None:
             df_node = self.engine.prepare_df_node(
-                self.analysis['p_query'],
-                self.analysis['s_break'],
+                self.analysis.p_query,
+                self.analysis.s_break,
                 items
             )
             self.cache.set(identifier, df_node)
@@ -484,7 +484,7 @@ class ConcordanceCollocationCalculator():
             concordance = _df_node_to_concordance(
                 self.engine,
                 topic_discourseme.df_node,
-                self.analysis['max_window_size'],
+                self.analysis.window_size,
                 concordance_settings['order'],
                 concordance_settings['cut_off']
             )
@@ -502,13 +502,13 @@ class ConcordanceCollocationCalculator():
                 topic_discourseme.df_node,
                 topic_discourseme.match_pos,
                 disc_df_dict,
-                self.analysis['max_window_size']
+                self.analysis.window_size
             )
 
             concordance = _df_node_to_concordance(
                 self.engine,
                 topic_discourseme.df_node,
-                self.analysis['max_window_size'],
+                self.analysis.window_size,
                 concordance_settings['order'],
                 concordance_settings['cut_off'],
                 df_dp_nodes
@@ -557,7 +557,7 @@ class ConcordanceCollocationCalculator():
                 topic_discourseme.df_node,
                 match_pos,
                 disc_df_dict,
-                self.analysis['max_window_size']
+                self.analysis.window_size
             )
 
             df_cooc_glob = _df_dp_nodes_to_cooc(
@@ -570,7 +570,7 @@ class ConcordanceCollocationCalculator():
             )
 
         # ToDo: give cut_off to engine for better performance
-        for window in range(1, self.analysis['max_window_size'] + 1):
+        for window in range(1, self.analysis.window_size + 1):
             # select relevant window
             coll = collocates[window]
             # sort deterministically
