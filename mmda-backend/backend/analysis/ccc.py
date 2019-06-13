@@ -59,6 +59,7 @@ def _df_node_to_concordance(engine,
                             window_size,
                             order,
                             cut_off,
+                            p_query,
                             df_dp_nodes=None):
     """ retrieves concordances for a df_node and an optional df_dp_nodes """
 
@@ -91,7 +92,6 @@ def _df_node_to_concordance(engine,
         s_end = row['s_end']
 
         # init concordance line variables
-        word = list()
         role = list()
         offset = list()
         cpos = list()
@@ -107,9 +107,8 @@ def _df_node_to_concordance(engine,
                 max([s_start, topic_match-window_size]),
                 min([topic_matchend+window_size, s_end])+1
         ):
-            # cpos and word level realizations
+            # cpos
             cpos.append(position)
-            word.append(engine.lexicalize_positions([position])[0])
 
             # role: basic
             if position >= topic_match and position <= topic_matchend:
@@ -130,13 +129,18 @@ def _df_node_to_concordance(engine,
             else:
                 offset.append(0)
 
+        # lexicalize positions
+        word = engine.lexicalize_positions(cpos)
+        p_query_items = engine.lexicalize_positions(cpos, p_query)[0]
+
         # save concordance line
         concordance[topic_match] = DataFrame(
             index=cpos,
             data={
                 'word': word,
                 'role': role,
-                'offset': offset
+                'offset': offset,
+                'p_query': p_query_items
             }
         )
 
@@ -392,6 +396,7 @@ class ConcordanceCollocationCalculator():
             self.analysis.window_size,
             order,
             cut_off,
+            self.analysis.p_query,
             df_dp_nodes
         )
         return concordance
@@ -482,7 +487,8 @@ class ConcordanceCollocationCalculator():
                 topic_discourseme.df_node,
                 self.analysis.window_size,
                 concordance_settings['order'],
-                concordance_settings['cut_off']
+                concordance_settings['cut_off'],
+                self.analysis.p_query
             )
 
         # concordance of discursive position
@@ -507,6 +513,7 @@ class ConcordanceCollocationCalculator():
                 self.analysis.window_size,
                 concordance_settings['order'],
                 concordance_settings['cut_off'],
+                self.analysis.p_query,
                 df_dp_nodes
             )
 

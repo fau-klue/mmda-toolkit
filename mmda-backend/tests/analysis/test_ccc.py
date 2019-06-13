@@ -62,6 +62,7 @@ t = {
     }
 }
 
+
 class Analysis():
     def __init__(self, p_query='lemma', s_break='tweet', window_size=10):
         self.idx = 1
@@ -69,9 +70,11 @@ class Analysis():
         self.s_break = s_break
         self.window_size = window_size
 
+
 @pytest.fixture
 def analysis():
     return Analysis()
+
 
 class Discourseme():
 
