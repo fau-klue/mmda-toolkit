@@ -26,7 +26,7 @@ numpy = "*"
 pipenv = "==2018.11.26"
 Flask-Cors = "==3.0.7"
 cwb-python = "==0.2.2"
-association-measures = "==0.1.1"
+association-measures = "*"
 
 [dev-packages]
 pytest = "==4.1.1"
