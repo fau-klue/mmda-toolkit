@@ -131,7 +131,7 @@ def _df_node_to_concordance(engine,
 
         # lexicalize positions
         word = engine.lexicalize_positions(cpos)
-        p_query_items = engine.lexicalize_positions(cpos, p_query)[0]
+        p_query_items = engine.lexicalize_positions(cpos, p_query)
 
         # save concordance line
         concordance[topic_match] = DataFrame(
