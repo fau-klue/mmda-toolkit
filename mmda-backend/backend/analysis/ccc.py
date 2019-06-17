@@ -147,6 +147,29 @@ def _df_node_to_concordance(engine,
     return concordance
 
 
+def _cut_conc(concordance, window):
+    """ input: match-keyed dictionary of concordance-dfs
+    output: list of concordances (json) for given window """
+    conc_lines = list()
+    for match in concordance.keys():
+        df_conc = concordance[match]
+
+        # give new roles to positions outside region defined by window
+        df_conc.loc[(df_conc['offset'] < -window) | (df_conc['offset'] > +window), 'role'] = 'out_of_window'
+
+        # jsonify
+        conc_line = dict()
+        conc_line['p_query'] = list(df_conc['p_query'])
+        conc_line['word'] = list(df_conc['word'])
+        conc_line['role'] = [k if k != 'out_of_window' else [k] for k in df_conc['role']]
+        conc_line['match_pos'] = match
+
+        # append
+        conc_lines.append(conc_line)
+
+    return conc_lines
+
+
 # slicing discoursemes #########################################################
 def _calculate_offset(row):
     """ calculates appropriate offset of y considering match and matchend of x """
@@ -459,7 +482,8 @@ class ConcordanceCollocationCalculator():
     def extract_concordances(self,
                              topic_discourseme,
                              discoursemes=None,
-                             concordance_settings=None):
+                             concordance_settings=None,
+                             per_window=False):
 
         if concordance_settings is None:
             concordance_settings = {
@@ -516,6 +540,12 @@ class ConcordanceCollocationCalculator():
                 self.analysis.p_query,
                 df_dp_nodes
             )
+
+        if per_window:
+            concordance_dict = dict()
+            for window in range(1, self.analysis.window_size + 1):
+                concordance_dict[window] = _cut_conc(concordance, window)
+            concordance = concordance_dict
 
         return concordance
 

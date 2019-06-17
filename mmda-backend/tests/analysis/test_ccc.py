@@ -1,4 +1,3 @@
-import os
 import pytest
 from timeit import default_timer as timer
 from functools import wraps
@@ -10,6 +9,7 @@ from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic
 from backend.analysis.ccc import _df_dp_nodes_to_cooc
 from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
+from backend.analysis.ccc import _cut_conc
 
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
@@ -165,6 +165,7 @@ def test_CCC_retrieve_discourseme_dfs(analysis):
     assert isinstance(match_pos, set)
     assert len(match_pos) == 34
 
+
 @pytest.mark.ccc
 @timeit
 def test_slice_discoursemes_topic(analysis):
@@ -195,7 +196,6 @@ def test_slice_discoursemes_topic(analysis):
         },
         t['analysis_settings']['max_window_size']
     )
-
 
     assert isinstance(match_pos_set, set)
     assert len(match_pos_set) == 1260
@@ -294,7 +294,6 @@ def test_CCC_extract_collocates(analysis):
         topic_discourseme
     )
 
-
     assert isinstance(collocates, dict)
     assert len(collocates.keys()) == 10
 
@@ -348,3 +347,47 @@ def test_CCC_extract_collocates_dummy(analysis):
         assert 'O11' in collocate.columns
         assert 'f2' in collocate.columns
         assert 'N' in collocate.columns
+
+
+@pytest.mark.ccc
+@pytest.mark.conc
+def test_cut_conc(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+
+    concordance = ccc.extract_concordances(
+        topic_discourseme
+    )
+
+    concordance = _cut_conc(concordance, window=2)
+    assert isinstance(concordance, list)
+    assert len(concordance) == 10
+
+    for line in concordance:
+        assert 'word' in line.keys()
+        assert 'role' in line.keys()
+        assert 'p_query' in line.keys()
+        assert len(line) > 1
+
+
+@pytest.mark.ccc
+@pytest.mark.conc
+def test_conc_window(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+
+    concordance = ccc.extract_concordances(
+        topic_discourseme,
+        per_window=True
+    )
+
+    assert isinstance(concordance, dict)
+
+    for window in concordance.keys():
+        for line in concordance[window]:
+            assert 'word' in line.keys()
+            assert 'role' in line.keys()
+            assert 'p_query' in line.keys()
+            assert len(line) > 1
