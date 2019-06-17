@@ -72,8 +72,12 @@ def create_analysis(username):
 
     collocates = ccc.extract_collocates(topic_discourseme)
 
-    # dict of dataframes with key === window_size
-    tokens = [df.index for df in collcates.values()]
+    # Get Tokens for coordinate generation
+    # collocates is a dict of dataframes with key == window_size
+    # TODO: I'm sure there's a one liner to do this
+    tokens = []
+    for df in collocates.values():
+        tokens.extend(df.index)
     tokens = list(set(tokens))
 
     if len(tokens) == 0:
@@ -268,12 +272,16 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     engine = current_app.config['ENGINES'][analysis.corpus]
     ccc = CCC(analysis, engine)
 
-    # Extract Second Order Collocates
+    # Get Topic Discourseme
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
     # TODO: Parameter? Cut Off?
     collocates = ccc.extract_collocates(topic_discourseme, [discourseme])
 
     # dict of dataframes with key === window_size
-    tokens = set([df.index for df in collcates.values()])
+    tokens = []
+    for df in collocates.values():
+        tokens.extend(df.index)
     tokens = list(set(tokens))
 
     log.debug('Generating Coordinates for missing collocates')
@@ -365,7 +373,7 @@ def get_collocate_for_analysis(username, analysis):
     # TODO: Parameter? Cut Off?
     collocates = ccc.extract_collocates(topic_discourseme)
 
-    df = collocate_data.data.to_dict()
+    df = collocates[window_size].to_dict()
 
     if not df:
         log.debug('No collocates available for analysis %s', analysis)
