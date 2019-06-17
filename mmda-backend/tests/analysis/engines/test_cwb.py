@@ -49,11 +49,13 @@ t = {
 }
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 def test_cwb_engine_inheritance():
     assert issubclass(CWBEngine, Engine)
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_formulate_discourseme_query():
@@ -68,6 +70,7 @@ def test_formulate_discourseme_query():
     assert type(cqp_exec) == str
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_execute_cqp_query():
@@ -85,6 +88,7 @@ def test_execute_cqp_query():
     assert type(cqp_return) == str
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_dump_corpus_positions():
@@ -99,6 +103,7 @@ def test_dump_corpus_positions():
     assert len(actual) > 1 and len(actual[0].split("\t")) == 4
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_dump_to_df_node():
@@ -114,6 +119,7 @@ def test_dump_to_df_node():
     assert len(actual) > 1
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_CWB_df_node():
@@ -126,6 +132,7 @@ def test_CWB_df_node():
     assert len(df_node) > 1
 
 
+@pytest.mark.engine
 @pytest.mark.cwb
 @pytest.mark.xfail
 def test_CWB_lexicalize_positions():
