@@ -265,12 +265,13 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     db.session.add(analysis_discourseme)
 
     # Load Collocates
-    corpus = current_app.config['CORPORA'][analysis.corpus]
-    ccc = CCC(analysis, corpus)
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
 
     # Extract Second Order Collocates
     # TODO: Parameter? Cut Off?
-    collocates = ccc.extract_collocates(topic_dicouseme, [discourseme])
+    collocates = ccc.extract_collocates(topic_discourseme, [discourseme])
+
     # dict of dataframes with key === window_size
     tokens = set([df.index for df in collcates.values()])
     tokens = list(set(tokens))
@@ -355,13 +356,15 @@ def get_collocate_for_analysis(username, analysis):
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Topic Discourseme
-    discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    topic_items = discourseme.items
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
 
     # Get topic and items
-    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=topic_items+collocates)
-    log.debug('Extracting collocates with %s', identifier)
-    collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=topic_items, window_size= window_size, identifier=identifier, collocates=collocates)
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
+
+    # TODO: Parameter? Cut Off?
+    collocates = ccc.extract_collocates(topic_discourseme)
+
     df = collocate_data.data.to_dict()
 
     if not df:
