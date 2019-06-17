@@ -10,8 +10,9 @@ class DummyEngine(Engine):
     """
 
     # pylint: disable=unused-argument, no-self-use
-    def lexicalize_positions(self, positions, p_att):
-        return ['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', '.', 'Nulla', 'ac', '.']
+    def lexicalize_positions(self, positions, p_att='word'):
+        words =['Lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', '.', 'Nulla', 'ac', '.']
+        return words[:len(positions)]
 
     # pylint: disable=unused-argument, no-self-use
     def get_marginals(self, items, p_att):

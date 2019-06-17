@@ -2,6 +2,7 @@ from flask import url_for
 import pytest
 
 
+@pytest.mark.xfail
 @pytest.mark.api
 def test_corpora(client, header):
 
@@ -13,6 +14,7 @@ def test_corpora(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.xfail
 @pytest.mark.api
 def test_corpus(client, header):
 
@@ -24,6 +26,7 @@ def test_corpus(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.xfail
 @pytest.mark.api
 def test_concordances(client, header):
 

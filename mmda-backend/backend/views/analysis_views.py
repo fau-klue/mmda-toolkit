@@ -380,3 +380,51 @@ def get_collocate_for_analysis(username, analysis):
         return jsonify({'msg': 'No collocates available'}), 404
 
     return jsonify(df), 200
+
+
+# READ
+@analysis_blueprint.route('/api/user/<username>/analysis/<analysis>/concordance/', methods=['GET'])
+@user_required
+def get_concordance_for_analysis(username, analysis):
+    """
+    Get concordance for an analysis
+    """
+
+    # Check Request
+    window_size = request.args.get('window_size', 3)
+
+    try:
+        window_size = int(window_size)
+    except TypeError:
+        log.debug('No window size')
+        return jsonify({'msg': 'No request data provided'}), 400
+    except ValueError:
+        log.debug('Window size must be integer')
+        return jsonify({'msg': 'Window size must be integer'}), 400
+
+    # Get User
+    user = User.query.filter_by(username=username).first()
+
+    # Get Analysis from DB
+    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    if not analysis:
+        log.debug('No such analysis %s', analysis)
+        return jsonify({'msg': 'No such analysis'}), 404
+
+    # Get Topic Discourseme
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
+    # Get topic and items
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
+
+    # TODO: Parameter? Cut Off?
+    concordance = ccc.extract_concordances(topic_discourseme)
+
+    df = concordance[window_size].to_dict()
+
+    if not df:
+        log.debug('No collocates available for analysis %s', analysis)
+        return jsonify({'msg': 'No collocates available'}), 404
+
+    return jsonify(df), 200

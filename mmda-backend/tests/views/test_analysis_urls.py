@@ -113,6 +113,19 @@ def test_get_collocate_for_analysis(client, header):
 
 
 @pytest.mark.api
+def test_get_concordance_for_analysis(client, header):
+
+    data = 'window_size=1'
+    response = client.get(url_for('analysis.get_concordance_for_analysis', username='student1', analysis=1),
+                          query_string=data,
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
+
+    assert response.status_code==200
+
+
+@pytest.mark.api
 def test_delete_analysis(client, header):
 
     response = client.delete(url_for('analysis.update_analysis', username='student1', analysis=1),
