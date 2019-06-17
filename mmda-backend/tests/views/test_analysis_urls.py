@@ -1,8 +1,10 @@
 from flask import url_for
 import unittest.mock as mock
 import pandas
+import pytest
 
 
+@pytest.mark.api
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_create_analysis(mock_coords, client, header):
 
@@ -18,6 +20,7 @@ def test_create_analysis(mock_coords, client, header):
     assert response.status_code==201
 
 
+@pytest.mark.api
 def test_get_analysis_discoursemes(client, header):
 
     response = client.get(url_for('analysis.get_discoursemes_for_analysis', username='student1', analysis=1),
@@ -28,6 +31,7 @@ def test_get_analysis_discoursemes(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 @mock.patch('backend.views.analysis_views.generate_discourseme_coordinates')
 def test_put_discourseme_into_analysis(mock_coords, client, header):
 
@@ -49,6 +53,7 @@ def test_put_discourseme_into_analysis(mock_coords, client, header):
     assert response.status_code == 200
 
 
+@pytest.mark.api
 def test_remove_discourseme_from_analysis(client, header):
 
     response = client.delete(url_for('analysis.delete_discourseme_from_analysis', username='student1', analysis=1, discourseme=2),
@@ -59,6 +64,7 @@ def test_remove_discourseme_from_analysis(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_get_all_analysis(client, header):
 
     response = client.get(url_for('analysis.get_all_analysis', username='student1'),
@@ -69,6 +75,7 @@ def test_get_all_analysis(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_get_analysis(client, header):
 
     response = client.get(url_for('analysis.get_analysis', username='student1', analysis=1),
@@ -79,6 +86,7 @@ def test_get_analysis(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_update_analysis(client, header):
 
     data = {'name': 'somethingnew'}
@@ -91,6 +99,7 @@ def test_update_analysis(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_get_collocate_for_analysis(client, header):
 
     data = 'collocate=foobar&collocate=barfoo'
@@ -103,6 +112,7 @@ def test_get_collocate_for_analysis(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_analysis(client, header):
 
     response = client.delete(url_for('analysis.update_analysis', username='student1', analysis=1),

@@ -1,8 +1,10 @@
 from flask import url_for
 import unittest.mock as mock
 import pandas
+import pytest
 
 
+@pytest.mark.api
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_get_coordinates(mock_coords, client, header):
 
@@ -26,6 +28,7 @@ def test_get_coordinates(mock_coords, client, header):
     assert response.status_code == 200
 
 
+@pytest.mark.api
 @mock.patch('backend.views.coordinates_views.generate_semantic_space')
 def test_reload_coordinates(mock_coords, client, header):
 
@@ -42,6 +45,7 @@ def test_reload_coordinates(mock_coords, client, header):
     assert response.status_code == 200
 
 
+@pytest.mark.api
 def test_update_coordinates(client, header):
 
     data = {'das': {'user_x': 100, 'user_y': 100}}
@@ -57,6 +61,7 @@ def test_update_coordinates(client, header):
     assert response.status_code == 200
 
 
+@pytest.mark.api
 def test_delete_coordinates(client, header):
 
     data = {'das': {'user_x': 100, 'user_y': 100}}

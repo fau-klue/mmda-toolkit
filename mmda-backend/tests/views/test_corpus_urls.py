@@ -1,6 +1,8 @@
 from flask import url_for
+import pytest
 
 
+@pytest.mark.api
 def test_corpora(client, header):
 
     response = client.get(url_for('corpus.get_corpora'),
@@ -11,6 +13,7 @@ def test_corpora(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_corpus(client, header):
 
     response = client.get(url_for('corpus.get_corpus', corpus='SZ_SMALL'),
@@ -21,6 +24,7 @@ def test_corpus(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_concordances(client, header):
 
     data = {'foo': 'bar'}
