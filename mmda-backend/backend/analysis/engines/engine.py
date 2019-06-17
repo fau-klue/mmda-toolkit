@@ -56,7 +56,7 @@ class Engine(ABC):
         :raises: RuntimeError: If p_att not available in Corpurs annotation
 
         :return: counts for each item (indexed by items, column "f2"). Will be 0 if item 1not in corpus.
-        :rtype: pandas.DataFrame
+        :rtype: tuple (pandas.DataFrame, int)
         """
 
         raise NotImplementedError
