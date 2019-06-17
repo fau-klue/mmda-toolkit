@@ -419,7 +419,7 @@ def get_concordance_for_analysis(username, analysis):
     ccc = CCC(analysis, engine)
 
     # TODO: Parameter? Cut Off?
-    concordance = ccc.extract_concordances(topic_discourseme)
+    concordance = ccc.extract_concordance(topic_discourseme)
 
     df = concordance[window_size].to_dict()
 
