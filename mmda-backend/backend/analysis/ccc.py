@@ -61,9 +61,9 @@ def _df_node_to_concordance(engine,
                             cut_off,
                             p_query,
                             df_dp_nodes=None):
-    """ retrieves concordances for a df_node and an optional df_dp_nodes """
+    """ retrieves concordance for a df_node and an optional df_dp_nodes """
 
-    # avoid trying to get more concordances than there are
+    # avoid trying to get more concordance lines than there are
     if df_dp_nodes is not None:
         topic_matches = set(df_dp_nodes['topic_match'])
     else:
@@ -149,7 +149,7 @@ def _df_node_to_concordance(engine,
 
 def _cut_conc(concordance, window):
     """ input: match-keyed dictionary of concordance-dfs
-    output: list of concordances (json) for given window """
+    output: list of concordance lines (json) for given window """
     conc_lines = list()
     for match in concordance.keys():
         df_conc = concordance[match]
@@ -479,11 +479,11 @@ class ConcordanceCollocationCalculator():
 
         return df_node, df_cooc, match_pos
 
-    def extract_concordances(self,
-                             topic_discourseme,
-                             discoursemes=None,
-                             concordance_settings=None,
-                             per_window=False):
+    def extract_concordance(self,
+                            topic_discourseme,
+                            discoursemes=None,
+                            concordance_settings=None,
+                            per_window=False):
 
         if concordance_settings is None:
             concordance_settings = {

@@ -240,47 +240,47 @@ def test_df_dp_nodes_to_cooc(analysis):
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_concordances(analysis):
+def test_CCC_extract_concordance(analysis):
 
     ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
 
-    concordances = ccc.extract_concordances(
+    concordance = ccc.extract_concordance(
         topic_discourseme
     )
 
-    assert isinstance(concordances, dict)
-    assert len(concordances.keys()) == 10
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 10
 
-    for concordance in concordances.values():
-        assert 'word' in concordance.columns
-        assert 'role' in concordance.columns
-        assert 'offset' in concordance.columns
-        assert len(concordance) > 1
+    for concordance_line in concordance.values():
+        assert 'word' in concordance_line.columns
+        assert 'role' in concordance_line.columns
+        assert 'offset' in concordance_line.columns
+        assert len(concordance_line) > 1
 
 
 @pytest.mark.ccc
 @timeit
-def test_CCC_extract_concordances_dp(analysis):
+def test_CCC_extract_concordance_dp(analysis):
 
     ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
     disc2 = Discourseme(2, t['items2'])
     disc3 = Discourseme(3, t['items3'])
 
-    concordances = ccc.extract_concordances(
+    concordance = ccc.extract_concordance(
         topic_discourseme,
         [disc2, disc3]
     )
 
-    assert isinstance(concordances, dict)
-    assert len(concordances.keys()) == 10
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 10
 
-    for concordance in concordances.values():
-        assert 'word' in concordance.columns
-        assert 'role' in concordance.columns
-        assert 'offset' in concordance.columns
-        assert len(concordance) > 1
+    for concordance_line in concordance.values():
+        assert 'word' in concordance_line.columns
+        assert 'role' in concordance_line.columns
+        assert 'offset' in concordance_line.columns
+        assert len(concordance_line) > 1
 
 
 @pytest.mark.ccc
@@ -356,7 +356,7 @@ def test_cut_conc(analysis):
     ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
 
-    concordance = ccc.extract_concordances(
+    concordance = ccc.extract_concordance(
         topic_discourseme
     )
 
@@ -378,8 +378,33 @@ def test_conc_window(analysis):
     ccc = CCC(analysis, ENGINE)
     topic_discourseme = Discourseme(1, t['items1'])
 
-    concordance = ccc.extract_concordances(
+    concordance = ccc.extract_concordance(
         topic_discourseme,
+        per_window=True
+    )
+
+    assert isinstance(concordance, dict)
+
+    for window in concordance.keys():
+        for line in concordance[window]:
+            assert 'word' in line.keys()
+            assert 'role' in line.keys()
+            assert 'p_query' in line.keys()
+            assert len(line) > 1
+
+
+@pytest.mark.ccc
+@pytest.mark.conc
+def test_conc_window_dp(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc2, disc3],
         per_window=True
     )
 
