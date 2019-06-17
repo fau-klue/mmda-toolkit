@@ -327,3 +327,24 @@ def test_CCC_extract_collocates_dp(analysis):
         assert 'f2' in collocate.columns
         assert 'N' in collocate.columns
         assert len(collocate) > 1
+
+
+@pytest.mark.ccc
+def test_CCC_extract_collocates_dummy(analysis):
+    """
+    Testing CCC with dummy engine, to make sure it works
+    """
+
+    from backend.analysis.engines import DummyEngine
+    ENGINE = DummyEngine(t['corpus_settings'])
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1337, ['foo', 'bar'])
+
+    collocates = ccc.extract_collocates(topic_discourseme)
+
+    assert isinstance(collocates, dict)
+    for collocate in collocates.values():
+        assert 'O11' in collocate.columns
+        assert 'f2' in collocate.columns
+        assert 'N' in collocate.columns
