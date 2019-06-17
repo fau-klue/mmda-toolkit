@@ -24,6 +24,8 @@ RUN set -ex; \
         \
         python3 \
         python3-pip \
+        # For association-measure Cython code
+        python3-dev gcc \
         && rm -rf /var/lib/apt/lists/* ; \
         \
         pip3 install pipenv
