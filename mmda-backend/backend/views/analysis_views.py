@@ -403,6 +403,8 @@ def get_concordance_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
+    # Optional items (tokens) for concordance extraction
+    items = request.args.getlist('item', None)
 
     try:
         window_size = int(window_size)
@@ -425,6 +427,11 @@ def get_concordance_for_analysis(username, analysis):
     # Get Topic Discourseme
     topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
 
+    # Create Discourseme for extra items
+    extra_discourseme = None
+    if items:
+        extra_discourseme = [Discourseme(name='temp', items=items, user_id=user.id)]
+
     # Get topic and items
     engine = current_app.config['ENGINES'][analysis.corpus]
     ccc = CCC(analysis, engine)
@@ -435,6 +442,7 @@ def get_concordance_for_analysis(username, analysis):
         'cut_off': 10           # integer
     }
     concordance = ccc.extract_concordance(topic_discourseme,
+                                          discoursemes=extra_discourseme,
                                           concordance_settings=concordance_settings,
                                           per_window=True)
 
