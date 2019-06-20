@@ -157,7 +157,7 @@ def update_analysis(username, analysis):
 
     # Check request
     name = request.json.get('name', None)
-    p_uqery = request.json.get('p_query', None)
+    p_query = request.json.get('p_query', None)
     s_break = request.json.get('s_break', None)
     window_size = request.json.get('window_size', 0)
 
@@ -377,7 +377,7 @@ def get_collocate_for_analysis(username, analysis):
     # TODO: Parameter? Cut Off?
     collocates = ccc.extract_collocates(topic_discourseme)
 
-    if not window_size in collocates.keys():
+    if window_size not in collocates.keys():
         log.debug('No collocates available for window size %s', window_size)
         return jsonify({'msg': 'No collocates available for window size'}), 404
 
@@ -426,14 +426,20 @@ def get_concordance_for_analysis(username, analysis):
     engine = current_app.config['ENGINES'][analysis.corpus]
     ccc = CCC(analysis, engine)
 
-    # TODO: Parameter? Cut Off?
-    concordance = ccc.extract_concordance(topic_discourseme, per_window=True)
+    # TODO: get concordance settings from frontend
+    concordance_settings = {
+        'order': 'random',      # alternative: 'first'
+        'cut_off': 10           # integer
+    }
+    concordance = ccc.extract_concordance(topic_discourseme,
+                                          concordance_settings=concordance_settings,
+                                          per_window=True)
 
     if not concordance:
         log.debug('No concordances available for analysis %s', analysis)
         return jsonify({'msg': 'No concordances available'}), 404
 
-    if not window_size in concordance.keys():
+    if window_size not in concordance.keys():
         log.debug('No concordances available for window size %s', window_size)
         return jsonify({'msg': 'No concordances available for window size'}), 404
 
