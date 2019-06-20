@@ -3,6 +3,7 @@ Custom interface to CWB (CQP and Corpus Positions)
 """
 
 
+from logging import getLogger
 from subprocess import Popen, PIPE
 from pandas import DataFrame, read_csv
 from CWB.CL import Corpus
@@ -13,6 +14,7 @@ from .engine import Engine
 
 REGISTRY_PATH = getenv('CQP_REGISTRY_PATH',
                        default='/usr/local/cwb-3.4.13/share/cwb/registry')
+log = getLogger('mmda-logger')
 
 
 def _formulate_discourseme_query(corpus_name,
@@ -138,8 +140,13 @@ class CWBEngine(Engine):
             self.registry_path = corpus_settings['registry_path']
         else:
             self.registry_path = REGISTRY_PATH
-        self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
-        self._N = len(self.corpus.attribute('word', 'p'))
+
+        try:
+            self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
+            self._N = len(self.corpus.attribute('word', 'p'))
+        except KeyError:
+            log.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
+            self.corpus = ''
 
     def _run_query(self, query):
         """Runs a query an returns CWB Output as list of lines"""
