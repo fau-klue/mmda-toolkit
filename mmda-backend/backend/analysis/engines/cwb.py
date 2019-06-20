@@ -134,14 +134,9 @@ class CWBEngine(Engine):
         """
 
         self.corpus_name = corpus_settings['name_api']
-        self.registry_path = registry_path
-
-        try:
-            self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
-            self._N = len(self.corpus.attribute('word', 'p'))
-        except KeyError:
-            LOGGER.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
-            self.corpus = None
+        self.registry_path = corpus_settings['registry_path']
+        self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
+        self._N = len(self.corpus.attribute('word', 'p'))
 
     def _run_query(self, query):
         """Runs a query an returns CWB Output as list of lines"""
