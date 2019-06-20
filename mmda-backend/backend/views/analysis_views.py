@@ -377,6 +377,10 @@ def get_collocate_for_analysis(username, analysis):
     # TODO: Parameter? Cut Off?
     collocates = ccc.extract_collocates(topic_discourseme)
 
+    if not window_size in collocates.keys():
+        log.debug('No collocates available for window size %s', window_size)
+        return jsonify({'msg': 'No collocates available for window size'}), 404
+
     df = collocates[window_size].to_dict()
 
     if not df:
@@ -426,13 +430,13 @@ def get_concordance_for_analysis(username, analysis):
     concordance = ccc.extract_concordance(topic_discourseme)
 
     if not window_size in concordance.keys():
-        log.debug('No collocates available for window size %s', window_size)
-        return jsonify({'msg': 'No collocates available for window size'}), 404
+        log.debug('No concordances available for window size %s', window_size)
+        return jsonify({'msg': 'No concordances available for window size'}), 404
 
     df = concordance[window_size].to_dict()
 
     if not df:
-        log.debug('No collocates available for analysis %s', analysis)
-        return jsonify({'msg': 'No collocates available'}), 404
+        log.debug('No concordances available for analysis %s', analysis)
+        return jsonify({'msg': 'No concordances available'}), 404
 
     return jsonify(df), 200
