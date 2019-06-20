@@ -134,7 +134,10 @@ class CWBEngine(Engine):
         """
 
         self.corpus_name = corpus_settings['name_api']
-        self.registry_path = corpus_settings['registry_path']
+        if 'registry_path' in corpus_settings.keys():
+            self.registry_path = corpus_settings['registry_path']
+        else:
+            self.registry_path = REGISTRY_PATH
         self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
         self._N = len(self.corpus.attribute('word', 'p'))
 
