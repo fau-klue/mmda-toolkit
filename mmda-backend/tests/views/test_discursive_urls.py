@@ -24,6 +24,43 @@ def test_discursive_create(client, header):
 
 
 @pytest.mark.api
+def test_discursive_get_concordance_not_params(client, header):
+
+    # Missing corpora
+    just_items = 'analysis=123'
+    response = client.get(url_for('discursive_position.get_discursive_position_concordances', username='student1', discursive_position=1),
+                          query_string=just_items,
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
+
+    assert response.status_code==400
+
+    # Missing analysis
+    just_corpus = 'corpus=SZ_SMALL'
+    response = client.get(url_for('discursive_position.get_discursive_position_concordances', username='student1', discursive_position=1),
+                          query_string=just_corpus,
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
+
+    assert response.status_code==400
+
+
+@pytest.mark.api
+def test_discursive_get_concordance(client, header):
+
+    data = 'analysis=1&corpus=SZ_SMALL'
+    response = client.get(url_for('discursive_position.get_discursive_position_concordances', username='student1', discursive_position=1),
+                          query_string=data,
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
+
+    assert response.status_code==200
+
+
+@pytest.mark.api
 def test_discursive_read(client, header):
 
     response = client.get(url_for('discursive_position.get_discursive_position',

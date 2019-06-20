@@ -9,9 +9,10 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
+from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
 from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, DISCURSIVE_POSITION_UPDATE_SCHEMA
 from backend.models.user_models import User
-from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
+from backend.models.analysis_models import Analysis, Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
 discursive_blueprint = Blueprint('discursive_position', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -242,14 +243,14 @@ def get_discursive_position_concordances(username, discursive_position):
     """
 
     # Check Request
+    analysis_id = request.args.get('analysis', None)
     corpora = request.args.getlist('corpus', None)
-    items = request.args.getlist('item', None)
-
-    if not items:
-        return jsonify({'msg': 'No items provided'}), 400
 
     if not corpora:
         return jsonify({'msg': 'No corpora provided'}), 400
+
+    if not analysis_id:
+        return jsonify({'msg': 'No analysis provided'}), 400
 
     # Get Corpus
     corpora_available = current_app.config['CORPORA']
@@ -260,22 +261,35 @@ def get_discursive_position_concordances(username, discursive_position):
     # Get User
     user = User.query.filter_by(username=username).first()
 
-    # Get from DB
+    # Get Analysis from DB
+    analysis = Analysis.query.filter_by(id=analysis_id, user_id=user.id).first()
+    if not analysis:
+        log.debug('No such analysis %s', analysis)
+        return jsonify({'msg': 'No such analysis'}), 404
+
+    # Get topic_discourseme from analysis
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
+    # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
         return jsonify({'msg': 'No such discursive position'}), 404
 
-    # Get Associated Discoursemes
-    discoursemes = [discourseme.serialize for discourseme in discursive.discourseme]
-    if not discoursemes:
-        return jsonify([]), 200
-
-    discoursemes_items = [discourseme['items'] for discourseme in discoursemes]
+    # Check Associated Discoursemes
+    if not discursive.discourseme:
+        log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
 
     ret = {}
     for corpus in corpora:
         engine = current_app.config['ENGINES'][corpus]
-        concordances = engine.extract_discursive_position(items=items, discoursemes=discoursemes_items)
-        ret[corpus] = concordances
+        ccc = CCC(analysis, engine)
+        # TODO: Parameter? Cut Off?
+        concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme)
+
+        # Transform all dataframes to dict
+        for window_size in concordance.keys():
+            concordance[window_size] = concordance[window_size].to_dict()
+
+        ret[corpus] = concordance
 
     return jsonify(ret), 200
