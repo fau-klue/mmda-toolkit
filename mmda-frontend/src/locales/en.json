@@ -84,8 +84,8 @@
       "helpCorpus": "The corpus for the initial collocation analysis",
       "helpItems": "Topics items are a set of lexemes, which form the node of a collocation analysis. Lexemes can include multi-word units (MWU).",
       "helpWindowSize": "Maximum window size for the initial collocation analysis.",
-      "helpPQuery": "P-Query (word, lemma, etc) Attribute for the collocation analysis.",
-      "helpSBreak": "S-Break (s, p, etc) for the collocation analysis."
+      "helpPQuery": "p-attribute to use for the collocation analysis (e.g. word, lemma, etc).",
+      "helpSBreak": "s-attribute to use for breaking the collocation windows (e.g. s, p, tweet, etc)."
     }
   },
   "discourseme": {
