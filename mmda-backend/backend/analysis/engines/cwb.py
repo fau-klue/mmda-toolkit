@@ -193,6 +193,18 @@ class CWBEngine(Engine):
         And, gets s_break boundaries.
         """
 
+        # test if requested p-attribute exists
+        try:
+            self.corpus.attribute(p_query, 'p')
+        except KeyError:
+            raise KeyError('requested p-attribute not in corpus')
+
+        # test if requested s-attribute exists
+        try:
+            self.corpus.attribute(s_break, 's')
+        except KeyError:
+            raise KeyError('requested s-attribute not in corpus')
+
         dump = _dump_corpus_positions(
             self.registry_path,
             self.corpus_name,
