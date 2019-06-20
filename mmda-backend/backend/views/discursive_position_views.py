@@ -38,6 +38,7 @@ def create_discursive_position(username):
     discursive = DiscursivePosition(name=name, user_id=user.id)
     db.session.add(discursive)
     db.session.commit()
+    log.debug('Created Discursive Position %s', discursive.id)
 
     for discourseme_id in discoursemes:
         # Check if disourseme exists
@@ -53,6 +54,7 @@ def create_discursive_position(username):
         # Add discourseme link
         position_discourseme = DiscursivePositionDiscoursemes(discursive_position_id=discursive.id, discourseme_id=discourseme.id)
         db.session.add(position_discourseme)
+        log.debug('Added Discourseme $s to Discursive Position %s', discourseme.id, discursive.id)
 
     db.session.commit()
 
@@ -73,6 +75,7 @@ def get_discursive_position(username, discursive_position):
     # Get from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # TODO: Add Discoursemes here as well?
@@ -113,10 +116,12 @@ def update_discursive_position(username, discursive_position):
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     discursive.name = name
     db.session.commit()
+    log.debug('Updated Discursive Position %s', discursive_position)
 
     return jsonify({'msg': discursive.id}), 200
 
@@ -135,10 +140,12 @@ def delete_discursive_position(username, discursive_position):
     # Remove Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     db.session.delete(discursive)
     db.session.commit()
+    log.debug('Deleted Discursive Position %s', discursive_position)
 
     return jsonify({'msg': 'Deleted'}), 200
 
@@ -157,11 +164,13 @@ def get_discoursemes_for_discursive_position(username, discursive_position):
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discoursemes list from DB
     position_discoursemes = [discourseme.serialize for discourseme in discursive.discourseme]
     if not position_discoursemes:
+        log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
         return jsonify([]), 200
 
     return jsonify(position_discoursemes), 200
@@ -181,23 +190,27 @@ def put_discourseme_into_discursive_position(username, discursive_position, disc
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such Discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if exists
     position_discourseme = DiscursivePositionDiscoursemes.query.filter_by(discursive_position_id=discursive.id, discourseme_id=discourseme.id).first()
 
     if position_discourseme:
+        log.debug('Discourseme %s already linked to Discursive Position %s', discourseme, discursive_position)
         return jsonify({'msg': 'Already linked'}), 200
 
     # Add Link to DB
     position_discourseme = DiscursivePositionDiscoursemes(discursive_position_id=discursive.id, discourseme_id=discourseme.id)
     db.session.add(position_discourseme)
     db.session.commit()
+    log.debug('Linked Discourseme %s to Discursive Position %s', discourseme, discursive_position)
 
     return jsonify({'msg': 'Updated'}), 200
 
@@ -216,20 +229,24 @@ def delete_discourseme_from_discursive_position(username, discursive_position, d
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such Discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     position_discourseme = DiscursivePositionDiscoursemes.query.filter_by(discursive_position_id=discursive.id, discourseme_id=discourseme.id).first()
 
     if not position_discourseme:
+        log.debug('Discourseme %s is not linked to Discursive Position %s', discourseme, discursive_position)
         return jsonify({'msg': 'Not found'}), 404
 
     db.session.delete(position_discourseme)
     db.session.commit()
+    log.debug('Unlinked Discourseme %s to Discursive Position %s', discourseme, discursive_position)
 
     return jsonify({'msg': 'Deleted'}), 200
 
@@ -285,6 +302,7 @@ def get_discursive_position_concordances(username, discursive_position):
         ccc = CCC(analysis, engine)
         # TODO: Parameter? Cut Off?
         concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme)
+        log.debug('Extracted concordances for corpus %s with analysis %s', corpus, analysis)
 
         # Transform all dataframes to dict
         for window_size in concordance.keys():
