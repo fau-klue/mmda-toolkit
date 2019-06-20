@@ -351,12 +351,15 @@ def get_collocate_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
-    # Second order collocates
-    collocates = request.args.getlist('collocate', None)
 
-    if not window_size and not collocates:
-        log.debug('No window size and collocates provided')
+    try:
+        window_size = int(window_size)
+    except TypeError:
+        log.debug('No window size')
         return jsonify({'msg': 'No request data provided'}), 400
+    except ValueError:
+        log.debug('Window size must be integer')
+        return jsonify({'msg': 'Window size must be integer'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()
