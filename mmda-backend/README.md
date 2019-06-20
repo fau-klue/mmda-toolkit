@@ -125,6 +125,24 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
     # Remove Discourseme from  Analysis
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X DELETE http://localhost:5000/api/user/student1/analysis/1/discourseme/2/
 
+
+## CREATE Discursive Position
+
+    # Add new Discursive Position (with previously created Discourseme IDs)
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X POST http://localhost:5000/api/user/student1/discursiveposition/ -d '{"name": "foobar", "discoursemes": [1, 1]}'
+
+    # Get Discursive Positions
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X GET http://localhost:5000/api/user/student1/discursiveposition/
+
+    # Get Discursive Position
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X GET http://localhost:5000/api/user/student1/discursiveposition/1/
+
+    # Update Discursive Position
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X PUT http://localhost:5000/api/user/student1/discursiveposition/1/ -d '{"name": "newName"}'
+
+    # Delete Discursive Position
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X DELETE http://localhost:5000/api/user/student1/discursiveposition/1/
+
 ## Get Corpora
 
     # Get all corpora
