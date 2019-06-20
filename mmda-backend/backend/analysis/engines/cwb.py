@@ -7,8 +7,12 @@ from subprocess import Popen, PIPE
 from pandas import DataFrame, read_csv
 from CWB.CL import Corpus
 from io import StringIO
+from os import getenv
 
 from .engine import Engine
+
+REGISTRY_PATH = getenv('CQP_REGISTRY_PATH',
+                       default='/usr/local/cwb-3.4.13/share/cwb/registry')
 
 
 def _formulate_discourseme_query(corpus_name,
@@ -129,10 +133,15 @@ class CWBEngine(Engine):
         corpus not in registry.
         """
 
-        self.corpus_name = corpus_settings['name_api'].lower()
-        self.registry_path = corpus_settings['registry_path']
-        self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
-        self._N = len(self.corpus.attribute('word', 'p'))
+        self.corpus_name = corpus_settings['name_api']
+        self.registry_path = registry_path
+
+        try:
+            self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
+            self._N = len(self.corpus.attribute('word', 'p'))
+        except KeyError:
+            LOGGER.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
+            self.corpus = None
 
     def _run_query(self, query):
         """Runs a query an returns CWB Output as list of lines"""

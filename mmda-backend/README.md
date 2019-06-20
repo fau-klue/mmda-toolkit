@@ -24,6 +24,7 @@
     # Create DB tables and populate the roles and users tables
     python manage.py init_db
 
+	# TODO deprecated?
     # Run the migrations
     python manage.py migrate
 
@@ -87,8 +88,8 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
 ## JWT Token
 
     # Get a JWT Token
-    curl -v -H "Content-type: application/json" -X POST http://localhost:5000/api/login/ -d '{"username": "admin", "password": "Squanchy1"}
-    curl -v -H "Content-type: application/json" -X POST http://localhost:5000/api/login/ -d '{"username": "student1", "password": "Erlangen1"}
+    curl -v -H "Content-type: application/json" -X POST http://localhost:5000/api/login/ -d '{"username": "admin", "password": "Squanchy1"}'
+    curl -v -H "Content-type: application/json" -X POST http://localhost:5000/api/login/ -d '{"username": "student1", "password": "Erlangen1"}'
 
     # Save the Token in an ENV variable
     export TOKEN='<THE TOKEN>'
