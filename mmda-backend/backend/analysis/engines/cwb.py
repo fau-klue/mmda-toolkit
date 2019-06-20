@@ -189,21 +189,23 @@ class CWBEngine(Engine):
                         s_break,
                         items):
         """
-        Executes query to get corpus positions of query matches (match and matchend)
-        And, gets s_break boundaries.
+        Executes query to get corpus positions of query matches.
+        match, matchend, target=left_s_break, keyword=right_s_break.
         """
 
         # test if requested p-attribute exists
         try:
             self.corpus.attribute(p_query, 'p')
         except KeyError:
-            raise KeyError('requested p-attribute not in corpus')
+            # raise KeyError('requested p-attribute not in corpus')
+            return None
 
         # test if requested s-attribute exists
         try:
             self.corpus.attribute(s_break, 's')
         except KeyError:
-            raise KeyError('requested s-attribute not in corpus')
+            # raise KeyError('requested s-attribute not in corpus')
+            return None
 
         dump = _dump_corpus_positions(
             self.registry_path,

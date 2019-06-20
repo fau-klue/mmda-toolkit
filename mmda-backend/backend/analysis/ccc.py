@@ -400,9 +400,12 @@ class ConcordanceCollocationCalculator():
             self.analysis.s_break,
             items
         )
-        df_cooc, match_pos = _df_node_to_df_cooc(
-            df_node, self.analysis.window_size
-        )
+        if df_node is None:
+            df_cooc = match_pos = None
+        else:
+            df_cooc, match_pos = _df_node_to_df_cooc(
+                df_node, self.analysis.window_size
+            )
         return df_node, df_cooc, match_pos
 
     def _retrieve_concordance(self,
@@ -437,10 +440,12 @@ class ConcordanceCollocationCalculator():
                 df_cooc,
                 window
             )
-            f2, N = get_reference_freq(self.engine,
-                                       counts.index,
-                                       self.analysis.p_query,
-                                       reference='whole')
+            f2, N = get_reference_freq(
+                self.engine,
+                counts.index,
+                self.analysis.p_query,
+                reference='whole'
+            )
             contingencies = counts_to_contingencies(
                 counts, f1, f1_inflated, f2, N
             )
@@ -499,6 +504,9 @@ class ConcordanceCollocationCalculator():
             identifier, topic_discourseme.items
         )
 
+        if df_node is None:
+            return None
+
         # monkey patch stuff to discourseme
         topic_discourseme.df_cooc = df_cooc
         topic_discourseme.df_node = df_node
@@ -523,6 +531,9 @@ class ConcordanceCollocationCalculator():
                     discourseme.items
                 )
                 disc_df_dict[discourseme.id] = disc_df_node
+
+            if disc_df_node is None:
+                return None
 
             df_dp_nodes, match_pos_set = slice_discoursemes_topic(
                 topic_discourseme.df_node,
@@ -568,6 +579,9 @@ class ConcordanceCollocationCalculator():
             identifier, topic_discourseme.items
         )
 
+        if df_node is None:
+            return None
+
         # monkey patch stuff to discourseme
         topic_discourseme.df_cooc = df_cooc
         topic_discourseme.df_node = df_node
@@ -584,6 +598,8 @@ class ConcordanceCollocationCalculator():
                 disc_df_node = self._get_df_node(
                     discourseme.items
                 )
+                if disc_df_node is None:
+                    return None
                 disc_df_dict[discourseme.id] = disc_df_node
 
             df_dp_nodes, match_pos_set = slice_discoursemes_topic(

@@ -3,7 +3,8 @@ from timeit import default_timer as timer
 from functools import wraps
 import logging
 
-from staticengine import StaticEngine
+from staticengine import StaticEngine as Engine
+# from backend.analysis.engines import CWBEngine as Engine
 from backend.analysis.ccc import slice_discourseme_topic
 from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic
@@ -35,7 +36,7 @@ t = {
     'items_fail': ['dsgf32421', 'fadgoöp'],
 
     'corpus_settings': {
-        'name': 'MMDA_DE_TWEETS',
+        'name_api': 'MMDA_DE_TWEETS',
         'registry_path': '/usr/local/cwb-3.4.16/share/cwb/registry/'
     },
 
@@ -63,8 +64,15 @@ t = {
 }
 
 
+# ENGINE = StaticEngine(t['corpus_settings'])
+ENGINE = Engine(t['corpus_settings'])
+
+
 class Analysis():
-    def __init__(self, p_query='lemma', s_break='tweet', window_size=10):
+    def __init__(self,
+                 p_query=t['analysis_settings']['p_query'],
+                 s_break=t['analysis_settings']['s_break'],
+                 window_size=t['analysis_settings']['max_window_size']):
         self.idx = 1
         self.p_query = p_query
         self.s_break = s_break
@@ -81,9 +89,6 @@ class Discourseme():
     def __init__(self, idx, items):
         self.id = idx
         self.items = items
-
-
-ENGINE = StaticEngine(t['corpus_settings'])
 
 
 @timeit

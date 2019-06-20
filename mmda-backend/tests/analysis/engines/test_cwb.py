@@ -22,6 +22,7 @@ t = {
     'corpus_settings': {
         # 'name': 'MMDA_DE_TWEETS',
         'name': 'LTWBY2018_TWEETS',
+        'name_api': 'LTWBY2018_TWEETS',
         'registry_path': REGISTRY_PATH
     },
 
@@ -34,6 +35,7 @@ t = {
         # 'p_query': 'lemma',
         'p_query': 'tt_lemma',
         's_break': 'tweet',
+        # 's_break': 'k',
         'max_window_size': 10
     },
 
