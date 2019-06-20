@@ -105,7 +105,7 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
 ## Create Analysis
 
     # Add Analysis
-    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X POST http://localhost:5000/api/user/student1/analysis/ -d '{"name": "foobar", "items": ["Merkel","Atom"]}'
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X POST http://localhost:5000/api/user/student1/analysis/ -d '{"name": "foobar", "items": ["Merkel","Atom"], "corpus": "LTWBY2018", "s_break": "s", "p_query": "word"}'
 
     # Delete Analysis
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X DELETE http://localhost:5000/api/user/student1/analysis/1/
@@ -115,6 +115,9 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
 
     # Add new Discourseme
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X POST http://localhost:5000/api/user/student1/discourseme/ -d '{"name": "foobar", "items": ["hans"]}'
+
+    # Get Discourseme
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X GET http://localhost:5000/api/user/admin/discourseme/1/
 
     # Add Discourseme to Analysis
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X PUT http://localhost:5000/api/user/student1/analysis/1/discourseme/2/

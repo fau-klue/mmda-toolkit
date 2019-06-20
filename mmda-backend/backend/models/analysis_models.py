@@ -66,6 +66,8 @@ class Analysis(db.Model):
            'corpus': self.corpus,
            'user_id': self.user_id,
            'topic_id': self.topic_id,
+           'p_query': self.p_query,
+           's_break': self.s_break,
            'window_size': self.window_size
        }
 

@@ -55,6 +55,8 @@ ANALYSIS_SCHEMA = {
         'name': {'type': 'string', 'maxLength': 255},
         'corpus': {'type': 'string', 'maxLength': 255},
         'window_size': {'type': 'number', 'minimum': 3, 'maximum': 20},
+        's_break': {'type': 'string', 'maxLength': 255},
+        'p_query': {'type': 'string', 'maxLength': 255},
         'items': {
             'type': 'array',
             'items': {
@@ -62,7 +64,7 @@ ANALYSIS_SCHEMA = {
             }
         }
     },
-    'required': ['name', 'corpus', 'items']
+    'required': ['name', 'corpus', 'items', 's_break', 'p_query']
 }
 
 UPDATE_SCHEMA = {

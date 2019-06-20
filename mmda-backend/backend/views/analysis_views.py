@@ -79,6 +79,7 @@ def create_analysis(username):
     for df in collocates.values():
         tokens.extend(df.index)
     tokens = list(set(tokens))
+    log.debug('Extracted tokens for analysis %s: %s', analysis.id, tokens)
 
     if len(tokens) == 0:
         log.warn('No collocates for query found for %s', items)
@@ -420,6 +421,10 @@ def get_concordance_for_analysis(username, analysis):
 
     # TODO: Parameter? Cut Off?
     concordance = ccc.extract_concordance(topic_discourseme)
+
+    if not window_size in concordance.keys():
+        log.debug('No collocates available for window size %s', window_size)
+        return jsonify({'msg': 'No collocates available for window size'}), 404
 
     df = concordance[window_size].to_dict()
 
