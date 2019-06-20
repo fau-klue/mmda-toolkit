@@ -20,6 +20,8 @@
               <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
               <v-text-field :value="analysis.corpus" label="Corpus" box readonly></v-text-field>
               <v-text-field :value="analysis.topic_discourseme.items" label="Topic Items" box readonly></v-text-field>
+              <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="P-Query Attribute"></v-text-field>
+              <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="S-Break Attribute"></v-text-field>
 
 
               <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
@@ -32,7 +34,6 @@
             <!--  <h3 class="my-3 body-2">Window Size</h3>
               <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
                 thumb-size="28" @change="setSize"></v-slider>-->
-              
 
               <AnalysisItemTable/>
 
@@ -156,7 +157,9 @@ export default {
       const data = {
         analysis_id: this.id,
         username: this.user.username,
-        name: this.analysis.name
+        name: this.analysis.name,
+        p_query: this.analysis.p_query,
+        s_break: this.analysis.s_break
       }
 
       this.updateUserAnalysis(data).then(() => {

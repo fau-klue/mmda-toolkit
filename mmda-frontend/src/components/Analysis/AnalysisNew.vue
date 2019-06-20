@@ -47,6 +47,16 @@
                   {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
+                <h1 class="subheading">P-Query</h1>
+                <p>
+                  {{ $t("analysis.new.helpPQuery") }}
+                </p>
+
+                <h1 class="subheading">S-Break</h1>
+                <p>
+                  {{ $t("analysis.new.helpSBreak") }}
+                </p>
+
               </v-flex>
 
               <v-flex xs6 sm6>
@@ -70,6 +80,8 @@
                     ></v-combobox>
 
                   <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" label="Window Size"></v-slider>
+                  <v-text-field v-model="pQuery" label="P-Query Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+                  <v-text-field v-model="sBreak" label="S-Break Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
 
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
@@ -97,6 +109,8 @@ export default {
     min: 2,
     max: 20,
     name: '',
+    pQuery: 'word',
+    sBreak: 's',
     nodata: false,
     selectCorpus: '',
     selectItems: [],
@@ -121,6 +135,8 @@ export default {
       this.nodata = false
       this.items = []
       this.name = ''
+      this.pQuery = 'word'
+      this.sBreak = 's'
       this.selectCorpus = ''
       this.selectItems = []
       this.selectWindow = 3
@@ -139,6 +155,8 @@ export default {
         name: this.name,
         items: this.selectItems,
         window_size: this.selectWindow,
+        p_query: this.pQuery,
+        s_break: this.sBreak,
         corpus: this.selectCorpus
       }
 
