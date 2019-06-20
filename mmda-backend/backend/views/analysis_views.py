@@ -427,7 +427,7 @@ def get_concordance_for_analysis(username, analysis):
     ccc = CCC(analysis, engine)
 
     # TODO: Parameter? Cut Off?
-    concordance = ccc.extract_concordance(topic_discourseme)
+    concordance = ccc.extract_concordance(topic_discourseme, per_window=True)
 
     if not concordance:
         log.debug('No concordances available for analysis %s', analysis)
@@ -437,6 +437,4 @@ def get_concordance_for_analysis(username, analysis):
         log.debug('No concordances available for window size %s', window_size)
         return jsonify({'msg': 'No concordances available for window size'}), 404
 
-    df = concordance[window_size].to_dict()
-
-    return jsonify(df), 200
+    return jsonify(concordance[window_size]), 200

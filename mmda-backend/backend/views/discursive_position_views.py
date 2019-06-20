@@ -301,17 +301,13 @@ def get_discursive_position_concordances(username, discursive_position):
         engine = current_app.config['ENGINES'][corpus]
         ccc = CCC(analysis, engine)
         # TODO: Parameter? Cut Off?
-        concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme)
+        concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme, per_window=True)
 
         if not concordance:
             log.debug('No concordances available for corpus %s', corpus)
             continue
 
         log.debug('Extracted concordances for corpus %s with analysis %s', corpus, analysis)
-
-        # Transform all dataframes to dict
-        for window_size in concordance.keys():
-            concordance[window_size] = concordance[window_size].to_dict()
 
         ret[corpus] = concordance
 
