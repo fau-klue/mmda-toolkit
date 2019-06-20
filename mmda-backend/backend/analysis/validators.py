@@ -70,9 +70,12 @@ ANALYSIS_SCHEMA = {
 UPDATE_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 255}
+        'name': {'type': 'string', 'maxLength': 255},
+        'window_size': {'type': 'number', 'minimum': 3, 'maximum': 20},
+        's_break': {'type': 'string', 'maxLength': 255},
+        'p_query': {'type': 'string', 'maxLength': 255},
     },
-    'required': ['name']
+    'required': ['name', 'window_size', 's_break', 'p_query']
 }
 
 DISCOURSEME_SCHEMA = {

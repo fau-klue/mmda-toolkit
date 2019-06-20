@@ -156,8 +156,11 @@ def update_analysis(username, analysis):
     """
 
     # Check request
-    # TODO: Update other settings
     name = request.json.get('name', None)
+    p_uqery = request.json.get('p_query', None)
+    s_break = request.json.get('s_break', None)
+    window_size = request.json.get('window_size', 0)
+
     if not name:
         log.debug('No name provided for analysis %s', analysis)
         return jsonify({'msg': 'Incorrect request data provided'}), 400

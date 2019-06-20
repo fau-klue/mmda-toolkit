@@ -89,7 +89,7 @@ def test_get_analysis(client, header):
 @pytest.mark.api
 def test_update_analysis(client, header):
 
-    data = {'name': 'somethingnew'}
+    data = {'name': 'somethingnew', 's_break': 's', 'p_query': 'word', 'window_size': 5}
     response = client.put(url_for('analysis.update_analysis', username='student1', analysis=1),
                           follow_redirects=True,
                           content_type='application/json',
