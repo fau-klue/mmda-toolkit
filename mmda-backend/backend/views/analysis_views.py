@@ -82,7 +82,7 @@ def create_analysis(username):
     log.debug('Extracted tokens for analysis %s: %s', analysis.id, tokens)
 
     if len(tokens) == 0:
-        log.warn('No collocates for query found for %s', items)
+        log.debug('No collocates for query found for %s', items)
         db.session.delete(analysis)
         db.session.delete(topic_discourseme)
         db.session.commit()
@@ -429,14 +429,14 @@ def get_concordance_for_analysis(username, analysis):
     # TODO: Parameter? Cut Off?
     concordance = ccc.extract_concordance(topic_discourseme)
 
+    if not concordance:
+        log.debug('No concordances available for analysis %s', analysis)
+        return jsonify({'msg': 'No concordances available'}), 404
+
     if not window_size in concordance.keys():
         log.debug('No concordances available for window size %s', window_size)
         return jsonify({'msg': 'No concordances available for window size'}), 404
 
     df = concordance[window_size].to_dict()
-
-    if not df:
-        log.debug('No concordances available for analysis %s', analysis)
-        return jsonify({'msg': 'No concordances available'}), 404
 
     return jsonify(df), 200

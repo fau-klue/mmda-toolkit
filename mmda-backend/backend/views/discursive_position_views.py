@@ -302,6 +302,11 @@ def get_discursive_position_concordances(username, discursive_position):
         ccc = CCC(analysis, engine)
         # TODO: Parameter? Cut Off?
         concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme)
+
+        if not concordance:
+            log.debug('No concordances available for corpus %s', corpus)
+            continue
+
         log.debug('Extracted concordances for corpus %s with analysis %s', corpus, analysis)
 
         # Transform all dataframes to dict
