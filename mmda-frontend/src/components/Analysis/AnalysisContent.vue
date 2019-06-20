@@ -3,15 +3,8 @@
   <v-card flat>
     <v-card-text>
       <v-container>
-        <v-layout justify-space-between row>
-          <v-flex v-if="analysis" xs12 sm12>
-
-                <div class="minimap_button" @click="gotoWordcloud" title="Open Wordcloud">
-                  <WordcloudMinimap v-bind:label="'Open Wordcloud'"
-                    v-bind:height="15"
-                  />
-                </div>
-
+        <v-layout v-if="analysis" justify-space-between row>
+          <v-flex xs8 sm8>
 
             <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Analysis </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
@@ -23,28 +16,45 @@
               <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="P-Query Attribute"></v-text-field>
               <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="S-Break Attribute"></v-text-field>
 
-
               <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="editAnalysis">Edit</v-btn>
 
-
-            <!--  <h3 class="my-3 body-2">Window Size</h3>
-              <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
-                thumb-size="28" @change="setSize"></v-slider>-->
-
-              <AnalysisItemTable/>
-
-              <h1 class="my-3 title">Concordances:</h1>
-
-              <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
-              <AnalysisDiscoursemeList/>
-
             </v-form>
           </v-flex>
+
+          <v-flex xs4 sm4>
+            <div class="minimap_button" @click="gotoWordcloud" title="Open Wordcloud">
+              <WordcloudMinimap v-bind:label="'Open Wordcloud'"
+                                v-bind:height="25"
+                  />
+                </div>
+          </v-flex>
+
         </v-layout>
+
+        <v-layout v-if="analysis" row>
+          <v-flex xs12 sm12>
+              <AnalysisItemTable/>
+              </v-flex>
+        </v-layout>
+
+        <v-layout v-if="concordances" row>
+          <v-flex xs12 sm12>
+            <h1 class="my-3 title">Concordances:</h1>
+              <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
+          </v-flex>
+        </v-layout>
+
+        <v-layout row>
+          <v-flex xs12 sm12>
+            <h1 class="title">Discoursemes:</h1>
+            <AnalysisDiscoursemeList/>
+          </v-flex>
+        </v-layout>
+
       </v-container>
     </v-card-text>
   </v-card>
