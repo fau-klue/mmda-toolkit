@@ -105,3 +105,11 @@ DISCURSIVE_POSITION_SCHEMA = {
     },
     'required': ['name']
 }
+
+DISCURSIVE_POSITION_UPDATE_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string', 'maxLength': 255},
+    },
+    'required': ['name']
+}

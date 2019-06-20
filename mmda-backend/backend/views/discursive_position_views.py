@@ -9,7 +9,7 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
-from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, UPDATE_SCHEMA
+from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, DISCURSIVE_POSITION_UPDATE_SCHEMA
 from backend.models.user_models import User
 from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
@@ -96,7 +96,7 @@ def get_discursive_positions(username):
 
 # UPDATE
 @discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/', methods=['PUT'])
-@expects_json(UPDATE_SCHEMA)
+@expects_json(DISCURSIVE_POSITION_UPDATE_SCHEMA)
 @user_required
 def update_discursive_position(username, discursive_position):
     """
