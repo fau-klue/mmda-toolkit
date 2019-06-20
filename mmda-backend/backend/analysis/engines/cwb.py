@@ -129,7 +129,7 @@ class CWBEngine(Engine):
         corpus not in registry.
         """
 
-        self.corpus_name = corpus_settings['name']
+        self.corpus_name = corpus_settings['name_api'].lower()
         self.registry_path = corpus_settings['registry_path']
         self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
         self._N = len(self.corpus.attribute('word', 'p'))

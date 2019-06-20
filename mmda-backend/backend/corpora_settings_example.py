@@ -26,7 +26,8 @@ CORPORA = {
                                  'am.log.likelihood',
                                  'am.Dice',
                                  'am.MI'],
-        'engine': 'CWBEngine'
+        'engine': 'CWBEngine',
+        'registry_path': '/opt/cwb/registry'
     },
     'SZ_RANDOM': {
         'name': 'Süddeutsche Zeitung (mit RandomEngine)',
@@ -36,7 +37,7 @@ CORPORA = {
         'genre': 'Social Media Discourse',
         'sentence_boundary': 's',
         'association_measures': ['am.simple.ll', 'am.log.likelihood', 'am.Dice,am.MI'],
-        'engine': 'RandomEngine'
+        'engine': 'DummyEngine'
     },
     'FAZ_DUMMY': {
         'name': 'FAZ Zeitung (mit DummyEngine)',
