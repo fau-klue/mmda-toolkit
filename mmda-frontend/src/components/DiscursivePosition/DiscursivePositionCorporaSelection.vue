@@ -134,7 +134,7 @@ export default {
         const data = {
           username: this.user.username,
           position_id: this.id,
-          items: this.analysis.topic_discourseme.items,
+          analysis: this.analysis.id,
           corpora: this.selectedCorpora
         }
 
