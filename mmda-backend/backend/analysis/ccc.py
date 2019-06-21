@@ -14,13 +14,6 @@ from random import sample
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 LOGGER = logging.getLogger('mmda-logger')
-AMs = {
-    'z_score': measures.z_score,
-    't_score': measures.t_score,
-    'dice': measures.dice,
-    'log_likelihood': measures.log_likelihood,
-    'mutual_information': measures.mutual_information
-}
 
 
 class Cache:
@@ -379,7 +372,7 @@ def add_ams(contingencies, ams):
     df['E11'], df['E12'], df['E21'], df['E22'] = frequencies.expected_frequencies(df)
 
     # calculate all association measures
-    collocates = measures.calculate_measures(df, measures=AMs.values())
+    collocates = measures.calculate_measures(df, measures=ams)
     collocates = df
 
     return collocates
@@ -434,7 +427,7 @@ class ConcordanceCollocationCalculator():
         )
         return concordance
 
-    def _retrieve_collocates(self, df_cooc, f1):
+    def _retrieve_collocates(self, df_cooc, f1, ams):
 
         # get discourseme contingencies
         collocates = dict()
@@ -456,7 +449,7 @@ class ConcordanceCollocationCalculator():
             contingencies = counts_to_contingencies(
                 counts, f1, f1_inflated, f2, N
             )
-            collocates[window] = add_ams(contingencies, AMs)
+            collocates[window] = add_ams(contingencies, ams)
 
         return collocates
 
@@ -577,8 +570,16 @@ class ConcordanceCollocationCalculator():
         if collocates_settings is None:
             collocates_settings = {
                 'order': 'O11',
-                'cut_off': 10
+                'cut_off': 100
             }
+        # ToDo: parse from settings
+        AMs = {
+            'z_score': measures.z_score,
+            't_score': measures.t_score,
+            'dice': measures.dice,
+            'log_likelihood': measures.log_likelihood,
+            'mutual_information': measures.mutual_information
+        }
 
         # extract data from cache or engine
         if discoursemes is None:
@@ -591,7 +592,7 @@ class ConcordanceCollocationCalculator():
                                            sorted([d.items for d in discoursemes]),
                                            'collocates')
         collocates = self._get_collocates(
-            identifier, topic_discourseme, discoursemes
+            identifier, topic_discourseme, discoursemes, AMs.values()
         )
 
         # ToDo: give cut_off to engine for better performance
@@ -616,7 +617,8 @@ class ConcordanceCollocationCalculator():
     def _get_collocates(self,
                         identifier_coll,
                         topic_discourseme,
-                        discoursemes):
+                        discoursemes,
+                        ams):
 
         cached_data = self.cache.get(identifier_coll)
 
@@ -639,7 +641,9 @@ class ConcordanceCollocationCalculator():
 
             # collocates of topic_discourseme
             if not discoursemes:
-                collocates = self._retrieve_collocates(df_cooc, len(match_pos))
+                collocates = self._retrieve_collocates(df_cooc,
+                                                       len(match_pos),
+                                                       ams)
 
             # collocates of discursive position
             else:
@@ -665,7 +669,7 @@ class ConcordanceCollocationCalculator():
                 )
 
                 collocates = self._retrieve_collocates(
-                    df_cooc_glob, len(match_pos_set)
+                    df_cooc_glob, len(match_pos_set), ams
                 )
 
             self.cache.set(identifier_coll, collocates)
