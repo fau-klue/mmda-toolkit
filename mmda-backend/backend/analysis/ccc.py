@@ -45,6 +45,20 @@ def create_identifier(*args):
     return sha256(str(string).encode()).hexdigest()
 
 
+def am_names_to_functions(names):
+    AMs = {
+        'z_score': measures.z_score,
+        't_score': measures.t_score,
+        'dice': measures.dice,
+        'log_likelihood': measures.log_likelihood,
+        'mutual_information': measures.mutual_information
+    }
+    out = dict()
+    for name in names:
+        out[name] = AMs[name]
+    return out
+
+
 # concordance ##################################################################
 def _get_disc_positions(df_dp_nodes_loc):
     """ converts a local region into a dictionary of discourseme positions """
@@ -381,7 +395,8 @@ def add_ams(contingencies, ams):
 # CCC wrapper ##################################################################
 class ConcordanceCollocationCalculator():
     """
-    Hint: all functions with 'retrieve' call the engine
+    all methods with 'retrieve' call the engine
+    all methods with 'get' are cached
     """
 
     def __init__(self, analysis_settings, engine):
@@ -390,21 +405,25 @@ class ConcordanceCollocationCalculator():
         self.engine = engine
         self.cache = Cache()
 
-    def _retrieve_discourseme_dfs(self, items):
-        """
-        calls engine to get df_node, transforms to df_cooc (+f1 positions)
-        """
-
+    def _retrieve_df_node(self, items):
         df_node = self.engine.prepare_df_node(
             self.analysis.p_query,
             self.analysis.s_break,
             items
         )
+        return df_node
+
+    def _retrieve_discourseme_data(self, items):
+        """
+        calls engine to get df_node, transforms to df_cooc (+f1 positions)
+        """
+
+        df_node = self._retrieve_df_node(items)
         if df_node is None:
             df_cooc = match_pos = None
         else:
             df_cooc, match_pos = _df_node_to_df_cooc(
-                df_node, self.analysis.window_size
+                df_node, self.analysis.max_window_size
             )
         return df_node, df_cooc, match_pos
 
@@ -419,7 +438,7 @@ class ConcordanceCollocationCalculator():
         concordance = _df_node_to_concordance(
             self.engine,
             df_node,
-            self.analysis.window_size,
+            self.analysis.max_window_size,
             order,
             cut_off,
             self.analysis.p_query,
@@ -429,11 +448,8 @@ class ConcordanceCollocationCalculator():
 
     def _retrieve_collocates(self, df_cooc, f1, ams):
 
-        # get discourseme contingencies
         collocates = dict()
-
-        # get contingencies
-        for window in range(1, self.analysis.window_size + 1):
+        for window in range(1, self.analysis.max_window_size + 1):
             counts, f1_inflated = df_cooc_to_counts(
                 self.engine,
                 self.analysis.p_query,
@@ -460,175 +476,54 @@ class ConcordanceCollocationCalculator():
                                        'df_node')
         cached_data = self.cache.get(identifier)
         if cached_data is None:
-            df_node = self.engine.prepare_df_node(
-                self.analysis.p_query,
-                self.analysis.s_break,
-                items
-            )
+            df_node = self._retrieve_df_node(items)
             self.cache.set(identifier, df_node)
         else:
             df_node = cached_data
         return df_node
 
-    def _get_discourseme_data(self, identifier, items):
+    def _get_discourseme_data(self, items):
         """
         Extracts data from cache or from engine and then puts it into cache.
         """
 
-        # if cache returns none, it ain't no tuple!
+        identifier = create_identifier(self.analysis.id,
+                                       sorted(items),
+                                       'df_node, df_cooc, match_pos')
         cached_data = self.cache.get(identifier)
         if isinstance(cached_data, tuple):
             df_node, df_cooc, match_pos = cached_data
         else:
-            # TODO: Get Items from discourseme
-            df_node, df_cooc, match_pos = self._retrieve_discourseme_dfs(items)
+            df_node, df_cooc, match_pos = self._retrieve_discourseme_data(items)
             self.cache.set(identifier, (df_node, df_cooc, match_pos))
 
         return df_node, df_cooc, match_pos
 
-    def extract_concordance(self,
-                            topic_discourseme,
-                            discoursemes=None,
-                            concordance_settings=None,
-                            per_window=False):
-
-        if concordance_settings is None:
-            concordance_settings = {
-                'order': 'random',
-                'cut_off': 10
-            }
-
-        # extract data from cache or engine
-        identifier = create_identifier(self.analysis.id,
-                                       sorted(topic_discourseme.items),
-                                       'df_node, df_cooc, math_pos')
-        df_node, df_cooc, match_pos = self._get_discourseme_data(
-            identifier, topic_discourseme.items
-        )
-
-        if df_node is None:
-            return None
-
-        # monkey patch stuff to discourseme
-        topic_discourseme.df_cooc = df_cooc
-        topic_discourseme.df_node = df_node
-        topic_discourseme.match_pos = match_pos
-
-        # concordance of topic_discourseme
-        if not discoursemes:
-            concordance = _df_node_to_concordance(
-                self.engine,
-                topic_discourseme.df_node,
-                self.analysis.window_size,
-                concordance_settings['order'],
-                concordance_settings['cut_off'],
-                self.analysis.p_query
-            )
-
-        # concordance of discursive position
-        else:
-            disc_df_dict = dict()
-            for discourseme in discoursemes:
-                disc_df_node = self._get_df_node(
-                    discourseme.items
-                )
-                disc_df_dict[discourseme.id] = disc_df_node
-
-            if disc_df_node is None:
-                return None
-
-            df_dp_nodes, match_pos_set = slice_discoursemes_topic(
-                topic_discourseme.df_node,
-                topic_discourseme.match_pos,
-                disc_df_dict,
-                self.analysis.window_size
-            )
-
-            concordance = _df_node_to_concordance(
-                self.engine,
-                topic_discourseme.df_node,
-                self.analysis.window_size,
-                concordance_settings['order'],
-                concordance_settings['cut_off'],
-                self.analysis.p_query,
-                df_dp_nodes
-            )
-
-        if per_window:
-            concordance_dict = dict()
-            for window in range(1, self.analysis.window_size + 1):
-                concordance_dict[window] = _cut_conc(concordance, window)
-            concordance = concordance_dict
-
-        return concordance
-
-    def extract_collocates(self,
-                           topic_discourseme,
-                           discoursemes=None,
-                           collocates_settings=None):
-
-        if collocates_settings is None:
-            collocates_settings = {
-                'order': 'O11',
-                'cut_off': 100
-            }
-        # ToDo: parse from settings
-        AMs = {
-            'z_score': measures.z_score,
-            't_score': measures.t_score,
-            'dice': measures.dice,
-            'log_likelihood': measures.log_likelihood,
-            'mutual_information': measures.mutual_information
-        }
-
-        # extract data from cache or engine
-        if discoursemes is None:
-            identifier = create_identifier(self.analysis.id,
-                                           sorted(topic_discourseme.items),
-                                           'collocates')
-        else:
-            identifier = create_identifier(self.analysis.id,
-                                           sorted(topic_discourseme.items),
-                                           sorted([d.items for d in discoursemes]),
-                                           'collocates')
-        collocates = self._get_collocates(
-            identifier, topic_discourseme, discoursemes, AMs.values()
-        )
-
-        # ToDo: give cut_off to engine for better performance
-        for window in range(1, self.analysis.window_size + 1):
-
-            # select relevant window
-            coll = collocates[window]
-
-            # sort and cut-off
-            rel_items = set()
-            for am in AMs:
-                tmp = coll.sort_values(by=am, ascending=False).head(
-                    collocates_settings['cut_off']
-                )
-                rel_items = rel_items.union(set(tmp.index))
-            coll = coll.loc[rel_items]
-
-            collocates[window] = coll
-
-        return collocates
-
     def _get_collocates(self,
-                        identifier_coll,
                         topic_discourseme,
                         discoursemes,
                         ams):
 
-        cached_data = self.cache.get(identifier_coll)
-
-        if cached_data is None:
+        # check cache
+        if discoursemes is None:
             identifier = create_identifier(self.analysis.id,
+                                           self.analysis.max_window_size,
                                            sorted(topic_discourseme.items),
-                                           'df_node, df_cooc, match_pos')
+                                           'collocates')
+        else:
+            identifier = create_identifier(self.analysis.id,
+                                           self.analysis.max_window_size,
+                                           sorted(topic_discourseme.items),
+                                           sorted([d.items for d in discoursemes]),
+                                           'collocates')
+
+        cached_data = self.cache.get(identifier)
+
+        # retrieve if necessary
+        if cached_data is None:
 
             df_node, df_cooc, match_pos = self._get_discourseme_data(
-                identifier, topic_discourseme.items
+                topic_discourseme.items
             )
 
             if df_node is None:
@@ -660,7 +555,7 @@ class ConcordanceCollocationCalculator():
                     topic_discourseme.df_node,
                     match_pos,
                     disc_df_dict,
-                    self.analysis.window_size
+                    self.analysis.max_window_size
                 )
 
                 df_cooc_glob = _df_dp_nodes_to_cooc(
@@ -672,9 +567,134 @@ class ConcordanceCollocationCalculator():
                     df_cooc_glob, len(match_pos_set), ams
                 )
 
-            self.cache.set(identifier_coll, collocates)
+            # put in cache
+            self.cache.set(identifier, collocates)
 
         else:
             collocates = cached_data
+
+        return collocates
+
+    def extract_concordance(self,
+                            topic_discourseme,
+                            discoursemes=None,
+                            concordance_settings=None,
+                            per_window=False):
+
+        # ToDo: get from frontend
+        if concordance_settings is None:
+            concordance_settings = {
+                'order': 'random',
+                'cut_off': 10
+            }
+
+        # extract topic from cache or engine
+        df_node, df_cooc, match_pos = self._get_discourseme_data(
+            topic_discourseme.items
+        )
+
+        if df_node is None:
+            return None
+
+        # monkey patch stuff to discourseme
+        topic_discourseme.df_cooc = df_cooc
+        topic_discourseme.df_node = df_node
+        topic_discourseme.match_pos = match_pos
+
+        # concordance of topic_discourseme
+        if not discoursemes:
+            concordance = _df_node_to_concordance(
+                self.engine,
+                topic_discourseme.df_node,
+                self.analysis.max_window_size,
+                concordance_settings['order'],
+                concordance_settings['cut_off'],
+                self.analysis.p_query
+            )
+
+        # concordance of discursive position
+        else:
+            disc_df_dict = dict()
+            for discourseme in discoursemes:
+                disc_df_node = self._get_df_node(
+                    discourseme.items
+                )
+                if disc_df_node is None:
+                    return None
+                disc_df_dict[discourseme.id] = disc_df_node
+
+            df_dp_nodes, match_pos_set = slice_discoursemes_topic(
+                topic_discourseme.df_node,
+                topic_discourseme.match_pos,
+                disc_df_dict,
+                self.analysis.max_window_size
+            )
+
+            concordance = _df_node_to_concordance(
+                self.engine,
+                topic_discourseme.df_node,
+                self.analysis.max_window_size,
+                concordance_settings['order'],
+                concordance_settings['cut_off'],
+                self.analysis.p_query,
+                df_dp_nodes
+            )
+
+        if per_window:
+            concordance_dict = dict()
+            for window in range(1, self.analysis.max_window_size + 1):
+                concordance_dict[window] = _cut_conc(concordance, window)
+            concordance = concordance_dict
+
+        return concordance
+
+    def extract_collocates(self,
+                           topic_discourseme,
+                           discoursemes=None,
+                           collocates_settings=None):
+
+        # ToDo: get from frontend
+        if collocates_settings is None:
+            collocates_settings = {
+                'order': 'O11',
+                'cut_off': 100,
+                'AMs': {
+                    'z_score': measures.z_score,
+                    't_score': measures.t_score,
+                    'dice': measures.dice,
+                    'log_likelihood': measures.log_likelihood,
+                    'mutual_information': measures.mutual_information
+                }
+            }
+        if 'AMs' in collocates_settings.keys():
+            if type(collocates_settings) == list:
+                try:
+                    collocates_settings['AMs'] = am_names_to_functions(
+                        collocates_settings['AMs']
+                    )
+                except KeyError:
+                    pass
+
+        # get collocates
+        collocates = self._get_collocates(
+            topic_discourseme, discoursemes, collocates_settings['AMs'].values()
+        )
+
+        # apply cut off (maybe pass to cache?)
+        for window in range(1, self.analysis.max_window_size + 1):
+
+            # select relevant window
+            coll = collocates[window]
+
+            # sort and cut-off
+            rel_items = set()
+            for am in collocates_settings['AMs'].keys():
+                tmp = coll.sort_values(by=am, ascending=False).head(
+                    collocates_settings['cut_off']
+                )
+                rel_items = rel_items.union(set(tmp.index))
+            coll = coll.loc[rel_items]
+
+            collocates[window] = coll
 
         return collocates

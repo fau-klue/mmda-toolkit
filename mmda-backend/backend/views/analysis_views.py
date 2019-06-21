@@ -57,7 +57,7 @@ def create_analysis(username):
                         corpus=corpus,
                         user_id=user.id,
                         topic_id=topic_discourseme.id,
-                        window_size=maximal_window_size,
+                        max_window_size=maximal_window_size,
                         p_query=p_query,
                         s_break=s_break,
                         association_measures=association_measures)
@@ -385,7 +385,8 @@ def get_collocate_for_analysis(username, analysis):
     # TODO: get settings to frontend
     collocates_settings = {
         'order': 'O11',
-        'cut_off': 100
+        'cut_off': 100,
+        'AMs': ['z_score', 't_score', 'dice', 'log_likelihood', 'mutual_information']
     }
     collocates = ccc.extract_collocates(topic_discourseme,
                                         collocates_settings=collocates_settings)
