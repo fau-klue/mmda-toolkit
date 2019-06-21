@@ -166,10 +166,10 @@ def _cut_conc(concordance, window):
     output: list of concordance lines (json) for given window """
     conc_lines = list()
     for match in concordance.keys():
-        df_conc = concordance[match]
-
+        df_conc = concordance[match].copy()
         # give new roles to positions outside region defined by window
-        df_conc.loc[(df_conc['offset'] < -window) | (df_conc['offset'] > +window), 'role'] = 'out_of_window'
+        oow = ((df_conc['offset'] < -window) | (df_conc['offset'] > +window))
+        df_conc.loc[oow, 'role'] = 'out_of_window'
 
         # jsonify
         conc_line = dict()
