@@ -70,7 +70,7 @@ def _get_disc_positions(df_dp_nodes_loc):
 
 def _df_node_to_concordance(engine,
                             df_node,
-                            window_size,
+                            conc_window_size,
                             order,
                             cut_off,
                             p_query,
@@ -118,8 +118,8 @@ def _df_node_to_concordance(engine,
 
         # fill variables
         for position in range(
-                max([s_start, topic_match-window_size]),
-                min([topic_matchend+window_size, s_end])+1
+                max([s_start, topic_match-conc_window_size]),
+                min([topic_matchend+conc_window_size, s_end])+1
         ):
             # cpos
             cpos.append(position)
@@ -161,27 +161,32 @@ def _df_node_to_concordance(engine,
     return concordance
 
 
-def _cut_conc(concordance, window):
+def _cut_conc(concordance, max_window_size, ensure='all'):
     """ input: match-keyed dictionary of concordance-dfs
-    output: list of concordance lines (json) for given window """
-    conc_lines = list()
+    output: list of concordance lines (json) for each window """
+
+    concordance_dict = defaultdict(list)
     for match in concordance.keys():
-        df_conc = concordance[match].copy()
-        # give new roles to positions outside region defined by window
-        oow = ((df_conc['offset'] < -window) | (df_conc['offset'] > +window))
-        df_conc.loc[oow, 'role'] = 'out_of_window'
+        for window in range(1, max_window_size + 1):
+            df_conc = concordance[match].copy()
+            before_discs = set.union(* [set(a) for a in list(df_conc['role'])])
+            # give new roles to positions outside region defined by window
+            oow = ((df_conc['offset'] < -window) | (df_conc['offset'] > +window))
+            df_conc.loc[oow, 'role'] = 'out_of_window'
+            # jsonify
+            conc_line = dict()
+            conc_line['p_query'] = list(df_conc['p_query'])
+            conc_line['word'] = list(df_conc['word'])
+            conc_line['role'] = [k if k != 'out_of_window' else [k] for k in df_conc['role']]  # ensure list in column 'role'
+            conc_line['match_pos'] = match
+            after_discs = set.union(* [set(a) for a in conc_line['role']])
+            if ensure == 'all':
+                if before_discs.issubset(after_discs):
+                    concordance_dict[window].append(conc_line)
+            elif ensure == 'none':
+                concordance_dict[window].append(conc_line)
 
-        # jsonify
-        conc_line = dict()
-        conc_line['p_query'] = list(df_conc['p_query'])
-        conc_line['word'] = list(df_conc['word'])
-        conc_line['role'] = [k if k != 'out_of_window' else [k] for k in df_conc['role']]
-        conc_line['match_pos'] = match
-
-        # append
-        conc_lines.append(conc_line)
-
-    return conc_lines
+    return concordance_dict
 
 
 # slicing discoursemes #########################################################
@@ -376,7 +381,7 @@ def counts_to_contingencies(counts, f1, f1_inflated, f2, N):
 
 
 def add_ams(contingencies, ams):
-    """ annotates a contingency table with AM information """
+    """ annotates a contingency table with AMs """
     # rename for convenience
     df = contingencies
 
@@ -431,14 +436,15 @@ class ConcordanceCollocationCalculator():
                               df_node,
                               df_dp_nodes=None,
                               order='random',
-                              cut_off=100):
+                              cut_off=100,
+                              conc_window_size=20):
         """
         retrieves concordance lines from the corpus engine
         """
         concordance = _df_node_to_concordance(
             self.engine,
             df_node,
-            self.analysis.max_window_size,
+            conc_window_size,
             order,
             cut_off,
             self.analysis.p_query,
@@ -585,7 +591,7 @@ class ConcordanceCollocationCalculator():
         if concordance_settings is None:
             concordance_settings = {
                 'order': 'random',
-                'cut_off': 10
+                'cut_off': 100
             }
 
         # extract topic from cache or engine
@@ -603,13 +609,10 @@ class ConcordanceCollocationCalculator():
 
         # concordance of topic_discourseme
         if not discoursemes:
-            concordance = _df_node_to_concordance(
-                self.engine,
+            concordance = self._retrieve_concordance(
                 topic_discourseme.df_node,
-                self.analysis.max_window_size,
-                concordance_settings['order'],
-                concordance_settings['cut_off'],
-                self.analysis.p_query
+                order=concordance_settings['order'],
+                cut_off=concordance_settings['cut_off']
             )
 
         # concordance of discursive position
@@ -630,21 +633,15 @@ class ConcordanceCollocationCalculator():
                 self.analysis.max_window_size
             )
 
-            concordance = _df_node_to_concordance(
-                self.engine,
+            concordance = self._retrieve_concordance(
                 topic_discourseme.df_node,
-                self.analysis.max_window_size,
+                df_dp_nodes,
                 concordance_settings['order'],
-                concordance_settings['cut_off'],
-                self.analysis.p_query,
-                df_dp_nodes
+                concordance_settings['cut_off']
             )
 
         if per_window:
-            concordance_dict = dict()
-            for window in range(1, self.analysis.max_window_size + 1):
-                concordance_dict[window] = _cut_conc(concordance, window)
-            concordance = concordance_dict
+            concordance = _cut_conc(concordance, self.analysis.max_window_size)
 
         return concordance
 
