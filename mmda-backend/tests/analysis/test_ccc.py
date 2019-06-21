@@ -57,9 +57,9 @@ t = {
         'cut_off': 10
     },
 
-    'collocate_settings': {
-        'order': 'random',
-        'cut_off': 10
+    'collocates_settings': {
+        'order': 'O11',
+        'cut_off': 200
     }
 }
 
@@ -421,3 +421,16 @@ def test_conc_window_dp(analysis):
             assert 'role' in line.keys()
             assert 'p_query' in line.keys()
             assert len(line) > 1
+
+
+@pytest.mark.ccc
+@pytest.mark.coll
+def test_collocates(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        collocates_settings=t['collocates_settings']
+    )
+    # print(collocates)

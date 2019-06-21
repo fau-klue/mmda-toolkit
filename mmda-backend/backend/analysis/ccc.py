@@ -455,7 +455,9 @@ class ConcordanceCollocationCalculator():
 
     def _get_df_node(self, items):
 
-        identifier = create_identifier(self.engine, self.analysis, items, 'df_node')
+        identifier = create_identifier(self.analysis.id,
+                                       sorted(items),
+                                       'df_node')
         cached_data = self.cache.get(identifier)
         if cached_data is None:
             df_node = self.engine.prepare_df_node(
@@ -497,8 +499,8 @@ class ConcordanceCollocationCalculator():
             }
 
         # extract data from cache or engine
-        identifier = create_identifier(self.engine, self.analysis,
-                                       topic_discourseme.items,
+        identifier = create_identifier(self.analysis.id,
+                                       sorted(topic_discourseme.items),
                                        'df_node, df_cooc, math_pos')
         df_node, df_cooc, match_pos = self._get_discourseme_data(
             identifier, topic_discourseme.items
@@ -572,51 +574,18 @@ class ConcordanceCollocationCalculator():
             }
 
         # extract data from cache or engine
-        identifier = create_identifier(self.engine, self.analysis,
-                                       topic_discourseme.items,
-                                       'df_node, df_cooc, match_pos')
-        df_node, df_cooc, match_pos = self._get_discourseme_data(
-            identifier, topic_discourseme.items
-        )
-
-        if df_node is None:
-            return None
-
-        # monkey patch stuff to discourseme
-        topic_discourseme.df_cooc = df_cooc
-        topic_discourseme.df_node = df_node
-        topic_discourseme.match_pos = match_pos
-
-        # collocates of topic_discourseme
-        if not discoursemes:
-            collocates = self._retrieve_collocates(df_cooc, len(match_pos))
-
-        # collocates of discursive position
+        if discoursemes is None:
+            identifier = create_identifier(self.analysis.id,
+                                           sorted(topic_discourseme.items),
+                                           'collocates')
         else:
-            disc_df_dict = dict()
-            for discourseme in discoursemes:
-                disc_df_node = self._get_df_node(
-                    discourseme.items
-                )
-                if disc_df_node is None:
-                    return None
-                disc_df_dict[discourseme.id] = disc_df_node
-
-            df_dp_nodes, match_pos_set = slice_discoursemes_topic(
-                topic_discourseme.df_node,
-                match_pos,
-                disc_df_dict,
-                self.analysis.window_size
-            )
-
-            df_cooc_glob = _df_dp_nodes_to_cooc(
-                topic_discourseme.df_cooc,
-                df_dp_nodes
-            )
-
-            collocates = self._retrieve_collocates(
-                df_cooc_glob, len(match_pos_set)
-            )
+            identifier = create_identifier(self.analysis.id,
+                                           sorted(topic_discourseme.items),
+                                           sorted([d.items for d in discoursemes]),
+                                           'collocates')
+        collocates = self._get_collocates(
+            identifier, topic_discourseme, discoursemes
+        )
 
         # ToDo: give cut_off to engine for better performance
         for window in range(1, self.analysis.window_size + 1):
@@ -628,6 +597,68 @@ class ConcordanceCollocationCalculator():
                 ascending=[False, True],
                 inplace=True
             )
+            coll['name'] = coll.index
             collocates[window] = coll.head(collocates_settings['cut_off'])
+        return collocates
+
+    def _get_collocates(self,
+                        identifier_coll,
+                        topic_discourseme,
+                        discoursemes):
+
+        cached_data = self.cache.get(identifier_coll)
+
+        if cached_data is None:
+            identifier = create_identifier(self.analysis.id,
+                                           sorted(topic_discourseme.items),
+                                           'df_node, df_cooc, match_pos')
+
+            df_node, df_cooc, match_pos = self._get_discourseme_data(
+                identifier, topic_discourseme.items
+            )
+
+            if df_node is None:
+                return None
+
+            # monkey patch stuff to discourseme
+            topic_discourseme.df_cooc = df_cooc
+            topic_discourseme.df_node = df_node
+            topic_discourseme.match_pos = match_pos
+
+            # collocates of topic_discourseme
+            if not discoursemes:
+                collocates = self._retrieve_collocates(df_cooc, len(match_pos))
+
+            # collocates of discursive position
+            else:
+                disc_df_dict = dict()
+                for discourseme in discoursemes:
+                    disc_df_node = self._get_df_node(
+                        discourseme.items
+                    )
+                    if disc_df_node is None:
+                        return None
+                    disc_df_dict[discourseme.id] = disc_df_node
+
+                df_dp_nodes, match_pos_set = slice_discoursemes_topic(
+                    topic_discourseme.df_node,
+                    match_pos,
+                    disc_df_dict,
+                    self.analysis.window_size
+                )
+
+                df_cooc_glob = _df_dp_nodes_to_cooc(
+                    topic_discourseme.df_cooc,
+                    df_dp_nodes
+                )
+
+                collocates = self._retrieve_collocates(
+                    df_cooc_glob, len(match_pos_set)
+                )
+
+            self.cache.set(identifier_coll, collocates)
+
+        else:
+            collocates = cached_data
 
         return collocates
