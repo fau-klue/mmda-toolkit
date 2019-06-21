@@ -123,7 +123,7 @@ def delete_discourseme(username, discourseme):
     Delete a discourseme
     """
 
-   # Get User
+    # Get User
     user = User.query.filter_by(username=username).first()
 
     # Get Discourseme from DB
