@@ -73,7 +73,7 @@ class Analysis():
                  p_query=t['analysis_settings']['p_query'],
                  s_break=t['analysis_settings']['s_break'],
                  window_size=t['analysis_settings']['max_window_size']):
-        self.idx = 1
+        self.id = 1
         self.p_query = p_query
         self.s_break = s_break
         self.window_size = window_size
