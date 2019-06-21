@@ -110,18 +110,20 @@
   font-weight:bold;
 }
 
+.kwic-view-table span {
+  cursor: pointer;
+}
+
 .kwic-view-table .concordance.out_of_window,
 .kwic-view-table .concordance.nocollocate:not(.topic){
   color:#aaa;
-  cursor: pointer;
 }
-.kwic-view-table .concordance.token{
+.kwic-view-table .concordance{
   cursor:pointer;
 }
 .kwic-view-table .concordance.collocate, 
 .kwic-view-table .concordance.topic{
   font-weight:bold;
-  cursor:pointer;
 }
 
 .kwic-view-table .concordance.out_of_window{
@@ -211,14 +213,14 @@ export default {
           //console.log(c);
           var el = {
             text:   c.word[i],
-            role:   c.role[i].find( (r)=> r ),
+            role:   c.role[i].join(" "),
             lemma:  c.p_query[i]
           };
 
-          if(!el.role) el.role = "token";
+          if(!el.role) el.role = " ";
 
 
-          if(beforeKeyword && el.role==this.keywordRole){
+          if(beforeKeyword && el.role.includes(this.keywordRole)){
             beforeKeyword=false;
             r . keyword = el;
             continue;
@@ -277,14 +279,16 @@ export default {
       return this.collocates[this.AM][lemma] !== undefined;
     },
     selectItem (item) {
-      if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
+      //TODO::: there exists no collocate-role anymore so changing the mode is not necessary anymore (even though it might still be beneficial)
+      //if( item.role.includes('collocate') || item.role.includes('topic') ) this.toggleKwicMode(); 
       //else if( item.role == 'out_of_window') return;
-      else if(this.onclickitem) this.onclickitem(item.lemma);
+      if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
     },
     toggleKwicMode (){
-      this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
-      this.update();
+      return; //see selectItem
+      //this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
+      //this.update();
     },
     clickOnLemma (name) {
       this.concordancesRequested = true;
@@ -308,6 +312,11 @@ export default {
     this.getCorpus(this.analysis.corpus).catch((error)=>{
       this.error = error;
     });
+
+    if(!this.loading){
+      this.concordancesRequested = true;
+      this.update();
+    }
   }
 }
 

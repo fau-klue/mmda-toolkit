@@ -1,11 +1,20 @@
 <template>
   <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
     <v-card class="wordcloud-bottom-card">
-      <ConcordancesKeywordInContextList 
+      
+      <!-- TODO:: let this button hover over the content below, to not waste space-->
+      <v-btn @click="shown=!shown" v-if="shown" icon>X</v-btn>
+      <ConcordancesKeywordInContextList v-if="shown" 
       v-bind:concordances="concordances" 
       v-bind:loading="loading"
       v-bind:onclickitem="onclickitem"/>
       <!-- <ConcordancesContextWordTree v-bind:concordances="concordances" v-bind:loading="loading"/> -->
+
+      <div v-else class="text-md-center">
+        <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
+        <div v-else> <v-btn @click="shown=!shown" icon><v-icon>keyboard_arrow_up</v-icon></v-btn> Concordances</div>
+      </div>
+
     </v-card>
   </v-bottom-sheet>
 </template>
@@ -31,6 +40,7 @@ export default {
   },
   data: () => ({
     sheet:true,
+    shown:false,
   }),
   computed: {
     ...mapGetters({
