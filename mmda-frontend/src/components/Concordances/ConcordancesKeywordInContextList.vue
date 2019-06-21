@@ -2,7 +2,7 @@
     <v-card class="kwic-view-card">
       <v-card-text>
         <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
-        <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No Concordances requested</v-alert>
+        <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
 
         <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
