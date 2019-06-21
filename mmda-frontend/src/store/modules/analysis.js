@@ -214,19 +214,21 @@ const actions = {
       //if (!data.corpus) return reject('No corpus provided')
       if (!data.username) return reject('No username provided')
       if (data.analysis_id===undefined) return reject('No analysis_id provided')
-      if (!data.topic_items) return reject('No topic items provided')
+      //if (!data.topic_items) return reject('No topic items provided')
 
       let params = new URLSearchParams()
       // Concat item parameter. api/?item=foo&item=bar
-      data.topic_items.forEach((item)=>{ params.append("item", item) })
+      //data.topic_items.forEach((item)=>{ params.append("item", item) })
 
       if(data.collocate_items){
         // Concat item parameter. api/?collocate=foo&collocate=bar
-        data.collocate_items.forEach((item)=>{ params.append("collocate", item) })
+        //data.collocate_items.forEach((item)=>{ params.append("collocate", item) })
+        data.collocate_items.forEach((item)=>{ params.append("item", item) })
       }
 
       if(data.window_size){
          // Append api/?window_size=12
+         //console.log("Ws "+data.window_size);
          params.append("window_size", data.window_size)
       }
 
