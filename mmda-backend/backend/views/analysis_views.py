@@ -377,8 +377,13 @@ def get_collocate_for_analysis(username, analysis):
     engine = current_app.config['ENGINES'][analysis.corpus]
     ccc = CCC(analysis, engine)
 
-    # TODO: Parameter? Cut Off?
-    collocates = ccc.extract_collocates(topic_discourseme)
+    # TODO: get settings to frontend
+    collocates_settings = {
+        'order': 'O11',
+        'cut_off': 200
+    }
+    collocates = ccc.extract_collocates(topic_discourseme,
+                                        collocates_settings=collocates_settings)
 
     if window_size not in collocates.keys():
         log.debug('No collocates available for window size %s', window_size)
