@@ -6,7 +6,7 @@
 
         <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <p v-if="loading">Loading Concordances...</p>
+          <p v-if="loading">Loading Concordance...</p>
           <p v-if="loading && typeof loading==='object'">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
         </div>
 

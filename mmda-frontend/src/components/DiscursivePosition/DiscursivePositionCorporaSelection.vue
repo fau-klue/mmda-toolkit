@@ -24,7 +24,7 @@
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Loading Concordances...</p>
+                  <p>Loading Concordance...</p>
                 </div>
 
                 <v-form v-else>
