@@ -17,7 +17,7 @@ class Analysis(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     # Maximum window size
-    window_size = db.Column(db.Integer, nullable=True)
+    max_window_size = db.Column(db.Integer, nullable=True)
     # p_query P-attribute for the query (e.g. lemma, pos)
     p_query = db.Column(db.Unicode(255), nullable=False)
     # s_break P-attribute for sentence break (e.g. <s>, <tweet>)
@@ -68,7 +68,7 @@ class Analysis(db.Model):
            'topic_id': self.topic_id,
            'p_query': self.p_query,
            's_break': self.s_break,
-           'window_size': self.window_size
+           'max_window_size': self.max_window_size
        }
 
 

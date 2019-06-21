@@ -666,14 +666,19 @@ class ConcordanceCollocationCalculator():
                     'mutual_information': measures.mutual_information
                 }
             }
-        if 'AMs' in collocates_settings.keys():
-            if type(collocates_settings) == list:
-                try:
-                    collocates_settings['AMs'] = am_names_to_functions(
-                        collocates_settings['AMs']
-                    )
-                except KeyError:
-                    pass
+        elif 'AMs' in collocates_settings.keys():
+            if type(collocates_settings['AMs']) == list:
+                collocates_settings['AMs'] = am_names_to_functions(
+                    collocates_settings['AMs']
+                )
+        else:
+            collocates_settings['AMs'] = {
+                    'z_score': measures.z_score,
+                    't_score': measures.t_score,
+                    'dice': measures.dice,
+                    'log_likelihood': measures.log_likelihood,
+                    'mutual_information': measures.mutual_information
+            }
 
         # get collocates
         collocates = self._get_collocates(
