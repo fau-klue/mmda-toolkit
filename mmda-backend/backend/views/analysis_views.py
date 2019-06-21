@@ -450,7 +450,7 @@ def get_concordance_for_analysis(username, analysis):
     # TODO: get concordance settings from frontend
     concordance_settings = {
         'order': 'random',      # alternative: 'first'
-        'cut_off': 10           # integer
+        'cut_off': 100          # integer
     }
     concordance = ccc.extract_concordance(topic_discourseme,
                                           discoursemes=extra_discourseme,
