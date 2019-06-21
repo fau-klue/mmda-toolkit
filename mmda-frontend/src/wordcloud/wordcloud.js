@@ -636,6 +636,7 @@ class WordcloudWindow {
     if (typeof word === "string") {
       word = this.Map.get(word);
     }
+    if(!word) return;
     this.transition = true;
     this.pos = sub2(word.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
     this.transition = false;

@@ -12,7 +12,10 @@ const state = {
   // List of discoursemes
   discoursemes: [],
   // Collocates of analysis
-  collocates: null
+  collocates: null,
+
+  concordances: null,
+  concordances_loading : null,
 }
 
 const getters = {
@@ -27,6 +30,12 @@ const getters = {
   },
   collocates (state) {
     return state.collocates
+  },
+  concordances (state) {
+    return state.concordances
+  },
+  concordances_loading (state) {
+    return state.concordances_loading
   }
 }
 
@@ -198,6 +207,56 @@ const actions = {
       })
     })
   },
+  getConcordances ({commit}, data ) {
+    // Get Concordances
+    return new Promise((resolve, reject) => {
+
+      //if (!data.corpus) return reject('No corpus provided')
+      if (!data.username) return reject('No username provided')
+      if (data.analysis_id===undefined) return reject('No analysis_id provided')
+      if (!data.topic_items) return reject('No topic items provided')
+
+      let params = new URLSearchParams()
+      // Concat item parameter. api/?item=foo&item=bar
+      data.topic_items.forEach((item)=>{ params.append("item", item) })
+
+      if(data.collocate_items){
+        // Concat item parameter. api/?collocate=foo&collocate=bar
+        data.collocate_items.forEach((item)=>{ params.append("collocate", item) })
+      }
+
+      if(data.window_size){
+         // Append api/?window_size=12
+         params.append("window_size", data.window_size)
+      }
+
+      const request = {
+        params: params
+      }
+      //console.log("req called");
+      commit('setConcordancesLoading', data);
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/concordance/`, request).then(function (response) {
+        // only accept the loading, if data is the latest call
+        // otherwise another request has happened and this one is invalid
+        //  TODO:: cancel prevous requests upon a new one (i.e. notify the server to drop the activity)
+        if(data == state.concordances_loading){
+          //console.log("req fullfilled");
+          commit('setConcordances', response.data)
+          commit('setConcordancesLoading',null)
+        //}else{
+        //  console.log("req dropped");
+        }
+        resolve()
+      }).catch(function (error) {
+        commit('setConcordancesLoading',null)
+        reject(error)
+      })
+    })
+  },
+  cancelConcordanceRequest({commit}){
+    //console.log("req canceled");
+    commit('setConcordancesLoading',null);
+  }
 }
 
 const mutations = {
@@ -216,6 +275,12 @@ const mutations = {
   setCollocates (state, collocates) {
     // One analysis
     state.collocates = collocates
+  },
+  setConcordances (state, concordances) {
+    state.concordances = concordances
+  },
+  setConcordancesLoading(state,concordances_loading){
+    state.concordances_loading = concordances_loading;
   }
 }
 

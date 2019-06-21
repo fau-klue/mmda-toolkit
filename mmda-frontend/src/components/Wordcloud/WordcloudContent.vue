@@ -43,7 +43,7 @@ export default {
       discoursemes: "analysis/discoursemes",
       collocates: "analysis/collocates",
       coordinates: "coordinates/coordinates",
-      concordances: "corpus/concordances",
+      concordances: "analysis/concordances",
       notMini:"wordcloud/rightSidebar",
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      getConcordances: "corpus/getConcordances",
+      getConcordances: "analysis/getConcordances",
       cancelConcordanceRequest:'corpus/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
       getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
@@ -223,7 +223,9 @@ export default {
       this.loadingConcordances = true;
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.analysis.id,
+        //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
         collocate_items:  names,
         window_size:      this.windowSize

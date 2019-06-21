@@ -158,7 +158,7 @@ export default {
   
   methods: {
     ...mapActions({
-      getConcordances: 'corpus/getConcordances',
+      getConcordances: 'analysis/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
     update(){
@@ -169,7 +169,9 @@ export default {
       if(!this.analysis) return;
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.id,
+//        corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
         collocate_items:  [name],
         window_size:      this.windowSize

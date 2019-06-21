@@ -205,6 +205,8 @@ export default {
             lemma:  c[p_att][i]
           };
 
+          //console.log(c);
+
 
           if(beforeKeyword && el.role==this.keywordRole){
             beforeKeyword=false;
@@ -229,7 +231,7 @@ export default {
   
   methods: {
     ...mapActions({
-      getConcordances: 'corpus/getConcordances',
+      getConcordances: 'analysis/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
     update(){
@@ -266,6 +268,7 @@ export default {
     },
     selectItem (item) {
       if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
+      else if( item.role == 'out_of_bounds') return;
       else if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
     },
@@ -276,7 +279,9 @@ export default {
     clickOnLemma (name) {
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.id,
+        //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
         collocate_items:  [name],
         window_size:      this.windowSize

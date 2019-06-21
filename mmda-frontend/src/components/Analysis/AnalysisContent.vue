@@ -101,8 +101,8 @@ export default {
       user: 'login/user',
       analysis: 'analysis/analysis',
       coordinates: 'coordinates/coordinates',
-      concordances:'corpus/concordances',
-      concordances_loading:'corpus/concordances_loading',
+      concordances:'analysis/concordances',
+      concordances_loading:'analysis/concordances_loading',
     })
   },
   methods: {

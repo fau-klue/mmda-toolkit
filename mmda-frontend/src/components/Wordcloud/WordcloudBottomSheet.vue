@@ -34,8 +34,8 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      concordances: 'corpus/concordances',
-      loading: 'corpus/concordances_loading'
+      concordances: 'analysis/concordances',
+      loading: 'analysis/concordances_loading'
     })
   },
   watch:{

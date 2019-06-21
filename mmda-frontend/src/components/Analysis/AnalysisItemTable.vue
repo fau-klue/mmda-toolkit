@@ -163,7 +163,7 @@ export default {
     ...mapActions({
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
-      getConcordances:        'corpus/getConcordances',
+      getConcordances:        'analysis/getConcordances',
       setWindowSize: 'wordcloud/setWindowSize',
     }),
     setSize(){
@@ -180,7 +180,9 @@ export default {
       if(!this.analysis) return;
       this.loadingConcordances = true;
       this.getConcordances({
-        corpus:         this.analysis.corpus, 
+        username : this.user.username,
+        analysis_id: this.id,
+        //corpus:         this.analysis.corpus, 
         topic_items:    this.analysis.topic_discourseme.items, 
         collocate_items: [item.name], 
         window_size:    this.windowSize
