@@ -6,6 +6,13 @@
         <v-layout justify-space-between row>
           <v-flex v-if="analysis" xs12 sm12>
 
+                <div class="minimap_button" @click="gotoWordcloud" title="Open Wordcloud">
+                  <WordcloudMinimap v-bind:label="'Open Wordcloud'"
+                    v-bind:height="15"
+                  />
+                </div>
+
+
             <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Analysis </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
@@ -15,16 +22,23 @@
               <v-text-field :value="analysis.topic_discourseme.items" label="Topic Items" box readonly></v-text-field>
 
 
-              <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn>
+              <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
               <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
+              <v-btn color="error" outline class="text-lg-right" @click="editAnalysis">Edit</v-btn>
+
+
+            <!--  <h3 class="my-3 body-2">Window Size</h3>
+              <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+                thumb-size="28" @change="setSize"></v-slider>-->
+              
 
               <AnalysisItemTable/>
 
               <h1 class="my-3 title">Concordances:</h1>
 
-              <ConcordancesKeywordInContextList v-bind:concordances="concordances"/>
+              <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
               <AnalysisDiscoursemeList/>
 
             </v-form>
@@ -36,11 +50,22 @@
   </div>
 </template>
 
+<style>
+.minimap_button{
+  cursor: pointer;
+}
+.minimap_button:hover{
+  background-color: lightgray;
+  transition:all 0.1s linear;
+}
+</style>
+
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
 import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
+import WordcloudMinimap from '@/components/Wordcloud/WordcloudMinimap.vue'
 
 import rules from '@/utils/validation'
 
@@ -50,6 +75,7 @@ export default {
     AnalysisDiscoursemeList,
     AnalysisItemTable,
     ConcordancesKeywordInContextList,
+    WordcloudMinimap,
     //AnalysisCoordinates
   },
   data: () => ({
@@ -57,14 +83,15 @@ export default {
     error: null,
     nodata: false,
     updated: false,
-    rules: rules
+    rules: rules,
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
       analysis: 'analysis/analysis',
       coordinates: 'coordinates/coordinates',
-      concordances:'corpus/concordances'
+      concordances:'corpus/concordances',
+      concordances_loading:'corpus/concordances_loading',
     })
   },
   methods: {
@@ -85,6 +112,9 @@ export default {
         this.error = error
       })
     },
+    gotoWordcloud(){
+      this.$router.push("/analysis/"+this.analysis.id+"/wordcloud/");
+    },
     deleteAnalysis () {
       const data = {
         username: this.user.username,
@@ -93,6 +123,23 @@ export default {
       this.deleteUserAnalysis(data).then(() => {
         this.error = null
         this.$router.push('/analysis')
+      }).catch((error) => {
+        this.error = error
+      })
+    },
+    editAnalysis () {
+      const data = {
+        username: this.user.username,
+        analysis_id: this.id
+      }
+      let A = this.analysis;
+      this.deleteUserAnalysis(data).then(() => {
+        this.error = null
+        var q = "?name="+A.name;
+        q+="&corpus="+A.corpus;
+        q+="&window="+A.window_size;
+        for(var i of A.topic_discourseme.items) q+="&item="+i;
+        this.$router.push('/analysis/new'+q);
       }).catch((error) => {
         this.error = error
       })

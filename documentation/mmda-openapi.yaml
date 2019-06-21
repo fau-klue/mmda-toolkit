@@ -14,12 +14,26 @@ basePath: "/api"
 schemes:
   - "http"
   - "https"
+tags:
+  - name: "user"
+    description: "User Endpoint"
+  - name: "corpus"
+    description: "Corpus Endpoint"
+  - name: "analysis"
+    description: "Analysis Endpoint"
+  - name: "coordinate"
+    description: "Coordinate Endpoint"
+  - name: "discourseme"
+    description: "Discourseme Endpoint"
+  - name: "position"
+    description: "Disursive Position Endpoint"
 paths:
   /login:
     post:
-      summary: "Request JWT Access Token"
-      description: ""
+      description: "Request JWT Access Token to consume the API."
       operationId: "login"
+      tags:
+        - "user"
       produces:
         - "application/json"
       parameters:
@@ -33,70 +47,134 @@ paths:
           required: true
       responses:
         200:
-          description: "JWT Acess Token"
+          description: "JWT Access Token and JWT Refresh Token."
           schema: "string"
         401:
           description: "Unauthorized"
   /refresh:
     post:
-      summary: "Request new JWT Access Token"
-      description: ""
+      description: "Request new JWT Access Token with a JWT Refresh Token."
       operationId: "refresh"
+      tags:
+        - "user"
       produces:
         - "application/json"
       responses:
         200:
-          description: "New JWT Acess Token"
+          description: "New JWT Access Token."
           schema: "string"
         401:
           description: "Unauthorized"
+  /user/{userName}:
+    get:
+      description: "Return the details of a given User."
+      operationId: "getUser"
+      tags:
+        - "user"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "User details."
+          schema:
+            $ref: "#/definitions/User"
+        404:
+          description: "No such user."
+    put:
+      description: "Update details of a given user."
+      operationId: "putUserDetails"
+      tags:
+        - "user"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "first_name"
+        name: "first_name"
+        description: "New First Name."
+        required: true
+      - in: "last_name"
+        name: "last_name"
+        description: "New Last Name."
+        required: true
+      - in: "email"
+        name: "email"
+        description: "New Email."
+        required: true
+      responses:
+        200:
+          description: "User details updated."
+        404:
+          description: "No such user."
+  /user/{userName}/password:
+    put:
+      description: "Update password of a given user."
+      operationId: "putUserPassword"
+      tags:
+        - "user"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "password"
+        name: "password"
+        description: "New User password."
+        required: true
+      responses:
+        200:
+          description: "Password updated."
+        404:
+          description: "No such user."
+        500:
+          description: "Password could not be changed. Old password remains valid."
   /corpus:
     get:
-      summary: "Returns list of all corpora"
-      description: "Returns list of all corpora"
+      description: "Returns list of all available corpora."
       operationId: "getCorpora"
+      tags:
+        - "corpus"
       produces:
         - "application/json"
       responses:
         200:
-          description: "List of Corpora"
+          description: "List of available corpora."
           type: "array"
-          items:
-            type: "string"
   /corpus/{corpusName}:
     get:
-      summary: "Returns details for one corpus"
-      description: "Returns details for one corpus"
-      operationId: "getCorpus"
+      description: "Returns details for a given corpus."
+      operationId: "getCorpusDetails"
+      tags:
+        - "corpus"
       produces:
         - "application/json"
       responses:
         200:
-          description: "Corpus Details"
-          schema: "string"
+          description: "Details of a diven corpus."
         404:
-          description: "Corpus not found"
+          description: "No such corpus."
   /corpus/{corpusName}/concordances:
     get:
-      summary: "Returns concordances for a list of tokens"
-      description: "Returns concordances for a list of tokens"
+      description: "Returns concordances for a list of tokens."
       operationId: "getConcordances"
+      tags:
+        - "corpus"
       produces:
         - "application/json"
       responses:
         200:
-          description: "Concordances"
+          description: "Concordances for the given tokens."
           schema:
-            $ref: "#/definitions/Analysis"
+            $ref: "#/definitions/Concordances"
         400:
-          description: "Invalid input. No items provided"
+          description: "Invalid input."
         404:
-          description: "Corpus not found"
+          description: "No such corpus."
   /user/{userID}/analysis:
     post:
-      summary: "Generate a new Analysis object"
-      description: ""
+      description: "Generate a new Analysis object."
       operationId: "postAnalysis"
+      tags:
+        - "analysis"
       consumes:
         - "application/json"
       produces:
@@ -110,80 +188,277 @@ paths:
           $ref: "#/definitions/Analysis"
       responses:
         201:
-          description: "Analysis ID"
+          description: "Newly generated Analysis ID."
         400:
-          description: "Invalid input. Corpus not found"
+          description: "Invalid input."
         404:
-          description: "No Collocates for query"
+          description: "No Collocates for given tokens."
     get:
-      summary: "Get list of Analysis objects"
-      description: ""
+      description: "Get list of the user's Analysis objects."
       operationId: "getUserAnalysis"
-      consumes:
-        - "application/json"
+      tags:
+        - "analysis"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "List of user's analysis objects."
   /user/{userID}/analysis/{analysisID}:
     get:
-      summary: "Get Analysis object"
-      description: ""
-      operationId: "getAnalysis"
-      consumes:
-        - "application/json"
+      description: "Get Details of a given Analysis object."
+      operationId: "getAnalysisDetails"
+      tags:
+        - "analysis"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "Details of analysis objects."
+          schema:
+            $ref: "#/definitions/Analysis"
+        404:
+          description: "No such analysis."
     delete:
-      summary: "Delete Analysis object"
-      description: ""
+      description: "Delete a given Analysis object."
       operationId: "deleteAnalysis"
+      tags:
+        - "analysis"
       consumes:
         - "application/json"
-      produces:
-        - "application/json"
+      200:
+        description: "Analysis deleted."
+      404:
+        description: "No such analysis."
     put:
-      summary: "Update Analysis object"
-      description: ""
+      description: "Update details of a given Analysis object."
       operationId: "updateAnalysis"
+      tags:
+        - "analysis"
       consumes:
         - "application/json"
       produces:
         - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "New Analysis name."
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Analysis updated."
+        404:
+          description: "No such analysis."
+
   /user/{userID}/analysis/{analysisID}/discourseme:
     get:
-      summary: "Get list of Discoursemes of Analysis object"
-      description: ""
-      operationId: "getAnalysisDiscourseme"
-      consumes:
-        - "application/json"
+      description: "Return list of Discoursemes of Analysis."
+      operationId: "getAnalysisDiscoursemes"
+      tags:
+        - "analysis"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "List of Discoursemes."
+        404:
+          description: "No such analysis."
   /user/{userID}/analysis/{analysisID}/discourseme/{discoursemeID}:
     put:
-      summary: "Attach Discoursemes to Analysis object"
-      description: ""
+      desc]: "Attach Discoursemes to an Analysis."
       operationId: "putAnalysisDiscourseme"
-      consumes:
-        - "application/json"
+      tags:
+        - "analysis"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "Discoursemes linked."
+        404:
+          description: "No such analysis or discourseme."
+        409:
+          description: "Discourseme is already topic discourseme."
     delete:
-      summary: "Delete Discoursemes from Analysis object"
-      description: ""
+      description: "Delete Discoursemes from an Analysis."
       operationId: "deleteAnalysisDiscourseme"
-      consumes:
-        - "application/json"
+      tags:
+        - "analysis"
       produces:
         - "application/json"
+      responses:
+        200:
+          description: "Discoursemes link deleted."
+        404:
+          description: "No such analysis or discourseme."
   /user/{userID}/analysis/{analysisID}/collocate:
     get:
       summary: "Get collocate table of Analysis object"
       description: ""
+      tags:
+        - "analysis"
       operationId: "getAnalysisCollocate"
+      produces:
+        - "application/json"
+  /user/{userID}/analysis/{analysisID}/coordinates:
+    get:
+      summary: "Get coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "getAnalysisCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates"
+        404:
+          description: "No such analysis"
+    put:
+      summary: "Update user coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "putAnalysisUserCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Updated"
+        400:
+          description: "Invalid input data"
+        404:
+          description: "No such analysis"
+    delete:
+      summary: "Delete user coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "deleteAnalysisUserCoordinates"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Deleted"
+        400:
+          description: "Invalid input data"
+        404:
+          description: "No such analysis"
+  /user/{userID}/analysis/{analysisID}/coordinates/reload:
+    put:
+      summary: "Reload coordinates of Analysis object"
+      description: ""
+      tags:
+        - "coordinate"
+      operationId: "putAnalysisCoordinatesReload"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Coordinates Reloaded"
+        404:
+          description: "No such analysis"
+  /user/{userID}/discourseme:
+    get:
+      summary: "Get User Discoursemes"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "getDiscoursemes"
+      responses:
+        200:
+          description: "Discoursemes"
+    post:
+      summary: "Generate a new Discourseme object"
+      description: "Generate a new Discourseme object"
+      tags:
+        - "discourseme"
+      operationId: "postDiscourseme"
       consumes:
         - "application/json"
       produces:
         - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discourseme"
+        required: true
+        type: "string"
+      - in: "items"
+        name: "items"
+        description: "Lexical Items"
+        required: true
+        type: "array"
+      responses:
+        201:
+          description: "Discourseme ID"
+  /user/{userID}/discourseme/{discoursemeID}:
+    get:
+      summary: "Get Discoursemes Details"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "getDiscoursemeDetails"
+      responses:
+        200:
+          description: "Discourseme Details"
+        404:
+          description: "No such Discourseme"
+    put:
+      summary: "Update Discoursemes Details"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "putDiscoursemeDetails"
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discourseme"
+        required: true
+        type: "string"
+      - in: "items"
+        name: "items"
+        description: "Lexical Items"
+        required: true
+        type: "array"
+      responses:
+        200:
+          description: "Discourseme ID"
+        404:
+          description: "No such Discourseme"
+        409:
+          description: "Cannot edit topic Discourseme"
+    delete:
+      summary: "Delete Discoursemes"
+      description: ""
+      tags:
+        - "discourseme"
+      operationId: "DeleteDiscourseme"
+      responses:
+        200:
+          description: "Discourseme Deleted"
+        404:
+          description: "No such Discourseme"
 definitions:
+  User:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      username:
+        type: "string"
+      email:
+        type: "string"
+      first_name:
+        type: "string"
+      last_name:
+        type: "string"
+      active:
+        type: "string"
   Concordances:
     type: "object"
     properties:
@@ -219,6 +494,20 @@ definitions:
       window_size:
         type: "integer"
         format: "int64"
+  Discourseme:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      items:
+        type: "array"
+        items:
+          type: "string"
+  DiscursivePosition:
+    type: "object"
+    properties:
+      name:
+        type: "string"
 externalDocs:
   description: "Exploring the Fukushima Effect (EFE)"
   url: "https://www.fau.eu/research/research-institutions/emerging-fields-initiative/current-projects/"

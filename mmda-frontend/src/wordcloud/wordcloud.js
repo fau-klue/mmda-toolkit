@@ -88,6 +88,7 @@ class WordcloudWindow {
     this.groups = new Set();
     this.groupMap = new Map();
     this.am_minmax = {};
+    this.mouse = [0,0];
 
     this.options = {
       verbose: false,
@@ -282,13 +283,30 @@ class WordcloudWindow {
 
   getAMWS(data, am) { //}, ws) {
     if (!am || !this.am_minmax[am] || !this.collocates) return .5;
-    if (!this.collocates[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
+    if (!this.collocates[am][data.name]) return Number.NEGATIVE_INFINITY;//this.am_minmax[am].min; //TODO:  hide//-1;
     var val = this.collocates[am][data.name];
+    val = Number.parseFloat(val);
+    if(val!=val) return Number.NEGATIVE_INFINITY;
+    if(val<=0) return Number.NEGATIVE_INFINITY;
+    val = this.map_value(val);
+    var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    return v;
+  }
+  
+  getAMWSCompare(data) { //}, ws) {
+    let comp = this.component.collocatesCompare;
+    if(!comp) return .5;
+    let am = comp.am;
+    if (!am || !this.am_minmax[am] ) return .5;
+    let coll = comp.collocates;
+    if (!coll[am][data.name]) return -1;//this.am_minmax[am].min; //TODO:  hide//-1;
+    var val = coll[am][data.name];
     val = Number.parseFloat(val);
     if(val!=val) return -1;
     if(val<0) return -1;
     val=this.map_value(val);
     var v = (val - this.am_minmax[am].min) / (this.am_minmax[am].max - this.am_minmax[am].min);
+    v = Math.min(1,Math.max(0,v));
     return v;
   }
 
@@ -296,8 +314,9 @@ class WordcloudWindow {
     return this.getAMWS(data, this.component.AM); //, this.ws);
   }
   getCompareSizeOf(data) {
-    return this.getAMWS(data, this.component.AM); //, this.compare_ws);
+    return this.getAMWSCompare(data); //, this.compare_ws);
   }
+
 
   ///////////////////////////////////////
   //
@@ -452,35 +471,53 @@ class WordcloudWindow {
     this.el.classList.remove("dragging");
     this.window_downpos = null;
   }
+  clickEmptySpace(){
+    this.component.cancelConcordanceRequest();
+    this.clearSelection();
+  }
+  clickNode(n, e){
+    n.selected = e.shiftKey ?  !n.selected : true;
+    if(n.getConcordances) n.getConcordances();
+  }
+  dragEnd(){
+    this.component.cancelConcordanceRequest();
+  }
+
   onmouseup(e) {
     if (!this.dragging && !this.dragging_camera && !this.clickedTools) {
-      //      this.word_menu.shown = false;
+      // this.word_menu.shown = false;
       if (!e.shiftKey && !this.boxSelection) {
-        if (this.pressed_node && this.pressed_node.selected) {
+        if (this.pressed_node){
+          if(this.pressed_node.selected) {
           //this.openWordMenuAt(this.pressed_node);
-        } else {
-          this.clearSelection();
+          } else {
+            this.clickEmptySpace();
+          }
+        }else{
+          this.clickEmptySpace();
         }
       }
-      if (this.pressed_node) {
-        this.pressed_node.selected = e.shiftKey ?
-          !this.pressed_node.selected :
-          true;
-        if(this.pressed_node.getConcordances) this.pressed_node.getConcordances();
-      }
+      if (this.pressed_node) this.clickNode(this.pressed_node, e);
     }
     if (this.dragging) {
+      this.dragEnd()
       //if dragging node ends:
       this.request("layout");
+    }
+    if(this.dragging_camera){
+      this.dragEnd();
     }
     if (this.boxSelection) {
       this.selectionBox.hide();
     }
     if (this.pressed_node && this.dragging) {
+      let n = this.pressed_node;
       if (this.hover_node) {
-        this.pressed_node.dropAt(this.hover_node);
+        n.dropAt(this.hover_node);
+      }else{
+        n.drop();
       }
-      this.pressed_node.dragging = false;
+      n.dragging = false;
     }
     this.pressed_node = null;
     this.hover_node = null;
@@ -645,6 +682,14 @@ class WordcloudWindow {
 
 
   setupCollocates(collocates){
+    //collocations may freely change ....
+    // - always accept them
+    // TODO:: a special case of collocates are the SOCs
+    // - hold them and the compare-collocations always present in memory
+    // - to be able to switch between them fast.
+
+    var total_count = 0;
+    var missing_coordinates = new Set();
     this.collocates = collocates;
     this.am_minmax = {};
     for (var am of Object.keys(collocates)) {
@@ -658,6 +703,7 @@ class WordcloudWindow {
       for (var word of Object.keys(collocates[am])) {
         if(this.coordinates && !this.coordinates[word]){
           count++;
+          missing_coordinates.add(word);
         }
         if (!collocates[am][word]) continue;
         var val = Number.parseFloat(collocates[am][word]);
@@ -667,18 +713,31 @@ class WordcloudWindow {
         this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
         this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
       }
-      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
-      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
-      //S.sort();
-      //console.log(S);
-      //this.compare_am = this.am;
-      //this.am = am;
+      //if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
     }
-
     this.changeAM();
+    if(missing_coordinates.size != 0){
+      //console.warn("The following collocated items are not present in coordinates-list: " + new Array(...missing_coordinates) );
+      //TODO:: reload Coordinates
+      //console.warn("Reloading Coordinates");
+      this.component.loadCoordinates();
+    }
   }
 
   setupCoordinates(coordinates){
+    //TODO:: only accept new coordinates (that are not already present here)
+    // - we do not assume others are changeing our data while we're at it.
+    
+    
+    //check consistency,... only update when new data arrives.
+    var data_consistent = true;
+    for(var word of Object.keys(coordinates)){
+      var el = this.Map.get(word);
+      if(!el){ data_consistent=false; break;}
+      if(! el.matches( coordinates[ word ] )){ data_consistent=false; break;};
+    }
+    if(data_consistent) return; //console.log("drop consistent wc setup");
+
     for(var [_,a] of this.Map.entries()) a.delete();
     this.Map = new Map();
     this.coordinates = coordinates;
@@ -695,20 +754,39 @@ class WordcloudWindow {
   }
 
   setupDiscoursemes(discoursemes){
+
+    //TODO:: only accept new discoursemes (that are not already present here)
+    // - we do not assume others are changeing our data while we're at it.
+
     for(var g of this.groups) g.delete(); //!! Do not delete groups from server, only locally
     this.groups.clear();
 
     this.discoursemes = discoursemes;
     for (var disc of discoursemes) {
+      var avgX = 0, avgY = 0, avgC = 0;
+      var unknownWords = [];
       var G = new WordGroup(undefined,this);
       for(var name of disc.items){
         var n = this.getItemByName(name);
         if(!n){
-          //TODO:: what coordinates should these words have??
-          n = this.addWord({name:name, tsne_x:0,tsne_y:0})
-        } 
+          unknownWords.push(name);
+          continue;
+        }
+        G.addItem(n);
+        avgX += n.data.tsne_x;
+        avgY += n.data.tsne_y;
+        avgC ++;
+      }
+      if(avgC){
+        avgX /= avgC; avgY /= avgC;
+      }
+      for(var name of unknownWords){
+        //TODO:: what coordinates should these words have??
+        // place them at the average of the other words in the discourseme
+        n = this.addWord({name:name, tsne_x:avgX ,tsne_y:avgY, user_x:null, user_y:null});
         G.addItem(n);
       }
+
       // Only give name, if naming is meaningful
       G.updateContentString();
       if(G.contentString!=disc.name){
@@ -723,101 +801,6 @@ class WordcloudWindow {
   }
 
 
-
-
-
-
-  setupContent(collocates, coordinates, discoursemes) {
-
-    /*
-    console.log(Array.from(Object.keys(collocates.MI)));
-    console.log(Array.from(Object.keys(coordinates)));
-    console.log(Array.from(Object.keys(discoursemes)));//coordinates)));
-    */
-    //console.log(collocates);
-    //console.log(coordinates);
-    //console.log(discoursemes);
-
-    if (!collocates || !coordinates) {
-      return console.error("Wordcloud:  No collocates loaded.");
-    }
-
-    this.collocates = collocates;
-    this.coordinates = coordinates;
-    this.am_minmax = {};
-    for (var am of Object.keys(collocates)) {
-      //console.log("AM: "+am);
-      if (!collocates[am]) continue;
-      this.am_minmax[am] = {
-        min: Number.POSITIVE_INFINITY,
-        max: Number.NEGATIVE_INFINITY
-      };
-      var count = 0;
-      //console.log("setup " + am);
-      for (var word of Object.keys(collocates[am])) {
-        if(!coordinates[word]){
-          count++;
-        }
-        if (!collocates[am][word]) continue;
-        var val = Number.parseFloat(collocates[am][word]);
-        //console.log(collocates[am][word]);
-        if(val!=val) continue;
-        this.am_minmax[am].min = Math.min(this.am_minmax[am].min, val);
-        this.am_minmax[am].max = Math.max(this.am_minmax[am].max, val);
-      }
-      if(count) console.warn(count+" collocated items in '"+am+"' are not present in coordinates-list");
-      
-      //var S = Object.keys(this.collocates[am]).map((word)=> word+(this.collocates[am][word]-this.am_minmax[am].min)/(this.am_minmax[am].max-this.am_minmax[am].min));
-      //S.sort();
-      //console.log(S);
-      this.compare_am = this.am;
-      this.am = am;
-    }
-
-    
-
-
-    for (var word of Object.keys(coordinates)) {
-      //console.log("AM: "+am);
-
-      coordinates[word].name = word;
-      this.addWord(coordinates[word]);
-      //console.log(coordinates[word]);
-    }
-
-
-    for (var disc of discoursemes) {
-      var G = new WordGroup(undefined,this);
-      for(var name of disc.items){
-        var n = this.getItemByName(name);
-        if(!n){
-          //console.log("ADD: "+name);
-          n = this.addWord({name:name,tsne_x:0,tsne_y:0})
-        } 
-        G.addItem(n);
-      }
-      G.updateContentString();
-      if(G.contentString!=disc.name){
-        G.name = disc.name;
-      }
-      G.id = disc.id;
-      G.color = random_color(G.id);
-      this.groups.add(G);
-      //console.log("Discourseme " + disc.name);
-    }
-
-    /*
-    var G = this.formGroupByNames([
-      "wie",
-      "wieso",
-      "das",
-    ]);
-    G.name = "Gruppenname";
-*/
-
-    this.layoutTsnePositions();
-    this.request("layout");
-  }
 
   ///////////////////////////////////////
   //
@@ -867,6 +850,10 @@ class WordcloudWindow {
 
   layout(x) {
     this.debugClear();
+    //layout.layoutWordcloudFormGroupsHideOverlap(this);
+    
+    //layout.layoutWordcloudFormGroups2ResolveOverlap(this);
+    
     layout.layoutWordcloudFormGroupsResolveOverlap(this);
     this.drawContainmentEdges();
     for (var g of this.groups) g.draw();

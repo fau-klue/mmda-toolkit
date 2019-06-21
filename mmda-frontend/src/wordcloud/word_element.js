@@ -48,7 +48,7 @@ class Pin {
     this.el.title = "unpin item/group";
     this.el.appendChild(ic);
 
-    this.el.addEventListener("click", ((t) => (e) => t.reset(e))(this));
+    this.el.addEventListener("mouseup", ((t) => (e) => t.reset(e))(this));
   }
   get pinned() {
     return this._pinned;
@@ -59,9 +59,10 @@ class Pin {
     return (this._pinned = p);
   }
   reset(e) {
+    if( this.parent.window.pressed_node == this.parent ) this.parent.window.pressed_node = null;
     this.pinned = false;
     this.parent.selected = false;
-    this.parent._user_defined_position = null;
+    if(this.parent.deleteUserPosition) this.parent.deleteUserPosition();
     this.parent.pos = this.parent.computed_position;
     this.parent.window.request("layout");
     //this.parent.window.word_menu.shown = false;
@@ -108,7 +109,8 @@ class WordTrend {
   }
   evaluate() {
     this.word.el.classList.remove("disappeared");
-    if (!this.word.window.options.word_trend_show) return this.hide();
+    if (!this.word.window.options.word_trend_show
+    ||  !this.word.window.component.collocatesCompare) return this.hide();
     var eps = 0.1;
     var eps2 = 0.4;
     var nu = this.word.normalized_size;
@@ -154,6 +156,7 @@ class WordElement {
     this.txt.appendChild(document.createTextNode(this.label));
     this.el.appendChild(this.txt);
 
+
     this.groups = new Set();
 
     this.pin = new Pin(this);
@@ -163,6 +166,13 @@ class WordElement {
     this.mini = new MinimapElement(this);
     for (var v of ["mouseover", "mouseout", "mousedown"])
       fwdEvent(this, this.el, v);
+    
+    var eps = 0.00000001;
+    if(w.user_x!==null 
+    && (Math.abs(w.user_x-w.tsne_x) > eps
+    ||  Math.abs(w.user_y-w.tsne_y) > eps )){
+      this.user_defined_position = [w.user_x,w.user_y];
+    }
   }
   link(window) {
     //window.container.appendChild(this.shadow);
@@ -285,8 +295,15 @@ class WordElement {
   get shown() {
     return this._shown;
   }
+
+  set failedInserting(s){
+    if (!s) this.el.classList.add("inserted");
+    else this.el.classList.remove("inserted");
+  }
+
+
   get hidden() {
-    return this.normalized_size < 0 && this.normalized_size_compare < 0;
+    return this.normalized_size < 0 && ( !this.window.container.collocatesCompare || this.normalized_size_compare < 0);
   }
 
 
@@ -333,6 +350,12 @@ class WordElement {
   }
   set user_defined_position(p) {
     this.pin.pinned = true;
+    
+   // this.window.component.setUserCoordinate(this.data.name, p[0], p[1]);
+
+    this.data.user_x = p[0];
+    this.data.user_y = p[1];
+
 
     if (this.groups.size == 1) {
       //group-local user position:
@@ -343,12 +366,56 @@ class WordElement {
     return (this._user_defined_position = p);
   }
 
+  matches(data){
+    var eps = 0.000000001;
+
+    var match = (this.data.tsne_x == data.tsne_x || Math.abs(this.data.tsne_x - data.tsne_x) < eps)
+      && (this.data.tsne_y == data.tsne_y || Math.abs(this.data.tsne_y - data.tsne_y) < eps)
+      && (this.data.user_x == data.user_x || Math.abs(this.data.user_x - data.user_x) < eps)
+      && (this.data.user_y == data.user_y || Math.abs(this.data.user_y - data.user_y) < eps)
+
+      /*
+    if(!match){
+      console.log(this.data.name
+        +" "+(this.data.tsne_x-data.tsne_x)
+        +" "+(this.data.tsne_y-data.tsne_y)
+        +" "+(this.data.user_x-data.user_x)
+        +" "+(this.data.user_y-data.user_y)
+        );
+    }*/
+    return match;
+  }
+
+
+  drop(){
+    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
+  }
+    
+  deleteUserPosition(){
+    this._user_defined_position = null;
+    //this.data.user_x = this.data.tsne_x;
+    //this.data.user_y = this.data.tsne_y;
+
+    //TODO::: make this work in backend
+    //this.data.user_x = null;  
+    //this.data.user_y = null;
+    this.data.user_x = "null";
+    this.data.user_y = "null";
+
+    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
+  }
+
   dropAt(el) {
     if (el.isgroup) {
       if (this.groups.has(el)) return;
       this.selected = true;
       el.selected = true;
       this.window.groupSet(this.window.selected_nodes, el.label);
+    } else if(el.groups.size){
+      this.selected = true;
+      var G = el.groups.values().next().value;
+      G.selected = true;
+      this.window.groupSet(this.window.selected_nodes);
     } else {
       this.selected = true;
       el.selected = true;
