@@ -148,7 +148,7 @@ export default {
         this.error = null
         var q = "?name="+A.name;
         q+="&corpus="+A.corpus;
-        q+="&window="+A.window_size;
+        q+="&window="+A.max_window_size;
         for(var i of A.topic_discourseme.items) q+="&item="+i;
         this.$router.push('/analysis/new'+q);
       }).catch((error) => {

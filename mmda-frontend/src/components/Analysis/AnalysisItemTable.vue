@@ -3,7 +3,7 @@
   <v-flex xs12 sm12>
     <h1 class="my-3 title">Collocation and Coordinates:</h1>
     <h3 class="my-3 body-2">Window Size</h3>
-    <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>

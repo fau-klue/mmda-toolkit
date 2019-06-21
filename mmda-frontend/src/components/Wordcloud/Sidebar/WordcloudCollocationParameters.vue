@@ -4,7 +4,7 @@
   <v-card v-if="notMini">
     <v-card-text>
       <h3 class="body-2">Window Size</h3>
-      <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+      <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
       <v-layout row wrap>
