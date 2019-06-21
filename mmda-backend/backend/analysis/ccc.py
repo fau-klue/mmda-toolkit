@@ -14,6 +14,13 @@ from random import sample
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 LOGGER = logging.getLogger('mmda-logger')
+AMs = {
+    'z_score': measures.z_score,
+    't_score': measures.t_score,
+    'dice': measures.dice,
+    'log_likelihood': measures.log_likelihood,
+    'mutual_information': measures.mutual_information
+}
 
 
 class Cache:
@@ -332,7 +339,7 @@ def df_cooc_to_counts(engine,
 
     # drop hapax legomena for improved performance
     if drop_hapaxes:
-        counts = counts[~counts['O11'] <= 1]
+        counts = counts.loc[~(counts['O11'] <= 1)]
 
     return counts, f1_inflated
 
@@ -361,7 +368,7 @@ def counts_to_contingencies(counts, f1, f1_inflated, f2, N):
     return contingencies
 
 
-def add_ams(contingencies):
+def add_ams(contingencies, ams):
     """ annotates a contingency table with AM information """
     # rename for convenience
     df = contingencies
@@ -372,7 +379,7 @@ def add_ams(contingencies):
     df['E11'], df['E12'], df['E21'], df['E22'] = frequencies.expected_frequencies(df)
 
     # calculate all association measures
-    collocates = measures.calculate_measures(df)
+    collocates = measures.calculate_measures(df, measures=AMs.values())
     collocates = df
 
     return collocates
@@ -449,7 +456,7 @@ class ConcordanceCollocationCalculator():
             contingencies = counts_to_contingencies(
                 counts, f1, f1_inflated, f2, N
             )
-            collocates[window] = add_ams(contingencies)
+            collocates[window] = add_ams(contingencies, AMs)
 
         return collocates
 
@@ -589,16 +596,21 @@ class ConcordanceCollocationCalculator():
 
         # ToDo: give cut_off to engine for better performance
         for window in range(1, self.analysis.window_size + 1):
+
             # select relevant window
             coll = collocates[window]
-            # sort deterministically
-            coll.sort_values(
-                by=[collocates_settings['order'], 'f2'],
-                ascending=[False, True],
-                inplace=True
-            )
-            coll['name'] = coll.index
-            collocates[window] = coll.head(collocates_settings['cut_off'])
+
+            # sort and cut-off
+            rel_items = set()
+            for am in AMs:
+                tmp = coll.sort_values(by=am, ascending=False).head(
+                    collocates_settings['cut_off']
+                )
+                rel_items = rel_items.union(set(tmp.index))
+            coll = coll.loc[rel_items]
+
+            collocates[window] = coll
+
         return collocates
 
     def _get_collocates(self,
