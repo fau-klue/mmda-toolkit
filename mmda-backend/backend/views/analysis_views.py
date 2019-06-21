@@ -69,9 +69,14 @@ def create_analysis(username):
     # Load Collocates
     engine = current_app.config['ENGINES'][analysis.corpus]
     ccc = CCC(analysis, engine)
-
-    collocates = ccc.extract_collocates(topic_discourseme)
-
+    collocates_settings = {
+        'order': 'O11',
+        'cut_off': 100
+    }
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        collocates_settings=collocates_settings
+    )
     # Get Tokens for coordinate generation
     # collocates is a dict of dataframes with key == window_size
     # TODO: I'm sure there's a one liner to do this
@@ -380,7 +385,7 @@ def get_collocate_for_analysis(username, analysis):
     # TODO: get settings to frontend
     collocates_settings = {
         'order': 'O11',
-        'cut_off': 200
+        'cut_off': 100
     }
     collocates = ccc.extract_collocates(topic_discourseme,
                                         collocates_settings=collocates_settings)
