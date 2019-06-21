@@ -92,7 +92,7 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: "analysis/getConcordances",
-      cancelConcordanceRequest:'corpus/cancelConcordanceRequest',
+      cancelConcordanceRequest:'analysis/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
       getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",

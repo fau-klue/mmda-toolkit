@@ -23,7 +23,7 @@
             <td class="text-xs-center"
               >
               <v-menu open-on-hover top offset-y>
-                <span slot="activator" class="kwic-id">{{ props.item.s_pos }}</span>
+                <span slot="activator" class="kwic-id">{{ props.item.match_pos }}</span>
                 <v-list>
                   <v-list-tile>
                     <v-list-tile-content>
@@ -75,8 +75,8 @@
 <style>
 .kwic-view-compact td,
 .kwic-view-compact th{
-  padding: 0 10px !important;
-  height:  30px !important;
+  padding: 0 1rem !important;
+  height:  0 !important;
 }
 
 .kwic-view-table table{
@@ -109,8 +109,11 @@
   font-size:200%;
   font-weight:bold;
 }
+
+.kwic-view-table .concordance.out_of_window,
 .kwic-view-table .concordance.nocollocate:not(.topic){
   color:#aaa;
+  cursor: pointer;
 }
 .kwic-view-table .concordance.token{
   cursor:pointer;
@@ -119,6 +122,10 @@
 .kwic-view-table .concordance.topic{
   font-weight:bold;
   cursor:pointer;
+}
+
+.kwic-view-table .concordance.out_of_window{
+  font-size: 80%;
 }
 
 .kwic-view-card{
@@ -168,7 +175,7 @@ export default {
     }),
     headers () {
       return [
-        { class:'kwic-id-head',text:'ID',value:'s_pos',align:'center'},
+        { class:'kwic-id-head',text:'ID',value:'match_pos',align:'center'},
         { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
         { class:'kwic-keyword-head',align:'center', text:'keyword', value:'keyword.text'},
         { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
@@ -178,8 +185,10 @@ export default {
     tableContent () {
       var C = [];
       if(!this.corpus) return C;
-      var p_att = this.corpus.p_att;
+      //var p_att = 'p_query';//this.corpus.p_att;
       
+      //console.log(p_att);
+
       if(!this.concordances) return C;
       for(var c of this.concordances){
         var r = { 
@@ -199,13 +208,14 @@ export default {
         r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
 
         for(var i=0; i<c.word.length; ++i){  
+          //console.log(c);
           var el = {
             text:   c.word[i],
-            role:   c.role[i],
-            lemma:  c[p_att][i]
+            role:   c.role[i].find( (r)=> r ),
+            lemma:  c.p_query[i]
           };
 
-          //console.log(c);
+          if(!el.role) el.role = "token";
 
 
           if(beforeKeyword && el.role==this.keywordRole){
@@ -268,7 +278,7 @@ export default {
     },
     selectItem (item) {
       if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
-      else if( item.role == 'out_of_bounds') return;
+      //else if( item.role == 'out_of_window') return;
       else if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
     },

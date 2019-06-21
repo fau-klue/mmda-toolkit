@@ -81,8 +81,10 @@ export default {
     }),
     discoursemeUnion () {
       const analysisDiscoursemeIDs = this.analysisDiscoursemes.map(d => d.id)
-      // Add own topic discourseme, cause you cant add that
-      analysisDiscoursemeIDs.push(this.theAnalysis.topic_id)
+      if(this.theAnalysis){
+        // Add own topic discourseme, cause you cant add that
+        analysisDiscoursemeIDs.push(this.theAnalysis.topic_id)
+      }
       return this.userDiscoursemes.filter(items => !analysisDiscoursemeIDs.includes(items.id)  )
     }
   },
