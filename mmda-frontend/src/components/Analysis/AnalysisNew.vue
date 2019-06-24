@@ -80,8 +80,23 @@
                     ></v-combobox>
 
                   <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" label="Window Size"></v-slider>
-                  <v-text-field v-model="pQuery" label="P-Query Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+                 <!-- <v-text-field v-model="pQuery" label="P-Query Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
                   <v-text-field v-model="sBreak" label="S-Break Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+-->
+                  <v-layout row>
+                    <v-combobox class="col-5"
+                      v-model="pQuery"
+                      :items="pQueries"
+                      label="P-Query Attribute"
+                      :rules="[rules.required, rules.alphanum, rules.counter]"
+                    ></v-combobox>
+                    <v-combobox class="col-5"
+                      v-model="sBreak"
+                      :items="sBreaks"
+                      label="S-Break Attribute"
+                      :rules="[rules.required, rules.alphanum, rules.counter]"
+                    ></v-combobox>
+                  </v-layout>
 
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
@@ -111,6 +126,8 @@ export default {
     name: '',
     pQuery: 'word',
     sBreak: 's',
+    pQueries:['word', 'lemma' ],
+    sBreaks:['s', 'p', 'tweet'],
     nodata: false,
     selectCorpus: '',
     selectItems: [],
