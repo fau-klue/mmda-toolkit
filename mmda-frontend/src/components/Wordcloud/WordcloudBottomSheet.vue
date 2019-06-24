@@ -31,6 +31,8 @@ import { mapGetters, mapActions } from "vuex";
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 //import ConcordancesContextWordTree from '@/components/Concordances/ConcordancesContextWordTree.vue'
 
+import { domSet } from '@/wordcloud/util_misc.js';
+
 export default {
   name: "WordcloudBottomSheet",
   props:['onclickitem'],
@@ -66,7 +68,8 @@ export default {
   mounted(){
     var E = document.getElementsByClassName("wordcloud-bottom-card");
     for(var e of E){
-      e.style.maxHeight  = Math.floor(innerHeight*0.5)+"px";
+      //e.style.maxHeight  = Math.floor(innerHeight*0.5)+"px";
+      domSet(e,'maxHeight',Math.floor(innerHeight*0.5)+'px');
     }
   }
 };

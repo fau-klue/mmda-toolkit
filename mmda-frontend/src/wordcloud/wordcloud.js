@@ -26,7 +26,8 @@ import {
   oneOf,
   random_color,
   //  hsv_to_rgb,
-  fwdEvent
+  fwdEvent,
+  domSet,
 } from "./util_misc.js";
 
 import {
@@ -176,11 +177,11 @@ class WordcloudWindow {
     //position world on screen
     var smin = div2(sub2(this.min, p), camDimToWorld);
     var smax = div2(sub2(this.max, p), camDimToWorld);
-    this.container.style.left = smin[0] * 100 + "%";
-    this.container.style.right = (1 - smax[0]) * 100 + "%";
-    this.container.style.top = smin[1] * 100 + "%";
-    this.container.style.bottom = (1 - smax[1]) * 100 + "%";
-    this.container.style.transition = this.transition ? "all ease .5s" : "none";
+    domSet(this.container,'left', smin[0] * 100 + "%");
+    domSet(this.container,'right', (1 - smax[0]) * 100 + "%");
+    domSet(this.container,'top', smin[1] * 100 + "%");
+    domSet(this.container,'bottom', (1 - smax[1]) * 100 + "%");
+    domSet(this.container,'transition', this.transition ? "all ease .5s" : "none");
 
     //
     this._pos = p;
@@ -865,7 +866,6 @@ class WordcloudWindow {
     this.pos = this.pos;
     this.scale = this.scale;
   }
-
 
   layoutTsnePositions() {
     var min = inf2();

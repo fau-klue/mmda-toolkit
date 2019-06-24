@@ -30,6 +30,7 @@ import {
   Minimap,
   MinimapElement
 } from "./element_minimap.js";
+import { domSet } from '@/wordcloud/util_misc.js';
 
 class Pin {
   constructor(parent) {
@@ -92,8 +93,8 @@ class WordTrend {
     this.el.classList.remove("hidden");
     this.el.classList.remove(this.state);
     this.el.classList.add((this.state = v));
-    if (size) this.el.style.fontSize = size + "rem";
-    else this.el.style.fontSize = "auto";
+    if (size) domSet(this.el,'fontSize', size + "rem");
+    else domSet(this.el,'fontSize', "auto");
     var map = {
       strong_up_alt: "⬆",
       strong_down_alt: "⬇",
@@ -230,14 +231,14 @@ class WordElement {
     return this._pos;
   }
   set pos(p) {
-    this._pos = p;
-    this.applyPosition();
+      this._pos = p;
+      this.applyPosition();
   }
   applyPosition() {
     if (!this.window.wWH) return;
     var p = this.window.worldToContainer(this._pos); //div2(sub2(this._pos, this.window.min), this.window.wWH);
-    this.el.style.left = p[0] * 100 + "%";
-    this.el.style.top = p[1] * 100 + "%";
+    domSet(this.el,'left', p[0] * 100 + "%");
+    domSet(this.el,'top', p[1] * 100 + "%");
 
     // shadow position
     /*    var s = this.window.worldToContainer(
@@ -313,7 +314,7 @@ class WordElement {
   }
   set size(s) {
     this._size = s;
-    this.el.style.fontSize = s + "rem";
+    domSet(this.el,'fontSize', s + "rem");
     if (this.groups.size > 0 && s <= 0) {
       //TODO:: add permanent on group setup
       this.el.classList.add("permanent");
@@ -328,7 +329,7 @@ class WordElement {
   }
   set color(c) {
     this._color = c;
-    this.el.style.color = hex_color_from_array(this._color);
+    domSet(this.el,'color', hex_color_from_array(this._color));
     return c;
   }
   get selected() {
@@ -428,7 +429,7 @@ class WordElement {
   onmouseover(e) {
     this.size *= 1.2;
     //only temporarily change color
-    this.el.style.color = hex_color_from_array([0.2, 0.5, 0.2]);
+    domSet(this.el,'color', hex_color_from_array([0.2, 0.5, 0.2]));
     this.window.hover_node = this;
   }
   onmouseout(e) {

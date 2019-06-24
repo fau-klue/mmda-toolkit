@@ -28,6 +28,7 @@ import {
 import {
   Pin
 } from "./word_element.js";
+import { domSet } from '@/wordcloud/util_misc.js';
 
 ///////////////////////////////////////
 //
@@ -201,8 +202,8 @@ class WordGroup {
     //this.el.style.left = pixPos[0] * 100 + "%";
     //this.el.style.top = pixPos[1] * 100 + "%";
 
-    this.pin.el.style.left = pixPos[0] * 100 + "%";
-    this.pin.el.style.bottom = (1 - pixPos[1]) * 100 + "%";
+    domSet(this.pin.el,'left', pixPos[0] * 100 + "%");
+    domSet(this.pin.el,'bottom', (1 - pixPos[1]) * 100 + "%");
     this.redraw();
     return this.__pos;
   }

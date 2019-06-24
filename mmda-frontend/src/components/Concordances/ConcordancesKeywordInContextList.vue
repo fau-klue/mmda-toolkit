@@ -138,6 +138,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import {domSet} from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'ConcordancesKeywordInContextList',
@@ -265,13 +266,16 @@ export default {
         pad = window.getComputedStyle(id, null).getPropertyValue('padding-left');
         pad = Number.parseInt(pad.substring(0,pad.length-2));
         var w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
-        id.style.width = w+2*pad+"px";      
+        //id.style.width = w+2*pad+"px";      
+        domSet(id,'width',w+2*pad+'px');
+
 
         E = document.getElementsByClassName("kwic-keyword");
         w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
         var kw = document.getElementsByClassName("kwic-keyword-head")[0];
         if(kw===undefined) return;
-        kw.style.width = w+2*pad+"px";
+        //kw.style.width = w+2*pad+"px";
+        domSet(kw,'width',w+2*pad+'px');
       }
     },
     isCollocate(lemma){

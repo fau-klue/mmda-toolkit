@@ -31,6 +31,25 @@ function pseudorandom(i) {
   return res;
 }
 
+
+var requestedDomOps = false;
+var domOps = [];
+function domApplyAll(){
+  requestedDomOps = false;
+  for(var x of domOps){
+    x.el.style[x.key] = x.value;
+  }
+  domOps = [];
+}
+function domSet(el,key,value){
+  domOps.push({el,key,value});
+  if(!requestedDomOps){
+    requestAnimationFrame( domApplyAll);
+    requestedDomOps=true;
+  }
+}
+
+
 function random_color(pseudo) {
   if (typeof pseudo === 'boolean') return hsv_to_rgb(360 * pseudorandom(), 0.8, 0.5);
   if (typeof pseudo === 'number') return hsv_to_rgb(360 * pseudorandom(pseudo), 0.8, 0.5);
@@ -82,5 +101,6 @@ export {
   pseudorandom,
   random_color,
   hsv_to_rgb,
-  fwdEvent
+  fwdEvent,
+  domSet,
 };
