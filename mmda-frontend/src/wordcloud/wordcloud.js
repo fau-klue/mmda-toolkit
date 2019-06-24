@@ -537,16 +537,19 @@ class WordcloudWindow {
     this.mouse = [e.pageX - R.left, e.pageY - R.top];
     //    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
     if (this.pressed_node) {
-      // dragging node
-      this.dragging = true;
-      this.el.classList.add("dragging");
-      //      this.word_menu.shown = false;
-      this.pressed_node._pos = this.pressed_node.pos = sub2(
-        this.mouse_wpos,
-        this.pressed_offset
-      );
-      this.pressed_node.user_defined_position = this.pressed_node.pos;
-      this.pressed_node.dragging = true;
+        // dragging node
+      var minimal_drag_mouse_movement = 10;
+      if(len2(sub2(this.mouse, this.mouse_downpoint))> minimal_drag_mouse_movement || this.dragging){
+        this.dragging = true;
+        this.el.classList.add("dragging");
+        //      this.word_menu.shown = false;
+        this.pressed_node._pos = this.pressed_node.pos = sub2(
+          this.mouse_wpos,
+          this.pressed_offset
+        );
+        this.pressed_node.user_defined_position = this.pressed_node.pos;
+        this.pressed_node.dragging = true;
+      }
     } else if (this.window_downpos) {
       //this.word_menu.shown = false;
       if (this.boxSelection) {
