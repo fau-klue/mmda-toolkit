@@ -34,15 +34,27 @@ function pseudorandom(i) {
 
 var requestedDomOps = false;
 var domOps = [];
+var domOpsEL = [];
 function domApplyAll(){
   requestedDomOps = false;
   for(var x of domOps){
     x.el.style[x.key] = x.value;
   }
+  for(var x of domOpsEL){
+    x.el[x.key] = x.value;
+  }
   domOps = [];
+  domOpsEL = [];
 }
 function domSet(el,key,value){
   domOps.push({el,key,value});
+  if(!requestedDomOps){
+    requestAnimationFrame( domApplyAll);
+    requestedDomOps=true;
+  }
+}
+function domSetEL(el,key,value){
+  domOpsEL.push({el,key,value});
   if(!requestedDomOps){
     requestAnimationFrame( domApplyAll);
     requestedDomOps=true;
@@ -103,4 +115,5 @@ export {
   hsv_to_rgb,
   fwdEvent,
   domSet,
+  domSetEL,
 };

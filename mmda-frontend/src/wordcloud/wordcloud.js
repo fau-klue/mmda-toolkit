@@ -28,6 +28,7 @@ import {
   //  hsv_to_rgb,
   fwdEvent,
   domSet,
+  domSetEL,
 } from "./util_misc.js";
 
 import {
@@ -62,14 +63,23 @@ class ErrorMessage {
     this.window.el.appendChild(this.el);
   }
   clear() {
-    if (this.content) this.el.removeChild(this.content);
-    this.content = undefined;
+    this.set("","");
+    //if (!this.content) this.el.removeChild(this.content);
+    //this.content = undefined;
   }
   set(msg, title) {
-    this.el.title = title;
-    if (this.content) this.el.removeChild(this.content);
-    this.content = document.createTextNode("⚠ " + msg);
-    this.el.appendChild(this.content);
+    if (!this.content){
+      //this.el.removeChild(this.content);
+      this.content = document.createTextNode("");
+      this.el.appendChild(this.content);
+    }
+    
+
+    domSetEL(this.content,'textContent',msg?"⚠ " + msg:'');
+    domSetEL(this.el,'title',title);
+    //if (this.content) this.el.removeChild(this.content);
+    //this.content = document.createTextNode("⚠ " + msg);
+    //this.el.appendChild(this.content);
   }
 }
 
@@ -896,9 +906,11 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   debugClear() {
-    if (this.debug) this.container.removeChild(this.debug);
-    this.debug = document.createElement("div");
-    this.container.appendChild(this.debug);
+    if (!this.debug){
+      //this.container.removeChild(this.debug);
+      this.debug = document.createElement("div");
+      this.container.appendChild(this.debug);
+    }
     if (!this.canvas) return;
     this.canvas.clearDebug();
   }
