@@ -196,11 +196,16 @@ const actions = {
      
       for(var it of data.discourseme_items) params.append("collocate", it);
 
+      //TODO:: retreive discourseme collocates
+      //params.append('discourseme', 4);
+
       const request = {
         params: params
       }
+      //console.log(data);
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
         commit('setCollocates', response.data);
+        //console.log(response.data.t_score);
         resolve()
       }).catch(function (error) {
         reject(error)

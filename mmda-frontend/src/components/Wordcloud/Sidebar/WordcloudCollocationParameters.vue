@@ -21,7 +21,7 @@
           </v-flex>
       </v-layout>
       
-      <v-layout class="my-4" row wrap>
+      <v-layout v-if="use_second_order_collocation" class="my-4" row wrap>
         <h3 class="body-2">Second Order Collocation with:</h3>
         <v-flex xs12 sm4 md4>
           <!-- <v-radio-group v-model="secondOrderID" @change="setSOC">
@@ -131,6 +131,7 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'WordcloudCollocationParameters',
   data: () => ({
+    use_second_order_collocation:false,
     compare: true,
     min: 2,
     am_value: null,
