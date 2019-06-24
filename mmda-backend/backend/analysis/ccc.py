@@ -697,6 +697,6 @@ class ConcordanceCollocationCalculator():
                 rel_items = rel_items.union(set(tmp.index))
             coll = coll.loc[rel_items]
 
-            collocates[window] = coll
+            collocates[window] = coll[list(collocates_settings['AMs'].keys())]
 
         return collocates
