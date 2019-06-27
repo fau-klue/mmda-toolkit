@@ -356,6 +356,8 @@ def get_collocate_for_analysis(username, analysis):
 
     # Check Request
     window_size = request.args.get('window_size', 3)
+    # Second order collocates
+    second_order_items = request.args.getlist('collocate', None)
 
     try:
         window_size = int(window_size)
@@ -388,8 +390,17 @@ def get_collocate_for_analysis(username, analysis):
         'cut_off': 100,
         'AMs': ['z_score', 't_score', 'dice', 'log_likelihood', 'mutual_information']
     }
-    collocates = ccc.extract_collocates(topic_discourseme,
-                                        collocates_settings=collocates_settings)
+
+    if second_order_items:
+        # Create Discourseme for second order collocates
+        discoursemes = Discourseme(name='2ndorder', items=second_order_items, user_id=user.id)
+        collocates = ccc.extract_collocates(topic_discourseme,
+                                            discoursemes=discoursemes,
+                                            collocates_settings=collocates_settings)
+    else:
+        collocates = ccc.extract_collocates(topic_discourseme,
+                                            collocates_settings=collocates_settings)
+
 
     if window_size not in collocates.keys():
         log.debug('No collocates available for window size %s', window_size)
