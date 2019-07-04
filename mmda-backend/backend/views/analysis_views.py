@@ -84,7 +84,7 @@ def create_analysis(username):
     for df in collocates.values():
         tokens.extend(df.index)
     tokens = list(set(tokens))
-    log.debug('Extracted tokens for analysis %s: %s', analysis.id, tokens)
+    log.debug('Extracted tokens for analysis %s: %s', analysis.id, str(len(tokens)))
 
     if len(tokens) == 0:
         log.debug('No collocates for query found for %s', items)
