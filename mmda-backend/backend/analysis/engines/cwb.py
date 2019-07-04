@@ -13,7 +13,7 @@ from os import getenv
 from .engine import Engine
 
 REGISTRY_PATH = getenv('CQP_REGISTRY_PATH',
-                       default='/opt/cwb/registry')
+                       default='/usr/local/share/cwb/registry/')
 log = getLogger('mmda-logger')
 
 
