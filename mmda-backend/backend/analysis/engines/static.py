@@ -1,13 +1,16 @@
+# Static Engine for Development and Testing
+
 from collections import Counter
-from os import path
+from os import path, listdir
 from pandas import read_csv, DataFrame
 
-
-THIS_DIR, THIS_FILENAME = path.split(__file__)
-DATA_PATH = path.join(THIS_DIR, 'mock-data.csv.gz')
+from .engine import Engine
 
 
-class StaticEngine():
+DATA_PATH = 'tests/analysis/mock-data.csv.gz'
+
+
+class StaticEngine(Engine):
 
     def __init__(self, corpus_settings):
         self.df = read_csv(DATA_PATH, index_col=0)

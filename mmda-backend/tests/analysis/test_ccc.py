@@ -3,8 +3,7 @@ from timeit import default_timer as timer
 from functools import wraps
 import logging
 
-from staticengine import StaticEngine as Engine
-# from backend.analysis.engines import CWBEngine as Engine
+from backend.analysis.engines import StaticEngine as Engine
 from backend.analysis.ccc import slice_discourseme_topic
 from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic

@@ -77,6 +77,7 @@ def create_analysis(username):
         topic_discourseme,
         collocates_settings=collocates_settings
     )
+
     # Get Tokens for coordinate generation
     # collocates is a dict of dataframes with key == window_size
     # TODO: I'm sure there's a one liner to do this
@@ -393,7 +394,7 @@ def get_collocate_for_analysis(username, analysis):
 
     if second_order_items:
         # Create Discourseme for second order collocates
-        discoursemes = Discourseme(name='2ndorder', items=second_order_items, user_id=user.id)
+        discoursemes = [Discourseme(name='2ndorder', items=second_order_items, user_id=user.id)]
         collocates = ccc.extract_collocates(topic_discourseme,
                                             discoursemes=discoursemes,
                                             collocates_settings=collocates_settings)

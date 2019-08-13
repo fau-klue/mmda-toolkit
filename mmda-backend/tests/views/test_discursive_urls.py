@@ -1,3 +1,5 @@
+import unittest.mock as mock
+import pandas
 from flask import url_for
 import pytest
 
@@ -48,7 +50,18 @@ def test_discursive_get_concordance_not_params(client, header):
 
 
 @pytest.mark.api
-def test_discursive_get_concordance(client, header):
+@pytest.mark.xfail
+@mock.patch('backend.views.analysis_views.generate_semantic_space')
+def test_discursive_get_concordance(mock_coords, client, header):
+
+    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
+
+    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
+    client.post(url_for('analysis.create_analysis', username='student1'),
+                follow_redirects=True,
+                content_type='application/json',
+                headers=header,
+                json=data)
 
     data = 'analysis=1&corpus=SZ_SMALL'
     response = client.get(url_for('discursive_position.get_discursive_position_concordances', username='student1', discursive_position=1),

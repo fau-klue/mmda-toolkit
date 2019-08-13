@@ -10,7 +10,7 @@ def test_create_analysis(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
 
-    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['foobar', 'barfoo'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
     response = client.post(url_for('analysis.create_analysis', username='student1'),
                           follow_redirects=True,
                           content_type='application/json',
@@ -37,7 +37,7 @@ def test_put_discourseme_into_analysis(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
 
-    data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
+    data = {'name': 'foobar', 'items': ['Merkel', 'Seehofer']}
     response = client.post(url_for('discourseme.create_discourseme', username='student1'),
                           follow_redirects=True,
                           content_type='application/json',
@@ -102,7 +102,7 @@ def test_update_analysis(client, header):
 @pytest.mark.api
 def test_get_collocate_for_analysis(client, header):
 
-    data = 'collocate=foobar&collocate=barfoo'
+    data = 'collocate=Merkel&collocate=Seehofer'
     response = client.get(url_for('analysis.get_collocate_for_analysis', username='student1', analysis=1),
                           query_string=data,
                           follow_redirects=True,
@@ -128,7 +128,7 @@ def test_get_concordance_for_analysis(client, header):
 @pytest.mark.api
 def test_get_concordance_for_analysis_with_items(client, header):
 
-    data = 'window_size=1&item=foo&item=bar'
+    data = 'window_size=1&item=Seehofer&item=Merkel'
     response = client.get(url_for('analysis.get_concordance_for_analysis', username='student1', analysis=1),
                           query_string=data,
                           follow_redirects=True,
