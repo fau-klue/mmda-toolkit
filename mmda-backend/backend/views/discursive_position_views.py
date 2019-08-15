@@ -54,7 +54,7 @@ def create_discursive_position(username):
         # Add discourseme link
         position_discourseme = DiscursivePositionDiscoursemes(discursive_position_id=discursive.id, discourseme_id=discourseme.id)
         db.session.add(position_discourseme)
-        log.debug('Added Discourseme $s to Discursive Position %s', discourseme.id, discursive.id)
+        log.debug('Added Discourseme %s to Discursive Position %s', discourseme.id, discursive.id)
 
     db.session.commit()
 
