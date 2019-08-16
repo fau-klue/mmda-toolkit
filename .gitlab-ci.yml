@@ -61,3 +61,14 @@ backend-test:python3-5:
     - pipenv install --system --dev
   script:
     - pipenv run pytest -v
+
+openapi-documentation:
+  stage: build
+  image: python:3.6
+  before_script:
+    - pip3 install --quiet pyyaml
+  script:
+    - python3 documentation/swagger-yaml-to-html.py < documentation/mmda-openapi.yaml > documentation/mmda.html
+  artifacts:
+    paths:
+      - documentation/mmda.html
