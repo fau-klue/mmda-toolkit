@@ -12,8 +12,6 @@ from os import getenv
 
 from .engine import Engine
 
-REGISTRY_PATH = getenv('CQP_REGISTRY_PATH',
-                       default='/usr/local/share/cwb/registry/')
 log = getLogger('mmda-logger')
 
 
@@ -130,16 +128,13 @@ def _dump_to_df_node(dump):
 class CWBEngine(Engine):
     """ interface to CWB, convenience wrapper """
 
-    def __init__(self, corpus_settings):
+    def __init__(self, corpus_settings, registry_path='/usr/local/cwb-3.4.13/share/cwb/registry'):
         """Establishes connection to the indexed corpus. Raises KeyError if
         corpus not in registry.
         """
 
         self.corpus_name = corpus_settings['name_api']
-        if 'registry_path' in corpus_settings.keys():
-            self.registry_path = corpus_settings['registry_path']
-        else:
-            self.registry_path = REGISTRY_PATH
+        self.registry_path = registry_path
 
         try:
             self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)

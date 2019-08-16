@@ -9,7 +9,7 @@ from backend.analysis.engines import Engine
 
 
 REGISTRY_PATH = os.getenv(
-    'MMDA_CQP_REGISTRY',
+    'CWB_REGISTRY_PATH',
     default='/usr/local/cwb-3.4.16/share/cwb/registry/'
 )
 

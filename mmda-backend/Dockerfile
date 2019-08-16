@@ -1,7 +1,7 @@
 FROM martialblog/docker-corpus-tool:cwb-ucs
 LABEL maintainer="markus.opolka@fau.de"
 
-ENV CQP_REGISTRY_PATH '/var/registry'
+ENV CWB_REGISTRY_PATH '/opt/cwb/registry'
 ENV DEBIAN_FRONTEND noninteractive
 ENV ENVIRONMENT 'development'
 ENV HOST 0.0.0.0

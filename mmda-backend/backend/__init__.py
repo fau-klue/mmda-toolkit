@@ -257,7 +257,14 @@ def init_engines(app):
 
     for corpus_name, corpus_settings in app.config['CORPORA'].items():
         engine_class = getattr(Engines, corpus_settings['engine'])
-        engine = engine_class(corpus_settings)
+
+        # Workaround to get global registry path
+        # https://gitlab.cs.fau.de/efe/mmda-refactor/issues/15
+        if corpus_settings['engine'] == 'CWBEngine':
+            engine = engine_class(corpus_settings, app.config['REGISTRY_PATH'])
+        else:
+            engine = engine_class(corpus_settings)
+
         engines[corpus_name] = engine
 
     app.config['ENGINES'] = engines
