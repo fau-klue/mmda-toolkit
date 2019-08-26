@@ -22,7 +22,7 @@
             <v-btn color="primary" :loading="loading" :disabled="loading" @click="login">Login</v-btn>
           </v-card-actions>
         </v-card>
-        <v-alert v-model="unsuccessfull" dismissible type="error">{{ $t("login.unauthorized") }} </v-alert>
+        <v-alert v-model="show_error" dismissible type="error">{{ error }} </v-alert>
       </v-flex>
     </v-layout>
   </v-container>
@@ -36,7 +36,7 @@ export default {
   data: () => ({
     username: null,
     password: null,
-    unsuccessfull: false,
+    show_error: false,
     error: '',
     loading: false
   }),
@@ -46,6 +46,13 @@ export default {
       testJWT: 'login/testJWT',
       clearJWT: 'login/clearJWT'
     }),
+    error_message_for(error, prefix, codes){
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
     invalid () {
       if (this.username && this.password) {
         return false
@@ -53,12 +60,12 @@ export default {
       return true
     },
     login () {
-      this.unsuccessfull = false
+      this.show_error = false
 
-      if (this.invalid()) {
-        this.unsuccessfull = true
+      if( this.invalid() ) {
         this.password = null
-        this.error = 'Please enter username and password.'
+        this.show_error = true
+        this.error = this.$t("login.missing_input") //'Please enter username and password.'
         return
       }
 
@@ -67,9 +74,9 @@ export default {
       this.fetchJWT({ username: this.username, password: this.password }).then(() => {
         this.$router.push('/profile')
       }).catch((error) => {
-        this.error = error
+        this.error = this.error_message_for(error,"login.",{400:"bad_request",401:"unauthorized"});
         this.password = null
-        this.unsuccessfull = true
+        this.show_error = true
       }).then(() => {
         this.loading = false
       })

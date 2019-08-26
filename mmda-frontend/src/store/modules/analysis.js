@@ -195,6 +195,7 @@ const actions = {
       params.append("window_size", data.window_size)
      
       for(var it of data.discourseme_items) params.append("collocate", it);
+      //params.append("collocate", 1);
 
       //TODO:: retreive discourseme collocates
       //params.append('discourseme', 4);

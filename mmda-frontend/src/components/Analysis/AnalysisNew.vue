@@ -65,8 +65,7 @@
                   <p>Generating Analysis...</p>
                 </div>
                 <v-form v-else>
-                  <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
-                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Analysis creation</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
                   <v-text-field v-model="name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
                   <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="Corpus"></v-autocomplete>
@@ -128,7 +127,6 @@ export default {
     sBreak: 's',
     pQueries:['word', 'lemma' ],
     sBreaks:['s', 'p', 'tweet'],
-    nodata: false,
     selectCorpus: '',
     selectItems: [],
     selectWindow: 3,
@@ -141,15 +139,44 @@ export default {
       analysis: 'analysis/analysis',
     })
   },
+  watch: {
+    selectCorpus(){
+      let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
+      if(!C){
+        this.pQuery= 'word'
+        this.sBreaks= 's'
+        this.pQueries= ['word', 'lemma' ]
+        this.sBreaks= ['s', 'p', 'tweet'] 
+      }else{
+      //TODO:: where do the attributes come from, and what do they do?
+        this.pQueries = [this.pQuery = C.p_att];
+        this.sBreaks  = [this.sBreak = C.s_att];
+      }
+    }
+  },
   methods: {
     ...mapActions({
       getCorpora: 'corpus/getCorpora',
       getUserAnalysis: 'analysis/getUserAnalysis',
       addUserAnalysis: 'analysis/addUserAnalysis'
     }),
+    error_message_for(error, prefix, codes){
+      ///// short for:
+      //if(error.response){
+      //  switch(error.response.status){
+      //    case 400: this.error = this.$t("analysis.new.invalid_input"); break;
+      //    case 404: this.error = this.$t("analysis.new.no_collocates"); break;
+      //    default: this.error = error.message;
+      //  }
+      //}else this.error = error.message
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
     clear () {
       this.error = null
-      this.nodata = false
       this.items = []
       this.name = ''
       this.pQuery = 'word'
@@ -159,10 +186,10 @@ export default {
       this.selectWindow = 3
     },
     addAnalysis () {
-      this.nodata = false
+      this.error = null;
 
       if (!this.name || this.selectItems.length === 0 || !this.selectCorpus) {
-        this.nodata = true
+        this.error = this.$t("analysis.new.missing_data")
         return
       }
 
@@ -181,7 +208,11 @@ export default {
         this.error = null
         this.$router.push('/analysis')
       }).catch((error) => {
-        this.error = error
+        this.error = this.error_message_for(error,"analysis.new.",{
+          400:"invalid_input",
+          404:"no_collocates",
+          "TODO":"no_topic"
+          });
       }).then(() => {
         this.loading = false
       })
@@ -202,7 +233,7 @@ export default {
       this.error = null
       this.getParametersFromRoute();
     }).catch((error) => {
-      this.error = error
+      this.error = this.error_message_for(error,"",{});
     }).then(() => {
       this.loading = false
     })

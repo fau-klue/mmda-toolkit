@@ -78,16 +78,7 @@ const actions = {
       }).catch(function (error) {
         commit('setUser', null)
         commit('setAuthenticated', false)
-
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          reject(error.response.data.msg)
-        }
-        if (error.request) {
-          // The request was made but no response was received
-          reject(error.message)
-        }
-        reject(error.message)
+        reject(error)
       })
     })
   },
@@ -102,15 +93,7 @@ const actions = {
         localStorage.jwt_expiration = calculateExpirationDate(new Date())
         resolve()
       }).catch(function (error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          reject(error.response.data)
-        }
-        if (error.request) {
-          // The request was made but no response was received
-          reject(error.message)
-        }
-        reject(error.message)
+        reject(error)
       })
     })
 
@@ -153,18 +136,7 @@ const actions = {
       }).catch(function (error) {
         commit('setUser', null)
         commit('setAuthenticated', false)
-
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          reject(error.response.data)
-        }
-
-        if (error.request) {
-          // The request was made but no response was received
-          reject(error.message)
-        }
-
-        reject(error.message)
+        reject(error)
       })
     })
   }

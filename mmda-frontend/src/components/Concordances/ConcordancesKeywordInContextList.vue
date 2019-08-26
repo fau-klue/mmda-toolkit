@@ -1,7 +1,7 @@
 <template>
     <v-card class="kwic-view-card">
       <v-card-text>
-        <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+        <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>{{error}}</v-alert>
         <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
 
         <div v-else-if="loading" class="text-md-center">
@@ -27,7 +27,7 @@
                 <v-list>
                   <v-list-tile>
                     <v-list-tile-content>
-                      {{props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text}}
+                      {{props.item.head_text+' '+props.item.keyword.text+' '+props.item.tail_text}}
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
@@ -247,6 +247,13 @@ export default {
       getConcordances: 'analysis/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
+    error_message_for(error, prefix, codes){
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
     update(){
       //the required data (see setupIt) is available only after two ticks
       this.$nextTick(()=>this.$nextTick(()=>this.setupTableSize()));
@@ -295,6 +302,7 @@ export default {
       //this.update();
     },
     clickOnLemma (name) {
+      this.error = null;
       this.concordancesRequested = true;
       this.getConcordances({
         username :this.user.username,
@@ -304,7 +312,7 @@ export default {
         collocate_items:  [name],
         window_size:      this.windowSize
       }).catch((error)=>{
-        this.error = error
+        this.error = this.error_message_for(error,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
       });
     }
@@ -314,7 +322,7 @@ export default {
     if(!this.analysis) return this.$router.push('/analysis'); //fallback
 
     this.getCorpus(this.analysis.corpus).catch((error)=>{
-      this.error = error;
+      this.error = "Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
     });
 
     if(!this.loading){

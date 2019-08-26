@@ -146,9 +146,7 @@ export default {
 
     addDiscourseme(name, items) {
       return new Promise((resolve,reject)=>{
-
         if(!this.analysis){reject(); return;}
-
         this.addUserDiscourseme({
           name: name,
           items: items,
@@ -157,7 +155,6 @@ export default {
           reject(error);
         }).then(result =>{
           var id = result;
-
           this.addDiscoursemeToAnalysis({
             username: this.user.username,
             analysis_id: this.analysis.id,

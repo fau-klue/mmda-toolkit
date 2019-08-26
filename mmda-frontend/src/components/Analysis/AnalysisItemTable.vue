@@ -6,7 +6,7 @@
     <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
-    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>{{error}}</v-alert>
 
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -82,7 +82,7 @@ export default {
     min: 2,
   }),
   watch:{
-    windowSize(){ this.selectWindow=this.windowSize; }
+    windowSize(){ this.selectWindow = this.windowSize; }
   },
   computed: {
     ...mapGetters({
@@ -166,6 +166,13 @@ export default {
       getConcordances:        'analysis/getConcordances',
       setWindowSize: 'wordcloud/setWindowSize',
     }),
+    error_message_for(error, prefix, codes){
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
     setSize(){
       this.setWindowSize(this.selectWindow);
       this.getCollocates();
@@ -187,7 +194,7 @@ export default {
         collocate_items: [item.name], 
         window_size:    this.windowSize
       }).catch((e)=>{
-        this.error = e;
+        this.error = this.error_message_for(e,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingConcordances = false;
       });
@@ -199,7 +206,7 @@ export default {
         analysis_id:  this.id, 
         window_size:  this.windowSize
       }).catch((error)=>{
-        this.error = error;
+        this.error = this.error_message_for(error,"analysis.collocates.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingCollocates = false;
       })
@@ -213,7 +220,7 @@ export default {
       username:     this.user.username, 
       analysis_id:  this.id
     }).catch((error)=>{
-      this.error = error;
+      this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
     }).then(()=>{
       this.loadingCoordinates = false;
     });

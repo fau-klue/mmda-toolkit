@@ -31,6 +31,8 @@
   "login": {
     "username": "Username",
     "password": "Password",
+    "missing_input": "Please enter username and password.",
+    "bad_request": "Incorrect username or password (password length has to be >= 8).",
     "unauthorized": "Incorrect username or password.",
     "network": "Network Error."
   },
@@ -85,7 +87,22 @@
       "helpItems": "Topics items are a set of lexemes, which form the node of a collocation analysis. Lexemes can include multi-word units (MWU).",
       "helpWindowSize": "Maximum window size for the initial collocation analysis.",
       "helpPQuery": "p-attribute to use for the collocation analysis (e.g. word, lemma, etc).",
-      "helpSBreak": "s-attribute to use for breaking the collocation windows (e.g. s, p, tweet, etc)."
+      "helpSBreak": "s-attribute to use for breaking the collocation windows (e.g. s, p, tweet, etc).",
+      "missing_data": "Please enter missing data",
+      "invalid_input": "Entered data is not valid",
+      "no_collocates": "No collocates of the given topic-items were found in the given corpus.",
+      "no_topic": "None of the Topic-items have been found in the given corpus."
+    },
+    "concordances":{
+      "not_found":"No such analysis or no concordances available.",
+      "invalid_input":"Concordance parameters invalid."
+    },
+    "collocates":{
+      "not_found": "No such analysis or no collocates available.",
+      "invalid_input": "Collocation parameters invalid."
+    },
+    "coordinates_request":{
+      "not_found": "Analysis not available."
     }
   },
   "discourseme": {
