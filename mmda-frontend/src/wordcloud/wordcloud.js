@@ -160,7 +160,9 @@ class WordcloudWindow {
   }
 
   get WH() {
-    return [this.el.offsetWidth, this.el.offsetHeight];
+    //if(this._WH===undefined) 
+    this._WH = [this.el.offsetWidth, this.el.offsetHeight];
+    return this._WH;
   }
 
   ///////////////////////////////////////
@@ -688,6 +690,7 @@ class WordcloudWindow {
     //console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
     for (var [_, a] of this.Map.entries()) {
       //a.shown = !a.hidden;
+      a.normalized_size_invalidate();
       a.size = 1 + Math.max(0,Math.min(1,a.normalized_size)) * 1;
       a.trend.evaluate();
     }
@@ -865,6 +868,11 @@ class WordcloudWindow {
 
   layout(x) {
     this.debugClear();
+      
+    for (var [_, a] of this.Map.entries()) {
+      a.normalized_size_invalidate();
+    }
+    
     //layout.layoutWordcloudFormGroupsHideOverlap(this);
     
     //layout.layoutWordcloudFormGroups2ResolveOverlap(this);

@@ -22,7 +22,8 @@ class MinimapElement {
     this.word.window.minimap.el.removeChild(this.el);
   }
   get WH() {
-    return [this.el.offsetWidth, this.el.offsetHeight];
+    if(this._WH===undefined) this._WH =  [this.el.offsetWidth, this.el.offsetHeight];
+    return this._WH;
   }
   set shown(s) {
     //this.el.style.backgroundColor = s ? "#000a" : "#a002";

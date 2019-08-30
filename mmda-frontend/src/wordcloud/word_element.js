@@ -195,17 +195,26 @@ class WordElement {
   }
 
   get WH() {
-    return [this.el.offsetWidth, this.el.offsetHeight];
+    if(this._WH===undefined) this._WH = [this.el.offsetWidth, this.el.offsetHeight];
+    return this._WH;
   }
   get wWH() {
     return scale2(this.WH, this.window.worldPerScreen);
   }
+
+  normalized_size_invalidate(){
+    this._normalSize = undefined;
+    this._normalSizeC = undefined;
+    this._WH = undefined;
+  }
+
   get normalized_size() {
-    var val = this.window.getSizeOf(this.data);
-    return val;
+    if(this._normalSize ===undefined) this._normalSize = this.window.getSizeOf(this.data);
+    return this._normalSize;
   }
   get normalized_size_compare() {
-    return this.window.getCompareSizeOf(this.data);
+    if(this._normalSizeC!==undefined) this._normalSizeC = this.window.getCompareSizeOf(this.data);
+    return this._normalSizeC;
   }
   get original_position() {
     return [this.data.tsne_x, this.data.tsne_y];
@@ -280,6 +289,11 @@ class WordElement {
   get max() {
     return add2(this.pos, scale2(this.WH, 0.5 * this.window.worldPerScreen));
   }
+
+  /*get worldFootprint(){
+    return scale2(this.WH, this.window.worldPerScreen);
+  }*/
+
   get bounds() {
     return {
       min: this.min,
