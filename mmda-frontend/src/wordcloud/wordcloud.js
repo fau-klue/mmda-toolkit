@@ -874,13 +874,15 @@ class WordcloudWindow {
     }
     
     //layout.layoutWordcloudFormGroupsHideOverlap(this);
-    
-    //layout.layoutWordcloudFormGroups2ResolveOverlap(this);
-    
-    layout.layoutWordcloudFormGroupsResolveOverlap(this);
-    this.drawContainmentEdges();
-    for (var g of this.groups) g.draw();
-
+    //
+    var multigroups = false;
+    if(multigroups){
+      layout.layoutWordcloudFormGroups2ResolveOverlap(this);
+    }else{
+      layout.layoutWordcloudFormGroupsResolveOverlap(this);
+      this.drawContainmentEdges();
+      for (var g of this.groups) g.draw();
+    }
     this.pos = this.pos;
     this.scale = this.scale;
   }
