@@ -520,7 +520,7 @@ def test_slice_discoursemes_empty(analysis):
     assert len(df_dp_nodes) == 0
 
 
-@pytest.mark.empty
+# @pytest.mark.empty
 def test_CCC_extract_collocates_empty(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -549,3 +549,44 @@ def test_CCC_extract_collocates_dp_empty(analysis):
 
     assert isinstance(collocates, dict)
     assert len(collocates) == 0
+
+
+@pytest.mark.empty
+def test_CCC_extract_concordance_empty(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items_fail'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        concordance_settings=t['concordance_settings']
+    )
+
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 0
+
+
+@pytest.mark.empty
+def test_CCC_extract_concordance_dp_empty(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items_fail'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc2, disc3],
+        concordance_settings=t['concordance_settings']
+    )
+
+    # from pprint import pprint
+    # pprint(concordance)
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 0
+
+    for concordance_line in concordance.values():
+        assert 'word' in concordance_line.columns
+        assert 'role' in concordance_line.columns
+        assert 'offset' in concordance_line.columns
+        assert len(concordance_line) > 1
