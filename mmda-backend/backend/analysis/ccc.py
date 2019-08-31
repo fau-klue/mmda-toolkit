@@ -206,6 +206,10 @@ def _calculate_offset(row):
 
 def _combine_df_nodes_single(df_nodes_single_dict):
     """ combines a dictionary of single df_nodes into df_dp_nodes """
+
+    # check if any df_node is empty
+    if any([len(d) == 0 for d in df_nodes_single_dict.values()]):
+        return DataFrame()
     # only take relevant topic_matches
     relevant_topic_matches = set.intersection(
         *[set(r['topic_match']) for r in df_nodes_single_dict.values()]
@@ -229,7 +233,10 @@ def slice_discourseme_topic(topic_df_node, disc_df_node, window_size):
     df_topic['match'] = df_topic.index  # move match from index to column
     df_disc = disc_df_node  # positions occupied by discourseme in corpus
     df_disc['match'] = df_disc.index  # move match from index to column
+
     df_single_nodes = merge(topic_df_node, disc_df_node, on="s_start")
+    if len(df_single_nodes) == 0:    # no overlap
+        return DataFrame()
     df_single_nodes = df_single_nodes[['match_x', 'matchend_x', 'match_y']]
     df_single_nodes['disc_offset'] = df_single_nodes.apply(_calculate_offset, axis=1)
 
@@ -532,8 +539,8 @@ class ConcordanceCollocationCalculator():
                 topic_discourseme.items
             )
 
-            if df_node is None:
-                return None
+            if len(df_cooc) == 0:
+                return dict()
 
             # monkey patch stuff to discourseme
             topic_discourseme.df_cooc = df_cooc
@@ -559,19 +566,23 @@ class ConcordanceCollocationCalculator():
 
                 df_dp_nodes, match_pos_set = slice_discoursemes_topic(
                     topic_discourseme.df_node,
-                    match_pos,
+                    topic_discourseme.match_pos,
                     disc_df_dict,
                     self.analysis.max_window_size
                 )
 
-                df_cooc_glob = _df_dp_nodes_to_cooc(
-                    topic_discourseme.df_cooc,
-                    df_dp_nodes
-                )
+                if len(df_dp_nodes) == 0:  # no overlap
+                    collocates = dict()
 
-                collocates = self._retrieve_collocates(
-                    df_cooc_glob, len(match_pos_set), ams
-                )
+                else:
+                    df_cooc_glob = _df_dp_nodes_to_cooc(
+                        topic_discourseme.df_cooc,
+                        df_dp_nodes
+                    )
+
+                    collocates = self._retrieve_collocates(
+                        df_cooc_glob, len(match_pos_set), ams
+                    )
 
             # put in cache
             self.cache.set(identifier, collocates)
@@ -682,7 +693,10 @@ class ConcordanceCollocationCalculator():
             topic_discourseme, discoursemes, collocates_settings['AMs'].values()
         )
 
-        # apply cut off (maybe pass to cache?)
+        if len(collocates) == 0:  # empty query
+            return dict()
+
+        # update dictionary: apply cut off (maybe pass to cache?)
         for window in range(1, self.analysis.max_window_size + 1):
 
             # select relevant window
