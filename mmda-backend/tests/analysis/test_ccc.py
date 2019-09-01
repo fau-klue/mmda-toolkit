@@ -277,14 +277,15 @@ def test_CCC_extract_concordance(analysis):
     assert isinstance(concordance, dict)
     assert len(concordance.keys()) == 10
 
-    # for concordance_line in concordance.values():
-    #     assert 'word' in concordance_line.columns
-    #     assert 'role' in concordance_line.columns
-    #     assert 'offset' in concordance_line.columns
-    #     assert len(concordance_line) > 1
+    for concordance_line in concordance.values():
+        assert 'word' in concordance_line.columns
+        assert 'role' in concordance_line.columns
+        assert 'offset' in concordance_line.columns
+        assert len(concordance_line) > 1
 
 
 @pytest.mark.ccc
+@pytest.mark.now
 @pytest.mark.concordance
 def test_CCC_extract_concordance_dp(analysis):
 
@@ -307,6 +308,9 @@ def test_CCC_extract_concordance_dp(analysis):
         assert 'role' in concordance_line.columns
         assert 'offset' in concordance_line.columns
         assert len(concordance_line) > 1
+        for roles in concordance_line['role']:
+            for r in roles:
+                assert isinstance(r, str)
 
 
 @pytest.mark.ccc

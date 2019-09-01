@@ -64,7 +64,7 @@ def _get_disc_positions(df_dp_nodes_loc):
     """ converts a local region into a dictionary of discourseme positions """
     disc_matches = defaultdict(list)
     for row in df_dp_nodes_loc.iterrows():
-        disc_matches[row[1]['disc_match']].append(row[1]['disc_id'])
+        disc_matches[row[1]['disc_match']].append(str(row[1]['disc_id']))
     return disc_matches
 
 
