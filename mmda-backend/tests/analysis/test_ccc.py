@@ -4,8 +4,8 @@ from functools import wraps
 import logging
 import pandas as pd
 
-# from backend.analysis.engines import StaticEngine as Engine
-from backend.analysis.engines import CWBEngine as Engine
+from backend.analysis.engines import StaticEngine
+# from backend.analysis.engines import CWBEngine
 from backend.analysis.ccc import slice_discourseme_topic
 from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic
@@ -61,9 +61,8 @@ t = {
     }
 }
 
-
-# ENGINE = StaticEngine(t['corpus_settings'])
-ENGINE = Engine(t['corpus_settings'], REGISTRY_PATH)
+# ENGINE = CWBEngine(t['corpus_settings'], REGISTRY_PATH)
+ENGINE = StaticEngine(t['corpus_settings'])
 
 
 class Analysis():
