@@ -4,7 +4,8 @@ from functools import wraps
 import logging
 import pandas as pd
 
-from backend.analysis.engines import StaticEngine as Engine
+# from backend.analysis.engines import StaticEngine as Engine
+from backend.analysis.engines import CWBEngine as Engine
 from backend.analysis.ccc import slice_discourseme_topic
 from backend.analysis.ccc import _combine_df_nodes_single
 from backend.analysis.ccc import slice_discoursemes_topic
@@ -14,6 +15,7 @@ from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 LOGGER = logging.getLogger('mmda-logger')
+REGISTRY_PATH = "/usr/local/cwb-3.4.16/share/cwb/registry"
 
 
 def timeit(func):
@@ -47,7 +49,9 @@ t = {
     'analysis_settings': {
         'idx': 1,
         'p_query': 'lemma',
+        'p_query_fail': 'p_fail',
         's_break': 'tweet',
+        's_break_fail': 's_fail',
         'max_window_size': 10
     },
 
@@ -59,15 +63,12 @@ t = {
 
 
 # ENGINE = StaticEngine(t['corpus_settings'])
-ENGINE = Engine(t['corpus_settings'])
+ENGINE = Engine(t['corpus_settings'], REGISTRY_PATH)
 
 
 class Analysis():
-    def __init__(self,
-                 p_query=t['analysis_settings']['p_query'],
-                 s_break=t['analysis_settings']['s_break'],
-                 max_window_size=t['analysis_settings']['max_window_size']):
-        self.id = 1
+    def __init__(self, idx, p_query, s_break, max_window_size):
+        self.id = idx
         self.p_query = p_query
         self.s_break = s_break
         self.max_window_size = max_window_size
@@ -75,7 +76,32 @@ class Analysis():
 
 @pytest.fixture
 def analysis():
-    return Analysis()
+    return Analysis(
+        7,
+        p_query=t['analysis_settings']['p_query'],
+        s_break=t['analysis_settings']['s_break'],
+        max_window_size=t['analysis_settings']['max_window_size']
+    )
+
+
+@pytest.fixture
+def analysis_fail_s():
+    return Analysis(
+        8,
+        p_query=t['analysis_settings']['p_query'],
+        s_break=t['analysis_settings']['s_break_fail'],
+        max_window_size=t['analysis_settings']['max_window_size']
+    )
+
+
+@pytest.fixture
+def analysis_fail_p():
+    return Analysis(
+        9,
+        p_query=t['analysis_settings']['p_query_fail'],
+        s_break=t['analysis_settings']['s_break'],
+        max_window_size=t['analysis_settings']['max_window_size']
+    )
 
 
 class Discourseme():
@@ -85,7 +111,8 @@ class Discourseme():
         self.items = items
 
 
-@timeit
+# subroutines ##################################################################
+@pytest.mark.routines
 def test_slice_discourseme_topic(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
@@ -108,8 +135,7 @@ def test_slice_discourseme_topic(analysis):
     assert len(df_nodes_single) > 1
 
 
-@pytest.mark.ccc
-@timeit
+@pytest.mark.routines
 def test_combine_df_nodes_single(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
@@ -142,31 +168,31 @@ def test_combine_df_nodes_single(analysis):
         }
     )
 
-    assert df_nodes.shape == (52, 5)
-    # TODO: Extend
     assert 'topic_match' in df_nodes.columns
     assert len(df_nodes) > 1
+    # TODO: Extend
+    # assert df_nodes.shape == (52, 5)
 
 
+# working with class CCC #######################################################
+# DISCOURSEME DATA
 @pytest.mark.ccc
-@timeit
 def test_CCC_retrieve_discourseme_data(analysis):
 
     ccc = CCC(analysis, ENGINE)
     df_node, df_cooc, match_pos = ccc._retrieve_discourseme_data(t['items1'])
 
     assert 'matchend' in df_node.columns
-    assert df_node.shape == (34, 3)
+    # assert df_node.shape == (34, 3)
 
     assert 'offset' in df_cooc.columns
-    assert df_cooc.shape == (566, 3)
+    # assert df_cooc.shape == (566, 3)
 
     assert isinstance(match_pos, set)
-    assert len(match_pos) == 34
+    # assert len(match_pos) == 34
 
 
 @pytest.mark.ccc
-@timeit
 def test_slice_discoursemes_topic(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -197,11 +223,10 @@ def test_slice_discoursemes_topic(analysis):
     )
 
     assert isinstance(match_pos_set, set)
-    assert len(match_pos_set) == 1260
+    # assert len(match_pos_set) == 1260
 
 
 @pytest.mark.ccc
-@timeit
 def test_df_dp_nodes_to_cooc(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -233,12 +258,13 @@ def test_df_dp_nodes_to_cooc(analysis):
 
     df_cooc_glob = _df_dp_nodes_to_cooc(topic_df_cooc, df_dp_nodes)
 
-    assert df_cooc_glob.shape == (248, 3)
+    # assert df_cooc_glob.shape == (248, 3)
     assert 'match' in df_cooc_glob.columns
 
 
+# CONCORDANCE
 @pytest.mark.ccc
-@timeit
+@pytest.mark.concordance
 def test_CCC_extract_concordance(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -259,9 +285,8 @@ def test_CCC_extract_concordance(analysis):
         assert len(concordance_line) > 1
 
 
-@pytest.mark.conc
 @pytest.mark.ccc
-@timeit
+@pytest.mark.concordance
 def test_CCC_extract_concordance_dp(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -288,75 +313,7 @@ def test_CCC_extract_concordance_dp(analysis):
 
 
 @pytest.mark.ccc
-@timeit
-def test_CCC_extract_collocates(analysis):
-
-    ccc = CCC(analysis, ENGINE)
-    topic_discourseme = Discourseme(1, t['items1'])
-
-    collocates = ccc.extract_collocates(
-        topic_discourseme
-    )
-
-    assert isinstance(collocates, dict)
-    assert len(collocates.keys()) == 10
-
-    for collocate in collocates.values():
-        # assert 'O11' in collocate.columns
-        # assert 'f2' in collocate.columns
-        # assert 'N' in collocate.columns
-        assert len(collocate) > 1
-
-
-@pytest.mark.ccc
-@timeit
-def test_CCC_extract_collocates_dp(analysis):
-
-    ccc = CCC(analysis, ENGINE)
-    topic_discourseme = Discourseme(1, t['items1'])
-    disc2 = Discourseme(2, t['items2'])
-    disc3 = Discourseme(3, t['items3'])
-
-    collocates = ccc.extract_collocates(
-        topic_discourseme,
-        [disc2, disc3]
-    )
-
-    assert isinstance(collocates, dict)
-    assert len(collocates.keys()) == 10
-
-    for collocate in collocates.values():
-        # assert 'O11' in collocate.columns
-        # assert 'f2' in collocate.columns
-        # assert 'N' in collocate.columns
-        assert len(collocate) > 1
-
-
-@pytest.mark.skip
-@pytest.mark.ccc
-def test_CCC_extract_collocates_dummy(analysis):
-    """
-    Testing CCC with dummy engine, to make sure it works
-    """
-
-    from backend.analysis.engines import DummyEngine
-    ENGINE = DummyEngine(t['corpus_settings'])
-
-    ccc = CCC(analysis, ENGINE)
-    topic_discourseme = Discourseme(1337, ['foo', 'bar'])
-
-    collocates = ccc.extract_collocates(topic_discourseme)
-
-    assert isinstance(collocates, dict)
-    for collocate in collocates.values():
-        # assert 'O11' in collocate.columns
-        # assert 'f2' in collocate.columns
-        # assert 'N' in collocate.columns
-        assert len(collocate) > 1
-
-
-@pytest.mark.ccc
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_cut_conc(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -380,7 +337,7 @@ def test_cut_conc(analysis):
 
 
 @pytest.mark.ccc
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_conc_window(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -402,7 +359,7 @@ def test_conc_window(analysis):
 
 
 @pytest.mark.ccc
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_conc_window_dp(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -426,8 +383,54 @@ def test_conc_window_dp(analysis):
             assert len(line) > 1
 
 
+# COLLOCATES
 @pytest.mark.ccc
-@pytest.mark.coll
+@pytest.mark.collocates
+def test_CCC_extract_collocates(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 10
+
+    for collocate in collocates.values():
+        # assert 'O11' in collocate.columns
+        # assert 'f2' in collocate.columns
+        # assert 'N' in collocate.columns
+        assert len(collocate) > 1
+
+
+@pytest.mark.ccc
+@pytest.mark.collocates
+def test_CCC_extract_collocates_dp(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        [disc2, disc3]
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 10
+
+    for collocate in collocates.values():
+        # assert 'O11' in collocate.columns
+        # assert 'f2' in collocate.columns
+        # assert 'N' in collocate.columns
+        assert len(collocate) > 1
+
+
+@pytest.mark.ccc
+@pytest.mark.collocates
 def test_collocates(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -435,32 +438,11 @@ def test_collocates(analysis):
     collocates = ccc.extract_collocates(
         topic_discourseme
     )
-    print(collocates)
+    assert isinstance(collocates, dict)
 
 
-@pytest.mark.future
-@pytest.mark.skip
-def test_new_counts(analysis):
-
-    ccc = CCC(analysis, ENGINE)
-    topic_discourseme = Discourseme(1, t['items1'])
-    collocates = ccc.extract_collocates(
-        topic_discourseme
-    )
-    # print(collocates)
-    from pandas import DataFrame, MultiIndex
-    index = MultiIndex.from_product([
-        list(
-            collocates[analysis.max_window_size].index
-        ),
-        list(
-            range(1, analysis.max_window_size+1)
-        )
-    ], names=['p_query', 'window_size'])
-    df = DataFrame(index=index)
-    print(df)
-
-
+# EMPTY QUERIES
+@pytest.mark.ccc
 @pytest.mark.empty
 def test_slice_discourseme_topic_empty(analysis):
 
@@ -486,6 +468,7 @@ def test_slice_discourseme_topic_empty(analysis):
     assert len(df_nodes_single) == 0
 
 
+@pytest.mark.ccc
 @pytest.mark.empty
 def test_slice_discoursemes_empty(analysis):
 
@@ -520,7 +503,8 @@ def test_slice_discoursemes_empty(analysis):
     assert len(df_dp_nodes) == 0
 
 
-# @pytest.mark.empty
+@pytest.mark.ccc
+@pytest.mark.empty
 def test_CCC_extract_collocates_empty(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -534,6 +518,7 @@ def test_CCC_extract_collocates_empty(analysis):
     assert len(collocates) == 0
 
 
+@pytest.mark.ccc
 @pytest.mark.empty
 def test_CCC_extract_collocates_dp_empty(analysis):
 
@@ -551,6 +536,7 @@ def test_CCC_extract_collocates_dp_empty(analysis):
     assert len(collocates) == 0
 
 
+@pytest.mark.ccc
 @pytest.mark.empty
 def test_CCC_extract_concordance_empty(analysis):
 
@@ -566,6 +552,7 @@ def test_CCC_extract_concordance_empty(analysis):
     assert len(concordance.keys()) == 0
 
 
+@pytest.mark.ccc
 @pytest.mark.empty
 def test_CCC_extract_concordance_dp_empty(analysis):
 
@@ -590,3 +577,182 @@ def test_CCC_extract_concordance_dp_empty(analysis):
         assert 'role' in concordance_line.columns
         assert 'offset' in concordance_line.columns
         assert len(concordance_line) > 1
+
+
+# FUTURE VERSIONS
+@pytest.mark.future
+@pytest.mark.skip
+def test_new_counts(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    collocates = ccc.extract_collocates(
+        topic_discourseme
+    )
+    # print(collocates)
+    from pandas import DataFrame, MultiIndex
+    index = MultiIndex.from_product([
+        list(
+            collocates[analysis.max_window_size].index
+        ),
+        list(
+            range(1, analysis.max_window_size+1)
+        )
+    ], names=['p_query', 'window_size'])
+    df = DataFrame(index=index)
+    print(df)
+
+
+# OTHER ENGINES
+@pytest.mark.dummy
+@pytest.mark.skip
+def test_CCC_extract_collocates_dummy(analysis):
+    """
+    Testing CCC with dummy engine, to make sure it works
+    """
+
+    from backend.analysis.engines import DummyEngine
+    ENGINE = DummyEngine(t['corpus_settings'])
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1337, ['foo', 'bar'])
+
+    collocates = ccc.extract_collocates(topic_discourseme)
+
+    assert isinstance(collocates, dict)
+    for collocate in collocates.values():
+        # assert 'O11' in collocate.columns
+        # assert 'f2' in collocate.columns
+        # assert 'N' in collocate.columns
+        assert len(collocate) > 1
+
+
+# WRONG ATTRIBUTES
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_concordance_fail_p(analysis_fail_p):
+
+    ccc = CCC(analysis_fail_p, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    conc = ccc.extract_concordance(topic_discourseme)
+    assert isinstance(conc, dict)
+    assert len(conc) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_concordance_fail_s(analysis_fail_s):
+
+    ccc = CCC(analysis_fail_s, ENGINE)
+    topic_discourseme = Discourseme(1, t['items2'])
+    conc = ccc.extract_concordance(topic_discourseme)
+    assert isinstance(conc, dict)
+    assert len(conc) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_concordance_dp_fail_p(analysis_fail_p):
+
+    ccc = CCC(analysis_fail_p, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc2, disc3],
+        concordance_settings=t['concordance_settings']
+    )
+
+    # from pprint import pprint
+    # pprint(concordance)
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_concordance_dp_fail_s(analysis_fail_s):
+
+    ccc = CCC(analysis_fail_s, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc2, disc3],
+        concordance_settings=t['concordance_settings']
+    )
+
+    # from pprint import pprint
+    # pprint(concordance)
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_collocates_fail_s(analysis_fail_s):
+
+    ccc = CCC(analysis_fail_s, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_collocates_fail_p(analysis_fail_p):
+
+    ccc = CCC(analysis_fail_p, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates.keys()) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_collocates_dp_fail_s(analysis_fail_s):
+
+    ccc = CCC(analysis_fail_s, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        [disc2, disc3]
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates) == 0
+
+
+@pytest.mark.ccc
+@pytest.mark.analysis_fail
+def test_CCC_extract_collocates_dp_fail_p(analysis_fail_p):
+
+    ccc = CCC(analysis_fail_p, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(3, t['items3'])
+
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        [disc2, disc3]
+    )
+
+    assert isinstance(collocates, dict)
+    assert len(collocates) == 0

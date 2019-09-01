@@ -8,7 +8,6 @@ from subprocess import Popen, PIPE
 from pandas import DataFrame, read_csv
 from CWB.CL import Corpus
 from io import StringIO
-from os import getenv
 
 from .engine import Engine
 
@@ -128,7 +127,7 @@ def _dump_to_df_node(dump):
 class CWBEngine(Engine):
     """ interface to CWB, convenience wrapper """
 
-    def __init__(self, corpus_settings, registry_path='/usr/local/cwb-3.4.13/share/cwb/registry'):
+    def __init__(self, corpus_settings, registry_path):
         """Establishes connection to the indexed corpus. Raises KeyError if
         corpus not in registry.
         """
@@ -141,7 +140,7 @@ class CWBEngine(Engine):
             self._N = len(self.corpus.attribute('word', 'p'))
         except KeyError:
             log.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
-            self.corpus = ''
+            self.corpus = None
 
     def _run_query(self, query):
         """Runs a query an returns CWB Output as list of lines"""
@@ -203,14 +202,16 @@ class CWBEngine(Engine):
             self.corpus.attribute(p_query, 'p')
         except KeyError:
             # raise KeyError('requested p-attribute not in corpus')
-            return None
+            log.error('requested p-attribute not in corpus')
+            return DataFrame()
 
         # test if requested s-attribute exists
         try:
             self.corpus.attribute(s_break, 's')
         except KeyError:
             # raise KeyError('requested s-attribute not in corpus')
-            return None
+            log.error('requested s-attribute not in corpus')
+            return DataFrame()
 
         dump = _dump_corpus_positions(
             self.registry_path,
