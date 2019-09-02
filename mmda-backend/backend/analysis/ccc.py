@@ -45,6 +45,15 @@ def create_identifier(*args):
     return sha256(str(string).encode()).hexdigest()
 
 
+def create_identifier_analysis(analysis, *args):
+    string = ' '.join([str(analysis.id),
+                       analysis.p_query,
+                       analysis.s_break,
+                       str(analysis.max_window_size)])
+    string += ' '.join([str(elem) for elem in args])
+    return sha256(str(string).encode()).hexdigest()
+
+
 def am_names_to_functions(names):
     AMs = {
         'z_score': measures.z_score,
@@ -484,9 +493,9 @@ class ConcordanceCollocationCalculator():
 
     def _get_df_node(self, items):
 
-        identifier = create_identifier(self.analysis.id,
-                                       sorted(items),
-                                       'df_node')
+        identifier = create_identifier_analysis(self.analysis,
+                                                sorted(items),
+                                                'df_node')
         cached_data = self.cache.get(identifier)
         if cached_data is None:
             df_node = self._retrieve_df_node(items)
@@ -500,9 +509,9 @@ class ConcordanceCollocationCalculator():
         Extracts data from cache or from engine and then puts it into cache.
         """
 
-        identifier = create_identifier(self.analysis.id,
-                                       sorted(items),
-                                       'df_node, df_cooc, match_pos')
+        identifier = create_identifier_analysis(self.analysis,
+                                                sorted(items),
+                                                'df_node, df_cooc, match_pos')
         cached_data = self.cache.get(identifier)
         if isinstance(cached_data, tuple):
             df_node, df_cooc, match_pos = cached_data
@@ -519,16 +528,16 @@ class ConcordanceCollocationCalculator():
 
         # check cache
         if discoursemes is None:
-            identifier = create_identifier(self.analysis.id,
-                                           self.analysis.max_window_size,
-                                           sorted(topic_discourseme.items),
-                                           'collocates')
+            identifier = create_identifier_analysis(self.analysis,
+                                                    sorted(topic_discourseme.items),
+                                                    'collocates')
         else:
-            identifier = create_identifier(self.analysis.id,
-                                           self.analysis.max_window_size,
-                                           sorted(topic_discourseme.items),
-                                           sorted([d.items for d in discoursemes]),
-                                           'collocates')
+            identifier = create_identifier_analysis(
+                self.analysis,
+                sorted(topic_discourseme.items),
+                sorted([d.items for d in discoursemes]),
+                'collocates'
+            )
 
         cached_data = self.cache.get(identifier)
 
