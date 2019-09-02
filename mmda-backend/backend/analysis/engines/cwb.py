@@ -14,6 +14,9 @@ from .engine import Engine
 log = getLogger('mmda-logger')
 
 
+MAX_REGION = 100
+
+
 def _formulate_discourseme_query(corpus_name,
                                  p_att,
                                  s_att,
@@ -47,6 +50,7 @@ def _formulate_discourseme_query(corpus_name,
         mwu_queries.append("(" + mwu_query + ")")
     query = '|'.join(mwu_queries)
 
+    # TODO update this query to run once
     # dump results
     cqp_exec += '{query};'.format(query=query)
     cqp_exec += 'set Last target nearest [lbound({s_att})] within left {s_att} from match inclusive;'.format(s_att=s_att)
@@ -117,10 +121,31 @@ def _dump_corpus_positions(registry_path,
     return cqp_dump.split("\n")[1:-1]
 
 
+def _confine_region(df, max_region=MAX_REGION):
+    # print(max(df.match - MAX_REGION, df.s_start))
+    df.s_end = DataFrame(
+        {
+            'matchend_extended': df['matchend'] + max_region,
+            's_end': df.s_end
+        }
+    ).min(axis=1)
+    df.s_start = DataFrame(
+        {
+            'match_extended': df.index - max_region,
+            's_start': df.s_start
+        }
+    ).max(axis=1)
+    return df
+
+
 def _dump_to_df_node(dump):
     df = read_csv(StringIO("\n".join(dump)),
                   sep="\t", index_col=0, header=None,
                   names=["match", "matchend", "s_start", "s_end"])
+
+    # cut unreasonably large regions
+    if len(df) > 0:
+        df = _confine_region(df)
     return df
 
 
