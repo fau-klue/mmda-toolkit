@@ -159,6 +159,7 @@ export default {
     concordances(){
       this.concordancesRequested = true;
       //the required data (see setupIt) is available only after two ticks
+      
       this.update();
     },
     loading(){
@@ -320,6 +321,7 @@ export default {
   created () {
     this.id = this.$route.params.id;
     if(!this.analysis) return this.$router.push('/analysis'); //fallback
+
 
     this.getCorpus(this.analysis.corpus).catch((error)=>{
       this.error = "Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
