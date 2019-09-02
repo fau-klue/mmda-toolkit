@@ -190,7 +190,8 @@ export default {
         username : this.user.username,
         analysis_id: this.id,
         //corpus:         this.analysis.corpus, 
-        topic_items:    this.analysis.topic_discourseme.items, 
+        topic_items:    this.analysis.topic_discourseme.items,
+        soc_items: undefined,
         collocate_items: [item.name], 
         window_size:    this.windowSize
       }).catch((e)=>{

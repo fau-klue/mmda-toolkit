@@ -232,6 +232,11 @@ const actions = {
         data.collocate_items.forEach((item)=>{ params.append("item", item) })
       }
 
+      if( data.soc_items){
+        //second order collocation analysis should also yield 
+        //second order concordances
+      }
+
       if(data.window_size){
          // Append api/?window_size=12
          //console.log("Ws "+data.window_size);

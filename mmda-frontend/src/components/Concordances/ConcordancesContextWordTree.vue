@@ -173,6 +173,7 @@ export default {
         analysis_id: this.id,
 //        corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize
       }).catch((error)=>{

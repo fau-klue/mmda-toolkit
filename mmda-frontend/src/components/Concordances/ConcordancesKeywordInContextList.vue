@@ -7,7 +7,8 @@
         <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
           <p v-if="loading">Loading Concordance...</p>
-          <p v-if="loading && typeof loading==='object'">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
+          <p v-if="loading && typeof loading==='object' && !(implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
+          <p v-if="loading && typeof loading==='object' && (implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"] ["+loading.soc_items+"]"}}</p>
         </div>
 
         <v-data-table v-else
@@ -146,6 +147,7 @@ export default {
   },
   props:['concordances','loading','onclickitem'],
   data: () => ({
+    implementedSOC_conc: false, //TODO:
     id: null,
     error: null,
     keywordRole: 'topic',
@@ -159,7 +161,7 @@ export default {
     concordances(){
       this.concordancesRequested = true;
       //the required data (see setupIt) is available only after two ticks
-      
+
       this.update();
     },
     loading(){
@@ -310,6 +312,7 @@ export default {
         analysis_id: this.id,
         //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize
       }).catch((error)=>{

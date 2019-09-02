@@ -64,7 +64,6 @@ export default {
           max = Math.max(ws, max);
         }
       }
-      console.log("Max Window: "+max);
       return max;
     }
   }

@@ -224,6 +224,7 @@ export default {
         analysis_id: this.analysis.id,
         //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        soc_items: this.SOC_items,
         collocate_items:  names,
         window_size:      this.windowSize
       }).catch((error)=>{
