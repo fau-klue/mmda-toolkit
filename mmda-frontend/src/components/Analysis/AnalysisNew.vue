@@ -142,16 +142,26 @@ export default {
   watch: {
     selectCorpus(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
-      if(!C){
-        this.pQuery= 'word'
-        this.sBreaks= 's'
-        this.pQueries= ['word', 'lemma' ]
-        this.sBreaks= ['s', 'p', 'tweet'] 
-      }else{
-      //TODO:: where do the attributes come from, and what do they do?
-        this.pQueries = [this.pQuery = C.p_att];
-        this.sBreaks  = [this.sBreak = C.s_att];
+      this.pQueries = ['word', 'lemma' ]
+      this.sBreaks= ['s', 'p', 'tweet'] 
+      if(C){
+        if(C.p_att){
+          if(typeof C.p_att ==='string'){
+            this.pQueries = [C.p_att];
+          }else if(typeof C.p_att === 'object' && C.p_att[0]){
+            this.pQueries = C.p_att;
+          }
+        }
+        if(C.s_att){
+          if(typeof C.s_att ==='string'){
+            this.sBreaks = [C.s_att];
+          }else if(typeof C.s_att === 'object' && C.s_att[0]){
+            this.sBreaks = C.s_att;
+          }
+        }
       }
+      this.pQuery = this.pQueries[0];
+      this.sBreak = this.sBreaks[0]; 
     }
   },
   methods: {
