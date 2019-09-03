@@ -49,6 +49,7 @@ t = {
     'analysis_settings': {
         'idx': 1,
         'p_query': 'lemma',
+        # 'p_query': 'word',
         'p_query_fail': 'p_fail',
         's_break': 'tweet',
         's_break_fail': 's_fail',
@@ -111,7 +112,7 @@ class Discourseme():
 
 
 # subroutines ##################################################################
-@pytest.mark.routines
+@pytest.mark.ccc_routines
 def test_slice_discourseme_topic(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
@@ -131,10 +132,11 @@ def test_slice_discourseme_topic(analysis):
         disc_df_node,
         t['analysis_settings']['max_window_size']
     )
+
     assert len(df_nodes_single) > 1
 
 
-@pytest.mark.routines
+@pytest.mark.ccc_routines
 def test_combine_df_nodes_single(analysis):
 
     topic_df_node = ENGINE.prepare_df_node(
@@ -222,7 +224,7 @@ def test_slice_discoursemes_topic(analysis):
     )
 
     assert isinstance(match_pos_set, set)
-    # assert len(match_pos_set) == 1260
+    assert len(match_pos_set) > 1
 
 
 @pytest.mark.ccc
@@ -275,7 +277,7 @@ def test_CCC_extract_concordance(analysis):
     )
 
     assert isinstance(concordance, dict)
-    assert len(concordance.keys()) == 10
+    assert len(concordance.keys()) > 1
 
     for concordance_line in concordance.values():
         assert 'word' in concordance_line.columns
@@ -286,6 +288,7 @@ def test_CCC_extract_concordance(analysis):
 
 @pytest.mark.ccc
 @pytest.mark.concordance
+@pytest.mark.dp
 def test_CCC_extract_concordance_dp(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -300,7 +303,7 @@ def test_CCC_extract_concordance_dp(analysis):
     )
 
     assert isinstance(concordance, dict)
-    assert len(concordance.keys()) == 10
+    assert len(concordance.keys()) > 1
 
     for concordance_line in concordance.values():
         assert 'word' in concordance_line.columns
@@ -327,7 +330,7 @@ def test_cut_conc(analysis):
         per_window=True
     )
     assert isinstance(concordance, dict)
-    # assert len(concordance) == 10
+    assert len(concordance) > 1
 
     # for line in concordance:
     #     assert 'word' in line.keys()
@@ -360,6 +363,7 @@ def test_conc_window(analysis):
 
 @pytest.mark.ccc
 @pytest.mark.concordance
+# @pytest.mark.dp
 def test_conc_window_dp(analysis):
 
     ccc = CCC(analysis, ENGINE)
@@ -396,7 +400,7 @@ def test_CCC_extract_collocates(analysis):
     )
 
     assert isinstance(collocates, dict)
-    assert len(collocates.keys()) == 10
+    assert len(collocates.keys()) == t['analysis_settings']['max_window_size']
 
     for collocate in collocates.values():
         # assert 'O11' in collocate.columns
@@ -420,13 +424,13 @@ def test_CCC_extract_collocates_dp(analysis):
     )
 
     assert isinstance(collocates, dict)
-    assert len(collocates.keys()) == 10
+    assert len(collocates.keys()) == t['analysis_settings']['max_window_size']
 
     for collocate in collocates.values():
         # assert 'O11' in collocate.columns
         # assert 'f2' in collocate.columns
         # assert 'N' in collocate.columns
-        assert len(collocate) > 1
+        assert len(collocate) > 0
 
 
 @pytest.mark.ccc

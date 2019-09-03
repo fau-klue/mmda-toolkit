@@ -46,8 +46,10 @@ class StaticEngine(Engine):
             log.error('requested s-attribute not in corpus')
             return DataFrame()
         rel_lines = rel_lines[rel_lines[p_query].isin(items)]
+        rel_lines['match'] = rel_lines.index
         rel_lines['matchend'] = rel_lines.index
-        rel_lines = rel_lines[['matchend', 's_start', 's_end']]
+        rel_lines = rel_lines[['match', 'matchend', 's_start', 's_end']]
+        rel_lines['s_id'] = rel_lines['s_start']
 
         # DF_Node
         return rel_lines

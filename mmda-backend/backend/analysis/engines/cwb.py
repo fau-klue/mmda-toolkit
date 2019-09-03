@@ -11,10 +11,7 @@ from io import StringIO
 
 from .engine import Engine
 
-log = getLogger('mmda-logger')
-
-
-MAX_REGION = 100
+LOGGER = getLogger('mmda-logger')
 
 
 def _formulate_discourseme_query(corpus_name,
@@ -50,11 +47,10 @@ def _formulate_discourseme_query(corpus_name,
         mwu_queries.append("(" + mwu_query + ")")
     query = '|'.join(mwu_queries)
 
-    # TODO update this query to run once
     # dump results
-    cqp_exec += '{query};'.format(query=query)
-    cqp_exec += 'set Last target nearest [lbound({s_att})] within left {s_att} from match inclusive;'.format(s_att=s_att)
-    cqp_exec += 'set Last keyword nearest [rbound({s_att})] within right {s_att} from matchend inclusive;'.format(s_att=s_att)
+    cqp_exec += '({query}) within {s_att};'.format(query=query, s_att=s_att)
+    # cqp_exec += 'set Last target nearest [lbound({s_att})] within left {s_att} from match inclusive;'.format(s_att=s_att)
+    # cqp_exec += 'set Last keyword nearest [rbound({s_att})] within right {s_att} from matchend inclusive;'.format(s_att=s_att)
     cqp_exec += 'dump Last;'
     return cqp_exec
 
@@ -106,8 +102,8 @@ def _dump_corpus_positions(registry_path,
     :param str s_att: s-attribute that defines the regions to extract
     :param list items: list of items that each region has to contain
 
-    :return: corpus positions (list of quadruples)
-    :rtype: list
+    :return: corpus positions (quadruples)
+    :rtype: DataFrame
 
     """
 
@@ -118,34 +114,12 @@ def _dump_corpus_positions(registry_path,
 
     cqp_dump = _execute_cqp_query(registry_path, query)
 
-    return cqp_dump.split("\n")[1:-1]
+    # convert to DataFrame
+    dump = "\n".join(cqp_dump.split("\n")[1:-1])
 
+    df = read_csv(StringIO(dump), sep="\t", header=None,
+                  names=["match", "matchend", "target", "keyword"])
 
-def _confine_region(df, max_region=MAX_REGION):
-    # print(max(df.match - MAX_REGION, df.s_start))
-    df.s_end = DataFrame(
-        {
-            'matchend_extended': df['matchend'] + max_region,
-            's_end': df.s_end
-        }
-    ).min(axis=1)
-    df.s_start = DataFrame(
-        {
-            'match_extended': df.index - max_region,
-            's_start': df.s_start
-        }
-    ).max(axis=1)
-    return df
-
-
-def _dump_to_df_node(dump):
-    df = read_csv(StringIO("\n".join(dump)),
-                  sep="\t", index_col=0, header=None,
-                  names=["match", "matchend", "s_start", "s_end"])
-
-    # cut unreasonably large regions
-    if len(df) > 0:
-        df = _confine_region(df)
     return df
 
 
@@ -164,11 +138,11 @@ class CWBEngine(Engine):
             self.corpus = Corpus(self.corpus_name, registry_dir=self.registry_path)
             self._N = len(self.corpus.attribute('word', 'p'))
         except KeyError:
-            log.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
+            LOGGER.error('Could not instantiate CWBEngine for Corpus: %s', self.corpus_name)
             self.corpus = None
 
     def _run_query(self, query):
-        """Runs a query an returns CWB Output as list of lines"""
+        """Runs a query and returns CWB output as list of lines"""
         cqp_dump = _execute_cqp_query(self.registry_path, query)
         return cqp_dump.split("\n")[1:-1]
 
@@ -213,21 +187,21 @@ class CWBEngine(Engine):
         f2['f2'] = counts
         return f2, N
 
-    def prepare_df_node(self,
-                        p_query,
-                        s_break,
-                        items):
+    def prepare_df_node(self, p_query, s_break, items, max_region=50):
         """
         Executes query to get corpus positions of query matches.
-        match, matchend, target=left_s_break, keyword=right_s_break.
+        confined in s_break-regions
+        max_region limits s_start and s_end both ways from match and match_end
+        5 columns: match, match_end, s_start, s_end, s_id
         """
 
+        # SANITY CHECKS
         # test if requested p-attribute exists
         try:
             self.corpus.attribute(p_query, 'p')
         except KeyError:
             # raise KeyError('requested p-attribute not in corpus')
-            log.error('requested p-attribute not in corpus')
+            LOGGER.error('requested p-attribute not in corpus')
             return DataFrame()
 
         # test if requested s-attribute exists
@@ -235,15 +209,37 @@ class CWBEngine(Engine):
             self.corpus.attribute(s_break, 's')
         except KeyError:
             # raise KeyError('requested s-attribute not in corpus')
-            log.error('requested s-attribute not in corpus')
+            LOGGER.error('requested s-attribute not in corpus')
             return DataFrame()
 
-        dump = _dump_corpus_positions(
+        # ACTUAL CODE
+        # get dataframe
+        df = _dump_corpus_positions(
             self.registry_path,
             self.corpus_name,
             p_query,
             s_break,
             items
         )
-        df_node = _dump_to_df_node(dump)
-        return df_node
+
+        if len(df) == 0:
+            return DataFrame()
+
+        # get s_break positions
+        s_regions = self.corpus.attribute(s_break, "s")
+        s_region = DataFrame(
+            df.match.apply(lambda x: s_regions.find_pos(x)).tolist()
+        )
+        df['s_start'] = s_region[0]
+        df['s_end'] = s_region[1]
+        df['s_id'] = df.match.apply(lambda x: s_regions.cpos2struc(x))
+
+        # cut unreasonably large regions (use keyword and target columns)
+        df['keyword'] = df.index - max_region
+        df['target'] = df.matchend + max_region
+        df.s_start = df[['keyword', 's_start']].max(axis=1)
+        df.s_end = df[['target', 's_end']].min(axis=1)
+        df.drop('keyword', axis=1, inplace=True)
+        df.drop('target', axis=1, inplace=True)
+
+        return df

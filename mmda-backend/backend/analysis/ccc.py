@@ -90,7 +90,7 @@ def _df_node_to_concordance(engine,
     if df_dp_nodes is not None:
         topic_matches = set(df_dp_nodes['topic_match'])
     else:
-        topic_matches = set(df_node.index)
+        topic_matches = set(df_node['match'])
     if not cut_off:
         cut_off = len(topic_matches)
     elif len(topic_matches) < cut_off:
@@ -109,10 +109,10 @@ def _df_node_to_concordance(engine,
     for topic_match in topic_matches_cut:
 
         # take values from row
-        row = df_node.loc[topic_match]
-        topic_matchend = row['matchend']
-        s_start = row['s_start']
-        s_end = row['s_end']
+        row = df_node.loc[df_node['match'] == topic_match]
+        topic_matchend = int(row['matchend'])
+        s_start = int(row['s_start'])
+        s_end = int(row['s_end'])
 
         # init concordance line variables
         role = list()
@@ -236,24 +236,46 @@ def _combine_df_nodes_single(df_nodes_single_dict):
     return df_dp_nodes
 
 
-def slice_discourseme_topic(topic_df_node, disc_df_node, window_size):
-    """ combines df_node of a discourseme with topic df_node """
-    df_topic = topic_df_node
-    df_topic['match'] = df_topic.index  # move match from index to column
-    df_disc = disc_df_node  # positions occupied by discourseme in corpus
-    df_disc['match'] = df_disc.index  # move match from index to column
+def slice_discourseme_topic(topic_df_node, disc_df_node, max_window_size):
+    """ combines df_node of a discourseme with df_node of topic """
 
-    df_single_nodes = merge(topic_df_node, disc_df_node, on="s_start")
+    if len(topic_df_node) == 0 or len(disc_df_node) == 0:
+        return DataFrame()
+    df_single_nodes = merge(topic_df_node, disc_df_node, on="s_id")
     if len(df_single_nodes) == 0:    # no overlap
         return DataFrame()
-    df_single_nodes = df_single_nodes[['match_x', 'matchend_x', 'match_y']]
-    df_single_nodes['disc_offset'] = df_single_nodes.apply(_calculate_offset, axis=1)
 
+    # ToDo MWU for discoursemes
+    df_single_nodes = df_single_nodes[['match_x', 'matchend_x', 'match_y']]
+
+    # sanity check: remove everything that is very far away
+    # this will yield problems for topic matches longer than 5
+    df_single_nodes = df_single_nodes[
+        abs(
+            df_single_nodes['match_y'] - df_single_nodes['match_x']
+        ) < max_window_size + 5
+    ]
+
+    # offsets
+    df_single_nodes['offset'] = 0
+    # discourseme before topic
+    left = (df_single_nodes['match_x'] > df_single_nodes['match_y'])
+    df_single_nodes.loc[left, 'offset'] = df_single_nodes['match_y'] - df_single_nodes['match_x']
+    # discourseme after topic
+    right = (df_single_nodes['matchend_x'] < df_single_nodes['match_y'])
+    df_single_nodes.loc[right, 'offset'] = df_single_nodes['match_y'] - df_single_nodes['match_x']
+
+    # rename columns
     df_single_nodes.columns = ['topic_match',
                                'topic_matchend',
                                'disc_match',
                                'disc_offset']
-    df_single_nodes = df_single_nodes[abs(df_single_nodes['disc_offset']) <= window_size]
+
+    # remove all irrelevant ones
+    df_single_nodes = df_single_nodes[
+        abs(df_single_nodes['disc_offset']) <= max_window_size
+    ]
+
     return df_single_nodes
 
 
@@ -262,16 +284,19 @@ def slice_discoursemes_topic(topic_df_node,
                              disc_df_node_dict,
                              window_size):
     """ combines df_nodes of several discoursemes with topic df_node """
-    df_topic = topic_df_node
-    df_topic['match'] = df_topic.index  # move match from index to column
+
+    if len(topic_df_node) == 0:
+        return DataFrame()
 
     dfs_single_nodes_dict = dict()
     nodes_match_pos = topic_match_pos_set
     for idx in disc_df_node_dict.keys():
         df_disc = disc_df_node_dict[idx]
-        disc_match_pos_set = set(df_disc.index)
+        if len(df_disc) == 0:
+            return DataFrame(), set()
+        disc_match_pos_set = set(df_disc['match'])
         dfs_single_nodes_dict[idx] = slice_discourseme_topic(
-            df_topic,
+            topic_df_node,
             df_disc,
             window_size
         )
@@ -292,7 +317,7 @@ def _df_node_to_df_cooc(df_node,
     for row in df_node.iterrows():
 
         # take values from row
-        match = row[0]
+        match = row[1]['match']
         matchend = row[1]['matchend']
         s_start = row[1]['s_start']
         s_end = row[1]['s_end']
