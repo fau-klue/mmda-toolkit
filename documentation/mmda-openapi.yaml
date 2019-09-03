@@ -630,32 +630,53 @@ definitions:
       name:
         type: "string"
         example: "My Analysis"
+        description: "Name of the new Analysis"
       corpus:
         type: "string"
         example: "sz_small"
+        description: "Corpus to use for the Analysis"
       items:
         type: "array"
+        description: "Items (words) to use for initial collocate extraction"
         items:
           type: "string"
       window_size:
         type: "integer"
+        description: "Maximun window size to use for initial collocate extraction"
         format: "int64"
+      p_query:
+        type: "string"
+        description: "Annotation marker to use for collocate extraction (word, lemma, etc.)"
+        example: "word"
+      s_breaks:
+        type: "string"
+        description: "Sentence break marker to use for collocate extraction (s, tweet, etc.)"
+        example: "tweet"
+      association_measures:
+        type: "array"
+        description: "Association measure to use for collocation calculation"
+        items:
+          type: "string"
   Discourseme:
     type: "object"
     properties:
       name:
+        description: "Name of the new Discourseme"
         type: "string"
       items:
         type: "array"
+        description: "Items (words) in the Discourseme"
         items:
           type: "string"
   DiscursivePosition:
     type: "object"
     properties:
       name:
+        description: "Name of the new Discursive Position"
         type: "string"
       discoursemes:
         type: "array"
+        description: "List of Discourseme IDs in this Discursive Position"
         items:
           type: "string"
 externalDocs:
