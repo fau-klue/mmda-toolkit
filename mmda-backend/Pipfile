@@ -27,6 +27,12 @@ pipenv = "==2018.11.26"
 Flask-Cors = "==3.0.7"
 cwb-python = "==0.2.2"
 association-measures = "*"
+lz4 = "*"
+xxhash = "*"
+annoy = "*"
+fasteners = "*"
+torch = "*"
+h5py = "*"
 
 [dev-packages]
 pytest = "==4.1.1"
