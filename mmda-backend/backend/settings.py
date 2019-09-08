@@ -19,7 +19,7 @@ MMDA_APP_PORT = int(getenv('PORT', default='5000'))
 MMDA_SECRET_KEY = str(getenv('SECRET_KEY', default='Please Change me in production. Stay Save!'))
 
 # Path to Corpus Workbench Registry. See also: CWBEngine Class
-REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='/usr/local/cwb-3.4.13/share/cwb/registry')
+REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='/usr/local/cwb-3.4.16/share/cwb/registry')
 
 # Application settings
 APP_NAME = "MMDA Backend"
