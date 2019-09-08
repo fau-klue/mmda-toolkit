@@ -88,6 +88,8 @@ def _df_node_to_concordance(engine,
 
     # avoid trying to get more concordance lines than there are
     if df_dp_nodes is not None:
+        if len(df_dp_nodes) == 0:
+            return dict()
         topic_matches = set(df_dp_nodes['topic_match'])
     else:
         topic_matches = set(df_node['match'])
