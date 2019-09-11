@@ -4,6 +4,10 @@
 
 ## Install Dependencies
 
+    # For association-measure Cython code you need to install the following packages
+    # Not required if you're using Docker
+    apt-get install python3-dev gcc
+
     # Init pyvenv
     python3 -m venv && source .venv/bin/activate
 
@@ -11,7 +15,9 @@
     pip3 install -r requirements.txt
 
     # Install dependencies
-    pipenv install
+    pipenv install --dev
+
+See also Dockerfile
 
 ## Create local settings
 
