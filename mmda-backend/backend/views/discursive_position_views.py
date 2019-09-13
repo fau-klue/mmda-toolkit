@@ -262,6 +262,8 @@ def get_discursive_position_concordances(username, discursive_position):
     # Check Request
     analysis_id = request.args.get('analysis', None)
     corpora = request.args.getlist('corpus', None)
+    # Optional items (tokens) for concordance extraction
+    items = request.args.getlist('item', None)
 
     if not corpora:
         return jsonify({'msg': 'No corpora provided'}), 400
@@ -295,13 +297,18 @@ def get_discursive_position_concordances(username, discursive_position):
     # Check Associated Discoursemes
     if not discursive.discourseme:
         log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
+    extra_discoursemes = discursive.discourseme
+
+    # Create discourseme for extra items, and concat to discoursemes for extraction
+    if items:
+        extra_discoursemes.append(Discourseme(name='temp', items=items, user_id=user.id))
 
     ret = {}
     for corpus in corpora:
         engine = current_app.config['ENGINES'][corpus]
         ccc = CCC(analysis, engine)
         # TODO: Parameter? Cut Off?
-        concordance = ccc.extract_concordance(topic_discourseme, discursive.discourseme, per_window=True)
+        concordance = ccc.extract_concordance(topic_discourseme, extra_discoursemes, per_window=True)
 
         if not concordance:
             log.debug('No concordances available for corpus %s', corpus)
