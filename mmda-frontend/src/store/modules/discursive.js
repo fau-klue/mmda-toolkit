@@ -183,7 +183,7 @@ const actions = {
       const request = {
         params: params
       }
-      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordances/`, request).then(function (response) {
+      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordance/`, request).then(function (response) {
         commit('setDiscursivePositionConcordances', response.data)
         resolve()
       }).catch(function (error) {

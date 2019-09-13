@@ -252,7 +252,7 @@ def delete_discourseme_from_discursive_position(username, discursive_position, d
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordances/', methods=['GET'])
+@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordance/', methods=['GET'])
 @user_required
 def get_discursive_position_concordances(username, discursive_position):
     """
