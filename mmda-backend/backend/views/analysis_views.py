@@ -359,6 +359,8 @@ def get_collocate_for_analysis(username, analysis):
     window_size = request.args.get('window_size', 3)
     # Second order collocates
     second_order_items = request.args.getlist('collocate', None)
+    # Discourse ID list
+    discourseme_ids = request.args.getlist('discourseme', None)
 
     try:
         window_size = int(window_size)
@@ -392,11 +394,20 @@ def get_collocate_for_analysis(username, analysis):
         'AMs': ['z_score', 't_score', 'dice', 'log_likelihood', 'mutual_information']
     }
 
+    # Gets filled with additional discoursemes from ID list and/or second_order_items
+    additional_discoursemes = []
+    if discourseme_ids:
+        # Get all discoursemes from database and append
+        discoursemes = Discourseme.query.filter(Discourseme.id.in_(discourseme_ids), Discourseme.user_id==user.id).all()
+        additional_discoursemes += discoursemes
     if second_order_items:
         # Create Discourseme for second order collocates
-        discoursemes = [Discourseme(name='2ndorder', items=second_order_items, user_id=user.id)]
+        second_order_discourseme = Discourseme(name='2ndorderitems', items=second_order_items, user_id=user.id)
+        additional_discoursemes.append(second_order_discourseme)
+
+    if additional_discoursemes:
         collocates = ccc.extract_collocates(topic_discourseme,
-                                            discoursemes=discoursemes,
+                                            discoursemes=additional_discoursemes,
                                             collocates_settings=collocates_settings)
     else:
         collocates = ccc.extract_collocates(topic_discourseme,
@@ -428,6 +439,8 @@ def get_concordance_for_analysis(username, analysis):
     window_size = request.args.get('window_size', 3)
     # Optional items (tokens) for concordance extraction
     items = request.args.getlist('item', None)
+    # Discourse ID list
+    discourseme_ids = request.args.getlist('discourseme', None)
 
     try:
         window_size = int(window_size)
@@ -450,10 +463,16 @@ def get_concordance_for_analysis(username, analysis):
     # Get Topic Discourseme
     topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
 
-    # Create Discourseme for extra items
-    extra_discourseme = None
+    # Gets filled with additional discoursemes from ID list and/or second_order_items
+    additional_discoursemes = []
+    if discourseme_ids:
+        # Get all discoursemes from database and append
+        discoursemes = Discourseme.query.filter(Discourseme.id.in_(discourseme_ids), Discourseme.user_id==user.id).all()
+        additional_discoursemes += discoursemes
     if items:
-        extra_discourseme = [Discourseme(name='temp', items=items, user_id=user.id)]
+        # Create Discourseme for extra items
+        extra_discourseme = Discourseme(name='temp', items=items, user_id=user.id)
+        additional_discoursemes.append(extra_discourseme)
 
     # Get topic and items
     engine = current_app.config['ENGINES'][analysis.corpus]
@@ -465,7 +484,7 @@ def get_concordance_for_analysis(username, analysis):
         'cut_off': 100          # integer
     }
     concordance = ccc.extract_concordance(topic_discourseme,
-                                          discoursemes=extra_discourseme,
+                                          discoursemes=additional_discoursemes,
                                           concordance_settings=concordance_settings,
                                           per_window=True)
 
