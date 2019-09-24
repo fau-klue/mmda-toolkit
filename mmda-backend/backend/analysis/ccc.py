@@ -634,7 +634,6 @@ class ConcordanceCollocationCalculator():
                             concordance_settings=None,
                             per_window=False):
 
-        # ToDo: get from frontend
         if concordance_settings is None:
             concordance_settings = {
                 'order': 'random',

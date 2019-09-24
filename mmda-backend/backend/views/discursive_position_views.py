@@ -307,8 +307,16 @@ def get_discursive_position_concordances(username, discursive_position):
     for corpus in corpora:
         engine = current_app.config['ENGINES'][corpus]
         ccc = CCC(analysis, engine)
-        # TODO: Parameter? Cut Off?
-        concordance = ccc.extract_concordance(topic_discourseme, extra_discoursemes, per_window=True)
+
+        # TODO: get concordance settings from frontend
+        concordance_settings = {
+            'order': 'random',      # alternative: 'first'
+            'cut_off': 100          # integer
+        }
+        concordance = ccc.extract_concordance(topic_discourseme,
+                                              discursive.discourseme,
+                                              concordance_settings,
+                                              per_window=True)
 
         if not concordance:
             log.debug('No concordances available for corpus %s', corpus)
