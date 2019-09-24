@@ -43,6 +43,7 @@
                 <span :key="'h_'+idx" 
                   @click="selectItem(el)"
                   :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                  :style="el.style"
                   :title="el.lemma">{{el.text}}</span>
               </template>
               <!-- invisible x at the end,
@@ -59,6 +60,7 @@
                 <span :key="'t_'+idx"
                   @click="selectItem(el)"
                   :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                  :style="el.style"
                   :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
@@ -139,7 +141,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import {domSet} from '@/wordcloud/util_misc.js'
+import {domSet, random_color, hex_color_from_array} from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'ConcordancesKeywordInContextList',
@@ -223,6 +225,22 @@ export default {
 
           if(!el.role) el.role = " ";
 
+          //console.log("hello "+c.role);
+          for(var role of c.role[i]){
+              var nr = Number.parseInt(role);
+              if(role=="None"){
+                //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
+                //continue;
+                nr = -1;
+              }
+              if(nr!==nr) continue;
+              var col = random_color(nr);
+              el.style = 'text-decoration: ' + hex_color_from_array(col) + " underline double;";
+              col[3] = 0.1;
+              el.style += 'background-color: ' + hex_color_from_array(col) + ";";
+              //console.log(el.style);
+          }
+
 
           if(beforeKeyword && el.role.includes(this.keywordRole)){
             beforeKeyword=false;
@@ -241,7 +259,35 @@ export default {
         r.reverse_head_text = r.head_text.split("").reverse().join("");
         C.push(r);
       }
+      //console.log(this.csvFileText);
       return C;
+    },
+    csvFileText(){
+      var colSeparator="\t";
+      var rowSeparator="\n";
+      var whitespace=" ";
+      var text = "";
+      if(!this.corpus) return "";
+      if(!this.concordances) return "";
+      var firstRow = true;
+      for(var c of this.concordances){
+        var beforeKeyword = true;
+        var firstWord = true;
+        if(!firstRow) text+=rowSeparator;
+        text += c.match_pos+colSeparator;
+        for(var i=0; i<c.word.length; ++i){  
+          if(beforeKeyword && c.role[i].includes(this.keywordRole)){
+            beforeKeyword=false;
+            text += colSeparator+c.word[i]+colSeparator;
+            firstWord = true;
+          }else{
+            text += ((!firstWord)?whitespace:"")+ c.word[i];
+            firstWord = false;
+          }
+        }
+        firstRow = false;
+      }
+      return text;
     }
   },
   
