@@ -34,10 +34,11 @@ t = {
     'items1': ['Angela Merkel', 'Seehofer', 'Merkel'],
     'items2': ['eine', 'die'],
     'items3': ['die'],
+    'items4': ['sein'],
     'items_fail': ['dsgf32421', 'fadgoöp'],
 
     'corpus_settings': {
-        'name_api': 'MMDA_DE_TWEETS',
+        'name_api': 'LTWBY2018_TWEETS',
         'registry_path': '/usr/local/cwb-3.4.16/share/cwb/registry/'
     },
 
@@ -752,3 +753,61 @@ def test_CCC_extract_collocates_dp_fail_s(analysis_fail_s):
 
     assert isinstance(collocates, dict)
     assert len(collocates) == 0
+
+
+@pytest.fixture
+def analysis_35():
+    return Analysis(
+        2,
+        p_query="word",
+        s_break="tweet",
+        max_window_size=10
+    )
+
+
+@pytest.mark.issue35
+def test_issue35(analysis_35):
+
+    ccc = CCC(analysis_35, ENGINE)
+    topic_discourseme = Discourseme(1, ["Angela", "Merkel"])
+    disc_fail = Discourseme(2, ["Wurst"])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc_fail],
+        concordance_settings=t['concordance_settings']
+    )
+
+    print(concordance)
+
+
+@pytest.mark.issue43
+def test_CCC_extract_concordance_dp_43(analysis):
+
+    ccc = CCC(analysis, ENGINE)
+    topic_discourseme = Discourseme(1, t['items1'])
+    disc2 = Discourseme(2, t['items2'])
+    disc3 = Discourseme(4, t['items4'])
+
+    concordance = ccc.extract_concordance(
+        topic_discourseme,
+        [disc2, disc3],
+        concordance_settings=t['concordance_settings'],
+        per_window=True
+    )
+
+    assert isinstance(concordance, dict)
+    assert len(concordance.keys()) > 1
+
+    for concordance_line in concordance.values():
+
+        # assert 'word' in concordance_line.columns
+        # assert 'role' in concordance_line.columns
+        # assert 'offset' in concordance_line.columns
+        # assert len(concordance_line) > 1
+
+        print("===")
+        print(concordance_line)
+        # for roles in concordance_line['role']:
+        #     for r in roles:
+        #         assert isinstance(r, str)
