@@ -110,10 +110,37 @@ export default {
       }
       return R;
     },
-    transposedCoordinates () {
+    transposedCoordinatesFullPrecision () {
       //TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
       var R = {}, val;
+      if(this.coordinates){
+        for(var c of Object.keys(this.coordinates)){
+          R[c] = {name:c};
+          for(var x of Object.keys(this.coordinates[c])){
+            val = this.coordinates[c][x];
+            R[c][x] = val;
+          }
+        }
+      }
+      if(this.collocates){
+        for(var am of Object.keys(this.collocates)){
+          for(var w of Object.keys(this.collocates[am])){
+            if(!R[w]) R[w] = { name: w };
+            val = this.collocates[am][w];
+            val = Number.parseFloat(val);
+            R[w][am] = val;
+            R[w][am.replace(/\./g,'_')] = val;
+            R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(this.map_value(val), this.minmaxAM[am]);
+          }
+        }
+      }
+      return Object.values(R);
+    },
+    transposedCoordinates () {
+      //TODO: does this know, that it needs both this.coordinates and this.collocates?
+      // and does it update, if any of them changes?
+      var R={},val;
       if(this.coordinates){
         for(var c of Object.keys(this.coordinates)){
           R[c] = {name:c};
@@ -136,6 +163,33 @@ export default {
         }
       }
       return Object.values(R);
+    },
+    csvText(){
+      var H = this.headers;
+      var colSeparator="\t";
+      var rowSeparator="\n";
+      var text = "";
+      var X = this.transposedCoordinatesFullPrecision;
+
+      var firstColumn = true;
+      var h ;
+      for(h of H){
+        if(!firstColumn) text += colSeparator;
+        text += h.text;
+        firstColumn = false;
+      }
+
+      for(var x of X){
+        text+=rowSeparator;
+        firstColumn = true;
+        for(h of H){
+          if(!firstColumn) text += colSeparator;
+          var val = x[h.value];
+          if(val!==undefined && val!==null) text += val;
+          firstColumn = false;
+        }
+      }
+      return text;
     },
     headers () {
       var Coll = 
