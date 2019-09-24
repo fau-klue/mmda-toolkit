@@ -294,6 +294,12 @@ paths:
           schema:
             type: string
           required: false
+        - in: "path"
+          name: "discourseme"
+          description: "Additional discourseme IDs to extract. Multiple values possible"
+          schema:
+            type: integer
+          required: false
       responses:
         200:
           description: "Collocate table for analysis."
@@ -321,6 +327,12 @@ paths:
           description: "Additional items for extraction. Multiple values possible"
           schema:
             type: string
+          required: false
+        - in: "path"
+          name: "discourseme"
+          description: "Additional discourseme IDs to extract. Multiple values possible"
+          schema:
+            type: integer
           required: false
       responses:
         200:
