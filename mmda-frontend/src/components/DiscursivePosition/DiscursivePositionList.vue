@@ -13,7 +13,7 @@
                   <v-icon class="grey lighten-1 white--text">question_answer</v-icon>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title>{{ position.name }}</v-list-tile-title>
+                  <v-list-tile-title>{{ position.name }} (ID:{{ position.id }})</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
