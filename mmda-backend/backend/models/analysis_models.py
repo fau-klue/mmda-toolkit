@@ -121,6 +121,7 @@ class Discourseme(db.Model):
            'id': self.id,
            'name': self.name,
            'is_topic': self.topic,
+           'user_id': self.user_id,
            'items': self._items.split(self._separator)
        }
 
@@ -174,6 +175,7 @@ class DiscursivePosition(db.Model):
 
        return {
            'id': self.id,
+           'user_id': self.user_id,
            'name': self.name
        }
 
