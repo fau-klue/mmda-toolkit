@@ -43,8 +43,12 @@
 
         <v-layout v-if="concordances" row>
           <v-flex xs12 sm12>
-            <h1 class="my-3 title">Concordances:</h1>
-              <ConcordancesKeywordInContextList v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
+            <h1 class="my-3 title">Concordances:
+              <v-btn icon ripple>
+                <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+              </v-btn>
+            </h1>
+            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
           </v-flex>
         </v-layout>
 
@@ -125,6 +129,10 @@ export default {
     },
     gotoWordcloud(){
       this.$router.push("/analysis/"+this.analysis.id+"/wordcloud/");
+    },
+    downloadConcordancesCSV(){
+      console.log(this.$refs.kwicView);
+      this.$refs.kwicView.downloadConcordancesCSV();
     },
     deleteAnalysis () {
       const data = {

@@ -141,7 +141,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import {domSet, random_color, hex_color_from_array} from '@/wordcloud/util_misc.js'
+import {domSet, random_color, hex_color_from_array, downloadText} from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'ConcordancesKeywordInContextList',
@@ -266,7 +266,7 @@ export default {
       var colSeparator="\t";
       var rowSeparator="\n";
       var whitespace=" ";
-      var text = "";
+      var text = "corpus position\t... context\tkeyword\tcontext ...\n";
       if(!this.corpus) return "";
       if(!this.concordances) return "";
       var firstRow = true;
@@ -302,6 +302,9 @@ export default {
         if( value ) return this.$t( prefix+value );
       }
       return error.message;
+    },
+    downloadConcordancesCSV(){
+      downloadText("concordances.csv",this.csvFileText.replace(/"/g,"&quot;"));
     },
     update(){
       //the required data (see setupIt) is available only after two ticks

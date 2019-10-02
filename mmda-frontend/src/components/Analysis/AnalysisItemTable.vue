@@ -1,7 +1,12 @@
 <template>
 <v-layout row>
   <v-flex xs12 sm12>
-    <h1 class="my-3 title">Collocation and Coordinates:</h1>
+    <h1 class="my-3 title">Collocation and Coordinates:
+
+    <v-btn icon ripple>
+      <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
+    </v-btn>
+    </h1>
     <h3 class="my-3 body-2">Window Size</h3>
     <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
@@ -68,6 +73,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import { downloadText } from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'AnalysisItemTable',
@@ -226,6 +232,9 @@ export default {
         if( value ) return this.$t( prefix+value );
       }
       return error.message;
+    },
+    downloadCollocationCSV(){
+      downloadText("collocation.csv",this.csvText.replace(/"/g,'&quot;'));
     },
     setSize(){
       this.setWindowSize(this.selectWindow);

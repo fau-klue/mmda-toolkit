@@ -3,8 +3,11 @@
     <v-card class="wordcloud-bottom-card">
       
       <!-- TODO:: let this button hover over the content below, to not waste space-->
-      <v-btn @click="shown=!shown" v-if="shown" icon>X</v-btn>
-      <ConcordancesKeywordInContextList v-if="shown" 
+      <v-btn @click="shown=!shown" v-if="shown" icon title="close concordance view">X</v-btn>
+      <v-btn v-if="shown && !loading" icon ripple>
+        <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+      </v-btn>
+      <ConcordancesKeywordInContextList ref="kwic" v-if="shown" 
       v-bind:concordances="concordances" 
       v-bind:loading="loading"
       v-bind:onclickitem="onclickitem"/>
@@ -64,6 +67,9 @@ export default {
   methods: {
     ...mapActions({
     }),
+    downloadConcordancesCSV(){
+      this.$refs.kwic.downloadConcordancesCSV();
+    }
   },
   mounted(){
     var E = document.getElementsByClassName("wordcloud-bottom-card");
