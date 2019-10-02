@@ -138,7 +138,7 @@ export default {
       this.$router.push("/analysis/"+this.analysis.id+"/wordcloud/");
     },
     downloadConcordancesCSV(){
-      console.log(this.$refs.kwicView);
+      //console.log(this.$refs.kwicView);
       this.$refs.kwicView.downloadConcordancesCSV();
     },
     deleteAnalysis () {
