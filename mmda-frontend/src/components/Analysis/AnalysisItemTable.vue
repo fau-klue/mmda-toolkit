@@ -88,7 +88,12 @@ export default {
     min: 2,
   }),
   watch:{
-    windowSize(){ this.selectWindow = this.windowSize; },
+    windowSize(){
+      this.selectWindow = this.windowSize;
+    },
+    analysis(){
+      this.init();
+    }
   },
   computed: {
     ...mapGetters({
@@ -224,7 +229,8 @@ export default {
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
       getConcordances:        'analysis/getConcordances',
-      setWindowSize: 'wordcloud/setWindowSize',
+      setWindowSize:          'wordcloud/setWindowSize',
+      resetConcordances:      'analysis/resetConcordances'
     }),
     error_message_for(error, prefix, codes){
       if( error.response ){
@@ -274,21 +280,28 @@ export default {
       }).then(()=>{
         this.loadingCollocates = false;
       })
+    },
+    init(){
+      this.loadingCoordinates = true;
+      if(this.analysis&&this.analysis.id==this.id){
+        this.setWindowSize( Math.min(this.windowSize,this.analysis&&this.analysis.id==this.id?this.analysis.max_window_size:2)).then(()=>{
+          this.selectWindow = this.windowSize;
+          this.getAnalysisCoordinates({
+            username:     this.user.username, 
+            analysis_id:  this.id
+          }).catch((error)=>{
+            this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
+          }).then(()=>{
+            this.loadingCoordinates = false;
+          });
+          this.getCollocates();
+        });
+      }
     }
   },
   created () {
     this.id = this.$route.params.id
-    this.loadingCoordinates = true;
-    this.selectWindow = this.windowSize;
-    this.getAnalysisCoordinates({
-      username:     this.user.username, 
-      analysis_id:  this.id
-    }).catch((error)=>{
-      this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
-    }).then(()=>{
-      this.loadingCoordinates = false;
-    });
-    this.getCollocates();
+    this.init();
   }
 }
 
