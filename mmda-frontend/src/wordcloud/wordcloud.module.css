@@ -48,7 +48,7 @@
 }
 
 .wordcloud_error_container {
-  color: red;
+  color: rgb(82, 134, 212);
   font-weight: bold;
   font-size: 200%;
   z-index: 200;

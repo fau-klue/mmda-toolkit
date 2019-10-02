@@ -75,7 +75,7 @@ class ErrorMessage {
     }
     
 
-    domSetEL(this.content,'textContent',msg?"⚠ " + msg:'');
+    domSetEL(this.content,'textContent',msg?"🔵 " + msg:'');
     domSetEL(this.el,'title',title);
     //if (this.content) this.el.removeChild(this.content);
     //this.content = document.createTextNode("⚠ " + msg);
