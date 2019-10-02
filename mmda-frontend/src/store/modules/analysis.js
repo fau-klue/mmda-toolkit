@@ -269,6 +269,9 @@ const actions = {
   cancelConcordanceRequest({commit}){
     //console.log("req canceled");
     commit('setConcordancesLoading',null);
+  },
+  resetConcordances({commit}){
+    commit('setConcordances',null);
   }
 }
 

@@ -11,7 +11,7 @@
     <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
-    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>{{error}}</v-alert>
+    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
 
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -88,7 +88,7 @@ export default {
     min: 2,
   }),
   watch:{
-    windowSize(){ this.selectWindow = this.windowSize; }
+    windowSize(){ this.selectWindow = this.windowSize; },
   },
   computed: {
     ...mapGetters({

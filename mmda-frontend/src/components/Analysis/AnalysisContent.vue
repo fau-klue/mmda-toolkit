@@ -41,10 +41,10 @@
               </v-flex>
         </v-layout>
 
-        <v-layout v-if="concordances" row>
+        <v-layout v-if="concordances||concordances_loading" row>
           <v-flex xs12 sm12>
             <h1 class="my-3 title">Concordances:
-              <v-btn icon ripple>
+              <v-btn v-if="!concordances_loading" icon ripple>
                 <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
               </v-btn>
             </h1>
@@ -105,9 +105,15 @@ export default {
       user: 'login/user',
       analysis: 'analysis/analysis',
       coordinates: 'coordinates/coordinates',
+      collocates:'analysis/collocates',
       concordances:'analysis/concordances',
       concordances_loading:'analysis/concordances_loading',
     })
+  },
+  watch:{
+    collocates(){
+      this.resetConcordances();
+    }
   },
   methods: {
     ...mapActions({
@@ -115,6 +121,7 @@ export default {
       updateUserAnalysis: 'analysis/updateUserAnalysis',
       deleteUserAnalysis: 'analysis/deleteUserAnalysis',
       reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
+      resetConcordances: 'analysis/resetConcordances'
     }),
     loadAnalysis () {
       const data = {
