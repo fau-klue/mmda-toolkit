@@ -34,7 +34,7 @@
               :value="discourseme.id"
               ></v-radio>
           </v-radio-group> -->
-            <v-checkbox v-for="discourseme in analysisDiscoursemes" :key="discourseme.id"
+            <v-checkbox v-for="discourseme in analysisDiscoursemes" :key="discourseme.items.join('')"
               v-model="secondOrderIDs"
               @change="setSOC"
               :label="discourseme.name"
@@ -42,7 +42,7 @@
               :title="'['+discourseme.items+']'"
               hide-details
               ></v-checkbox>
-            <v-btn color="info" class="my-3 text-lg-right" @click="clearSOC">Topic Only</v-btn>
+            <v-btn color="info" class="my-3 text-lg-right" @click="clearSOC">Deselect All</v-btn>
         </v-flex>
        <!-- <v-list two-line subheader>
           <v-list-tile avatar>

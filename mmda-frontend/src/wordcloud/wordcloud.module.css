@@ -119,7 +119,7 @@
 
 .wordcloud_element.disappeared.inserted .text {
   text-decoration: line-through !important;
-  color: #0006 !important;
+  color: #0002 !important;
 }
 
 .wordcloud_element.disappeared,

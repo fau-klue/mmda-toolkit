@@ -5,7 +5,7 @@
     </div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
-    <WordcloudBottomSheet v-bind:onclickitem="centerItemLocation" />
+    <WordcloudBottomSheet ref="bottomSheet" v-bind:onclickitem="centerItemLocation" />
   </div>
 </template>
 
@@ -48,22 +48,22 @@ export default {
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
       showMinimap: "wordcloud/showMinimap",
-      SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
+      discourseme_ids: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
       collocatesCompare: 'wordcloud/collocatesToCompare',
     }),
-    SOC_items(){
+    /*SOC_items(){
       var res = new Set();
-      for(var id of this.SOC){
+      for(var id of this.discourseme_ids){
         var i = this.discoursemes.findIndex((d)=>d.id==id);
         if(i!=-1){
           for(var it of this.discoursemes[i].items ) res.add(it);
         }
       }
       return Array.from(res);
-    }
+    }*/
   },
   watch:{
-    SOC(){
+    discourseme_ids(){
       vm.loadCollocates();
     },
     AM () {
@@ -117,12 +117,13 @@ export default {
     },
     loadCollocates() {
       if(!this.analysis) return;
-      if(this.SOC.length){
+      if(this.discourseme_ids && this.discourseme_ids.length){
         return this.getAnalysisDiscoursemeCollocates({
           username:     this.user.username,
           analysis_id:  this.analysis.id,
           window_size:  this.windowSize,
-          discourseme_items: this.SOC_items,
+          //discourseme_items: this.SOC_items,
+          discourseme_ids:this.discourseme_ids
         }).catch((error)=>{
           this.error = error;
         });
@@ -224,11 +225,13 @@ export default {
         analysis_id: this.analysis.id,
         //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
-        soc_items: this.SOC_items,
+        //soc_items: this.SOC_items,
+        discourseme_ids:this.discourseme_ids,
         collocate_items:  names,
         window_size:      this.windowSize
       }).catch((error)=>{
-        this.error = error
+        this.$refs.bottomSheet.error = error.response.data.msg;
+        //this.error = error
       }).then(()=>{
         this.loadingConcordances = false;
       });

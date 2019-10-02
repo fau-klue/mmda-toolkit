@@ -209,11 +209,11 @@ class WordElement {
   }
 
   get normalized_size() {
-    if(this._normalSize ===undefined) this._normalSize = this.window.getSizeOf(this.data);
+    if(this._normalSize === undefined) this._normalSize = this.window.getSizeOf(this.data);
     return this._normalSize;
   }
   get normalized_size_compare() {
-    if(this._normalSizeC!==undefined) this._normalSizeC = this.window.getCompareSizeOf(this.data);
+    if(this._normalSizeC === undefined) this._normalSizeC = this.window.getCompareSizeOf(this.data);
     return this._normalSizeC;
   }
   get original_position() {

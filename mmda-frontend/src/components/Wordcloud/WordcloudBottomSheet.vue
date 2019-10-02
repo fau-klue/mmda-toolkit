@@ -46,6 +46,7 @@ export default {
   data: () => ({
     sheet:true,
     shown:false,
+    error:null,
   }),
   computed: {
     ...mapGetters({
@@ -56,6 +57,9 @@ export default {
   watch:{
     concordances(){
       this.sheet = true;
+    },
+    error(){
+      this.$refs.kwic.error = this.error;
     },
     loading(){
       // show the sheet after timeout, because:

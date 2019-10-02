@@ -188,17 +188,15 @@ const actions = {
       if (!data.username)    return reject('No user provided')
       if (!data.analysis_id) return reject('No analysis provided')
       if (!data.window_size) return reject('No window size provided')
-      if (!data.discourseme_items) return reject('No discourseme_items')
+      if (!data.discourseme_items&&!data.discourseme_id&&!data.discourseme_ids) return reject('No discourseme_[items, id or ids]')
 
       let params = new URLSearchParams()
       // Append api/?window_size=12
       params.append("window_size", data.window_size)
      
-      for(var it of data.discourseme_items) params.append("collocate", it);
-      //params.append("collocate", 1);
-
-      //TODO:: retreive discourseme collocates
-      //params.append('discourseme', 4);
+      if(data.discourseme_items) for(var it of data.discourseme_items) params.append("collocate", it);
+      if(data.discourseme_id) params.append("discourseme",data.discourseme_id);
+      if(data.discourseme_ids) for(var it of data.discourseme_ids) params.append("discourseme", it);
 
       const request = {
         params: params
@@ -232,10 +230,10 @@ const actions = {
         data.collocate_items.forEach((item)=>{ params.append("item", item) })
       }
 
-      if( data.soc_items){
-        //second order collocation analysis should also yield 
-        //second order concordances
-      }
+      //Second order concordances
+      //if(data.discourseme_items) for(var it of data.discourseme_items) params.append("collocate", it);
+      if(data.discourseme_id) params.append("discourseme",data.discourseme_id);
+      if(data.discourseme_ids) for(var it of data.discourseme_ids) params.append("discourseme", it);
 
       if(data.window_size){
          // Append api/?window_size=12
@@ -261,6 +259,7 @@ const actions = {
         }
         resolve()
       }).catch(function (error) {
+        commit('setConcordances',null)
         commit('setConcordancesLoading',null)
         reject(error)
       })
