@@ -11,16 +11,24 @@
     "index": {
       "headline1": "MMDA: An interactive toolkit for Corpus-based Discourse Analysis",
 	"paragraph1": "Corpus-based discourse analysis (CDA) is a popular and highly successful technique for the investigation of socio-political research questions. The CDA procedure starts from collocation analyses for selected topic queries. Collocates are then grouped into semantically meaningful categories, e.g. attitudes and opinions. Interpretations of semantic categories are verified and refined by careful inspection of the corresponding KWIC concordances. Given the widespread use of CDA and recent advances in computational linguistic techniques, it is surprising that researchers still have to rely on general-purpose corpus tools such as CQPweb.",
-	"paragraph2": "The interactive software toolkit you are using here, called MMDA (for mixed-methods discourse analysis) is a dedicated software solution that combines the necessary steps of CDA into a single consistent and efficient working environment. It enables you to carry out multiple collocation analyses in parallel, and visualizes the results in an intuitive way. You can try out different parameter settings in real time, which provides a more comprehensive understanding of the semantic space of the discourse. Semantic groups can be created and modified interactively.",
-	"paragraph3": "From a Digital Humanities perspective, our approach can be understood as an attempt to blend close and distant reading techniques. Moreover, our visualizations are more sensible than standard word clouds: they are two-dimensional approximations of the semantics captured by high-dimensional word embeddings, which we created for the respective linguistic registers. Easily accessible and exportable concordance lines accompany all visualizations to ensure close reading. All in all, the MMDA toolkit represents a first step towards a more sophisticated CDA methodology, in which the manual categorization procedure is operationalized in terms of so-called discoursemes – groups of related collocates that form building blocks of discursive positions.",
-	"headlinePublications": "Publications",
+	"paragraph2": "The interactive software toolkit you are using here, called MMDA (for mixed-methods discourse analysis) is a dedicated software solution that combines the necessary steps of CDA into a single consistent and efficient working environment. It enables you to carry out analyses with across a variety of parameter settings and summarizes the results in an intuitive way. Furthermore, lexical items can be grouped interactively, since this is one of the most labor-intensive tasks of CDA.",
+	"paragraph3": "From a Digital Humanities perspective, our approach can be understood as an attempt to blend close and distant reading techniques. On the one hand, we try to integrate reasonable and target-oriented access to data: Our visualizations e.g. are two-dimensional approximations of the underlying semantics, as captured by high-dimensional register-specific word embeddings. On the other hand, easily accessible and exportable concordance lines accompany all summarizations to enable manual inspection. All in all, the MMDA toolkit represents a first step towards a more sophisticated CDA methodology, in which the manual categorization procedure is operationalized in terms of so-called discoursemes – groups of related lexical items that form building blocks of discursive positions.",
+	"headlinePublications": "Conference Presentations",
 	"headlineAcknowledgements": "Acknowledgements",
 	"Acknowledgements": "This work is supported by the Emerging Fields Initiative (EFI) of Friedrich-Alexander-Universität Erlangen-Nürnberg (project title: Exploring the 'Fukushima Effect' (EFE))."
     },
     "about": {
-	"headline2": "The Workflow",
- 	"paragraph2_1": "Initially, the researcher carries chooses one or more lexical items (called “topic nodes”) as a starting point for a collocation analysis. From this, a two-dimensional visualization is created, which represents the semantically structured map of the discourse.",
-	"paragraph2_2": "In this interactive map, the researcher can groups of related collocates into discoursemes.",
+	"headline": "Vignette",
+	"headline1": "Using MMDA to access corpora",
+	"paragraph1_1": "The MMDA toolkit can be used in a specialized way to access corpora via the IMS Open Corpus Workbench (CWB), utilizing some of its functionality and providing further methods for corpus analysis. Any corpus indexed with the CWB can be imported in the toolkit. The first step to access a corpus is via an 'Analysis'.",
+	"headline1_1": "Creating an analysis",
+	"paragraph1_2": "A typical starting point of CDA is a 'topic query': a set of words and multi-word units on any positional annotation layer of the corpus. The available layers depend on the actual linguistic annoation of the corpus at hand, but for most corpora the three layers 'word' and 'lemma' should be present. A typical topic query is made up of semantically related topic nodes such as {'erneuerbare Energie', 'Windenergie', 'Solarenergie', 'Wasserkraft'}, which aims to capture a specific topic you are interested in. For a topic in the sense of CDA, it is reasonable to query on the lemma layer, i.e. to choose 'p-att: lemma' in the 'New Analysis' pane.",
+	"paragraph1_3": "The 'window size' and 's-break' parameters determine the windows around the retrieved topic nodes that will be highlighted in concordance views and which will be used to determine the domain of collocate candidates. For most texts, sentences should be used as break points ('s-break: s'). Newspaper texts might also contain 'article' or 'p' (for paragraph); CMC data might contain 'tweet' or 'post'. The most generic s-break value is 'text'. Typical values for the window size are 3 to 10, although some researchers might be interested in values as low as 1 (essentially looking for trigrams), others in window sizes of 10 and above, looking for patterns across lexical items far away from one another.",
+	"paragraph1_4": "Every analysis – consisting of topic query, s-att, p-att, and corpus – has to be named for further identification. This way, topic queries (and their related analyses) can be used within later analyses.",
+	"headline2": "Inspecting an analysis",
+ 	"paragraph2_1": "The immediate result of the analysis is a summarization of the cotext (the textual context defined by window size and s-break) of the topic nodes: The 'collocation' segment presents the collocate candidates of the topic nodes for different association measures subject to window size.",
+	"paragraph2_2": "",
+	"paragraph2_3": "In this interactive map, the researcher can groups of related collocates into discoursemes.",
 	"headline3": "What is a discourseme?",
 	"paragraph3_1": "A discourseme is a user-created list of related collocates. On its surface, it represents a simple list of lexical items, which the researched decided belong together. The list of topic nodes form a special discourseme – the topic discourseme. ",
 	"paragraph3_2": "Combining several discoursemes with one another uncover discursive positions.",
@@ -36,6 +44,7 @@
 	"network": "Network Error."
     },
     "toolbar": {
+	"home": "Home",
 	"about": "Manual",
 	"login": "Login",
 	"logout": "Logout"
