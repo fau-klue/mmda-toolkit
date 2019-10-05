@@ -1,8 +1,10 @@
 from flask import url_for
 import unittest.mock as mock
+import pytest
 import pandas
 
 
+@pytest.mark.api
 def test_users_list(client, admin_header):
 
     response = client.get(url_for('admin.get_users'),
@@ -13,6 +15,7 @@ def test_users_list(client, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_no_access(client, header):
 
     response = client.get(url_for('admin.get_users'),
@@ -23,6 +26,7 @@ def test_no_access(client, header):
     assert response.status_code==403
 
 
+@pytest.mark.api
 def test_create_user(client, admin_header):
 
     new_user = {
@@ -59,6 +63,7 @@ def test_create_user(client, admin_header):
     assert response.status_code==400
 
 
+@pytest.mark.api
 def test_no_such_role_createuser(client, admin_header):
 
     new_user = {
@@ -79,6 +84,7 @@ def test_no_such_role_createuser(client, admin_header):
     assert response.status_code==404
 
 
+@pytest.mark.api
 def test_create_admin_user(client, admin_header):
 
     new_user = {
@@ -99,6 +105,7 @@ def test_create_admin_user(client, admin_header):
     assert response.status_code==201
 
 
+@pytest.mark.api
 def test_update_password(client, admin_header):
 
     data = {'password': 'Erlangen1'}
@@ -113,6 +120,7 @@ def test_update_password(client, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_user(client, admin_header):
 
     new_user = {
@@ -137,6 +145,7 @@ def test_delete_user(client, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_admin_user(client, admin_header):
 
     response = client.delete(url_for('admin.delete_user', username='admin'),
@@ -147,6 +156,7 @@ def test_delete_admin_user(client, admin_header):
     assert response.status_code==409
 
 
+@pytest.mark.api
 def test_get_items(client, admin_header):
 
     response = client.get(url_for('admin.get_analysis'),
@@ -171,6 +181,7 @@ def test_get_items(client, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_discourseme(client, header, admin_header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
@@ -188,6 +199,7 @@ def test_delete_discourseme(client, header, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_position(client, header, admin_header):
 
     data = {'name': 'foobar', 'discoursemes': [1]}
@@ -205,6 +217,7 @@ def test_delete_position(client, header, admin_header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_delete_analysis_noanalysis(client, header, admin_header):
 
     response = client.delete(url_for('admin.delete_analysis', analysis=2),

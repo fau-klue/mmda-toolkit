@@ -654,7 +654,9 @@ class Multigroup {
     this.nodes = [];
     this.groups = groups;
     this.id = id_string;
-    this.bounds = {min:[0,0], max:[0,0]};
+    this._min = [0,0];
+    this._max = [0,0];
+    this._pos = [0,0];
   }
   get pos(){return this._pos;}
   set pos(v){return this._pos = v;}
@@ -662,8 +664,35 @@ class Multigroup {
   get linewidth(){ return 0.2;}
   get _selected(){ return false; }
   get label(){ return "label"; }
-  get min(){ return this.bounds.min; }
-  get max(){ return this.bounds.max; }
+  get min(){ return add2(this._pos,this._min); }
+  get max(){ return add2(this._pos,this._max); }
+  set min(m){ return this._min = sub2(m,this._pos); }
+  set max(m){ return this._max = sub2(m,this._pos); }
+  get bounds() {
+    var vm = this;
+    return {
+      min: this.min,
+      max: this.max,
+      get convex_hull() {
+        return vm.border_path;
+      },
+      set convex_hull(c) {
+        return vm.border_path = c;
+      }
+    };
+  }
+  set border_path(P) {
+    this._border_path = P;
+  }
+  get border_path() {
+    if (!this._border_path) return null;
+    var res = [];
+    for (var p of this._border_path) {
+      res.push(add2(this._pos, p));
+    }
+    return res;
+  }
+
   redraw() {
     if (!this.visual_representation) return;
     this.window.canvas.remove(this.visual_representation.path);
@@ -720,7 +749,6 @@ function layoutWordcloudFormGroups2ResolveOverlap(vm) {
   var starttime = Date.now();
   var total_Tests = 0;
   var total_intersections = 0;
-
 
   vm.error.clear();
   vm.group_map = {};
@@ -803,7 +831,8 @@ function layoutWordcloudFormGroups2ResolveOverlap(vm) {
 
     if (!vm.options.show_lexical_items_of_group) {
       for (var n of g.nodes) n.shown = false;
-      g.bounds = { min: gmin, max: gmax }; ///TODO:: some sensible bounds
+      g.min = sub2(center,scale2(g.nodes[0].WH,0.5));
+      g.max = add2(center,scale2(g.nodes[0].WH,0.5)); ///TODO:: some sensible bounds
     } else {
       for (var n of g.nodes) {
         n.layout_position = scale2(
@@ -839,7 +868,9 @@ function layoutWordcloudFormGroups2ResolveOverlap(vm) {
           margin([n.bounds.min[0], n.bounds.max[1]])
         );
       }
-      g.bounds = { min: gmin, max: gmax, convex_hull: convexHull(PathPoints) };
+      g.min = gmin;
+      g.max = gmax;
+      g.border_path = convexHull(PathPoints);
     }
     g._pos = g.pos = g.layout_position = g.computed_position = g.center;
 

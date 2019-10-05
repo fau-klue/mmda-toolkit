@@ -1,8 +1,10 @@
 from flask import url_for
 from flask_jwt_extended import create_refresh_token, create_access_token
 from json import loads
+import pytest
 
 
+@pytest.mark.api
 def test_login_urls(client):
 
     data = {'username': 'student1', 'password': 'Erlangen1'}
@@ -29,6 +31,7 @@ def test_login_urls(client):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_login_urls_failure(client):
 
     data = {'username': 'student1', 'password': 'WRONGPASSWD'}
@@ -48,6 +51,7 @@ def test_login_urls_failure(client):
     assert response.status_code==401
 
 
+@pytest.mark.api
 def test_user_jwt_token(client):
 
     access_token = create_access_token('student1')
@@ -78,6 +82,7 @@ def test_user_jwt_token(client):
     assert response.status_code == 403
 
 
+@pytest.mark.api
 def test_admin_jwt(client, admin_header):
 
     response = client.get(url_for('login.test_admin'),

@@ -1,7 +1,4 @@
 import pytest
-import sys
-import logging
-import unittest.mock as mock
 from abc import ABC
 
 from backend.analysis.engines import Engine
@@ -11,6 +8,7 @@ from backend.analysis.engines import Engine
 def corpus_settings():
 
     corpus_set = {
+        'name': 'foocorpus',
         'sentence_boundary': 's',
         'association_measures': ['Dice', 'Log']
     }
@@ -18,25 +16,39 @@ def corpus_settings():
     return corpus_set
 
 
+@pytest.mark.engine
 def test_abstract_engine(corpus_settings):
 
-    actual = Engine('foo_corpus', corpus_settings)
-
+    actual = Engine(corpus_settings)
     assert isinstance(actual, ABC)
-    assert actual.corpus_name == 'foo_corpus'
-    assert actual.corpus_settings == corpus_settings
 
-def test_abstract_extract_collocates(corpus_settings):
 
-    eng = Engine('foo_corpus', corpus_settings)
+@pytest.mark.engine
+def test_abstract_engine_N(corpus_settings):
 
+    actual = Engine(corpus_settings)
+    assert actual.N == 0
+
+
+@pytest.mark.engine
+def test_abstract_engine_lexicalize(corpus_settings):
+
+    actual = Engine(corpus_settings)
     with pytest.raises(NotImplementedError):
-         eng.extract_collocates('query', 5, ['testnode'])
+        actual.lexicalize_positions([1], 'word')
 
 
-def test_abstract_extract_concordances(corpus_settings):
+@pytest.mark.engine
+def test_abstract_engine_marginal(corpus_settings):
 
-    eng = Engine('foo_corpus', corpus_settings)
-
+    actual = Engine(corpus_settings)
     with pytest.raises(NotImplementedError):
-         eng.extract_concordances('query', 5, ['testnode'])
+        actual.get_marginals([1], 'word')
+
+
+@pytest.mark.engine
+def test_abstract_engine_df_node(corpus_settings):
+
+    actual = Engine(corpus_settings)
+    with pytest.raises(NotImplementedError):
+        actual.prepare_df_node('query', 's', [1])

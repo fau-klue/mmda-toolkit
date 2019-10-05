@@ -55,6 +55,8 @@ ANALYSIS_SCHEMA = {
         'name': {'type': 'string', 'maxLength': 255},
         'corpus': {'type': 'string', 'maxLength': 255},
         'window_size': {'type': 'number', 'minimum': 3, 'maximum': 20},
+        's_break': {'type': 'string', 'maxLength': 255},
+        'p_query': {'type': 'string', 'maxLength': 255},
         'items': {
             'type': 'array',
             'items': {
@@ -62,15 +64,18 @@ ANALYSIS_SCHEMA = {
             }
         }
     },
-    'required': ['name', 'corpus', 'items']
+    'required': ['name', 'corpus', 'items', 's_break', 'p_query']
 }
 
 UPDATE_SCHEMA = {
     'type': 'object',
     'properties': {
-        'name': {'type': 'string', 'maxLength': 255}
+        'name': {'type': 'string', 'maxLength': 255},
+        'window_size': {'type': 'number', 'minimum': 3, 'maximum': 20},
+        's_break': {'type': 'string', 'maxLength': 255},
+        'p_query': {'type': 'string', 'maxLength': 255},
     },
-    'required': ['name']
+    'required': ['name', 'window_size', 's_break', 'p_query']
 }
 
 DISCOURSEME_SCHEMA = {
@@ -97,6 +102,14 @@ DISCURSIVE_POSITION_SCHEMA = {
                 'type': 'number', 'minimum': 0
             }
         }
+    },
+    'required': ['name']
+}
+
+DISCURSIVE_POSITION_UPDATE_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string', 'maxLength': 255},
     },
     'required': ['name']
 }

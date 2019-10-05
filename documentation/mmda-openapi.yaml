@@ -152,23 +152,6 @@ paths:
           description: "Details of a diven corpus."
         404:
           description: "No such corpus."
-  /corpus/{corpusName}/concordances:
-    get:
-      description: "Returns concordances for a list of tokens."
-      operationId: "getConcordances"
-      tags:
-        - "corpus"
-      produces:
-        - "application/json"
-      responses:
-        200:
-          description: "Concordances for the given tokens."
-          schema:
-            $ref: "#/definitions/Concordances"
-        400:
-          description: "Invalid input."
-        404:
-          description: "No such corpus."
   /user/{userID}/analysis:
     post:
       description: "Generate a new Analysis object."
@@ -265,7 +248,7 @@ paths:
           description: "No such analysis."
   /user/{userID}/analysis/{analysisID}/discourseme/{discoursemeID}:
     put:
-      desc]: "Attach Discoursemes to an Analysis."
+      description: "Attach Discoursemes to an Analysis."
       operationId: "putAnalysisDiscourseme"
       tags:
         - "analysis"
@@ -292,20 +275,78 @@ paths:
           description: "No such analysis or discourseme."
   /user/{userID}/analysis/{analysisID}/collocate:
     get:
-      summary: "Get collocate table of Analysis object"
-      description: ""
+      description: "Get collocate table of Analysis object"
+      operationId: "getAnalysisCollocate"
       tags:
         - "analysis"
-      operationId: "getAnalysisCollocate"
       produces:
         - "application/json"
+      parameters:
+        - in: "path"
+          name: "window_size"
+          description: "Select table by window size"
+          schema:
+            type: integer
+          required: false
+        - in: "path"
+          name: "collocate"
+          description: "Additional second order collocates to extract. Multiple values possible"
+          schema:
+            type: string
+          required: false
+        - in: "path"
+          name: "discourseme"
+          description: "Additional discourseme IDs to extract. Multiple values possible"
+          schema:
+            type: integer
+          required: false
+      responses:
+        200:
+          description: "Collocate table for analysis."
+        400:
+          description: "Incorrect parameters given."
+        404:
+          description: "No such analysis or no collocates available."
+  /user/{userID}/analysis/{analysisID}/concordance:
+    get:
+      description: "Get concordance of Analysis object"
+      operationId: "getAnalysisConcordance"
+      tags:
+        - "analysis"
+      produces:
+        - "application/json"
+      parameters:
+        - in: "path"
+          name: "window_size"
+          description: "Select table by window size"
+          schema:
+            type: integer
+          required: false
+        - in: "path"
+          name: "item"
+          description: "Additional items for extraction. Multiple values possible"
+          schema:
+            type: string
+          required: false
+        - in: "path"
+          name: "discourseme"
+          description: "Additional discourseme IDs to extract. Multiple values possible"
+          schema:
+            type: integer
+          required: false
+      responses:
+        200:
+          description: "Concordance table for analysis."
+        400:
+          description: "Incorrect parameters given."
+        404:
+          description: "No such analysis or no concordances available."
   /user/{userID}/analysis/{analysisID}/coordinates:
     get:
-      summary: "Get coordinates of Analysis object"
-      description: ""
+      description: "Get coordinates of Analysis object"
+      operationId: "getAnalysisCoordinates"
       tags:
         - "coordinate"
-      operationId: "getAnalysisCoordinates"
       produces:
         - "application/json"
       responses:
@@ -314,11 +355,10 @@ paths:
         404:
           description: "No such analysis"
     put:
-      summary: "Update user coordinates of Analysis object"
-      description: ""
+      description: "Update user coordinates of Analysis object. Example:  {word1: {user_x: 1, user_y: 2}, word2: {user_x: 1, user_y: 2}}"
+      operationId: "putAnalysisUserCoordinates"
       tags:
         - "coordinate"
-      operationId: "putAnalysisUserCoordinates"
       produces:
         - "application/json"
       responses:
@@ -329,11 +369,10 @@ paths:
         404:
           description: "No such analysis"
     delete:
-      summary: "Delete user coordinates of Analysis object"
-      description: ""
+      description: "Delete user coordinates of Analysis object"
+      operationId: "deleteAnalysisUserCoordinates"
       tags:
         - "coordinate"
-      operationId: "deleteAnalysisUserCoordinates"
       produces:
         - "application/json"
       responses:
@@ -345,11 +384,10 @@ paths:
           description: "No such analysis"
   /user/{userID}/analysis/{analysisID}/coordinates/reload:
     put:
-      summary: "Reload coordinates of Analysis object"
-      description: ""
+      description: "Reload coordinates of Analysis object"
+      operationId: "reloadAnalysisUserCoordinates"
       tags:
         - "coordinate"
-      operationId: "putAnalysisCoordinatesReload"
       produces:
         - "application/json"
       responses:
@@ -359,16 +397,14 @@ paths:
           description: "No such analysis"
   /user/{userID}/discourseme:
     get:
-      summary: "Get User Discoursemes"
-      description: ""
+      description: "Get User Discoursemes"
+      operationId: "getDiscoursemes"
       tags:
         - "discourseme"
-      operationId: "getDiscoursemes"
       responses:
         200:
-          description: "Discoursemes"
+          description: "List of Discoursemes"
     post:
-      summary: "Generate a new Discourseme object"
       description: "Generate a new Discourseme object"
       tags:
         - "discourseme"
@@ -393,22 +429,20 @@ paths:
           description: "Discourseme ID"
   /user/{userID}/discourseme/{discoursemeID}:
     get:
-      summary: "Get Discoursemes Details"
-      description: ""
+      description: "Get Discoursemes Details"
+      operationId: "getDiscoursemeDetails"
       tags:
         - "discourseme"
-      operationId: "getDiscoursemeDetails"
       responses:
         200:
           description: "Discourseme Details"
         404:
           description: "No such Discourseme"
     put:
-      summary: "Update Discoursemes Details"
-      description: ""
+      description: "Update Discoursemes Details"
+      operationId: "putDiscoursemeDetails"
       tags:
         - "discourseme"
-      operationId: "putDiscoursemeDetails"
       consumes:
         - "application/json"
       produces:
@@ -432,16 +466,140 @@ paths:
         409:
           description: "Cannot edit topic Discourseme"
     delete:
-      summary: "Delete Discoursemes"
-      description: ""
+      description: "Delete Discoursemes"
+      operationId: "DeleteDiscourseme"
       tags:
         - "discourseme"
-      operationId: "DeleteDiscourseme"
       responses:
         200:
           description: "Discourseme Deleted"
         404:
           description: "No such Discourseme"
+        409:
+          description: "Cannot delete topic Discourseme"
+  /user/{userID}/discursiveposition/:
+    get:
+      description: "Get Discursive Position List"
+      operationId: "getDiscursivePositionList"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "List of Discursive Position"
+    post:
+      description: "Creates a Discursive Position"
+      operationId: "postDiscursivePosition"
+      tags:
+        - "position"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discursive Position"
+        required: true
+        type: "string"
+      - in: "discoursemes"
+        name: "discoursemes"
+        description: "List of Discourseme IDs"
+        required: true
+        type: "array"
+      responses:
+        201:
+          description: "Newly generated Position ID."
+  /user/{userID}/discursiveposition/{positionID}:
+    get:
+      description: "Get Discursive Position Details"
+      operationId: "getDiscursivePositionDetails"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "Discursive Position Details"
+        404:
+          description: "No such Discursive Position"
+    put:
+      description: "Update a Discursive Position"
+      operationId: "putDiscursivePosition"
+      tags:
+        - "position"
+      parameters:
+      - in: "name"
+        name: "name"
+        description: "Name of Discursive Position"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Updated."
+        404:
+          description: "No such discursive position."
+    delete:
+      description: "Delete a Discursive Position"
+      operationId: "deleteDiscursivePosition"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "Deleted discursive position."
+        404:
+          description: "No such discursive position."
+  /user/{userID}/discursiveposition/{positionID}/discourseme:
+    get:
+      description: "Get List of Discoursemes in Discursive Position"
+      operationId: "getDiscursivePositionDiscoursemes"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "List of Discoursemes in Discursive Position"
+        404:
+          description: "No such Discursive Position"
+  /user/{userID}/discursiveposition/{positionID}/discourseme/{discoursemeID}:
+    put:
+      description: "Add Discoursemes to Discursive Position"
+      operationId: "putDiscursivePositionDiscourseme"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "Added Discourseme"
+        404:
+          description: "No such Discursive Position or Discourseme"
+    delete:
+      description: "Delete Discoursemes to Discursive Position"
+      operationId: "deleteDiscursivePositionDiscourseme"
+      tags:
+        - "position"
+      responses:
+        200:
+          description: "Removed Discourseme"
+        404:
+          description: "No such Discursive Position or Discourseme"
+  /user/{userID}/discursiveposition/{positionID}/concordances/:
+    get:
+      description: "Get concordances for Discursive Position"
+      operationId: "getDiscursivePositionConcordance"
+      tags:
+        - "position"
+      parameters:
+      - in: "path"
+        name: "analysis_id"
+        description: "Analysis for concordance generation"
+        required: true
+        schema:
+          type: integer
+      - in: "path"
+        name: "corpus"
+        description: "Additional corpora to generate concordances. Multiple values possible."
+        required: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: "Concordances for Discursive Position per corpus"
+        400:
+          description: "Incorrect parameters"
+        404:
+          description: "No such Discursive Position"
 definitions:
   User:
     type: "object"
@@ -484,30 +642,55 @@ definitions:
       name:
         type: "string"
         example: "My Analysis"
+        description: "Name of the new Analysis"
       corpus:
         type: "string"
         example: "sz_small"
+        description: "Corpus to use for the Analysis"
       items:
         type: "array"
+        description: "Items (words) to use for initial collocate extraction"
         items:
           type: "string"
       window_size:
         type: "integer"
+        description: "Maximun window size to use for initial collocate extraction"
         format: "int64"
+      p_query:
+        type: "string"
+        description: "Annotation marker to use for collocate extraction (word, lemma, etc.)"
+        example: "word"
+      s_breaks:
+        type: "string"
+        description: "Sentence break marker to use for collocate extraction (s, tweet, etc.)"
+        example: "tweet"
+      association_measures:
+        type: "array"
+        description: "Association measure to use for collocation calculation"
+        items:
+          type: "string"
   Discourseme:
     type: "object"
     properties:
       name:
+        description: "Name of the new Discourseme"
         type: "string"
       items:
         type: "array"
+        description: "Items (words) in the Discourseme"
         items:
           type: "string"
   DiscursivePosition:
     type: "object"
     properties:
       name:
+        description: "Name of the new Discursive Position"
         type: "string"
+      discoursemes:
+        type: "array"
+        description: "List of Discourseme IDs in this Discursive Position"
+        items:
+          type: "string"
 externalDocs:
   description: "Exploring the Fukushima Effect (EFE)"
   url: "https://www.fau.eu/research/research-institutions/emerging-fields-initiative/current-projects/"

@@ -1,11 +1,23 @@
 <template>
   <v-bottom-sheet class="wordcloud-bottom-sheet" hide-overlay v-model="sheet">
     <v-card class="wordcloud-bottom-card">
-      <ConcordancesKeywordInContextList 
+      
+      <!-- TODO:: let this button hover over the content below, to not waste space-->
+      <v-btn @click="shown=!shown" v-if="shown" icon title="close concordance view">X</v-btn>
+      <v-btn v-if="shown && !loading" icon ripple>
+        <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+      </v-btn>
+      <ConcordancesKeywordInContextList ref="kwic" v-if="shown" 
       v-bind:concordances="concordances" 
       v-bind:loading="loading"
       v-bind:onclickitem="onclickitem"/>
       <!-- <ConcordancesContextWordTree v-bind:concordances="concordances" v-bind:loading="loading"/> -->
+
+      <div v-else class="text-md-center">
+        <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
+        <div v-else> <v-btn @click="shown=!shown" icon><v-icon>keyboard_arrow_up</v-icon></v-btn> Concordances</div>
+      </div>
+
     </v-card>
   </v-bottom-sheet>
 </template>
@@ -22,6 +34,8 @@ import { mapGetters, mapActions } from "vuex";
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 //import ConcordancesContextWordTree from '@/components/Concordances/ConcordancesContextWordTree.vue'
 
+import { domSet } from '@/wordcloud/util_misc.js';
+
 export default {
   name: "WordcloudBottomSheet",
   props:['onclickitem'],
@@ -31,16 +45,21 @@ export default {
   },
   data: () => ({
     sheet:true,
+    shown:false,
+    error:null,
   }),
   computed: {
     ...mapGetters({
-      concordances: 'corpus/concordances',
-      loading: 'corpus/concordances_loading'
+      concordances: 'analysis/concordances',
+      loading: 'analysis/concordances_loading'
     })
   },
   watch:{
     concordances(){
       this.sheet = true;
+    },
+    error(){
+      this.$refs.kwic.error = this.error;
     },
     loading(){
       // show the sheet after timeout, because:
@@ -52,11 +71,15 @@ export default {
   methods: {
     ...mapActions({
     }),
+    downloadConcordancesCSV(){
+      this.$refs.kwic.downloadConcordancesCSV();
+    }
   },
   mounted(){
     var E = document.getElementsByClassName("wordcloud-bottom-card");
     for(var e of E){
-      e.style.maxHeight  = Math.floor(innerHeight*0.5)+"px";
+      //e.style.maxHeight  = Math.floor(innerHeight*0.5)+"px";
+      domSet(e,'maxHeight',Math.floor(innerHeight*0.5)+'px');
     }
   }
 };

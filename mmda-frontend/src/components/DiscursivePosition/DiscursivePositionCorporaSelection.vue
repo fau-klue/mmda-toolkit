@@ -24,7 +24,7 @@
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Loading Concordances...</p>
+                  <p>Loading Concordance...</p>
                 </div>
 
                 <v-form v-else>
@@ -134,7 +134,7 @@ export default {
         const data = {
           username: this.user.username,
           position_id: this.id,
-          items: this.analysis.topic_discourseme.items,
+          analysis: this.analysis.id,
           corpora: this.selectedCorpora
         }
 

@@ -13,10 +13,18 @@ class Analysis(db.Model):
     """
 
     __tablename__ = 'analysis'
+    _separator = ','
 
     id = db.Column(db.Integer, primary_key=True)
     # Maximum window size
-    window_size = db.Column(db.Integer, nullable=True)
+    max_window_size = db.Column(db.Integer, nullable=True)
+    # p_query P-attribute for the query (e.g. lemma, pos)
+    p_query = db.Column(db.Unicode(255), nullable=False)
+    # s_break P-attribute for sentence break (e.g. <s>, <tweet>)
+    s_break = db.Column(db.Unicode(255), nullable=False)
+    # association_measures
+    _association_measures = db.Column(db.Unicode(), nullable=True)
+
     name = db.Column(db.Unicode(255), nullable=False)
     corpus = db.Column(db.Unicode(255), nullable=False)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
@@ -25,6 +33,24 @@ class Analysis(db.Model):
     # Relationship
     user = db.relationship('User', back_populates='analysis')
     discourseme = db.relationship('Discourseme', secondary='analysis_discoursemes', backref=db.backref('analysis', lazy='dynamic'))
+
+    @property
+    def association_measures(self):
+        """
+        Read string and turn into list
+       :return: Association_Measures as list
+       :rtype: list
+        """
+        return self._association_measures.split(self._separator)
+
+    @association_measures.setter
+    def association_measures(self, association_measures):
+        """
+        Turn list into String
+       :return: Association_Measures as str
+       :rtype: str
+        """
+        self._association_measures = self._separator.join(association_measures)
 
     @property
     def serialize(self):
@@ -40,7 +66,9 @@ class Analysis(db.Model):
            'corpus': self.corpus,
            'user_id': self.user_id,
            'topic_id': self.topic_id,
-           'window_size': self.window_size
+           'p_query': self.p_query,
+           's_break': self.s_break,
+           'max_window_size': self.max_window_size
        }
 
 
@@ -93,6 +121,7 @@ class Discourseme(db.Model):
            'id': self.id,
            'name': self.name,
            'is_topic': self.topic,
+           'user_id': self.user_id,
            'items': self._items.split(self._separator)
        }
 
@@ -146,6 +175,7 @@ class DiscursivePosition(db.Model):
 
        return {
            'id': self.id,
+           'user_id': self.user_id,
            'name': self.name
        }
 

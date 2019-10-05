@@ -172,18 +172,18 @@ const actions = {
       if (!data.username)    return reject('No user provided')
       if (!data.position_id) return reject('No Discursive Position provided')
       if (!data.corpora) return reject('No Corpora provided')
-      if (!data.items) return reject('No Items provided')
+      if (!data.analysis) return reject('No Analysis provided')
 
       let params = new URLSearchParams()
-      // Concat item parameter. api/?item=foo&item=bar
-      data.items.forEach((item)=>{ params.append("item", item) })
       // Concat corpus parameter. api/?corpus=foo&corpus=bar
       data.corpora.forEach((corpus)=>{ params.append("corpus", corpus) })
+      // Add &analysis=123
+      params.append("analysis", data.analysis)
 
       const request = {
         params: params
       }
-      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordances/`, request).then(function (response) {
+      api.get(`/user/${data.username}/discursiveposition/${data.position_id}/concordance/`, request).then(function (response) {
         commit('setDiscursivePositionConcordances', response.data)
         resolve()
       }).catch(function (error) {

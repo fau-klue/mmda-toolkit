@@ -44,6 +44,11 @@ def create_user():
             log.debug('No such role %s', role)
             return jsonify({'msg': 'No such role'}), 404
 
+    # Check if username exists
+    if User.query.filter_by(username=username).first():
+        log.debug('User %s already exists', username)
+        return jsonify({'msg': 'User already exists'}), 409
+
     log.debug('Create user %s', username)
     user = find_or_create_user(username, first_name, last_name, email, password, role)
     db.session.commit()

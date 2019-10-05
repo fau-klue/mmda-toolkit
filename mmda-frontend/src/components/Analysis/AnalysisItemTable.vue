@@ -1,12 +1,17 @@
 <template>
 <v-layout row>
   <v-flex xs12 sm12>
-    <h1 class="my-3 title">Collocation and Coordinates:</h1>
+    <h1 class="my-3 title">Collocation and Coordinates:
+
+    <v-btn icon ripple>
+      <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
+    </v-btn>
+    </h1>
     <h3 class="my-3 body-2">Window Size</h3>
-    <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
-    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
+    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
 
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
@@ -68,6 +73,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import { downloadText } from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'AnalysisItemTable',
@@ -82,7 +88,12 @@ export default {
     min: 2,
   }),
   watch:{
-    windowSize(){ this.selectWindow=this.windowSize; }
+    windowSize(){
+      this.selectWindow = this.windowSize;
+    },
+    analysis(){
+      this.init();
+    }
   },
   computed: {
     ...mapGetters({
@@ -110,10 +121,37 @@ export default {
       }
       return R;
     },
-    transposedCoordinates () {
+    transposedCoordinatesFullPrecision () {
       //TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
       var R = {}, val;
+      if(this.coordinates){
+        for(var c of Object.keys(this.coordinates)){
+          R[c] = {name:c};
+          for(var x of Object.keys(this.coordinates[c])){
+            val = this.coordinates[c][x];
+            R[c][x] = val;
+          }
+        }
+      }
+      if(this.collocates){
+        for(var am of Object.keys(this.collocates)){
+          for(var w of Object.keys(this.collocates[am])){
+            if(!R[w]) R[w] = { name: w };
+            val = this.collocates[am][w];
+            val = Number.parseFloat(val);
+            R[w][am] = val;
+            R[w][am.replace(/\./g,'_')] = val;
+            R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(this.map_value(val), this.minmaxAM[am]);
+          }
+        }
+      }
+      return Object.values(R);
+    },
+    transposedCoordinates () {
+      //TODO: does this know, that it needs both this.coordinates and this.collocates?
+      // and does it update, if any of them changes?
+      var R={},val;
       if(this.coordinates){
         for(var c of Object.keys(this.coordinates)){
           R[c] = {name:c};
@@ -136,6 +174,33 @@ export default {
         }
       }
       return Object.values(R);
+    },
+    csvText(){
+      var H = this.headers;
+      var colSeparator="\t";
+      var rowSeparator="\n";
+      var text = "";
+      var X = this.transposedCoordinatesFullPrecision;
+
+      var firstColumn = true;
+      var h ;
+      for(h of H){
+        if(!firstColumn) text += colSeparator;
+        text += h.text;
+        firstColumn = false;
+      }
+
+      for(var x of X){
+        text+=rowSeparator;
+        firstColumn = true;
+        for(h of H){
+          if(!firstColumn) text += colSeparator;
+          var val = x[h.value];
+          if(val!==undefined && val!==null) text += val;
+          firstColumn = false;
+        }
+      }
+      return text;
     },
     headers () {
       var Coll = 
@@ -163,9 +228,20 @@ export default {
     ...mapActions({
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
-      getConcordances:        'corpus/getConcordances',
-      setWindowSize: 'wordcloud/setWindowSize',
+      getConcordances:        'analysis/getConcordances',
+      setWindowSize:          'wordcloud/setWindowSize',
+      resetConcordances:      'analysis/resetConcordances'
     }),
+    error_message_for(error, prefix, codes){
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
+    downloadCollocationCSV(){
+      downloadText("collocation.csv",this.csvText.replace(/"/g,'&quot;'));
+    },
     setSize(){
       this.setWindowSize(this.selectWindow);
       this.getCollocates();
@@ -180,12 +256,15 @@ export default {
       if(!this.analysis) return;
       this.loadingConcordances = true;
       this.getConcordances({
-        corpus:         this.analysis.corpus, 
-        topic_items:    this.analysis.topic_discourseme.items, 
+        username : this.user.username,
+        analysis_id: this.id,
+        //corpus:         this.analysis.corpus, 
+        topic_items:    this.analysis.topic_discourseme.items,
+        soc_items: undefined,
         collocate_items: [item.name], 
         window_size:    this.windowSize
       }).catch((e)=>{
-        this.error = e;
+        this.error = this.error_message_for(e,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingConcordances = false;
       });
@@ -197,25 +276,32 @@ export default {
         analysis_id:  this.id, 
         window_size:  this.windowSize
       }).catch((error)=>{
-        this.error = error;
+        this.error = this.error_message_for(error,"analysis.collocates.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingCollocates = false;
       })
+    },
+    init(){
+      this.loadingCoordinates = true;
+      if(this.analysis&&this.analysis.id==this.id){
+        this.setWindowSize( Math.min(this.windowSize,this.analysis&&this.analysis.id==this.id?this.analysis.max_window_size:2)).then(()=>{
+          this.selectWindow = this.windowSize;
+          this.getAnalysisCoordinates({
+            username:     this.user.username, 
+            analysis_id:  this.id
+          }).catch((error)=>{
+            this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
+          }).then(()=>{
+            this.loadingCoordinates = false;
+          });
+          this.getCollocates();
+        });
+      }
     }
   },
   created () {
     this.id = this.$route.params.id
-    this.loadingCoordinates = true;
-    this.selectWindow = this.windowSize;
-    this.getAnalysisCoordinates({
-      username:     this.user.username, 
-      analysis_id:  this.id
-    }).catch((error)=>{
-      this.error = error;
-    }).then(()=>{
-      this.loadingCoordinates = false;
-    });
-    this.getCollocates();
+    this.init();
   }
 }
 

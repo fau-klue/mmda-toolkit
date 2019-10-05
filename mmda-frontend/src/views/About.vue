@@ -2,27 +2,24 @@
 <v-container grid-list-md>
   <v-layout row wrap>
     <v-flex xs12>
+
+      <h1>{{ $t("about.headline") }}</h1>
+      <p/>
       <h2>{{ $t("about.headline1") }}</h2>
       <p>{{ $t("about.paragraph1_1") }}</p>
+      <h3>{{ $t("about.headline1_1") }}</h3>
       <p>{{ $t("about.paragraph1_2") }}</p>
+      <p>{{ $t("about.paragraph1_3") }}</p>
+      <p>{{ $t("about.paragraph1_4") }}</p>
 
       <h3>{{ $t("about.headline2") }}</h3>
       <p>{{ $t("about.paragraph2_1") }}</p>
       <p>{{ $t("about.paragraph2_2") }}</p>
+      <p>{{ $t("about.paragraph2_3") }}</p>
 
       <h3>{{ $t("about.headline3") }}</h3>
       <p>{{ $t("about.paragraph3_1") }}</p>
       <p>{{ $t("about.paragraph3_2") }}</p>
-
-      <h3>{{ $t("about.headline4") }}</h3>
-      <p>{{ $t("about.paragraph4_1") }}</p>
-
-      <h2>{{ $t("about.headlinePublications") }}</h2>
-      <ul>
-	<li>Evert, Stefan and Philipp Heinrich (2019). Introducing MMDA: An interactive toolkit for CDA. 7th Göttingen/Hildesheim-Workshop on CL and DH.
-        <li>Heinrich, Philipp and Fabian Schäfer (2018). Extending Corpus-Based Discourse Analysis for Exploring Japanese Social Media. Proceedings of 4th Asia Pacific Corpus Linguistics Conference (APCLC2018), pages 135–140. Takamatsu, Japan.</li>
-        <li>Heinrich, Philipp, Christoph Adrian, Olena Kalashnikova, Fabian Schäfer, and Stefan Evert (2018). A Transnational Analysis of News and Tweets about Nuclear Phase-Out in the Aftermath of the Fukushima Incident. In Proceedings of the LREC 2018 “Workshop on Computational Impact Detection from Text Data” (CIDTD 2018), pages 8–16. Miyazaki, Japan.</li>
-      </ul>
 
     </v-flex>
   </v-layout>

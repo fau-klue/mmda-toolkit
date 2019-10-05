@@ -58,8 +58,8 @@ def create_users():
     admin_role = find_or_create_role('admin', u'Admin')
 
     # Add users
-    user = find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'Squanchy1', admin_role)
-    user = find_or_create_user(u'student1', u'Student', u'Example', u'student@fau.de', 'Erlangen1')
+    find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'Squanchy1', admin_role)
+    find_or_create_user(u'student1', u'Student', u'Example', u'student@fau.de', 'Erlangen1')
 
     # Save to DB
     db.session.commit()

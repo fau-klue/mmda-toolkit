@@ -99,6 +99,9 @@ def update_discourseme(username, discourseme):
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
+    if not discourseme:
+        log.debug('No such discourseme %s', discourseme)
+        return jsonify({'msg': 'No such discourseme'}), 404
 
     if discourseme.topic:
         log.debug('Cannot edit topic discourseme %s', discourseme)
@@ -120,7 +123,7 @@ def delete_discourseme(username, discourseme):
     Delete a discourseme
     """
 
-   # Get User
+    # Get User
     user = User.query.filter_by(username=username).first()
 
     # Get Discourseme from DB

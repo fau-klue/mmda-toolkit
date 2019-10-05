@@ -5,7 +5,7 @@
     </div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
-    <WordcloudBottomSheet v-bind:onclickitem="centerItemLocation" />
+    <WordcloudBottomSheet ref="bottomSheet" v-bind:onclickitem="centerItemLocation" />
   </div>
 </template>
 
@@ -43,27 +43,27 @@ export default {
       discoursemes: "analysis/discoursemes",
       collocates: "analysis/collocates",
       coordinates: "coordinates/coordinates",
-      concordances: "corpus/concordances",
+      concordances: "analysis/concordances",
       notMini:"wordcloud/rightSidebar",
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
       showMinimap: "wordcloud/showMinimap",
-      SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
+      discourseme_ids: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
       collocatesCompare: 'wordcloud/collocatesToCompare',
     }),
-    SOC_items(){
+    /*SOC_items(){
       var res = new Set();
-      for(var id of this.SOC){
+      for(var id of this.discourseme_ids){
         var i = this.discoursemes.findIndex((d)=>d.id==id);
         if(i!=-1){
           for(var it of this.discoursemes[i].items ) res.add(it);
         }
       }
       return Array.from(res);
-    }
+    }*/
   },
   watch:{
-    SOC(){
+    discourseme_ids(){
       vm.loadCollocates();
     },
     AM () {
@@ -91,8 +91,8 @@ export default {
   },
   methods: {
     ...mapActions({
-      getConcordances: "corpus/getConcordances",
-      cancelConcordanceRequest:'corpus/cancelConcordanceRequest',
+      getConcordances: "analysis/getConcordances",
+      cancelConcordanceRequest:'analysis/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
       getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
@@ -117,12 +117,13 @@ export default {
     },
     loadCollocates() {
       if(!this.analysis) return;
-      if(this.SOC.length){
+      if(this.discourseme_ids && this.discourseme_ids.length){
         return this.getAnalysisDiscoursemeCollocates({
           username:     this.user.username,
           analysis_id:  this.analysis.id,
           window_size:  this.windowSize,
-          discourseme_items: this.SOC_items,
+          //discourseme_items: this.SOC_items,
+          discourseme_ids:this.discourseme_ids
         }).catch((error)=>{
           this.error = error;
         });
@@ -146,9 +147,7 @@ export default {
 
     addDiscourseme(name, items) {
       return new Promise((resolve,reject)=>{
-
         if(!this.analysis){reject(); return;}
-
         this.addUserDiscourseme({
           name: name,
           items: items,
@@ -157,7 +156,6 @@ export default {
           reject(error);
         }).then(result =>{
           var id = result;
-
           this.addDiscoursemeToAnalysis({
             username: this.user.username,
             analysis_id: this.analysis.id,
@@ -223,12 +221,17 @@ export default {
       this.loadingConcordances = true;
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.analysis.id,
+        //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        //soc_items: this.SOC_items,
+        discourseme_ids:this.discourseme_ids,
         collocate_items:  names,
         window_size:      this.windowSize
       }).catch((error)=>{
-        this.error = error
+        this.$refs.bottomSheet.error = error.response.data.msg;
+        //this.error = error
       }).then(()=>{
         this.loadingConcordances = false;
       });

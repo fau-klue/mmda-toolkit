@@ -31,6 +31,37 @@ function pseudorandom(i) {
   return res;
 }
 
+
+var requestedDomOps = false;
+var domOps = [];
+var domOpsEL = [];
+function domApplyAll(){
+  requestedDomOps = false;
+  for(var x of domOps){
+    x.el.style[x.key] = x.value;
+  }
+  for(var x of domOpsEL){
+    x.el[x.key] = x.value;
+  }
+  domOps = [];
+  domOpsEL = [];
+}
+function domSet(el,key,value){
+  domOps.push({el,key,value});
+  if(!requestedDomOps){
+    requestAnimationFrame( domApplyAll);
+    requestedDomOps=true;
+  }
+}
+function domSetEL(el,key,value){
+  domOpsEL.push({el,key,value});
+  if(!requestedDomOps){
+    requestAnimationFrame( domApplyAll);
+    requestedDomOps=true;
+  }
+}
+
+
 function random_color(pseudo) {
   if (typeof pseudo === 'boolean') return hsv_to_rgb(360 * pseudorandom(), 0.8, 0.5);
   if (typeof pseudo === 'number') return hsv_to_rgb(360 * pseudorandom(pseudo), 0.8, 0.5);
@@ -76,11 +107,25 @@ function fwdEvent(target, element, action) {
   );
 }
 
+function downloadText(filename, text){
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+  element.setAttribute('download', filename);
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}
+
+
 export {
   hex_color_from_array,
   oneOf,
   pseudorandom,
   random_color,
   hsv_to_rgb,
-  fwdEvent
+  fwdEvent,
+  domSet,
+  domSetEL,
+  downloadText
 };

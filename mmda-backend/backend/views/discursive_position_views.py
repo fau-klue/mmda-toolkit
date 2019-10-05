@@ -9,9 +9,10 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
-from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, UPDATE_SCHEMA
+from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
+from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, DISCURSIVE_POSITION_UPDATE_SCHEMA
 from backend.models.user_models import User
-from backend.models.analysis_models import Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
+from backend.models.analysis_models import Analysis, Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 
 discursive_blueprint = Blueprint('discursive_position', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -37,6 +38,7 @@ def create_discursive_position(username):
     discursive = DiscursivePosition(name=name, user_id=user.id)
     db.session.add(discursive)
     db.session.commit()
+    log.debug('Created Discursive Position %s', discursive.id)
 
     for discourseme_id in discoursemes:
         # Check if disourseme exists
@@ -52,6 +54,7 @@ def create_discursive_position(username):
         # Add discourseme link
         position_discourseme = DiscursivePositionDiscoursemes(discursive_position_id=discursive.id, discourseme_id=discourseme.id)
         db.session.add(position_discourseme)
+        log.debug('Added Discourseme %s to Discursive Position %s', discourseme.id, discursive.id)
 
     db.session.commit()
 
@@ -72,6 +75,7 @@ def get_discursive_position(username, discursive_position):
     # Get from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # TODO: Add Discoursemes here as well?
@@ -96,7 +100,7 @@ def get_discursive_positions(username):
 
 # UPDATE
 @discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/', methods=['PUT'])
-@expects_json(UPDATE_SCHEMA)
+@expects_json(DISCURSIVE_POSITION_UPDATE_SCHEMA)
 @user_required
 def update_discursive_position(username, discursive_position):
     """
@@ -112,10 +116,12 @@ def update_discursive_position(username, discursive_position):
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     discursive.name = name
     db.session.commit()
+    log.debug('Updated Discursive Position %s', discursive_position)
 
     return jsonify({'msg': discursive.id}), 200
 
@@ -134,10 +140,12 @@ def delete_discursive_position(username, discursive_position):
     # Remove Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     db.session.delete(discursive)
     db.session.commit()
+    log.debug('Deleted Discursive Position %s', discursive_position)
 
     return jsonify({'msg': 'Deleted'}), 200
 
@@ -156,11 +164,13 @@ def get_discoursemes_for_discursive_position(username, discursive_position):
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discoursemes list from DB
     position_discoursemes = [discourseme.serialize for discourseme in discursive.discourseme]
     if not position_discoursemes:
+        log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
         return jsonify([]), 200
 
     return jsonify(position_discoursemes), 200
@@ -180,23 +190,27 @@ def put_discourseme_into_discursive_position(username, discursive_position, disc
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such Discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if exists
     position_discourseme = DiscursivePositionDiscoursemes.query.filter_by(discursive_position_id=discursive.id, discourseme_id=discourseme.id).first()
 
     if position_discourseme:
+        log.debug('Discourseme %s already linked to Discursive Position %s', discourseme, discursive_position)
         return jsonify({'msg': 'Already linked'}), 200
 
     # Add Link to DB
     position_discourseme = DiscursivePositionDiscoursemes(discursive_position_id=discursive.id, discourseme_id=discourseme.id)
     db.session.add(position_discourseme)
     db.session.commit()
+    log.debug('Linked Discourseme %s to Discursive Position %s', discourseme, discursive_position)
 
     return jsonify({'msg': 'Updated'}), 200
 
@@ -215,26 +229,30 @@ def delete_discourseme_from_discursive_position(username, discursive_position, d
     # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
+        log.debug('No such Discursive Position %s', discursive_position)
         return jsonify({'msg': 'No such discursive position'}), 404
 
     # Get Discourseme from DB
     discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
     if not discourseme:
+        log.debug('No such Discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
     position_discourseme = DiscursivePositionDiscoursemes.query.filter_by(discursive_position_id=discursive.id, discourseme_id=discourseme.id).first()
 
     if not position_discourseme:
+        log.debug('Discourseme %s is not linked to Discursive Position %s', discourseme, discursive_position)
         return jsonify({'msg': 'Not found'}), 404
 
     db.session.delete(position_discourseme)
     db.session.commit()
+    log.debug('Unlinked Discourseme %s to Discursive Position %s', discourseme, discursive_position)
 
     return jsonify({'msg': 'Deleted'}), 200
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordances/', methods=['GET'])
+@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordance/', methods=['GET'])
 @user_required
 def get_discursive_position_concordances(username, discursive_position):
     """
@@ -242,14 +260,16 @@ def get_discursive_position_concordances(username, discursive_position):
     """
 
     # Check Request
+    analysis_id = request.args.get('analysis', None)
     corpora = request.args.getlist('corpus', None)
+    # Optional items (tokens) for concordance extraction
     items = request.args.getlist('item', None)
-
-    if not items:
-        return jsonify({'msg': 'No items provided'}), 400
 
     if not corpora:
         return jsonify({'msg': 'No corpora provided'}), 400
+
+    if not analysis_id:
+        return jsonify({'msg': 'No analysis provided'}), 400
 
     # Get Corpus
     corpora_available = current_app.config['CORPORA']
@@ -260,22 +280,50 @@ def get_discursive_position_concordances(username, discursive_position):
     # Get User
     user = User.query.filter_by(username=username).first()
 
-    # Get from DB
+    # Get Analysis from DB
+    analysis = Analysis.query.filter_by(id=analysis_id, user_id=user.id).first()
+    if not analysis:
+        log.debug('No such analysis %s', analysis)
+        return jsonify({'msg': 'No such analysis'}), 404
+
+    # Get topic_discourseme from analysis
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
+    # Get Position from DB
     discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
     if not discursive:
         return jsonify({'msg': 'No such discursive position'}), 404
 
-    # Get Associated Discoursemes
-    discoursemes = [discourseme.serialize for discourseme in discursive.discourseme]
-    if not discoursemes:
-        return jsonify([]), 200
+    # Check Associated Discoursemes
+    if not discursive.discourseme:
+        log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
+    extra_discoursemes = discursive.discourseme
 
-    discoursemes_items = [discourseme['items'] for discourseme in discoursemes]
+    # Create discourseme for extra items, and concat to discoursemes for extraction
+    if items:
+        extra_discoursemes.append(Discourseme(name='temp', items=items, user_id=user.id))
 
     ret = {}
     for corpus in corpora:
         engine = current_app.config['ENGINES'][corpus]
-        concordances = engine.extract_discursive_position(items=items, discoursemes=discoursemes_items)
-        ret[corpus] = concordances
+        ccc = CCC(analysis, engine)
+
+        # TODO: get concordance settings from frontend
+        concordance_settings = {
+            'order': 'random',      # alternative: 'first'
+            'cut_off': 100          # integer
+        }
+        concordance = ccc.extract_concordance(topic_discourseme,
+                                              discursive.discourseme,
+                                              concordance_settings,
+                                              per_window=True)
+
+        if not concordance:
+            log.debug('No concordances available for corpus %s', corpus)
+            continue
+
+        log.debug('Extracted concordances for corpus %s with analysis %s', corpus, analysis)
+
+        ret[corpus] = concordance
 
     return jsonify(ret), 200

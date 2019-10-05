@@ -1,143 +1,170 @@
 {
-  "common": {
-    "missingData": "Please enter missing data.",
-    "required": "Input required",
-    "search": "Search",
-    "submit": "Submit",
-    "clear": "Clear",
-    "update": "Update",
-    "delete": "Delete"
-  },
-  "index": {
-    "headline1": "MMDA: An interactive toolkit for Corpus-based Discourse Analysis",
-    "paragraph1": "Corpus-based discourse analysis is a popular and highly successful technique for the investigation of socio-political research questions (see e.g. Baker 2006; McEnery et al. 2015). The CDA procedure starts from collocation analyses for selected subcorpora and/or keyword analyses of suitable (sub-)corpora. Collocates (or keywords) are then grouped into categories that are supposed to reflect discursive positions, i.e. attitudes towards the topic. These interpretations are verified and refined by careful inspection of the corresponding KWIC concordances.",
-    "paragraph2": "The interactive software toolkit you are using here, called MMDA (for mixed-methods discourse analysis), enables you to carry out multiple collocation analyses in parallel and visualizes the results in an intuitive way. You can try out different parameter settings in real time, which provides a more comprehensive understanding of the semantic space of the discourse.",
-    "paragraph3": "From a Digital Humanities perspective, our approach can be understood as an attempt to blend close and distant reading techniques. Our visualization is a two-dimensional semantically structured map of the discourse, based on wordembeddings (cf. Mikolov et al. 2018), which we created for the respective linguistic registers. The MMDA toolkit represents a first step towards a more sophisticated CDA methodology."
-  },
-  "about": {
-    "headline1": "The Toolkit",
-    "paragraph1_1": "Given the widespread use of Corpus-based Discourse Analysis (CDA) and recent advances in computational linguistic techniques, it is surprising that researchers still have to rely on general-purpose corpus tools such as CQPweb (see Hardie 2012). There is no dedicated software solution that combines the necessary steps of CDA into a single consistent and efficient working environment.",
-    "paragraph1_2": "The MMDA toolkit represents a first step towards a more sophisticated CDA methodology, in which the manual categorization procedure is operationalized in terms of so-called discoursemes, groups of related collocates that form building blocks of discursive positions.",
-    "headline2": "The Workflow",
-    "paragraph2_1": "Initially, the researcher carries chooses one or more lexical items (called “topic nodes”) as a starting point for a collocation analysis. From this, a two-dimensional visualization is created, which represents the semantically structured map of the discourse.",
-    "paragraph2_2": "In this interactive map, the researcher can groups of related collocates into discoursemes.",
-    "headline3": "What is a discourseme?",
-    "paragraph3_1": "A discourseme is a user-created list of related collocates. On its surface, it represents a simple list of lexical items, which the researched decided belong together. The list of topic nodes form a special discourseme – the topic discourseme. ",
-    "paragraph3_2": "Combining several discoursemes with one another uncover discursive positions.",
-    "headline4": "What is a discursive position?",
-    "paragraph4_1": "A discursive position represents an attitude towards a topic.",
-    "headlinePublications": "Publications"
-  },
-  "login": {
-    "username": "Username",
-    "password": "Password",
-    "unauthorized": "Incorrect username or password.",
-    "network": "Network Error."
-  },
-  "toolbar": {
-    "about": "About",
-    "login": "Login",
-    "logout": "Logout"
-  },
-  "sidebar": {
-    "profile": "Profile",
-    "analysis": "Analysis",
-    "discourseme": "Discourseme",
-    "position": "Discursive Position",
-    "administration": "Administration",
-    "users": "Users",
-    "objects": "Objects"
-  },
-  "profile": {
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "email": "Email",
-    "updateProfile": "Update Profile",
-    "updatePassword": "Update Password",
-    "password": "New Password",
-    "passwordRepeat": "Repeat new Password",
-    "messages": {
-      "passwordMatch": "Passwords do not match.",
-      "passwordChanged": "Password changed.",
-      "updateProfile": "Profile Updated."
-    }
-  },
-  "analysis": {
-    "newAnalysis": "New Analysis",
-    "name": "Name",
-    "corpus": "Corpus",
-    "associatedDiscoursemes": "Associated Discoursemes",
-    "availableDiscoursemes": "Available Discoursemes",
-    "coordinates": "Coordinates",
-    "openWordcloud": "Open Wordcloud",
-    "updateName": "Update Name",
-    "reloadCoordinates": "Reload Coordinates",
-    "delete": "Delete",
-    "new": {
-      "name": "Analysis Name",
-      "corpus": "Corpus",
-      "items": "Topic Items",
-      "windowSize": "Window Size",
-      "helpTitle": "What is an Analysis?",
-      "helpText": "This is the starting point for the mixed-methods discourse analysis. Select one or more lexical items as a starting point for a collocation analysis within a choosen corpus. From this a two-dimensional visualization is created, which represents the semantically structured map of the discourse",
-      "helpName": "User-defined name for the new analysis",
-      "helpCorpus": "The corpus for the initial collocation analysis",
-      "helpItems": "Topics items are a set of lexemes, which form the node of a collocation analysis. Lexemes can include multi-word units (MWU).",
-      "helpWindowSize": "Maximum window size for the initial collocation analysis."
-    }
-  },
-  "discourseme": {
-    "newDiscourseme": "New Discourseme",
-    "name": "Name",
-    "items": "Lexical Items",
-    "new": {
-      "name": "Discourseme Name",
-      "items": "Lexical Items",
-      "helpTitle": "What is a Discourseme?",
-      "helpText": "A discourseme is a user-created list of releated collocates. On its surface, a simple list of lexical items, which the researched decided belong together. They are used to form discursive positions.",
-      "helpName": "User-defined name for the new discourseme",
-      "helpItems": "Items are a set of lexemes, which form the discourseme. Lexemes can include multi-word units (MWU) and can be adjusted at a later time."
-    }
-  },
-  "position": {
-    "newPosition": "New Discursive Position",
-    "name": "Name",
-    "associatedDiscoursemes": "Associated Discoursemes",
-    "availableDiscoursemes": "Available Discoursemes",
-    "new": {
-      "name": "Discursive Position Name",
-      "discoursemes": "Discoursemes",
-      "helpTitle": "What is a Discursive Position?",
-      "helpText": "A discursive position represents an attitudes towards a topic. On the surface, a user-created list of previously created discoursemes.",
-      "helpName": "User-defined name for the new discursive position",
-      "helpDiscoursemes": "A selection of available discoursemes that are included in the discursive position. Can be adjusted at a later time."
+    "common": {
+	"missingData": "Please enter missing data.",
+	"required": "Input required",
+	"search": "Search",
+	"submit": "Submit",
+	"clear": "Clear",
+	"update": "Update",
+	"delete": "Delete"
     },
-    "extraction": {
-      "helpTitle": "Discursive Position Concordance Extraction",
-      "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
-      "corpora": "Corpora",
-      "helpCorpora": "Selection of corpora to extract (random) concordances from.",
-      "analysis": "Analysis",
-      "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
-    }
-  },
-  "admin": {
-    "addUser": "Add User",
-    "newUser": {
-      "username": "User Name",
-      "firstName": "First Name",
-      "lastName": "Last Name",
-      "email": "Email",
-      "password": "New Password",
-      "passwordRepeat": "Repeat new Password",
-      "isAdmin": "New User is Administrator",
-      "addUser": "Add User"
-    }
-  },
-  "wordcloud": {
+    "index": {
+      "headline1": "MMDA: An interactive toolkit for Corpus-based Discourse Analysis",
+	"paragraph1": "Corpus-based discourse analysis (CDA) is a popular and highly successful technique for the investigation of socio-political research questions. The CDA procedure starts from collocation analyses for selected topic queries. Collocates are then grouped into semantically meaningful categories, e.g. attitudes and opinions. Interpretations of semantic categories are verified and refined by careful inspection of the corresponding KWIC concordances. Given the widespread use of CDA and recent advances in computational linguistic techniques, it is surprising that researchers still have to rely on general-purpose corpus tools such as CQPweb.",
+	"paragraph2": "The interactive software toolkit you are using here, called MMDA (for mixed-methods discourse analysis) is a dedicated software solution that combines the necessary steps of CDA into a single consistent and efficient working environment. It enables you to carry out analyses with across a variety of parameter settings and summarizes the results in an intuitive way. Furthermore, lexical items can be grouped interactively, since this is one of the most labor-intensive tasks of CDA.",
+	"paragraph3": "From a Digital Humanities perspective, our approach can be understood as an attempt to blend close and distant reading techniques. On the one hand, we try to integrate reasonable and target-oriented access to data: Our visualizations e.g. are two-dimensional approximations of the underlying semantics, as captured by high-dimensional register-specific word embeddings. On the other hand, easily accessible and exportable concordance lines accompany all summarizations to enable manual inspection. All in all, the MMDA toolkit represents a first step towards a more sophisticated CDA methodology, in which the manual categorization procedure is operationalized in terms of so-called discoursemes – groups of related lexical items that form building blocks of discursive positions.",
+	"headlinePublications": "Conference Presentations",
+	"headlineAcknowledgements": "Acknowledgements",
+	"Acknowledgements": "This work is supported by the Emerging Fields Initiative (EFI) of Friedrich-Alexander-Universität Erlangen-Nürnberg (project title: Exploring the 'Fukushima Effect' (EFE))."
+    },
+    "about": {
+	"headline": "Vignette",
+	"headline1": "Using MMDA to access corpora",
+	"paragraph1_1": "The MMDA toolkit can be used in a specialized way to access corpora via the IMS Open Corpus Workbench (CWB), utilizing some of its functionality and providing further methods for corpus analysis. Any corpus indexed with the CWB can be imported in the toolkit. The first step to access a corpus is via an 'Analysis'.",
+	"headline1_1": "Creating an analysis",
+	"paragraph1_2": "A typical starting point of CDA is a 'topic query': a set of words and multi-word units on any positional annotation layer of the corpus. The available layers depend on the actual linguistic annoation of the corpus at hand, but for most corpora the three layers 'word' and 'lemma' should be present. A typical topic query is made up of semantically related topic nodes such as {'erneuerbare Energie', 'Windenergie', 'Solarenergie', 'Wasserkraft'}, which aims to capture a specific topic you are interested in. For a topic in the sense of CDA, it is reasonable to query on the lemma layer, i.e. to choose 'p-att: lemma' in the 'New Analysis' pane.",
+	"paragraph1_3": "The 'window size' and 's-break' parameters determine the windows around the retrieved topic nodes that will be highlighted in concordance views and which will be used to determine the domain of collocate candidates. For most texts, sentences should be used as break points ('s-break: s'). Newspaper texts might also contain 'article' or 'p' (for paragraph); CMC data might contain 'tweet' or 'post'. The most generic s-break value is 'text'. Typical values for the window size are 3 to 10, although some researchers might be interested in values as low as 1 (essentially looking for trigrams), others in window sizes of 10 and above, looking for patterns across lexical items far away from one another.",
+	"paragraph1_4": "Every analysis – consisting of topic query, s-att, p-att, and corpus – has to be named for further identification. This way, topic queries (and their related analyses) can be used within later analyses.",
+	"headline2": "Inspecting an analysis",
+ 	"paragraph2_1": "The immediate result of the analysis is a summarization of the cotext (the textual context defined by window size and s-break) of the topic nodes: The 'collocation' segment presents the collocate candidates of the topic nodes for different association measures subject to window size.",
+	"paragraph2_2": "",
+	"paragraph2_3": "In this interactive map, the researcher can groups of related collocates into discoursemes.",
+	"headline3": "What is a discourseme?",
+	"paragraph3_1": "A discourseme is a user-created list of related collocates. On its surface, it represents a simple list of lexical items, which the researched decided belong together. The list of topic nodes form a special discourseme – the topic discourseme. ",
+	"paragraph3_2": "Combining several discoursemes with one another uncover discursive positions.",
+	"headline4": "What is a discursive position?",
+	"paragraph4_1": "A discursive position represents an attitude towards a topic."
+    },
+    "login": {
+	"username": "Username",
+	"password": "Password",
+	"missing_input": "Please enter username and password.",
+	"bad_request": "Incorrect username or password (password length has to be >= 8).",
+	"unauthorized": "Incorrect username or password.",
+	"network": "Network Error."
+    },
+    "toolbar": {
+	"home": "Home",
+	"about": "Manual",
+	"login": "Login",
+	"logout": "Logout"
+    },
     "sidebar": {
-      "metadata": "Metadata",
-      "windowSize": "Window Size"
+	"profile": "Profile",
+	"analysis": "Analysis",
+	"discourseme": "Discourseme",
+	"position": "Discursive Position",
+	"administration": "Administration",
+	"users": "Users",
+	"objects": "Objects"
+    },
+    "profile": {
+	"firstName": "First Name",
+	"lastName": "Last Name",
+	"email": "Email",
+	"updateProfile": "Update Profile",
+	"updatePassword": "Update Password",
+	"password": "New Password",
+	"passwordRepeat": "Repeat new Password",
+	"messages": {
+	    "passwordMatch": "Passwords do not match.",
+	    "passwordChanged": "Password changed.",
+	    "updateProfile": "Profile Updated."
+	}
+    },
+    "analysis": {
+	"newAnalysis": "New Analysis",
+	"name": "Name",
+	"corpus": "Corpus",
+	"associatedDiscoursemes": "Associated Discoursemes",
+	"availableDiscoursemes": "Available Discoursemes",
+	"coordinates": "Coordinates",
+	"openWordcloud": "Open Wordcloud",
+	"updateName": "Update Name",
+	"reloadCoordinates": "Reload Coordinates",
+	"delete": "Delete",
+	"new": {
+	    "name": "Analysis Name",
+	    "corpus": "Corpus",
+	    "items": "Topic Items",
+	    "windowSize": "Window Size",
+	    "helpTitle": "What is an Analysis?",
+	    "helpText": "This is the starting point for the mixed-methods discourse analysis. Select one or more lexical items as a starting point for a collocation analysis within a choosen corpus. From this a two-dimensional visualization is created, which represents the semantically structured map of the discourse",
+	    "helpName": "User-defined name for the new analysis",
+	    "helpCorpus": "The corpus for the initial collocation analysis",
+	    "helpItems": "Topics items are a set of lexemes, which form the node of a collocation analysis. Lexemes can include multi-word units (MWU).",
+	    "helpWindowSize": "Maximum window size for the initial collocation analysis.",
+	    "helpPQuery": "p-attribute to use for the collocation analysis (e.g. word, lemma, etc).",
+	    "helpSBreak": "s-attribute to use for breaking the collocation windows (e.g. s, p, tweet, etc).",
+	    "missing_data": "Please enter missing data",
+	    "invalid_input": "Entered data is not valid",
+	    "no_collocates": "No collocates of the given topic-items were found in the given corpus.",
+	    "no_topic": "None of the Topic-items have been found in the given corpus."
+	},
+    "concordances":{
+	"not_found":"No such analysis or no concordances available.",
+	"invalid_input":"Concordance parameters invalid."
+    },
+	"collocates":{
+	    "not_found": "No such analysis or no collocates available.",
+	    "invalid_input": "Collocation parameters invalid."
+	},
+	"coordinates_request":{
+	    "not_found": "Analysis not available."
+	}
+    },
+    "discourseme": {
+	"newDiscourseme": "New Discourseme",
+	"name": "Name",
+	"items": "Lexical Items",
+	"new": {
+	    "name": "Discourseme Name",
+	    "items": "Lexical Items",
+	    "helpTitle": "What is a Discourseme?",
+	    "helpText": "A discourseme is a user-created list of releated collocates. On its surface, a simple list of lexical items, which the researched decided belong together. They are used to form discursive positions.",
+	    "helpName": "User-defined name for the new discourseme",
+	    "helpItems": "Items are a set of lexemes, which form the discourseme. Lexemes can include multi-word units (MWU) and can be adjusted at a later time."
+	}
+    },
+    "position": {
+	"newPosition": "New Discursive Position",
+	"name": "Name",
+	"associatedDiscoursemes": "Associated Discoursemes",
+	"availableDiscoursemes": "Available Discoursemes",
+	"new": {
+	    "name": "Discursive Position Name",
+	    "discoursemes": "Discoursemes",
+	    "helpTitle": "What is a Discursive Position?",
+	    "helpText": "A discursive position represents an attitudes towards a topic. On the surface, a user-created list of previously created discoursemes.",
+	    "helpName": "User-defined name for the new discursive position",
+	    "helpDiscoursemes": "A selection of available discoursemes that are included in the discursive position. Can be adjusted at a later time."
+	},
+	"extraction": {
+	    "helpTitle": "Discursive Position Concordance Extraction",
+	    "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
+	    "corpora": "Corpora",
+	    "helpCorpora": "Selection of corpora to extract (random) concordances from.",
+	    "analysis": "Analysis",
+	    "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
+	}
+    },
+    "admin": {
+	"addUser": "Add User",
+	"newUser": {
+	    "username": "User Name",
+	    "firstName": "First Name",
+	    "lastName": "Last Name",
+	    "email": "Email",
+	    "password": "New Password",
+	    "passwordRepeat": "Repeat new Password",
+	    "isAdmin": "New User is Administrator",
+	    "addUser": "Add User"
+	}
+    },
+    "wordcloud": {
+	"sidebar": {
+	    "metadata": "Metadata",
+	    "windowSize": "Window Size"
     }
   }
 }

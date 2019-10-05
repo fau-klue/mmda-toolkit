@@ -19,7 +19,7 @@ CORPORA = {
         'genre': 'Social Media Discourse',
         'sentence_boundary': 's',
         'association_measures': ['am.simple.ll', 'am.log.likelihood', 'am.Dice,am.MI'],
-        'engine': 'DummyEngine'
+        'engine': 'StaticEngine'
     },
     'FAZ_SMALL': {
         'name': 'FAZ Zeitung',
@@ -29,7 +29,7 @@ CORPORA = {
         'genre': 'Newspaper',
         'sentence_boundary': 'tweet',
         'association_measures': ['am.simple.ll', 'am.log.likelihood', 'am.Dice,am.MI'],
-        'engine': 'DummyEngine'
+        'engine': 'StaticEngine'
     }
 }
 

@@ -4,7 +4,7 @@
   <v-card v-if="notMini">
     <v-card-text>
       <h3 class="body-2">Window Size</h3>
-      <v-slider v-model="selectWindow" :max="analysis.window_size" :min="min" thumb-label="always"
+      <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
       thumb-size="28" @change="setSize"></v-slider>
 
       <v-layout row wrap>
@@ -21,10 +21,10 @@
           </v-flex>
       </v-layout>
       
-      <v-layout class="my-4" row wrap>
+      <v-layout v-if="use_second_order_collocation" class="my-4" row wrap>
         <h3 class="body-2">Second Order Collocation with:</h3>
         <v-flex xs12 sm4 md4>
-          <!-- <v-radio-group v-model="secondOrderID" @change="setSOC">
+        <!-- <v-radio-group v-model="secondOrderID" @change="setSOC">
             <v-radio
               :label="'Topic Only'"
               :value="-1"
@@ -34,7 +34,7 @@
               :value="discourseme.id"
               ></v-radio>
           </v-radio-group> -->
-            <v-checkbox v-for="discourseme in analysisDiscoursemes" :key="discourseme.id"
+            <v-checkbox v-for="discourseme in analysisDiscoursemes" :key="discourseme.items.join('')"
               v-model="secondOrderIDs"
               @change="setSOC"
               :label="discourseme.name"
@@ -42,7 +42,7 @@
               :title="'['+discourseme.items+']'"
               hide-details
               ></v-checkbox>
-            <v-btn color="info" class="my-3 text-lg-right" @click="clearSOC">Topic Only</v-btn>
+            <v-btn color="info" class="my-3 text-lg-right" @click="clearSOC">Deselect All</v-btn>
         </v-flex>
        <!-- <v-list two-line subheader>
           <v-list-tile avatar>
@@ -131,6 +131,7 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'WordcloudCollocationParameters',
   data: () => ({
+    use_second_order_collocation:true,
     compare: true,
     min: 2,
     am_value: null,

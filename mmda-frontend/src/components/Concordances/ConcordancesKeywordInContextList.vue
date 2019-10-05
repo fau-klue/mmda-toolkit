@@ -1,13 +1,14 @@
 <template>
     <v-card class="kwic-view-card">
       <v-card-text>
-        <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
-        <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No Concordances requested</v-alert>
+        <v-alert v-if="error&&!loading" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
+        <v-alert v-else-if="!concordances&&!loading" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
 
         <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <p v-if="loading">Loading Concordances...</p>
-          <p v-if="loading && typeof loading==='object'">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
+          <p v-if="loading">Loading Concordance...</p>
+          <p v-if="loading && typeof loading==='object' && !(implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
+          <p v-if="loading && typeof loading==='object' && (implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"] ["+loading.soc_items+"]"}}</p>
         </div>
 
         <v-data-table v-else
@@ -23,11 +24,11 @@
             <td class="text-xs-center"
               >
               <v-menu open-on-hover top offset-y>
-                <span slot="activator" class="kwic-id">{{ props.item.s_pos }}</span>
+                <span slot="activator" class="kwic-id">{{ props.item.match_pos }}</span>
                 <v-list>
                   <v-list-tile>
                     <v-list-tile-content>
-                      {{props.item.head_text+' '+props.item.keyword.lemma+' '+props.item.tail_text}}
+                      {{props.item.head_text+' '+props.item.keyword.text+' '+props.item.tail_text}}
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
@@ -42,6 +43,7 @@
                 <span :key="'h_'+idx" 
                   @click="selectItem(el)"
                   :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                  :style="el.style"
                   :title="el.lemma">{{el.text}}</span>
               </template>
               <!-- invisible x at the end,
@@ -58,6 +60,7 @@
                 <span :key="'t_'+idx"
                   @click="selectItem(el)"
                   :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                  :style="el.style"
                   :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
@@ -75,8 +78,8 @@
 <style>
 .kwic-view-compact td,
 .kwic-view-compact th{
-  padding: 0 10px !important;
-  height:  30px !important;
+  padding: 0 1rem !important;
+  height:  0 !important;
 }
 
 .kwic-view-table table{
@@ -109,16 +112,25 @@
   font-size:200%;
   font-weight:bold;
 }
+
+.kwic-view-table span {
+  cursor: pointer;
+}
+
+.kwic-view-table .concordance.out_of_window,
 .kwic-view-table .concordance.nocollocate:not(.topic){
   color:#aaa;
 }
-.kwic-view-table .concordance.token{
+.kwic-view-table .concordance{
   cursor:pointer;
 }
 .kwic-view-table .concordance.collocate, 
 .kwic-view-table .concordance.topic{
   font-weight:bold;
-  cursor:pointer;
+}
+
+.kwic-view-table .concordance.out_of_window{
+  font-size: 80%;
 }
 
 .kwic-view-card{
@@ -129,6 +141,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import {domSet, random_color, hex_color_from_array, downloadText} from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'ConcordancesKeywordInContextList',
@@ -136,6 +149,7 @@ export default {
   },
   props:['concordances','loading','onclickitem'],
   data: () => ({
+    implementedSOC_conc: false, //TODO:
     id: null,
     error: null,
     keywordRole: 'topic',
@@ -148,7 +162,9 @@ export default {
   watch:{
     concordances(){
       this.concordancesRequested = true;
+      this.error=null;
       //the required data (see setupIt) is available only after two ticks
+
       this.update();
     },
     loading(){
@@ -168,7 +184,7 @@ export default {
     }),
     headers () {
       return [
-        { class:'kwic-id-head',text:'ID',value:'s_pos',align:'center'},
+        { class:'kwic-id-head',text:'ID',value:'match_pos',align:'center'},
         { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
         { class:'kwic-keyword-head',align:'center', text:'keyword', value:'keyword.text'},
         { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
@@ -178,8 +194,10 @@ export default {
     tableContent () {
       var C = [];
       if(!this.corpus) return C;
-      var p_att = this.corpus.p_att;
+      //var p_att = 'p_query';//this.corpus.p_att;
       
+      //console.log(p_att);
+
       if(!this.concordances) return C;
       for(var c of this.concordances){
         var r = { 
@@ -199,14 +217,33 @@ export default {
         r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
 
         for(var i=0; i<c.word.length; ++i){  
+          //console.log(c);
           var el = {
             text:   c.word[i],
-            role:   c.role[i],
-            lemma:  c[p_att][i]
+            role:   c.role[i].join(" "),
+            lemma:  c.p_query[i]
           };
 
+          if(!el.role) el.role = " ";
 
-          if(beforeKeyword && el.role==this.keywordRole){
+          //console.log("hello "+c.role);
+          for(var role of c.role[i]){
+              var nr = Number.parseInt(role);
+              if(role=="None"){
+                //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
+                //continue;
+                nr = -1;
+              }
+              if(nr!==nr) continue;
+              var col = random_color(nr);
+              el.style = 'text-decoration: ' + hex_color_from_array(col) + " underline double;";
+              col[3] = 0.1;
+              el.style += 'background-color: ' + hex_color_from_array(col) + ";";
+              //console.log(el.style);
+          }
+
+
+          if(beforeKeyword && el.role.includes(this.keywordRole)){
             beforeKeyword=false;
             r . keyword = el;
             continue;
@@ -223,15 +260,53 @@ export default {
         r.reverse_head_text = r.head_text.split("").reverse().join("");
         C.push(r);
       }
+      //console.log(this.csvFileText);
       return C;
+    },
+    csvFileText(){
+      var colSeparator="\t";
+      var rowSeparator="\n";
+      var whitespace=" ";
+      var text = "corpus position\t... context\tkeyword\tcontext ...\n";
+      if(!this.corpus) return "";
+      if(!this.concordances) return "";
+      var firstRow = true;
+      for(var c of this.concordances){
+        var beforeKeyword = true;
+        var firstWord = true;
+        if(!firstRow) text+=rowSeparator;
+        text += c.match_pos+colSeparator;
+        for(var i=0; i<c.word.length; ++i){  
+          if(beforeKeyword && c.role[i].includes(this.keywordRole)){
+            beforeKeyword=false;
+            text += colSeparator+c.word[i]+colSeparator;
+            firstWord = true;
+          }else{
+            text += ((!firstWord)?whitespace:"")+ c.word[i];
+            firstWord = false;
+          }
+        }
+        firstRow = false;
+      }
+      return text;
     }
   },
   
   methods: {
     ...mapActions({
-      getConcordances: 'corpus/getConcordances',
+      getConcordances: 'analysis/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
+    error_message_for(error, prefix, codes){
+      if( error.response ){
+        let value = codes[ error.response.status ];
+        if( value ) return this.$t( prefix+value );
+      }
+      return error.message;
+    },
+    downloadConcordancesCSV(){
+      downloadText("concordances.csv",this.csvFileText.replace(/"/g,"&quot;"));
+    },
     update(){
       //the required data (see setupIt) is available only after two ticks
       this.$nextTick(()=>this.$nextTick(()=>this.setupTableSize()));
@@ -251,13 +326,16 @@ export default {
         pad = window.getComputedStyle(id, null).getPropertyValue('padding-left');
         pad = Number.parseInt(pad.substring(0,pad.length-2));
         var w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
-        id.style.width = w+2*pad+"px";      
+        //id.style.width = w+2*pad+"px";      
+        domSet(id,'width',w+2*pad+'px');
+
 
         E = document.getElementsByClassName("kwic-keyword");
         w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
         var kw = document.getElementsByClassName("kwic-keyword-head")[0];
         if(kw===undefined) return;
-        kw.style.width = w+2*pad+"px";
+        //kw.style.width = w+2*pad+"px";
+        domSet(kw,'width',w+2*pad+'px');
       }
     },
     isCollocate(lemma){
@@ -265,23 +343,30 @@ export default {
       return this.collocates[this.AM][lemma] !== undefined;
     },
     selectItem (item) {
-      if( item.role == 'collocate' || item.role == 'topic' ) this.toggleKwicMode(); 
-      else if(this.onclickitem) this.onclickitem(item.lemma);
+      //TODO::: there exists no collocate-role anymore so changing the mode is not necessary anymore (even though it might still be beneficial)
+      //if( item.role.includes('collocate') || item.role.includes('topic') ) this.toggleKwicMode(); 
+      //else if( item.role == 'out_of_window') return;
+      if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
     },
     toggleKwicMode (){
-      this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
-      this.update();
+      return; //see selectItem
+      //this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
+      //this.update();
     },
     clickOnLemma (name) {
+      this.error = null;
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.id,
+        //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize
       }).catch((error)=>{
-        this.error = error
+        this.error = this.error_message_for(error,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
       });
     }
@@ -290,9 +375,15 @@ export default {
     this.id = this.$route.params.id;
     if(!this.analysis) return this.$router.push('/analysis'); //fallback
 
+
     this.getCorpus(this.analysis.corpus).catch((error)=>{
-      this.error = error;
+      this.error = "Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
     });
+
+    if(!this.loading){
+      this.concordancesRequested = true;
+      this.update();
+    }
   }
 }
 

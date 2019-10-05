@@ -1,8 +1,10 @@
 from flask import url_for
 import unittest.mock as mock
+import pytest
 import pandas
 
 
+@pytest.mark.api
 def test_discourseme_create(client, header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
@@ -23,6 +25,7 @@ def test_discourseme_create(client, header):
 
     assert response.status_code==400
 
+@pytest.mark.api
 def test_discourseme_read_all(client, header):
 
     response = client.get(url_for('discourseme.get_discoursemes', username='student1'),
@@ -33,6 +36,7 @@ def test_discourseme_read_all(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_discourseme_read(client, header):
 
     response = client.get(url_for('discourseme.get_discourseme',
@@ -45,6 +49,7 @@ def test_discourseme_read(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_discourseme_update(client, header):
 
     data = {'name': 'newname', 'items': ['something']}
@@ -59,13 +64,14 @@ def test_discourseme_update(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_discourseme_update_topic(mock_coords, client, header):
     # You cannot edit a topic discourseme
 
     mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
 
-    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['foobar', 'barfoo']}
+    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
     response = client.post(url_for('analysis.create_analysis', username='student1'),
                           follow_redirects=True,
                           content_type='application/json',
@@ -84,6 +90,7 @@ def test_discourseme_update_topic(mock_coords, client, header):
     assert response.status_code==409
 
 
+@pytest.mark.api
 def test_discourseme_delete(client, header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}

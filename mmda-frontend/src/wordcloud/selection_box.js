@@ -23,6 +23,7 @@ import {
     intersectObjects,
 } from "./util_bounds_and_intersection.js";
 
+import { domSet } from '@/wordcloud/util_misc.js';
 ///////////////////////////////////////
 //
 //    Box Selection
@@ -43,7 +44,7 @@ class SelectionBox {
         this.hide();
     }
     hide() {
-        this.el.style.visibility = "hidden";
+        domSet(this.el,'visibility',"hidden");
         //this.execute_selection();
         this.selected.clear();
     }
@@ -54,7 +55,7 @@ class SelectionBox {
         }
     }
     show(min, max) {
-        this.el.style.visibility = "visible";
+        domSet(this.el,'visibility',"visible");
         //Sort Min max
 
         var wmin = min2(min, max);
@@ -65,10 +66,10 @@ class SelectionBox {
         min = scale2(min, 100);
         max = scale2(sub2([1, 1], max), 100);
 
-        this.el.style.left = min[0] + "%";
-        this.el.style.top = min[1] + "%";
-        this.el.style.right = max[0] + "%";
-        this.el.style.bottom = max[1] + "%";
+        domSet(this.el,'left', min[0] + "%");
+        domSet(this.el,'top', min[1] + "%");
+        domSet(this.el,'right', max[0] + "%");
+        domSet(this.el,'bottom', max[1] + "%");
 
         //TODO: Select every contained this.window.Map-element
 

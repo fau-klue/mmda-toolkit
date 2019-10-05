@@ -26,7 +26,9 @@ import {
   oneOf,
   random_color,
   //  hsv_to_rgb,
-  fwdEvent
+  fwdEvent,
+  domSet,
+  domSetEL,
 } from "./util_misc.js";
 
 import {
@@ -61,14 +63,23 @@ class ErrorMessage {
     this.window.el.appendChild(this.el);
   }
   clear() {
-    if (this.content) this.el.removeChild(this.content);
-    this.content = undefined;
+    this.set("","");
+    //if (!this.content) this.el.removeChild(this.content);
+    //this.content = undefined;
   }
   set(msg, title) {
-    this.el.title = title;
-    if (this.content) this.el.removeChild(this.content);
-    this.content = document.createTextNode("⚠ " + msg);
-    this.el.appendChild(this.content);
+    if (!this.content){
+      //this.el.removeChild(this.content);
+      this.content = document.createTextNode("");
+      this.el.appendChild(this.content);
+    }
+    
+
+    domSetEL(this.content,'textContent',msg?"🔵 " + msg:'');
+    domSetEL(this.el,'title',title);
+    //if (this.content) this.el.removeChild(this.content);
+    //this.content = document.createTextNode("⚠ " + msg);
+    //this.el.appendChild(this.content);
   }
 }
 
@@ -149,7 +160,9 @@ class WordcloudWindow {
   }
 
   get WH() {
-    return [this.el.offsetWidth, this.el.offsetHeight];
+    //if(this._WH===undefined) 
+    this._WH = [this.el.offsetWidth, this.el.offsetHeight];
+    return this._WH;
   }
 
   ///////////////////////////////////////
@@ -176,11 +189,11 @@ class WordcloudWindow {
     //position world on screen
     var smin = div2(sub2(this.min, p), camDimToWorld);
     var smax = div2(sub2(this.max, p), camDimToWorld);
-    this.container.style.left = smin[0] * 100 + "%";
-    this.container.style.right = (1 - smax[0]) * 100 + "%";
-    this.container.style.top = smin[1] * 100 + "%";
-    this.container.style.bottom = (1 - smax[1]) * 100 + "%";
-    this.container.style.transition = this.transition ? "all ease .5s" : "none";
+    domSet(this.container,'left', smin[0] * 100 + "%");
+    domSet(this.container,'right', (1 - smax[0]) * 100 + "%");
+    domSet(this.container,'top', smin[1] * 100 + "%");
+    domSet(this.container,'bottom', (1 - smax[1]) * 100 + "%");
+    domSet(this.container,'transition', this.transition ? "all ease .5s" : "none");
 
     //
     this._pos = p;
@@ -537,16 +550,19 @@ class WordcloudWindow {
     this.mouse = [e.pageX - R.left, e.pageY - R.top];
     //    this.mouse = [e.pageX - this.el.offsetLeft, e.pageY - this.el.offsetTop];
     if (this.pressed_node) {
-      // dragging node
-      this.dragging = true;
-      this.el.classList.add("dragging");
-      //      this.word_menu.shown = false;
-      this.pressed_node._pos = this.pressed_node.pos = sub2(
-        this.mouse_wpos,
-        this.pressed_offset
-      );
-      this.pressed_node.user_defined_position = this.pressed_node.pos;
-      this.pressed_node.dragging = true;
+        // dragging node
+      var minimal_drag_mouse_movement = 10;
+      if(len2(sub2(this.mouse, this.mouse_downpoint))> minimal_drag_mouse_movement || this.dragging){
+        this.dragging = true;
+        this.el.classList.add("dragging");
+        //      this.word_menu.shown = false;
+        this.pressed_node._pos = this.pressed_node.pos = sub2(
+          this.mouse_wpos,
+          this.pressed_offset
+        );
+        this.pressed_node.user_defined_position = this.pressed_node.pos;
+        this.pressed_node.dragging = true;
+      }
     } else if (this.window_downpos) {
       //this.word_menu.shown = false;
       if (this.boxSelection) {
@@ -636,6 +652,7 @@ class WordcloudWindow {
     if (typeof word === "string") {
       word = this.Map.get(word);
     }
+    if(!word) return;
     this.transition = true;
     this.pos = sub2(word.pos, this.screenToWorld_vector(scale2(this.WH, .5)));
     this.transition = false;
@@ -673,6 +690,7 @@ class WordcloudWindow {
     //console.log("CHANGE TO " + /*this.ws +*/ " " + this.am);
     for (var [_, a] of this.Map.entries()) {
       //a.shown = !a.hidden;
+      a.normalized_size_invalidate();
       a.size = 1 + Math.max(0,Math.min(1,a.normalized_size)) * 1;
       a.trend.evaluate();
     }
@@ -850,18 +868,24 @@ class WordcloudWindow {
 
   layout(x) {
     this.debugClear();
+      
+    for (var [_, a] of this.Map.entries()) {
+      a.normalized_size_invalidate();
+    }
+    
     //layout.layoutWordcloudFormGroupsHideOverlap(this);
-    
-    //layout.layoutWordcloudFormGroups2ResolveOverlap(this);
-    
-    layout.layoutWordcloudFormGroupsResolveOverlap(this);
-    this.drawContainmentEdges();
-    for (var g of this.groups) g.draw();
-
+    //
+    var multigroups = false;
+    if(multigroups){
+      layout.layoutWordcloudFormGroups2ResolveOverlap(this);
+    }else{
+      layout.layoutWordcloudFormGroupsResolveOverlap(this);
+      this.drawContainmentEdges();
+      for (var g of this.groups) g.draw();
+    }
     this.pos = this.pos;
     this.scale = this.scale;
   }
-
 
   layoutTsnePositions() {
     var min = inf2();
@@ -892,9 +916,11 @@ class WordcloudWindow {
   ///////////////////////////////////////
 
   debugClear() {
-    if (this.debug) this.container.removeChild(this.debug);
-    this.debug = document.createElement("div");
-    this.container.appendChild(this.debug);
+    if (!this.debug){
+      //this.container.removeChild(this.debug);
+      this.debug = document.createElement("div");
+      this.container.appendChild(this.debug);
+    }
     if (!this.canvas) return;
     this.canvas.clearDebug();
   }

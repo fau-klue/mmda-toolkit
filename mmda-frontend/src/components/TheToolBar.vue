@@ -3,7 +3,9 @@
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items class="hidden-sm-and-down">
-        <v-menu offset-y>
+        <v-btn flat to="/">{{ $t("toolbar.home") }}</v-btn>
+        <v-btn flat to="/about">{{ $t("toolbar.about") }}</v-btn>
+	<v-menu offset-y>
           <v-btn flat slot="activator" class="white--text">
             <v-icon dark left>language</v-icon>
             {{ $i18n.locale }}
@@ -14,9 +16,7 @@
           </v-list-tile>
         </v-list>
         </v-menu>
-        <v-btn flat to="/">Index</v-btn>
-        <v-btn flat to="/about">{{ $t("toolbar.about") }}</v-btn>
-        <v-btn flat v-if="isAuthenticated" @click="logout">{{ $t("toolbar.logout") }}</v-btn>
+	<v-btn flat v-if="isAuthenticated" @click="logout">{{ $t("toolbar.logout") }}</v-btn>
         <v-btn flat v-else to="/login">{{ $t("toolbar.login") }}</v-btn>
       </v-toolbar-items>
     </v-toolbar>

@@ -1,6 +1,8 @@
 from flask import url_for
+import pytest
 
 
+@pytest.mark.api
 def test_user_info(client, header):
 
     response = client.get(url_for('user.get_user', username='student1'),
@@ -11,6 +13,7 @@ def test_user_info(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_put_user_info(client, header):
 
     data = {'first_name': 'Hans', 'last_name': 'Gruber', 'email': 'hans@gruber.de'}
@@ -23,6 +26,7 @@ def test_put_user_info(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_user_password(client, header):
 
     data = {'password': 'Erlangen1'}
@@ -35,6 +39,7 @@ def test_user_password(client, header):
     assert response.status_code==200
 
 
+@pytest.mark.api
 def test_user_password_too_short(client, header):
 
     data = {'password': 'foo'}

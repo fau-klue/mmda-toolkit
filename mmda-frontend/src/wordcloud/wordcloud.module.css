@@ -48,7 +48,7 @@
 }
 
 .wordcloud_error_container {
-  color: red;
+  color: rgb(82, 134, 212);
   font-weight: bold;
   font-size: 200%;
   z-index: 200;
@@ -119,7 +119,7 @@
 
 .wordcloud_element.disappeared.inserted .text {
   text-decoration: line-through !important;
-  color: #0006 !important;
+  color: #0002 !important;
 }
 
 .wordcloud_element.disappeared,

@@ -7,12 +7,14 @@
           <div v-if="analysis">
           <p class="headline">Analysis ({{ analysis.length }})</p>
           <v-list>
-            <v-list-tile v-for="item in analysis" :key="item.name" avatar>
+            <v-list-tile v-for="item in analysis" :key="item.id" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">dashboard</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+                  {{item.name}}
+                  (ID: {{item.id}})
+                  User: {{item.user_id}}
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn icon @click="removeObject('analysis', item)">
@@ -26,12 +28,16 @@
           <div v-if="discoursemes">
           <p class="headline">Discoursemes ({{ discoursemes.length }})</p>
           <v-list>
-            <v-list-tile v-for="item in discoursemes" :key="item.name" avatar>
+            <v-list-tile v-for="item in discoursemes" :key="item.id" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">subject</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+                <v-list-tile-title>
+                  {{item.name}}
+                  (ID: {{item.id}})
+                  User: {{item.user_id}}
+                </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn icon @click="removeObject('discourseme', item)">
@@ -45,12 +51,16 @@
           <div v-if="positions">
           <p class="headline">Discursive Positions ({{ positions.length }})</p>
           <v-list>
-            <v-list-tile v-for="item in positions" :key="item.name" avatar>
+            <v-list-tile v-for="item in positions" :key="item.id" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">question_answer</v-icon>
               </v-list-tile-avatar>
               <v-list-tile-content>
-                <v-list-tile-title>{{ item.name }}</v-list-tile-title>
+                <v-list-tile-title>
+                  {{item.name}}
+                  (ID: {{item.id}})
+                  User: {{item.user_id}}
+                </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn icon @click="removeObject('discursiveposition', item)">

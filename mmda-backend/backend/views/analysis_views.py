@@ -7,9 +7,10 @@ from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
 from logging import getLogger
 
-from backend import db, cache
+from backend import db
 from backend import user_required
-from backend.analysis.utils import generate_hash
+from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
+
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User
@@ -17,35 +18,6 @@ from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Disco
 
 analysis_blueprint = Blueprint('analysis', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
-
-
-def create_identifier(analysis_id, window_size, items):
-    """
-    Create unique identifier
-    """
-
-    identifier_str = '{analysis_id}{window_size}{items}'.format(analysis_id=analysis_id,
-                                                         window_size=window_size,
-                                                         items=''.join(items))
-
-    return generate_hash(identifier_str)
-
-
-def extract_collocates_from_cache(corpus, window_size, items, identifier, collocates=None):
-    """
-    Extract collocates from cache or create and store in cache
-    """
-
-    collocate_data = cache.get(identifier)
-
-    if not collocate_data:
-        log.debug('No collocate data available. Extracting for %s', identifier)
-        engine = current_app.config['ENGINES'][corpus]
-        collocate_data = engine.extract_collocates(items=items, window_size=window_size, collocates=collocates)
-        cache.set(identifier, collocate_data)
-
-    return collocate_data
-
 
 
 # CREATE
@@ -61,6 +33,9 @@ def create_analysis(username):
     name = request.json.get('name', None)
     corpus = request.json.get('corpus', None)
     maximal_window_size = request.json.get('window_size', 3)
+    p_query = request.json.get('p_query', None)
+    s_break = request.json.get('s_break', None)
+    association_measures = request.json.get('association_measures', [])
     items = request.json.get('items', [])
 
     # Check corpus
@@ -78,25 +53,42 @@ def create_analysis(username):
     log.debug('Created topic discourseme %s', topic_discourseme.id)
 
     # Add Analysis to DB
-    analysis = Analysis(name=name, corpus=corpus, user_id=user.id, topic_id=topic_discourseme.id, window_size=maximal_window_size)
+    analysis = Analysis(name=name,
+                        corpus=corpus,
+                        user_id=user.id,
+                        topic_id=topic_discourseme.id,
+                        max_window_size=maximal_window_size,
+                        p_query=p_query,
+                        s_break=s_break,
+                        association_measures=association_measures)
+
     db.session.add(analysis)
     db.session.commit()
     log.debug('Created analysis %s', analysis.id)
 
     # Load Collocates
-    tokens = []
-    # +1 to include upper boundary
-    for window_size in range(2, maximal_window_size + 1):
-        # String concatenation to create hash
-        identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=items)
-        collocate = extract_collocates_from_cache(corpus=analysis.corpus, items=items, window_size= window_size, identifier=identifier, collocates=None)
-        tokens += list(collocate.data.index)
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
+    collocates_settings = {
+        'order': 'O11',
+        'cut_off': 100
+    }
+    collocates = ccc.extract_collocates(
+        topic_discourseme,
+        collocates_settings=collocates_settings
+    )
 
-    # Make unique list from tokens
+    # Get Tokens for coordinate generation
+    # collocates is a dict of dataframes with key == window_size
+    # TODO: I'm sure there's a one liner to do this
+    tokens = []
+    for df in collocates.values():
+        tokens.extend(df.index)
     tokens = list(set(tokens))
+    log.debug('Extracted tokens for analysis %s: %s', analysis.id, str(len(tokens)))
 
     if len(tokens) == 0:
-        log.warn('No collocates for query found for %s', items)
+        log.debug('No collocates for query found for %s', items)
         db.session.delete(analysis)
         db.session.delete(topic_discourseme)
         db.session.commit()
@@ -171,6 +163,10 @@ def update_analysis(username, analysis):
 
     # Check request
     name = request.json.get('name', None)
+    p_query = request.json.get('p_query', None)
+    s_break = request.json.get('s_break', None)
+    window_size = request.json.get('window_size', 0)
+
     if not name:
         log.debug('No name provided for analysis %s', analysis)
         return jsonify({'msg': 'Incorrect request data provided'}), 400
@@ -282,14 +278,21 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     analysis_discourseme = AnalysisDiscoursemes(analysis_id=analysis.id, discourseme_id=discourseme.id)
     db.session.add(analysis_discourseme)
 
-    # Generate Collocates, Store in Cache
-    identifier = generate_hash(str(analysis.id) + str(discourseme.id) + ''.join(discourseme.items))
-    collocates = cache.get(identifier)
+    # Load Collocates
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
 
-    if not collocates:
-        engine = current_app.config['ENGINES'][analysis.corpus]
-        collocates = engine.extract_collocates(items=discourseme.items, window_size=5)
-        cache.set(identifier, collocates)
+    # Get Topic Discourseme
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
+    # TODO: Parameter? Cut Off?
+    collocates = ccc.extract_collocates(topic_discourseme, [discourseme])
+
+    # dict of dataframes with key === window_size
+    tokens = []
+    for df in collocates.values():
+        tokens.extend(df.index)
+    tokens = list(set(tokens))
 
     log.debug('Generating Coordinates for missing collocates')
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
@@ -355,11 +358,18 @@ def get_collocate_for_analysis(username, analysis):
     # Check Request
     window_size = request.args.get('window_size', 3)
     # Second order collocates
-    collocates = request.args.getlist('collocate', None)
+    second_order_items = request.args.getlist('collocate', None)
+    # Discourse ID list
+    discourseme_ids = request.args.getlist('discourseme', None)
 
-    if not window_size and not collocates:
-        log.debug('No window size and collocates provided')
+    try:
+        window_size = int(window_size)
+    except TypeError:
+        log.debug('No window size')
         return jsonify({'msg': 'No request data provided'}), 400
+    except ValueError:
+        log.debug('Window size must be integer')
+        return jsonify({'msg': 'Window size must be integer'}), 400
 
     # Get User
     user = User.query.filter_by(username=username).first()
@@ -371,17 +381,119 @@ def get_collocate_for_analysis(username, analysis):
         return jsonify({'msg': 'No such analysis'}), 404
 
     # Get Topic Discourseme
-    discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    topic_items = discourseme.items
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
 
     # Get topic and items
-    identifier = create_identifier(analysis_id=analysis.id, window_size=window_size, items=topic_items+collocates)
-    log.debug('Extracting collocates with %s', identifier)
-    collocate_data = extract_collocates_from_cache(corpus=analysis.corpus, items=topic_items, window_size= window_size, identifier=identifier, collocates=collocates)
-    df = collocate_data.data.to_dict()
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
+
+    # TODO: get settings to frontend
+    collocates_settings = {
+        'order': 'O11',
+        'cut_off': 100,
+        'AMs': ['z_score', 't_score', 'dice', 'log_likelihood', 'mutual_information']
+    }
+
+    # Gets filled with additional discoursemes from ID list and/or second_order_items
+    additional_discoursemes = []
+    if discourseme_ids:
+        # Get all discoursemes from database and append
+        discoursemes = Discourseme.query.filter(Discourseme.id.in_(discourseme_ids), Discourseme.user_id==user.id).all()
+        additional_discoursemes += discoursemes
+    if second_order_items:
+        # Create Discourseme for second order collocates
+        second_order_discourseme = Discourseme(name='2ndorderitems', items=second_order_items, user_id=user.id)
+        additional_discoursemes.append(second_order_discourseme)
+
+    if additional_discoursemes:
+        collocates = ccc.extract_collocates(topic_discourseme,
+                                            discoursemes=additional_discoursemes,
+                                            collocates_settings=collocates_settings)
+    else:
+        collocates = ccc.extract_collocates(topic_discourseme,
+                                            collocates_settings=collocates_settings)
+
+
+    if window_size not in collocates.keys():
+        log.debug('No collocates available for window size %s', window_size)
+        return jsonify({'msg': 'No collocates available for window size'}), 404
+
+    df = collocates[window_size].to_dict()
 
     if not df:
         log.debug('No collocates available for analysis %s', analysis)
         return jsonify({'msg': 'No collocates available'}), 404
 
     return jsonify(df), 200
+
+
+# READ
+@analysis_blueprint.route('/api/user/<username>/analysis/<analysis>/concordance/', methods=['GET'])
+@user_required
+def get_concordance_for_analysis(username, analysis):
+    """
+    Get concordance for an analysis
+    """
+
+    # Check Request
+    window_size = request.args.get('window_size', 3)
+    # Optional items (tokens) for concordance extraction
+    items = request.args.getlist('item', None)
+    # Discourse ID list
+    discourseme_ids = request.args.getlist('discourseme', None)
+
+    try:
+        window_size = int(window_size)
+    except TypeError:
+        log.debug('No window size')
+        return jsonify({'msg': 'No request data provided'}), 400
+    except ValueError:
+        log.debug('Window size must be integer')
+        return jsonify({'msg': 'Window size must be integer'}), 400
+
+    # Get User
+    user = User.query.filter_by(username=username).first()
+
+    # Get Analysis from DB
+    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    if not analysis:
+        log.debug('No such analysis %s', analysis)
+        return jsonify({'msg': 'No such analysis'}), 404
+
+    # Get Topic Discourseme
+    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+
+    # Gets filled with additional discoursemes from ID list and/or second_order_items
+    additional_discoursemes = []
+    if discourseme_ids:
+        # Get all discoursemes from database and append
+        discoursemes = Discourseme.query.filter(Discourseme.id.in_(discourseme_ids), Discourseme.user_id==user.id).all()
+        additional_discoursemes += discoursemes
+    if items:
+        # Create Discourseme for extra items
+        extra_discourseme = Discourseme(name='temp', items=items, user_id=user.id)
+        additional_discoursemes.append(extra_discourseme)
+
+    # Get topic and items
+    engine = current_app.config['ENGINES'][analysis.corpus]
+    ccc = CCC(analysis, engine)
+
+    # TODO: get concordance settings from frontend
+    concordance_settings = {
+        'order': 'random',      # alternative: 'first'
+        'cut_off': 100          # integer
+    }
+    concordance = ccc.extract_concordance(topic_discourseme,
+                                          discoursemes=additional_discoursemes,
+                                          concordance_settings=concordance_settings,
+                                          per_window=True)
+
+    if not concordance:
+        log.debug('No concordances available for analysis %s', analysis)
+        return jsonify({'msg': 'No concordances available'}), 404
+
+    if window_size not in concordance.keys():
+        log.debug('No concordances available for window size %s', window_size)
+        return jsonify({'msg': 'No concordances available for window size'}), 404
+
+    return jsonify(concordance[window_size]), 200

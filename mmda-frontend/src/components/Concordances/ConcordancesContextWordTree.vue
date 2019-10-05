@@ -2,11 +2,11 @@
     <v-card class="wordtree-view-card">
       <v-card-text>
         <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline>An Error occured</v-alert>
-        <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No Concordances requested</v-alert>
+        <v-alert v-else-if="!concordancesRequested" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
 
         <div v-else-if="loading" class="text-md-center">
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <p v-if="loading">Loading Concordances...</p>
+          <p v-if="loading">Loading Concordance...</p>
           <p v-if="loading && typeof loading==='object'">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
         </div>
 
@@ -158,7 +158,7 @@ export default {
   
   methods: {
     ...mapActions({
-      getConcordances: 'corpus/getConcordances',
+      getConcordances: 'analysis/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
     update(){
@@ -169,8 +169,11 @@ export default {
       if(!this.analysis) return;
       this.concordancesRequested = true;
       this.getConcordances({
-        corpus:           this.analysis.corpus,
+        username :this.user.username,
+        analysis_id: this.id,
+//        corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
+        soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize
       }).catch((error)=>{
