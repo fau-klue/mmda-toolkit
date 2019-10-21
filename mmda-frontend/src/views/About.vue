@@ -21,6 +21,9 @@
       <p>{{ $t("about.paragraph3_1") }}</p>
       <p>{{ $t("about.paragraph3_2") }}</p>
 
+      <h3>{{ $t("about.headline4") }}</h3>
+      <p>{{ $t("about.paragraph4_1") }}</p>
+
     </v-flex>
   </v-layout>
 </v-container>
