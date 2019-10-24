@@ -1,3 +1,81 @@
+# Production Installation
+
+1. Install Docker, see https://docs.docker.com/install/
+
+2. Create data directories on the server:
+
+```bash
+# Example:
+mkdir /opt/data/mmda/database
+mkdir /opt/data/mmda/cwb
+mkdir /opt/data/mmda/wectors
+```
+
+3. Prepare WordVectors:
+
+```bash
+# Examples:
+cp wordvectors.magnitude /opt/data/mmda/wectors
+```
+
+4. Prepare Corpora settings:
+
+```bash
+# Examples:
+cp mmda-backend/backend/corpora_settings_production.py /opt/data/mmda/
+# Add your corpora
+vi /opt/data/mmda/corpora_settings_production.py
+```
+
+5. Copy systemd unit files
+
+```bash
+cp mmda-refactor/deployment/docker-mmda-backend.service /etc/systemd/system/
+cp mmda-refactor/deployment/docker-mmda-fronend.service /etc/systemd/system/
+systemctl reload-daemon
+```
+
+6. (optional) Create self-signed TLS certificat if Let's Encrypt is not used:
+
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/data/mmda/cert.key -out /opt/data/mmda/cert.crt
+```
+
+7. Adjust systemd unit files to your system:
+
+```bash
+vi /etc/systemd/system/docker-mmda-backend.service
+ # Change key to random 32 char string
+ -e SECRET_KEY=CHANGEME! \
+ # Change path to TLS cert and key
+ -e TLS_CERTFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/fullchain.pem \
+ -e TLS_KEYFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/privkey.pem \
+ # Change path to CWB registry
+ -v /opt/data/mmda/cwb:/opt/cwb:ro \
+
+vi /etc/systemd/system/docker-mmda-fronend.service
+ # Change path to TLS cert and key
+ -v /etc/letsencrypt:/certs/letsencrypt:ro \
+```
+
+8. Initially the Docker images need to be build manually
+
+```bash
+cd mmda-backend
+docker build --pull --force-rm -t fau.de/mmda-backend:latest .
+cd mmda-frontend
+docker build --pull --force-rm -t fau.de/mmda-frontend:latest .
+```
+
+9. Enable and start systemd units
+
+```bash
+systemctl enable docker-mmda-backend
+systemctl start docker-mmda-backend
+systemctl enable docker-mmda-frontend
+systemctl start docker-mmda-frontend
+```
+
 # MMDA Deployment
 
 The MMDA Demo currently (January 2019) runs on the server *geuselambix.phil.uni-erlangen.de*

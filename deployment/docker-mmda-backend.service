@@ -22,6 +22,7 @@ ExecStart=/usr/bin/docker run \
  -e TLS_ENABLE=true \
  -e TLS_CERTFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/fullchain.pem \
  -e TLS_KEYFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/privkey.pem \
+ -v /opt/data/mmda/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
  -v /opt/data/mmda/database:/var/local/ \
  -v /opt/data/mmda/wectors:/opt/wectors:ro \
  -v /opt/data/mmda/cwb:/opt/cwb:ro \
@@ -29,7 +30,7 @@ ExecStart=/usr/bin/docker run \
  -p 5000:5000 \
   \
  --name mmda-backend \
- fau.de/mmda-backend:latest \
+ fau.de/mmda-backend:latest
 
 ExecStop=-/usr/bin/docker stop --time=0 mmda-backend
 ExecStop=-/usr/bin/docker rm  mmda-backend

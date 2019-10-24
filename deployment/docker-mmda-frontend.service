@@ -24,7 +24,7 @@ ExecStart=/usr/bin/docker run \
  -p 443:443 \
   \
  --name mmda-frontend \
- fau.de/mmda-frontend:latest \
+ fau.de/mmda-frontend:latest
 
 ExecStop=-/usr/bin/docker stop --time=0 mmda-frontend
 ExecStop=-/usr/bin/docker rm  mmda-frontend
