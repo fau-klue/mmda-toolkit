@@ -27,9 +27,10 @@ pipenv = "==2018.11.26"
 Flask-Cors = "==3.0.7"
 cwb-python = "==0.2.2"
 association-measures = "*"
+umap-learn = "*"
 
 [dev-packages]
-pytest = "==4.1.1"
 pytest-cov = "==2.6.1"
 pylint = "==1.9.2"
 Sphinx = "*"
+pytest = "==4.6.5"

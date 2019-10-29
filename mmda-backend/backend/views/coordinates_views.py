@@ -11,7 +11,7 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
-from backend.analysis.coordinates.tsne import generate_semantic_space
+from backend.analysis.semspace import generate_semantic_space
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
 

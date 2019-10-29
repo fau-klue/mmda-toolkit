@@ -12,7 +12,7 @@ from backend import user_required
 from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
 
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.coordinates.tsne import generate_semantic_space, generate_discourseme_coordinates
+from backend.analysis.semspace import generate_semantic_space, generate_discourseme_coordinates
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
 
