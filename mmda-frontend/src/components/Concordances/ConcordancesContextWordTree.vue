@@ -61,8 +61,10 @@ export default {
     }),
     output(){
       var result = "";
-      
-      if(!this.corpus) return C;
+
+      // TODO: Didn't know what C supposed to be
+      // if(!this.corpus) return C;
+      if(!this.corpus) return '';
       var p_att = this.corpus.p_att;
 
 
@@ -104,9 +106,9 @@ export default {
         }
       }
 
+/*
       var roots = [];
 
-/*
       for(var [key,arr] of keyword.entries()){
 
         var root = { };

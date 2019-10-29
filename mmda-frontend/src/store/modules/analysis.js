@@ -196,7 +196,7 @@ const actions = {
      
       if(data.discourseme_items) for(var it of data.discourseme_items) params.append("collocate", it);
       if(data.discourseme_id) params.append("discourseme",data.discourseme_id);
-      if(data.discourseme_ids) for(var it of data.discourseme_ids) params.append("discourseme", it);
+      if(data.discourseme_ids) for(var ids of data.discourseme_ids) params.append("discourseme", ids);
 
       const request = {
         params: params

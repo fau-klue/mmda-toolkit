@@ -2,7 +2,7 @@
     <v-toolbar color="#003366" dark fixed app clipped-right dense>
       <v-toolbar-title>{{ title }}</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items class="hidden-sm-and-down">
+      <v-toolbar-items>
         <v-btn flat to="/">{{ $t("toolbar.home") }}</v-btn>
         <v-btn flat to="/about">{{ $t("toolbar.about") }}</v-btn>
 	<v-menu offset-y>
