@@ -71,9 +71,11 @@ def test_add_item():
     assert isinstance(new_coordinates, pd.Series)
 
 
+@pytest.mark.now
 def test_generate_discourseme_coordinates():
     semspace = SemanticSpace(VECTORS_FILEPATH)
     coordinates = semspace.generate_semspace(t['base'], method=t['method'])
-    generate_discourseme_coordinates(
+    a = generate_discourseme_coordinates(
         t['tokens'], coordinates, VECTORS_FILEPATH
     )
+    print(a)
