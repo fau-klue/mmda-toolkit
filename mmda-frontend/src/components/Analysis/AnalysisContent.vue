@@ -19,10 +19,24 @@
               <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
               <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
-              <v-btn color="error" outline class="text-lg-right" @click="deleteAnalysis">Delete</v-btn>
+              <v-btn color="error" outline class="text-lg-right" @click.stop="dialogDelete = true" >Delete</v-btn>
               <v-btn color="info" outline class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
 
             </v-form>
+
+            <v-dialog v-model="dialogDelete" max-width="290">
+              <v-card>
+                <v-card-title class="headline">Delete Analysis?</v-card-title>
+                <v-card-text>
+                  You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.                </v-card-text>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn outline @click="dialogDelete = false">Close</v-btn>
+                  <v-btn color="error" @click="deleteAnalysis">Delete</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
           </v-flex>
 
           <v-flex xs4 sm4>
@@ -98,6 +112,7 @@ export default {
     error: null,
     nodata: false,
     updated: false,
+    dialogDelete: false,
     rules: rules,
   }),
   computed: {
@@ -142,6 +157,8 @@ export default {
       this.$refs.kwicView.downloadConcordancesCSV();
     },
     deleteAnalysis () {
+      this.dialogDelete = false
+
       const data = {
         username: this.user.username,
         analysis_id: this.id
@@ -149,8 +166,10 @@ export default {
       this.deleteUserAnalysis(data).then(() => {
         this.error = null
         this.$router.push('/analysis')
+        this.dialogDelete = false
       }).catch((error) => {
         this.error = error
+        this.dialogDelete = false
       })
     },
     useForNewAnalysis () {
