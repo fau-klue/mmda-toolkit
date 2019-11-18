@@ -15,7 +15,7 @@
                 <v-list-tile-title>{{ user }}</v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn v-if="user !== 'admin'" icon @click="removeUser(user)">
+                <v-btn v-if="user !== 'admin'" icon @click.stop="openDeleteDialog(user)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>
@@ -24,7 +24,21 @@
         </v-flex>
       </v-layout>
     </v-card-text>
+  </v-card>
+
+  <v-dialog v-model="dialogDelete" max-width="290">
+    <v-card>
+      <v-card-title class="headline">Delete User {{selectedUser}}?</v-card-title>
+      <v-card-text>
+        You’re about to permanently delete this User. Once deleted, it cannot be undone or recovered.                </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn outline @click="dialogDelete = false">Close</v-btn>
+        <v-btn color="error" @click="removeUser">Delete</v-btn>
+      </v-card-actions>
     </v-card>
+  </v-dialog>
+
   </div>
 </template>
 
@@ -35,7 +49,9 @@ export default {
   name: 'AdminUsersContent',
   data: () => ({
     loading: false,
-    error: null
+    error: null,
+    selectedUser: null,
+    dialogDelete: false
   }),
   computed: {
     ...mapGetters({
@@ -57,11 +73,17 @@ export default {
       })
       this.loading = false
     },
-    removeUser (name) {
-      this.deleteUser(name).then(() => {
+    openDeleteDialog (name) {
+      this.dialogDelete = true
+      this.selectedUser = name
+    } ,
+    removeUser () {
+      this.deleteUser(this.selectedUser).then(() => {
         this.error = null
+        this.dialogDelete = false
       }).catch((error) => {
         this.error = error
+        this.dialogDelete = false
       })
     }
   },
