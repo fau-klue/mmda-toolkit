@@ -8,6 +8,7 @@ import shelve
 from hashlib import sha256
 from pandas import DataFrame, merge
 from association_measures import frequencies, measures
+from association_measures.measures import calculate_measures
 from collections import defaultdict, Counter
 from random import sample
 
@@ -390,11 +391,11 @@ def df_cooc_to_counts(engine,
     # the co-occurrence counts in the window
     counts = Counter(lex_items)
     counts = DataFrame.from_dict(counts, orient='index')
-    counts.columns = ["O11"]
+    counts.columns = ["f"]
 
     # drop hapax legomena for improved performance
     if drop_hapaxes:
-        counts = counts.loc[~(counts['O11'] <= 1)]
+        counts = counts.loc[~(counts['f'] <= 1)]
 
     return counts, f1_inflated
 
@@ -415,29 +416,23 @@ def counts_to_contingencies(counts, f1, f1_inflated, f2, N):
     """ window counts + marginals to contingency table"""
 
     # create contingency table
-    N_deflated = N - f1
-    contingencies = counts
-    contingencies = contingencies.join(f2)
-    contingencies['N'] = N_deflated
+    contingencies = counts.join(f2)
+    contingencies['N'] = N - f1
     contingencies['f1'] = f1_inflated
     return contingencies
 
 
 def add_ams(contingencies, ams):
     """ annotates a contingency table with AMs """
-    # rename for convenience
-    df = contingencies
 
     # create the contigency table with the observed frequencies
-    df['O11'], df['O12'], df['O21'], df['O22'] = frequencies.observed_frequencies(df)
+    contingencies = contingencies.join(frequencies.observed_frequencies(contingencies))
     # create the indifference table with the expected frequencies
-    df['E11'], df['E12'], df['E21'], df['E22'] = frequencies.expected_frequencies(df)
-
+    contingencies = contingencies.join(frequencies.expected_frequencies(contingencies))
     # calculate all association measures
-    collocates = measures.calculate_measures(df, measures=ams)
-    collocates = df
+    contingencies = contingencies.join(calculate_measures(contingencies, measures=ams))
 
-    return collocates
+    return contingencies
 
 
 # CCC wrapper ##################################################################
@@ -725,7 +720,7 @@ class ConcordanceCollocationCalculator():
 
         # get collocates
         collocates = self._get_collocates(
-            topic_discourseme, discoursemes, collocates_settings['AMs'].values()
+            topic_discourseme, discoursemes, list(collocates_settings['AMs'].keys())
         )
 
         if len(collocates) == 0:  # empty query
