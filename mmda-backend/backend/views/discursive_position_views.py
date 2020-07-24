@@ -9,8 +9,10 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
-from backend.analysis.ccc import ConcordanceCollocationCalculator as CCC
-from backend.analysis.validators import DISCURSIVE_POSITION_SCHEMA, DISCURSIVE_POSITION_UPDATE_SCHEMA
+from backend.analysis.validators import (
+    DISCURSIVE_POSITION_SCHEMA,
+    DISCURSIVE_POSITION_UPDATE_SCHEMA
+)
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 

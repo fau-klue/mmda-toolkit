@@ -2,10 +2,8 @@
 # If a test functions specifies the name of a fixture function as a parameter,
 # the fixture function is called and its result is passed to the test function.
 
-import sys
 import pytest
-from flask_jwt_extended import create_refresh_token, create_access_token
-
+from flask_jwt_extended import create_access_token
 from backend import create_app, db as the_db
 
 
@@ -29,6 +27,7 @@ the_app = create_app(dict(
 # Setup an application context (since the tests run outside of the webserver context)
 the_app.app_context().push()
 
+
 # Create and populate roles and users tables
 from backend.commands.init_db import init_db
 init_db()
@@ -46,6 +45,7 @@ def app():
 def db():
     """ Makes the 'db' parameter available to test functions. """
     return the_db
+
 
 @pytest.fixture(scope='function')
 def session(db, request):
@@ -65,6 +65,7 @@ def session(db, request):
 
     request.addfinalizer(teardown)
     return session
+
 
 @pytest.fixture(scope='session')
 def client(app):
@@ -91,4 +92,3 @@ def admin_header():
     }
 
     return headers
-

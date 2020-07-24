@@ -5,23 +5,19 @@ Central entrypoint for Flask
 
 import os
 import logging
-from datetime import datetime
 from functools import wraps
 from logging.handlers import SMTPHandler
 from sys import stdout
 from flask import Flask, jsonify, request
 from flask_caching import Cache
 from flask_cors import CORS
-from flask_script import Manager
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-from flask_migrate import Migrate, MigrateCommand
+from flask_migrate import Migrate
 from flask_user import UserManager
 from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from wtforms.fields import HiddenField
-
-import backend.analysis.engines as Engines
 
 
 # Instantiate Flask extensions
@@ -33,9 +29,12 @@ migrate = Migrate()
 jwt = JWTManager()
 
 
-def create_logger(name, log_format='%(asctime)s [%(levelname)s]: %(message)s', log_file=None, is_debug=False):
+def create_logger(name,
+                  log_format='%(asctime)s [%(levelname)s]: %(message)s',
+                  log_file=None, is_debug=False):
     """
-    Creates a Logger with the config provided. Logs are printed to stdout and optionally into a file.
+    Creates a Logger with the config provided.
+    Logs are printed to stdout and optionally into a file.
 
    :param str name: Name of the Logger
    :param str log_format: Logformat for Output Handlers
@@ -69,8 +68,10 @@ def preflight_check_vectors_passed(app):
     """
 
     for corpus_settings in app.config['CORPORA'].values():
-        if not os.path.exists(corpus_settings['wectors']):
-            print('INFO: Wordvectors {path} not available'.format(path=corpus_settings['wectors']))
+        if not os.path.exists(corpus_settings['embeddings']):
+            print('INFO: Wordvectors {path} not available'.format(
+                path=corpus_settings['embeddings'])
+            )
 
 
 def preflight_check_config_passed(app):
@@ -78,11 +79,15 @@ def preflight_check_config_passed(app):
     Preflight: Check if config files are available to start the application.
     """
 
-    local_settings_file = 'backend/local_settings_{ENV}.py'.format(ENV=app.config['APP_ENV'])
-    corpora_settings_file = 'backend/corpora_settings_{ENV}.py'.format(ENV=app.config['APP_ENV'])
+    local_settings_file = 'backend/local_settings_{ENV}.py'.format(
+        ENV=app.config['APP_ENV']
+    )
+    corpora_settings_file = 'backend/corpora_settings_{ENV}.py'.format(
+        ENV=app.config['APP_ENV']
+    )
 
     config_available = False
-    if os.path.exists(corpora_settings_file) and os.path.exists(corpora_settings_file):
+    if os.path.exists(local_settings_file) and os.path.exists(corpora_settings_file):
         config_available = True
 
     return config_available
@@ -94,7 +99,7 @@ def admin_required(fn):
     """
 
     @wraps(fn)
-    def wrapper(*args, **kwargs): #pylint: disable=missing-docstring
+    def wrapper(*args, **kwargs):  # pylint: disable=missing-docstring
         verify_jwt_in_request()
         identity = get_jwt_identity()
 
@@ -116,7 +121,7 @@ def user_required(fn):
     """
 
     @wraps(fn)
-    def wrapper(*args, **kwargs): #pylint: disable=missing-docstring
+    def wrapper(*args, **kwargs):  # pylint: disable=missing-docstring
         verify_jwt_in_request()
         identity = get_jwt_identity()
         username = request.view_args['username']
@@ -158,11 +163,17 @@ def create_app(extra_config_settings={}):
 
     # Load environment settings
     print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
-    app.config.from_object('backend.local_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
-    app.config.from_object('backend.corpora_settings_{ENV}'.format(ENV=app.config['APP_ENV']))
+    app.config.from_object('backend.local_settings_{ENV}'.format(
+        ENV=app.config['APP_ENV']
+    ))
+    app.config.from_object('backend.corpora_settings_{ENV}'.format(
+        ENV=app.config['APP_ENV']
+    ))
 
     # Create central logging instance
-    logger = create_logger('mmda-logger', log_file=app.config['APP_LOG_FILE'], is_debug=app.config['DEBUG'])
+    logger = create_logger('mmda-logger',
+                           log_file=app.config['APP_LOG_FILE'],
+                           is_debug=app.config['DEBUG'])
 
     # Preflight: Check if wordvectors are available
     preflight_check_vectors_passed(app)
@@ -198,9 +209,6 @@ def create_app(extra_config_settings={}):
     # Setup an error-logger to send emails to app.config.ADMINS
     init_email_error_handler(app)
 
-    # Setup corpora Engines
-    init_engines(app)
-
     # Setup Flask-User to handle user account related forms
     from .models.user_models import User
     user_manager = UserManager(app, db, User)
@@ -219,7 +227,8 @@ def init_email_error_handler(app):
     """
 
     # Do not send error emails while developing
-    if app.debug: return
+    if app.debug:
+        return
 
     # Retrieve email settings from app.config
     host = app.config['MAIL_SERVER']
@@ -235,36 +244,13 @@ def init_email_error_handler(app):
 
     # Setup an SMTP mail handler for error-level messages
     mail_handler = SMTPHandler(
-        mailhost=(host, port),  # Mail host and port
-        fromaddr=from_addr,  # From address
-        toaddrs=to_addr_list,  # To address
-        subject=subject,  # Subject line
+        mailhost=(host, port),            # Mail host and port
+        fromaddr=from_addr,               # From address
+        toaddrs=to_addr_list,             # To address
+        subject=subject,                  # Subject line
         credentials=(username, password),  # Credentials
         secure=secure,
     )
     # Log errors using: app.logger.error('Some error message')
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
-
-
-def init_engines(app):
-    """
-    Initialize Corpus Engines.
-    Every corpus has a specific Engine that handles the data extraction.
-    """
-
-    engines = {}
-
-    for corpus_name, corpus_settings in app.config['CORPORA'].items():
-        engine_class = getattr(Engines, corpus_settings['engine'])
-
-        # Workaround to get global registry path
-        # https://gitlab.cs.fau.de/efe/mmda-refactor/issues/15
-        if corpus_settings['engine'] == 'CWBEngine':
-            engine = engine_class(corpus_settings, app.config['REGISTRY_PATH'])
-        else:
-            engine = engine_class(corpus_settings)
-
-        engines[corpus_name] = engine
-
-    app.config['ENGINES'] = engines

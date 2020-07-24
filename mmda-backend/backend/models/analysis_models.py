@@ -27,12 +27,16 @@ class Analysis(db.Model):
 
     name = db.Column(db.Unicode(255), nullable=False)
     corpus = db.Column(db.Unicode(255), nullable=False)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    topic_id = db.Column(db.Integer(),  db.ForeignKey('discourseme.id', ondelete='SET NULL'))
+    user_id = db.Column(db.Integer(),
+                        db.ForeignKey('users.id', ondelete='CASCADE'))
+    topic_id = db.Column(db.Integer(),
+                         db.ForeignKey('discourseme.id', ondelete='SET NULL'))
 
     # Relationship
     user = db.relationship('User', back_populates='analysis')
-    discourseme = db.relationship('Discourseme', secondary='analysis_discoursemes', backref=db.backref('analysis', lazy='dynamic'))
+    discourseme = db.relationship('Discourseme',
+                                  secondary='analysis_discoursemes',
+                                  backref=db.backref('analysis', lazy='dynamic'))
 
     @property
     def association_measures(self):
@@ -54,22 +58,22 @@ class Analysis(db.Model):
 
     @property
     def serialize(self):
-       """
-       Return object data in easily serializeable format
-       :return: Dictionary containing the analysis values
-       :rtype: dict
-       """
+        """
+        Return object data in easily serializeable format
+        :return: Dictionary containing the analysis values
+        :rtype: dict
+        """
 
-       return {
-           'id': self.id,
-           'name': self.name,
-           'corpus': self.corpus,
-           'user_id': self.user_id,
-           'topic_id': self.topic_id,
-           'p_query': self.p_query,
-           's_break': self.s_break,
-           'max_window_size': self.max_window_size
-       }
+        return {
+            'id': self.id,
+            'name': self.name,
+            'corpus': self.corpus,
+            'user_id': self.user_id,
+            'topic_id': self.topic_id,
+            'p_query': self.p_query,
+            's_break': self.s_break,
+            'max_window_size': self.max_window_size
+        }
 
 
 class Discourseme(db.Model):

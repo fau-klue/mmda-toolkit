@@ -3,7 +3,6 @@ Admin view
 """
 
 
-import datetime
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
 from logging import getLogger
@@ -33,7 +32,7 @@ def create_user():
     last_name = request.json.get('last_name', None)
     password = request.json.get('password', None)
     email = request.json.get('email', None)
-    email_confirmed_at = request.json.get('email_confirmed_at', datetime.datetime.utcnow())
+    # email_confirmed_at = request.json.get('email_confirmed_at', datetime.datetime.utcnow())
     role_name = request.json.get('role', None)
     role = None
 
@@ -156,7 +155,6 @@ def get_discourseme():
     return jsonify(items_serial), 200
 
 
-
 # READ
 @admin_blueprint.route('/api/admin/discursiveposition/', methods=['GET'])
 @admin_required
@@ -209,7 +207,6 @@ def delete_discourseme(discourseme):
 
     log.debug('Deleted discourseme %s', discourseme)
     return jsonify({'msg': 'Deleted'}), 200
-
 
 
 # DELETE
