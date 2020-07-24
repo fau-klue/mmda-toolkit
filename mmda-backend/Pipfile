@@ -7,6 +7,13 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[dev-packages]
+attrs = "==19.1.0"
+pytest = "==4.1.1"
+pytest-cov = "==2.6.1"
+pylint = "==1.9.2"
+Sphinx = "*"
+
 [packages]
 Flask = "==1.0.2"
 Flask-Migrate = "==2.3.1"
@@ -18,25 +25,13 @@ Flask-JWT-Extended = "==3.15.0"
 Flask-Caching = "==1.4.0"
 Flask-Cors = "==3.0.7"
 flask-expects-json = "==1.3.1"
-
-pipenv = "==2018.11.26"
 gevent = "==1.4.0"
 pathlib2 = "*"
 werkzeug = "==0.16.1"
 email_validator = "==1.1.1"
-
 numpy = "*"
 pandas = "==1.0.0"
 pymagnitude = "==0.1.143"
 scikit-learn = "==0.23.1"
-
-cwb-python = "==0.2.2"
-association-measures = {path = "./../../pandas-association-measures"}
-cwb-ccc = {path = "./../../cwb-ccc"}
-
-[dev-packages]
-pytest = "==4.1.1"
-pytest-cov = "==2.6.1"
-pylint = "==1.9.2"
-attrs = "==19.1.0"
-Sphinx = "*"
+association-measures = {git = "https://github.com/fau-klue/pandas-association-measures"}
+cwb-ccc = ">=0.9.81"
