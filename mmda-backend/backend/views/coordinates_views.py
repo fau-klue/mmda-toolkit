@@ -3,7 +3,9 @@ Coordinates view
 """
 
 
-from pandas import notnull, DataFrame
+from pandas import DataFrame
+
+from pandas import notnull
 from numpy import nan
 
 from flask import Blueprint, request, jsonify, current_app
@@ -11,7 +13,7 @@ from logging import getLogger
 
 from backend import db
 from backend import user_required
-from backend.analysis.coordinates.tsne import generate_semantic_space
+from backend.analysis.tsne import generate_semantic_space
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
 
@@ -72,8 +74,10 @@ def reload_coordinates(username, analysis):
 
     # Generate new coordinates
     log.debug('Regenerating semantic space for analysis %s', analysis.id)
-    wectors_path = current_app.config['CORPORA'][analysis.corpus]['wectors']
-    semantic_space = generate_semantic_space(tokens, wectors_path)
+    semantic_space = generate_semantic_space(
+        tokens,
+        current_app.config['CORPORA'][analysis.corpus]['embeddings']
+    )
 
     coordinates.data = semantic_space
     db.session.commit()
