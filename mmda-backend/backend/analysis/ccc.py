@@ -1,10 +1,11 @@
-#!/usr/bin/python3 -*- coding: utf-8 -*-
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 """
-Concordance and Collocation Calculation
+Concordance and Collocation Computation
 """
 
 from ccc import Corpus
-from ccc.discoursemes import Disc, DiscPos
+from ccc.discoursemes import Disc, DiscCon
 
 import logging
 
@@ -18,14 +19,12 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
                     p_show=['word', 'lemma'], s_show=['text_id'],
                     s_query=None, order='random', cut_off=100,
                     form='dataframes'):
-    id2name = dict()
 
     if s_query is None:
         s_query = s_context
 
-    corpus = Corpus(
-        corpus_name
-    )
+    corpus = Corpus(corpus_name)
+
     topic_disc = Disc(
         corpus,
         items=topic_items,
@@ -34,10 +33,14 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
         s_context=s_context,
         context=context
     )
-    id2name[topic_disc.idx] = topic_name
+
+    id2name = {
+        topic_disc.idx: topic_name
+    }
+
     if not additional_discoursemes:
         # single discourseme
-        concordance = topic_disc.show_concordance(
+        concordance = topic_disc.concordance(
             context,
             p_show=p_show,
             s_show=s_show,
@@ -47,12 +50,12 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
         )
     else:
         # discursive position
-        dp = DiscPos(topic_disc)
+        dp = DiscCon(topic_disc)
         for key in additional_discoursemes.keys():
             idx = dp.add_items(additional_discoursemes[key])
             id2name[idx] = key
 
-        concordance = dp.show_concordance(
+        concordance = dp.concordance(
             window=window_size,
             matches=None,
             p_show=p_show,
@@ -76,9 +79,7 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
     if s_query is None:
         s_query = s_context
 
-    corpus = Corpus(
-        corpus_name
-    )
+    corpus = Corpus(corpus_name)
 
     topic_disc = Disc(
         corpus,
@@ -91,7 +92,7 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
 
     if not additional_discoursemes:
         # single discourseme
-        collocates = topic_disc.show_collocates(
+        collocates = topic_disc.collocates(
             window=window_size,
             order=order,
             cut_off=cut_off,
@@ -103,11 +104,11 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
         )
     else:
         # discursive position
-        dp = DiscPos(topic_disc)
+        dp = DiscCon(topic_disc)
         for key in additional_discoursemes.keys():
             dp.add_items(additional_discoursemes[key])
 
-        collocates = dp.show_collocates(
+        collocates = dp.collocates(
             window=window_size,
             order=order,
             cut_off=cut_off,

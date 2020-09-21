@@ -15,6 +15,7 @@ from backend.analysis.validators import (
 )
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
+from backend.analysis.ccc import get_concordance
 
 discursive_blueprint = Blueprint('discursive_position', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -260,72 +261,100 @@ def get_discursive_position_concordances(username, discursive_position):
     """
     Get concordances for a discursive position.
     """
+    # TODO: rename item ./. items
 
-    # Check Request
+    # check request
+    # ... user
+    user = User.query.filter_by(username=username).first()
+    # ... analysis
     analysis_id = request.args.get('analysis', None)
-    corpora = request.args.getlist('corpus', None)
-    # Optional items (tokens) for concordance extraction
-    items = request.args.getlist('item', None)
-
-    if not corpora:
-        return jsonify({'msg': 'No corpora provided'}), 400
-
     if not analysis_id:
         return jsonify({'msg': 'No analysis provided'}), 400
-
-    # Get Corpus
-    corpora_available = current_app.config['CORPORA']
-    for corpus in corpora:
-        if corpus not in corpora_available.keys():
-            return jsonify({'msg': 'No such corpus: {corpus}'.format(corpus=corpus)}), 404
-
-    # Get User
-    user = User.query.filter_by(username=username).first()
-
-    # Get Analysis from DB
     analysis = Analysis.query.filter_by(id=analysis_id, user_id=user.id).first()
     if not analysis:
         log.debug('No such analysis %s', analysis)
         return jsonify({'msg': 'No such analysis'}), 404
+    # ... corpora
+    corpora = request.args.getlist('corpus', None)
+    if not corpora:
+        return jsonify({'msg': 'No corpora provided'}), 400
+    # get corpus
+    corpora_available = current_app.config['CORPORA']
+    for corpus in corpora:
+        if corpus not in corpora_available.keys():
+            return jsonify(
+                {'msg': 'No such corpus: {corpus}'.format(corpus=corpus)}
+            ), 404
+    # ... window size
+    window_size = request.args.get('window_size', 3)
+    # ... optional additional items
+    items = request.args.getlist('item', None)
+    # ... how many?
+    cut_off = request.args.get('cut_off', 100)
+    # ... how to sort them?
+    order = request.args.get('order', 'random')
+    # ... where's the meta data?
+    s_show = [request.args.get('s_meta', analysis.s_break)]
 
-    # Get topic_discourseme from analysis
+    # pre-process request
+    # ... get associated topic discourseme
     topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-
-    # Get Position from DB
-    discursive = DiscursivePosition.query.filter_by(id=discursive_position, user_id=user.id).first()
+    # ... and the whole discoursem constellation
+    discursive = DiscursivePosition.query.filter_by(
+        id=discursive_position, user_id=user.id
+    ).first()
     if not discursive:
         return jsonify({'msg': 'No such discursive position'}), 404
-
-    # Check Associated Discoursemes
+    # ... floating discoursemes
+    additional_discoursemes = dict()
+    if items:
+        # create discourseme for additional items on the fly
+        additional_discoursemes['temp'] = items
     if not discursive.discourseme:
         log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
-    extra_discoursemes = discursive.discourseme
-
-    # Create discourseme for extra items, and concat to discoursemes for extraction
-    if items:
-        extra_discoursemes.append(Discourseme(name='temp', items=items, user_id=user.id))
+    else:
+        discourseme_ids = [d.id for d in discursive.discourseme]
+        # get all discoursemes from database and append
+        discoursemes = Discourseme.query.filter(
+            Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
+        ).all()
+        for d in discoursemes:
+            additional_discoursemes[str(d.id)] = d.items
 
     ret = {}
     for corpus in corpora:
-        engine = current_app.config['ENGINES'][corpus]
-        ccc = CCC(analysis, engine)
 
-        # TODO: get concordance settings from frontend
-        concordance_settings = {
-            'order': 'random',      # alternative: 'first'
-            'cut_off': 100          # integer
-        }
-        concordance = ccc.extract_concordance(topic_discourseme,
-                                              discursive.discourseme,
-                                              concordance_settings,
-                                              per_window=True)
+        # use cwb-ccc to extract data
+        concordance = get_concordance(
+            corpus_name=corpus,
+            topic_items=topic_discourseme.items,
+            topic_name=topic_discourseme.name,
+            s_context=analysis.s_break,
+            window_size=window_size,
+            context=analysis.max_window_size,
+            additional_discoursemes=additional_discoursemes,
+            p_query=analysis.p_query,
+            p_show=list(set(['word', analysis.p_query])),
+            s_show=s_show,
+            s_query=None,
+            order=order,
+            cut_off=cut_off,
+            form='dataframes'
+        )
 
-        if not concordance:
+        if concordance.empty:
             log.debug('No concordances available for corpus %s', corpus)
             continue
 
-        log.debug('Extracted concordances for corpus %s with analysis %s', corpus, analysis)
+        log.debug(
+            'Extracted concordances for corpus %s with analysis %s', corpus, analysis
+        )
 
-        ret[corpus] = concordance
+        # post-process result
+        df = concordance.reset_index()
+        df = df.set_index('match')
+        df = df['df'].apply(lambda x: x.to_dict()).to_dict()
+
+        ret[corpus] = df
 
     return jsonify(ret), 200

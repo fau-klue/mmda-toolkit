@@ -698,6 +698,5 @@ def get_concordance_for_analysis(username, analysis):
     df = concordance.reset_index()
     df = df.set_index('match')
     df = df['df'].apply(lambda x: x.to_dict()).to_dict()
-    # print(df)
 
     return jsonify(df), 200
