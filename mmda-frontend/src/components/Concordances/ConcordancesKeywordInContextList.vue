@@ -171,7 +171,6 @@ export default {
       if(this.loading) this.concordancesRequested = true;
       //console.log("load "+this.loading);
     }
-
   },
   computed: {
     ...mapGetters({
@@ -199,9 +198,11 @@ export default {
       //console.log(p_att);
 
       if(!this.concordances) return C;
-      for(var c of this.concordances){
+      for(var ci of Object.keys(this.concordances)){
+        var c = this.concordances[ci]
         var r = { 
-          head:[],
+            head:[],
+	    match_pos: ci,
           keyword:{text:'',role:'',lemma:''},
           tail:[],
           sentiment:0,
@@ -220,19 +221,19 @@ export default {
           //console.log(c);
           var el = {
             text:   c.word[i],
-            role:   c.role[i].join(" "),
-            lemma:  c.p_query[i]
+            role:   c.role[i]? c.role[i].join(" "): "None",
+            lemma:  c[this.analysis.p_query][i]
           };
 
-          if(!el.role) el.role = " ";
-
-          //console.log("hello "+c.role);
+          // if(!el.role) el.role = " ";
+          // console.log("hello "+c.role);
           for(var role of c.role[i]){
               var nr = Number.parseInt(role);
-              if(role=="None"){
+              if(!role){
                 //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
                 //continue;
-                nr = -1;
+                  // nr = -1;
+		  continue;
               }
               if(nr!==nr) continue;
               var col = random_color(nr);
@@ -250,15 +251,19 @@ export default {
           }
           if(beforeKeyword){
             r . head.push(el);
-            r. head_text += ' '+el.text;
+            r . head_text += ' '+el.text;
           }else{
             r . tail.push(el);
-            r. tail_text += ' '+el.text;
+            r . tail_text += ' '+el.text;
           }
         }
 
         r.reverse_head_text = r.head_text.split("").reverse().join("");
         C.push(r);
+	// console.log(r)
+	// console.log(c)
+	// return C
+
       }
       //console.log(this.csvFileText);
       return C;
@@ -271,13 +276,14 @@ export default {
       if(!this.corpus) return "";
       if(!this.concordances) return "";
       var firstRow = true;
-      for(var c of this.concordances){
+	for(var ci of Object.keys(this.concordances)){
+	    var c = this.concordances[ci]
         var beforeKeyword = true;
         var firstWord = true;
         if(!firstRow) text+=rowSeparator;
-        text += c.match_pos+colSeparator;
+        text += ci+colSeparator;
         for(var i=0; i<c.word.length; ++i){  
-          if(beforeKeyword && c.role[i].includes(this.keywordRole)){
+          if(beforeKeyword && c.role[i] && c.role[i].includes(this.keywordRole)){
             beforeKeyword=false;
             text += colSeparator+c.word[i]+colSeparator;
             firstWord = true;
@@ -363,7 +369,7 @@ export default {
         //corpus:           this.analysis.corpus,
         topic_items:      this.analysis.topic_discourseme.items,
         soc_items: undefined, //TODO
-        collocate_items:  [name],
+        collocate_items:  name? [name]: [],
         window_size:      this.windowSize
       }).catch((error)=>{
         this.error = this.error_message_for(error,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
@@ -384,6 +390,7 @@ export default {
       this.concordancesRequested = true;
       this.update();
     }
+    this.clickOnLemma()
   }
 }
 

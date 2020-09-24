@@ -92,7 +92,7 @@ export default {
   methods: {
     ...mapActions({
       getConcordances: "analysis/getConcordances",
-      cancelConcordanceRequest:'analysis/cancelConcordanceRequest',
+      AnalysiscancelConcordanceRequest:'analysis/cancelConcordanceRequest',
       getAnalysisCollocates: "analysis/getAnalysisCollocates",
       getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
@@ -106,6 +106,10 @@ export default {
       setShowMinimap: 'wordcloud/setShowMinimap',
        
     }),
+      cancelConcordanceRequest(){
+          this.AnalysiscancelConcordanceRequest()
+          this.getTopicConcordancesFromList([])
+      },
     loadCoordinates() {
       if(!this.analysis) return;
       return this.getAnalysisCoordinates({

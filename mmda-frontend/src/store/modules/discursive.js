@@ -173,12 +173,14 @@ const actions = {
       if (!data.position_id) return reject('No Discursive Position provided')
       if (!data.corpora) return reject('No Corpora provided')
       if (!data.analysis) return reject('No Analysis provided')
+      if (!data.window_size) return reject('No window size provided')
 
       let params = new URLSearchParams()
       // Concat corpus parameter. api/?corpus=foo&corpus=bar
       data.corpora.forEach((corpus)=>{ params.append("corpus", corpus) })
       // Add &analysis=123
-      params.append("analysis", data.analysis)
+	params.append("analysis", data.analysis)
+	params.append("window_size", data.window_size)
 
       const request = {
         params: params

@@ -6,6 +6,7 @@ Concordance and Collocation Computation
 
 from ccc import Corpus
 from ccc.discoursemes import Disc, DiscCon
+from collections import defaultdict
 
 import logging
 
@@ -23,8 +24,10 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
     if s_query is None:
         s_query = s_context
 
+    # init corpus
     corpus = Corpus(corpus_name)
 
+    # init topic discourseme
     topic_disc = Disc(
         corpus,
         items=topic_items,
@@ -34,41 +37,62 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
         context=context
     )
 
+    # init discourseme constellation
+    dp = DiscCon(topic_disc)
+
+    # id2name: mapper from ccc cache names to discourseme names
     id2name = {
         topic_disc.idx: topic_name
     }
 
-    if not additional_discoursemes:
-        # single discourseme
-        concordance = topic_disc.concordance(
-            context,
-            p_show=p_show,
-            s_show=s_show,
-            order=order,
-            cut_off=cut_off,
-            form=form
-        )
-    else:
-        # discursive position
-        dp = DiscCon(topic_disc)
-        for key in additional_discoursemes.keys():
-            idx = dp.add_items(additional_discoursemes[key])
-            id2name[idx] = key
+    # add discoursemes to discourseme constellation
+    for key in additional_discoursemes.keys():
+        idx = dp.add_items(additional_discoursemes[key])
+        id2name[idx] = key
 
-        concordance = dp.concordance(
-            window=window_size,
-            matches=None,
-            p_show=p_show,
-            s_show=s_show,
-            order=order,
-            cut_off=cut_off,
-            form=form
-        )
+    # extract concordance
+    concordance = dp.concordance(
+        window=window_size,
+        matches=None,
+        p_show=p_show,
+        s_show=s_show,
+        order=order,
+        cut_off=cut_off,
+        form=form
+    )
 
-    # TODO: rename columns according to given names
-    print(id2name)
+    if concordance.empty:
+        return None
 
-    return concordance
+    # convert each concordance line to dictionary, create roles
+    # TODO: implement as form='json' in cwb-ccc
+    concordance = concordance.reset_index()
+    ret = dict()
+    for idx, df in zip(concordance['match'], concordance['df']):
+
+        # rename columns according to given names for discoursemes
+        df = df.rename(columns=id2name)
+
+        # get roles as dict
+        roles = defaultdict(list)
+        for cpos, row in df.iterrows():
+            for col_name in id2name.values():
+                if row[col_name]:
+                    # TODO: propagate proper info about discourseme names
+                    if col_name == topic_name:
+                        roles[cpos].append('topic')
+                    else:
+                        roles[cpos].append('collocate')
+                else:
+                    roles[cpos].append(None)
+
+        ret[idx] = {
+            'word': list(df['word']),   # list of words
+            p_query: list(df[p_query]),  # secondary p-att
+            'role': list(roles.values())  # roles
+        }
+
+    return ret
 
 
 def get_collocates(corpus_name, topic_items, s_context, window_size,

@@ -45,7 +45,7 @@ export default {
   },
   data: () => ({
     sheet:true,
-    shown:false,
+    shown:true,
     error:null,
   }),
   computed: {

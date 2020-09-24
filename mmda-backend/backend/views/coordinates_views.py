@@ -1,44 +1,55 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 """
 Coordinates view
 """
 
-
-from pandas import DataFrame
-
-from pandas import notnull
+# requirements
+from flask import Blueprint, request, jsonify, current_app
+from pandas import DataFrame, notnull
 from numpy import nan
 
-from flask import Blueprint, request, jsonify, current_app
-from logging import getLogger
-
+# backend
 from backend import db
 from backend import user_required
+# backend.analysis
 from backend.analysis.tsne import generate_semantic_space
+# backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
 
-coordinates_blueprint = Blueprint('coordinates', __name__, template_folder='templates')
+# logging
+from logging import getLogger
+
+
+coordinates_blueprint = Blueprint(
+    'coordinates', __name__, template_folder='templates'
+)
+
 log = getLogger('mmda-logger')
 
 
 # READ
-@coordinates_blueprint.route('/api/user/<username>/analysis/<analysis>/coordinates/', methods=['GET'])
+@coordinates_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    methods=['GET']
+)
 @user_required
 def get_coordinates(username, analysis):
-    """
-    Get the coordinates for an analysis
+    """ Get coordinates for analysis.
+
     """
 
-    # Get User
+    # get user
     user = User.query.filter_by(username=username).first()
 
-    # Get Analysis from DB
+    # get analysis
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
-        log.debug('No such analysis %s', analysis)
-        return jsonify({'msg': 'No such analysis'}), 404
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'no such analysis'}), 404
 
-    # Load Coordinates from DB
+    # load coordinates
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
     df = coordinates.data
 
@@ -51,29 +62,31 @@ def get_coordinates(username, analysis):
 
 
 # UPDATE
-@coordinates_blueprint.route('/api/user/<username>/analysis/<analysis>/coordinates/reload/', methods=['PUT'])
+@coordinates_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/coordinates/reload/',
+    methods=['PUT']
+)
 @user_required
 def reload_coordinates(username, analysis):
-    """
-    Reloads the coodinates for an analysis
+    """ Re-calculate coordinates for analysis.
+
     """
 
-    # Get User
+    # get user
     user = User.query.filter_by(username=username).first()
 
-    # Get Analysis from DB
+    # get analysis
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
-        log.debug('No such analysis %s', analysis)
-        return jsonify({'msg': 'No such analysis'}), 404
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'no such analysis'}), 404
 
-    # Get the current coordinates and tokens
+    # get tokens
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
-    df = coordinates.data
-    tokens = df.index.values
+    tokens = coordinates.data.index.values
 
-    # Generate new coordinates
-    log.debug('Regenerating semantic space for analysis %s', analysis.id)
+    # generate new coordinates
+    log.debug('regenerating semantic space for analysis %s', analysis.id)
     semantic_space = generate_semantic_space(
         tokens,
         current_app.config['CORPORA'][analysis.corpus]['embeddings']
@@ -82,93 +95,97 @@ def reload_coordinates(username, analysis):
     coordinates.data = semantic_space
     db.session.commit()
 
-    log.debug('Updated semantic space for analysis %s', analysis)
-    return jsonify({'msg': 'Updated'}), 200
+    log.debug('updated semantic space for analysis %s', analysis)
+    return jsonify({'msg': 'updated'}), 200
 
 
 # UPDATE
-@coordinates_blueprint.route('/api/user/<username>/analysis/<analysis>/coordinates/', methods=['PUT'])
+@coordinates_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    methods=['PUT']
+)
 @user_required
 def update_coordinates(username, analysis):
-    """
-    Update the coordinates for an analysis.
-    To change user_x and user_y.
+    """ Update coordinates for an analysis.
+
     Hint: Non numeric values are treated as NaN
     """
 
     if not request.is_json:
-        log.debug('No coordinate data provided')
-        return jsonify({'msg': 'No request data provided'}), 400
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
 
     # TODO Validate request. Should be:
     # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
     items = request.get_json()
 
-    # Get User
+    # get user
     user = User.query.filter_by(username=username).first()
 
-    # Get Analysis from DB
+    # get analysis
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
-        log.debug('No such analysis %s', analysis)
-        return jsonify({'msg': 'No such analysis'}), 404
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'no such analysis'}), 404
 
-    # Load Coordinates from DB
+    # get coordinates
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
     df = coordinates.data
 
-    # Update coordinates dataframe, and save
+    # update coordinates dataframe, and save
     df.update(DataFrame.from_dict(items, orient='index'))
 
-    # Sanity checks, non-numeric get treated as NaN
+    # sanity checks, non-numeric get treated as NaN
     df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
 
     coordinates.data = df
     db.session.commit()
 
-    log.debug('Updated semantic space for analysis %s', analysis)
-    return jsonify({'msg': 'Updated'}), 200
+    log.debug('updated semantic space for analysis %s', analysis)
+    return jsonify({'msg': 'updated'}), 200
 
 
 # DELETE
-@coordinates_blueprint.route('/api/user/<username>/analysis/<analysis>/coordinates/', methods=['DELETE'])
+@coordinates_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    methods=['DELETE']
+)
 @user_required
 def delete_coordinates(username, analysis):
-    """
-    delete the coordinates for an analysis.
-    To change user_x and user_y.
+    """ Delete coordinates for analysis.
+
     """
 
     if not request.is_json:
-        log.debug('No coordinate data provided')
-        return jsonify({'msg': 'No request data provided'}), 400
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
 
     # TODO Validate request. Should be:
     # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
     items = request.get_json()
 
-    # Get User
+    # get user
     user = User.query.filter_by(username=username).first()
 
-    # Get Analysis from DB
+    # get analysis
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
     if not analysis:
-        log.debug('No such analysis %s', analysis)
-        return jsonify({'msg': 'No such analysis'}), 404
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'no such analysis'}), 404
 
-    # Load Coordinates from DB
+    # get coordinates
     coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
     df = coordinates.data
 
     for item in items.keys():
         if item in df.index:
-            log.debug('Removing user coordinates for %s', item)
+            log.debug('removing user coordinates for %s', item)
             df.loc[item]['user_x'] = None
             df.loc[item]['user_y'] = None
 
-    # Update coordinates dataframe, and save
+    # update coordinates dataframe, and save
     coordinates.data = df
     db.session.commit()
 
-    log.debug('Updated semantic space for analysis %s', analysis)
-    return jsonify({'msg': 'Deleted'}), 200
+    log.debug('deleted semantic space for analysis %s', analysis)
+    return jsonify({'msg': 'deleted'}), 200

@@ -1,33 +1,52 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 """
 Discursive Position views
 """
 
-
+# requirements
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
-from logging import getLogger
 
+# backend
 from backend import db
 from backend import user_required
+# backend.analysis
 from backend.analysis.validators import (
     DISCURSIVE_POSITION_SCHEMA,
     DISCURSIVE_POSITION_UPDATE_SCHEMA
 )
-from backend.models.user_models import User
-from backend.models.analysis_models import Analysis, Discourseme, DiscursivePositionDiscoursemes, DiscursivePosition
 from backend.analysis.ccc import get_concordance
+# backend.models
+from backend.models.user_models import User
+from backend.models.analysis_models import (
+    Analysis,
+    Discourseme,
+    DiscursivePositionDiscoursemes,
+    DiscursivePosition
+)
 
-discursive_blueprint = Blueprint('discursive_position', __name__, template_folder='templates')
+# logging
+from logging import getLogger
+
+
+discursive_blueprint = Blueprint(
+    'discursive_position', __name__, template_folder='templates'
+)
+
 log = getLogger('mmda-logger')
 
 
 # CREATE
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/', methods=['POST'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/',
+    methods=['POST']
+)
 @expects_json(DISCURSIVE_POSITION_SCHEMA)
 @user_required
 def create_discursive_position(username):
-    """
-    Add a new discursive position for a user.
+    """ Create new discursive position.
+
     """
 
     # Check Request. Discoursemes should be List of IDs
@@ -65,11 +84,14 @@ def create_discursive_position(username):
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/', methods=['GET'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/',
+    methods=['GET']
+)
 @user_required
 def get_discursive_position(username, discursive_position):
-    """
-    Get details for a discursive position.
+    """ Get details for discursive position.
+
     """
 
     # Get User
@@ -86,11 +108,14 @@ def get_discursive_position(username, discursive_position):
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/', methods=['GET'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/',
+    methods=['GET']
+)
 @user_required
 def get_discursive_positions(username):
-    """
-    List all discursive positions for a user.
+    """ List all discursive positions for a user.
+
     """
 
     # Get User
@@ -102,12 +127,15 @@ def get_discursive_positions(username):
 
 
 # UPDATE
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/', methods=['PUT'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/',
+    methods=['PUT']
+)
 @expects_json(DISCURSIVE_POSITION_UPDATE_SCHEMA)
 @user_required
 def update_discursive_position(username, discursive_position):
-    """
-    Update discursive position details
+    """ Update discursive position details.
+
     """
 
     # Check request
@@ -154,11 +182,13 @@ def delete_discursive_position(username, discursive_position):
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/discourseme/', methods=['GET'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/discourseme/',
+    methods=['GET']
+)
 @user_required
 def get_discoursemes_for_discursive_position(username, discursive_position):
-    """
-    Return list of discoursemes for a discursive position
+    """ Return list of discoursemes for a discursive position.
     """
 
     # Get User
@@ -180,11 +210,14 @@ def get_discoursemes_for_discursive_position(username, discursive_position):
 
 
 # UPDATE
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/discourseme/<discourseme>/', methods=['PUT'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/discourseme/<discourseme>/',
+    methods=['PUT']
+)
 @user_required
 def put_discourseme_into_discursive_position(username, discursive_position, discourseme):
-    """
-    Put a discourseme into a discursive position
+    """ Put a discourseme into a discursive position.
+
     """
 
     # Get User
@@ -219,7 +252,10 @@ def put_discourseme_into_discursive_position(username, discursive_position, disc
 
 
 # DELETE
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/discourseme/<discourseme>/', methods=['DELETE'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/discourseme/<discourseme>/',
+    methods=['DELETE']
+)
 @user_required
 def delete_discourseme_from_discursive_position(username, discursive_position, discourseme):
     """
@@ -255,11 +291,14 @@ def delete_discourseme_from_discursive_position(username, discursive_position, d
 
 
 # READ
-@discursive_blueprint.route('/api/user/<username>/discursiveposition/<discursive_position>/concordance/', methods=['GET'])
+@discursive_blueprint.route(
+    '/api/user/<username>/discursiveposition/<discursive_position>/concordance/',
+    methods=['GET']
+)
 @user_required
 def get_discursive_position_concordances(username, discursive_position):
-    """
-    Get concordances for a discursive position.
+    """ Get concordance lines for a discursive position.
+
     """
     # TODO: rename item ./. items
 
@@ -286,7 +325,7 @@ def get_discursive_position_concordances(username, discursive_position):
                 {'msg': 'No such corpus: {corpus}'.format(corpus=corpus)}
             ), 404
     # ... window size
-    window_size = request.args.get('window_size', 3)
+    window_size = int(request.args.get('window_size', 3))
     # ... optional additional items
     items = request.args.getlist('item', None)
     # ... how many?
@@ -299,7 +338,7 @@ def get_discursive_position_concordances(username, discursive_position):
     # pre-process request
     # ... get associated topic discourseme
     topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    # ... and the whole discoursem constellation
+    # ... and the whole discourseme constellation
     discursive = DiscursivePosition.query.filter_by(
         id=discursive_position, user_id=user.id
     ).first()
@@ -313,7 +352,9 @@ def get_discursive_position_concordances(username, discursive_position):
     if not discursive.discourseme:
         log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
     else:
-        discourseme_ids = [d.id for d in discursive.discourseme]
+        discourseme_ids = [
+            d.id for d in discursive.discourseme if d.id != topic_discourseme.id
+        ]
         # get all discoursemes from database and append
         discoursemes = Discourseme.query.filter(
             Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
@@ -342,19 +383,15 @@ def get_discursive_position_concordances(username, discursive_position):
             form='dataframes'
         )
 
-        if concordance.empty:
-            log.debug('No concordances available for corpus %s', corpus)
+        if concordance is None:
+            log.debug('no concordances available for corpus %s', corpus)
             continue
 
         log.debug(
-            'Extracted concordances for corpus %s with analysis %s', corpus, analysis
+            'extracted concordances for corpus %s with analysis %s', corpus, analysis
         )
 
-        # post-process result
-        df = concordance.reset_index()
-        df = df.set_index('match')
-        df = df['df'].apply(lambda x: x.to_dict()).to_dict()
-
-        ret[corpus] = df
+        ret[corpus] = concordance
+    # print(ret)
 
     return jsonify(ret), 200
