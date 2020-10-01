@@ -33,7 +33,7 @@
 	"paragraph3_1": "A discourseme is a user-created selection of related lexical items. On its surface, it represents a simple list of lexical items, which the researcher decided belong together. The list of topic nodes form a special discourseme – the topic discourseme.",
 	"paragraph3_2": "The semantic cloud is interactive, meaning that lexical items can be grouped together via drag & drop to form additional discoursemes. The cloud can also display second-order collocates of a selected discourseme in the same semantic cloud, i.e. lexical items that are highly associated with the co-occurrence of the topic discourseme and the selected discourseme.",
 	"headline4": "Forming discursive positions",
-	"paragraph4_1": "A discursive position is a constellation of discoursemes. The easiest discursive position that can be formed constists of topic discourseme and one further discourseme (a group of collocates). Such a discursive position prototypically consists of the topic (realized by the topic discourseme) and a certain attitude that can be taken towards that topic (realized by the second discourseme)."
+	"paragraph4_1": "A discursive position is a constellation of discoursemes. The easiest discursive position that can be formed consists of a topic discourseme and one further discourseme (a group of collocates). Such a discursive position prototypically consists of the topic (realized by the topic discourseme) and a certain attitude that can be taken towards that topic (realized by the second discourseme)."
     },
     "login": {
 	"username": "Username",
