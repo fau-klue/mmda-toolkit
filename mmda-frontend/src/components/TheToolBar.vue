@@ -28,7 +28,7 @@ import { mapGetters, mapActions} from 'vuex'
 export default {
   name: 'ToolBar',
   data: () => ({
-    title: 'Mixed Method Discourse Analysis',
+    title: 'Mixed Methods Discourse Analysis',
     langs: ['de', 'en']
   }),
   computed: {
