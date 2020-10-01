@@ -56,7 +56,7 @@ def get_discoursemes(username):
 
     discoursemes = Discourseme.query.filter_by(user_id=user.id).all()
     discoursemes_list = [discourseme.serialize for discourseme in discoursemes]
-    log.debug('Discoursemes retrived %s', discoursemes)
+    log.debug('Discoursemes retrieved %s', discoursemes)
 
     return jsonify(discoursemes_list), 200
 
