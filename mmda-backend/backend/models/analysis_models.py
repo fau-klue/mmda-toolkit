@@ -9,7 +9,7 @@ from backend import db
 
 class Analysis(db.Model):
     """
-    Define the Analysis data model.
+    Analysis data model
     """
 
     __tablename__ = 'analysis'
@@ -18,9 +18,9 @@ class Analysis(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # Maximum window size
     max_window_size = db.Column(db.Integer, nullable=True)
-    # p_query P-attribute for the query (e.g. lemma, pos)
+    # p_query: p-attribute for the query (e.g. lemma, pos)
     p_query = db.Column(db.Unicode(255), nullable=False)
-    # s_break P-attribute for sentence break (e.g. <s>, <tweet>)
+    # s_break: s-attribute for sentence break (e.g. <s>, <tweet>)
     s_break = db.Column(db.Unicode(255), nullable=False)
     # association_measures
     _association_measures = db.Column(db.Unicode(), nullable=True)
@@ -42,8 +42,8 @@ class Analysis(db.Model):
     def association_measures(self):
         """
         Read string and turn into list
-       :return: Association_Measures as list
-       :rtype: list
+        :return: Association_Measures as list
+        :rtype: list
         """
         return self._association_measures.split(self._separator)
 
@@ -51,8 +51,8 @@ class Analysis(db.Model):
     def association_measures(self, association_measures):
         """
         Turn list into String
-       :return: Association_Measures as str
-       :rtype: str
+        :return: Association_Measures as str
+        :rtype: str
         """
         self._association_measures = self._separator.join(association_measures)
 
@@ -78,7 +78,7 @@ class Analysis(db.Model):
 
 class Discourseme(db.Model):
     """
-    Define the Discourseme data model
+    Discourseme data model
     """
 
     __tablename__ = 'discourseme'
@@ -99,8 +99,8 @@ class Discourseme(db.Model):
     def items(self):
         """
         Read string and turn into list
-       :return: Items as list
-       :rtype: list
+        :return: Items as list
+        :rtype: list
         """
         return self._items.split(self._separator)
 
@@ -108,31 +108,31 @@ class Discourseme(db.Model):
     def items(self, items):
         """
         Turn list into String
-       :return: Items as str
-       :rtype: str
+        :return: Items as str
+        :rtype: str
         """
         self._items = self._separator.join(items)
 
     @property
     def serialize(self):
-       """
-       Return object data in easily serializeable format
-       :return: Dictionary containing the discourseme values
-       :rtype: dict
-       """
+        """
+        Return object data in easily serializeable format
+        :return: Dictionary containing the discourseme values
+        :rtype: dict
+        """
 
-       return {
-           'id': self.id,
-           'name': self.name,
-           'is_topic': self.topic,
-           'user_id': self.user_id,
-           'items': self._items.split(self._separator)
-       }
+        return {
+            'id': self.id,
+            'name': self.name,
+            'is_topic': self.topic,
+            'user_id': self.user_id,
+            'items': self._items.split(self._separator)
+        }
 
 
 class AnalysisDiscoursemes(db.Model):
     """
-    Define the Analysis Discourseme association model
+    Analysis Discourseme association model
     """
 
     __tablename__ = 'analysis_discoursemes'
@@ -144,7 +144,7 @@ class AnalysisDiscoursemes(db.Model):
 
 class DiscursivePositionDiscoursemes(db.Model):
     """
-    Define the Discursive Position Discourseme association model
+    Discursive Position Discourseme association model
     """
 
     __tablename__ = 'discursive_position_discoursemes'
@@ -156,7 +156,7 @@ class DiscursivePositionDiscoursemes(db.Model):
 
 class DiscursivePosition(db.Model):
     """
-    Define the discursive position data model
+    Discursive position data model
     """
 
     __tablename__ = 'discursive_position'
@@ -171,22 +171,22 @@ class DiscursivePosition(db.Model):
 
     @property
     def serialize(self):
-       """
-       Return object data in easily serializeable format
-       :return: Dictionary containing the discursive position values
-       :rtype: dict
-       """
+        """
+        Return object data in easily serializeable format
+        :return: Dictionary containing the discursive position values
+        :rtype: dict
+        """
 
-       return {
-           'id': self.id,
-           'user_id': self.user_id,
-           'name': self.name
-       }
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name
+        }
 
 
 class Coordinates(db.Model):
     """
-    Define the Coordinates data model
+    Coordinates data model
     """
 
     __tablename__ = 'coordinate'

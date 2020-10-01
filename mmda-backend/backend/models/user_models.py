@@ -33,21 +33,21 @@ class User(db.Model, UserMixin):
 
     @property
     def serialize(self):
-       """
-       Return object data in easily serializeable format
-       :return: Dictionary containing the user values
-       :rtype: dict
-       """
+        """
+        Return object data in easily serializeable format
+        :return: Dictionary containing the user values
+        :rtype: dict
+        """
 
-       return {
-           'id': self.id,
-           'username': self.username,
-           'email': self.email,
-           'email_confirmed_at': self.email,
-           'first_name': self.first_name,
-           'last_name': self.last_name,
-           'active': self.active,
-       }
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'email_confirmed_at': self.email,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'active': self.active,
+        }
 
 
 class Role(db.Model):
