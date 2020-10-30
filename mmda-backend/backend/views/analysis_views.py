@@ -7,6 +7,7 @@ Analysis view
 # requirements
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from ccc.utils import cqp_escape
 
 # backend
 from backend import db
@@ -637,7 +638,7 @@ def get_collocate_for_analysis(username, analysis):
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
     # ... optional additional items
-    items = request.args.getlist('collocate', None)
+    items = [cqp_escape(i) for i in request.args.getlist('collocate', None)]
     # ... how many?
     cut_off = request.args.get('cut_off', 200)
     # ... how to sort them?
@@ -753,7 +754,10 @@ def get_concordance_for_analysis(username, analysis):
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
     # ... optional additional items
-    items = request.args.getlist('item', None)
+    items = [cqp_escape(i) for i in request.args.getlist('item', None)]
+    print("A")
+    print(items)
+    print("B")
     # ... how many?
     cut_off = request.args.get('cut_off', 100)
     # ... how to sort them?
