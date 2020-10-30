@@ -29,9 +29,9 @@
                   <v-form v-else>
                     <v-alert v-model="warn" type="warning" dismissible outline>Passwords do not match.</v-alert>
 
-                    <v-text-field v-model="newUser.username" label="Username" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
-                    <v-text-field v-model="newUser.first_name" label="First Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
-                    <v-text-field v-model="newUser.last_name" label="Last Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+                    <v-text-field v-model="newUser.username" label="Username" :rules="[rules.required, rules.counter]"></v-text-field>
+                    <v-text-field v-model="newUser.first_name" label="First Name" :rules="[rules.required, rules.counter]"></v-text-field>
+                    <v-text-field v-model="newUser.last_name" label="Last Name" :rules="[rules.required, rules.counter]"></v-text-field>
                     <v-text-field v-model="newUser.email" label="Email" :rules="[rules.required, rules.email, rules.counter]"></v-text-field>
 
                     <v-text-field

@@ -11,12 +11,12 @@
             <v-form>
                 <p v-if="discourseme.is_topic" class="title"><v-icon color="orange">grade</v-icon> Topic Discourseme</p>
 
-              <v-text-field v-model="discourseme.name" label="Discourseme Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+              <v-text-field v-model="discourseme.name" label="Discourseme Name" :rules="[rules.required, rules.counter]"></v-text-field>
               <v-combobox
                 v-model="discourseme.items"
                 :items="discourseme.items"
                 label="Discourseme Items"
-                :rules="[rules.required, rules.alphanum, rules.counter]"
+                :rules="[rules.required, rules.counter]"
                 multiple
                 chips
                 ></v-combobox>

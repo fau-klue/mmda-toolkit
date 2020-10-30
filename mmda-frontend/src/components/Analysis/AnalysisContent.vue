@@ -10,7 +10,7 @@
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+              <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.counter]"></v-text-field>
               <v-text-field :value="analysis.corpus" label="Corpus" box readonly></v-text-field>
               <v-text-field :value="analysis.topic_discourseme.items" label="Topic Items" box readonly></v-text-field>
               <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="P-Query Attribute"></v-text-field>
@@ -55,17 +55,18 @@
               </v-flex>
         </v-layout>
 
-        <v-layout v-if="concordances||concordances_loading" row>
+        <v-layout v-if="concordances||concordances_loading||show_concordances" row>
           <v-flex xs12 sm12>
             <h1 class="my-3 title">Concordances:
               <v-btn v-if="!concordances_loading" icon ripple>
                 <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
               </v-btn>
             </h1>
-            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading"/>
+            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" v-bind:shown="true"/>
           </v-flex>
         </v-layout>
-
+        <v-layout v-else><v-btn color="info" outline class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
+</v-layout>
         <v-layout row>
           <v-flex xs12 sm12>
             <h1 class="title">Discoursemes:</h1>
@@ -114,6 +115,7 @@ export default {
     updated: false,
     dialogDelete: false,
     rules: rules,
+    show_concordances: false
   }),
   computed: {
     ...mapGetters({

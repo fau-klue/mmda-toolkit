@@ -7,13 +7,13 @@
       <v-btn v-if="shown && !loading" icon ripple>
         <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
       </v-btn>
-      <ConcordancesKeywordInContextList ref="kwic" v-if="shown" 
+      <ConcordancesKeywordInContextList ref="kwic" v-bind:shown="shown"
       v-bind:concordances="concordances" 
       v-bind:loading="loading"
       v-bind:onclickitem="onclickitem"/>
       <!-- <ConcordancesContextWordTree v-bind:concordances="concordances" v-bind:loading="loading"/> -->
 
-      <div v-else class="text-md-center">
+      <div v-if="!shown" class="text-md-center">
         <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
         <div v-else> <v-btn @click="shown=!shown" icon><v-icon>keyboard_arrow_up</v-icon></v-btn> Concordances</div>
       </div>
@@ -57,6 +57,11 @@ export default {
   watch:{
     concordances(){
       this.sheet = true;
+    },
+    sheet(){
+      if (!this.sheet){
+        setTimeout(()=>{this.sheet=true},200);
+      }
     },
     error(){
       this.$refs.kwic.error = this.error;

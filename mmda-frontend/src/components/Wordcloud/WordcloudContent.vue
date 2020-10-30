@@ -34,7 +34,8 @@ export default {
     rules: rules,
     wc: null,
     resizeEvent: null,
-    has_data: false
+    has_data: false,
+    conc_request_cache: ['test']
   }),
   computed: {
     ...mapGetters({
@@ -222,6 +223,10 @@ export default {
     },
     getTopicConcordancesFromList (names) {
       if(!this.analysis) return;
+        if( names.length==this.conc_request_cache.length
+            && names.map((a,i)=>a==this.conc_request_cache[i] )
+            .reduce((a,b)=>a&&b,true) ) return;
+        this.conc_request_cache = names
       this.loadingConcordances = true;
       this.concordancesRequested = true;
       this.getConcordances({

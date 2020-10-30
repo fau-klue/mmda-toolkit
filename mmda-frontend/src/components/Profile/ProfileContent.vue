@@ -9,8 +9,8 @@
             <v-alert v-if="error" value="true" dismissible color="warning" icon="priority_high" outline>Could not update Profile</v-alert>
 
             <v-text-field v-model="userProfile.id" box label="ID" readonly></v-text-field>
-            <v-text-field v-model="userProfile.first_name" label="First Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
-            <v-text-field v-model="userProfile.last_name" label="Last Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+            <v-text-field v-model="userProfile.first_name" label="First Name" :rules="[rules.required, rules.counter]"></v-text-field>
+            <v-text-field v-model="userProfile.last_name" label="Last Name" :rules="[rules.required, rules.counter]"></v-text-field>
             <v-text-field v-model="userProfile.email" label="Email" :rules="[rules.required, rules.email, rules.counter]"></v-text-field>
 
             <v-btn color="success" @click="updateProfile">Update profile</v-btn>

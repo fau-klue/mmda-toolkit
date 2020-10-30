@@ -35,6 +35,8 @@
     <v-expansion-panel>
       <wordcloudTools v-bind:wc="wc"/>
       <WordcloudCollocationParameters/>
+      <WordcloudSecondOrder/>
+      <WordcloudComparison/>
       <WordcloudSearchItem v-bind:wc="wc"/>
     </v-expansion-panel>
   </v-navigation-drawer>
@@ -45,13 +47,17 @@ import { mapGetters, mapActions } from "vuex";
 import WordcloudTools from "@/components/Wordcloud/Sidebar/WordcloudTools";
 import WordcloudSearchItem from "@/components/Wordcloud/Sidebar/WordcloudSearchItem";
 import WordcloudCollocationParameters from "@/components/Wordcloud/Sidebar/WordcloudCollocationParameters";
+import WordcloudSecondOrder from "@/components/Wordcloud/Sidebar/WordcloudSecondOrder";
+import WordcloudComparison from "@/components/Wordcloud/Sidebar/WordcloudComparison";
 
 export default {
   name: "WordcloudSidebar",
   components: {
     WordcloudTools,
     WordcloudSearchItem,
-    WordcloudCollocationParameters
+    WordcloudCollocationParameters,
+    WordcloudComparison,
+    WordcloudSecondOrder
   },
   props:["wc"],
   data: () => ({

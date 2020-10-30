@@ -1,5 +1,5 @@
 <template>
-    <v-card class="kwic-view-card">
+    <v-card class="kwic-view-card" v-if="shown">
       <v-card-text>
         <v-alert v-if="error&&!loading" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
         <v-alert v-else-if="!concordances&&!loading" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
@@ -147,7 +147,7 @@ export default {
   name: 'ConcordancesKeywordInContextList',
   components: {
   },
-  props:['concordances','loading','onclickitem'],
+  props:['concordances','loading','onclickitem', 'shown'],
   data: () => ({
     implementedSOC_conc: false, //TODO:
     id: null,
@@ -202,7 +202,7 @@ export default {
         var c = this.concordances[ci]
         var r = { 
             head:[],
-	    match_pos: ci,
+            match_pos: ci,
           keyword:{text:'',role:'',lemma:''},
           tail:[],
           sentiment:0,
@@ -227,13 +227,14 @@ export default {
 
           // if(!el.role) el.role = " ";
           // console.log("hello "+c.role);
+          // if(!el.role) {console.log("hello "+el.role+"    "+c.role+"    "+i); console.log(c);}
           for(var role of c.role[i]){
               var nr = Number.parseInt(role);
               if(!role){
                 //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
                 //continue;
                   // nr = -1;
-		  continue;
+                  continue;
               }
               if(nr!==nr) continue;
               var col = random_color(nr);
@@ -249,18 +250,24 @@ export default {
             r . keyword = el;
             continue;
           }
-          if(beforeKeyword){
+          else if(beforeKeyword){
             r . head.push(el);
             r . head_text += ' '+el.text;
-          }else{
-            r . tail.push(el);
-            r . tail_text += ' '+el.text;
+          }
+          else{
+              if(el.role.includes(this.keywordRole)){
+                  r . keyword.text += ' '+el.text
+              }
+              else{
+                  r . tail.push(el);
+                  r . tail_text += ' '+el.text;
+              }
           }
         }
 
         r.reverse_head_text = r.head_text.split("").reverse().join("");
         C.push(r);
-	// console.log(r)
+        // console.log(r)
 	// console.log(c)
 	// return C
 
@@ -276,8 +283,8 @@ export default {
       if(!this.corpus) return "";
       if(!this.concordances) return "";
       var firstRow = true;
-	for(var ci of Object.keys(this.concordances)){
-	    var c = this.concordances[ci]
+        for(var ci of Object.keys(this.concordances)){
+            var c = this.concordances[ci]
         var beforeKeyword = true;
         var firstWord = true;
         if(!firstRow) text+=rowSeparator;
@@ -389,8 +396,9 @@ export default {
     if(!this.loading){
       this.concordancesRequested = true;
       this.update();
+      this.clickOnLemma();
     }
-    this.clickOnLemma()
+      // console.log("we are here");
   }
 }
 

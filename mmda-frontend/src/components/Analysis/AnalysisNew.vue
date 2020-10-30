@@ -67,13 +67,13 @@
                 <v-form v-else>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
-                  <v-text-field v-model="name" label="Analysis Name" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
+                  <v-text-field v-model="name" label="Analysis Name" :rules="[rules.required, rules.counter]"></v-text-field>
                   <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="Corpus"></v-autocomplete>
                   <v-combobox
                     v-model="selectItems"
                     :items="items"
                     label="Topic Items"
-                    :rules="[rules.required, rules.alphanum, rules.counter]"
+                    :rules="[rules.required, rules.counter]"
                     multiple
                     chips
                     ></v-combobox>

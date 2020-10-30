@@ -17,7 +17,7 @@
                   <v-card-text>
                     <ConcordancesKeywordInContextList 
                     v-if="concordance.length!==0" 
-                    v-bind:concordances="concordance"/>
+                    v-bind:concordances="concordance" v-bind:shown="true"/>
                     <v-alert v-else value="true" color="info" outline>No concordances found</v-alert>
                   </v-card-text>
                 </v-card>
