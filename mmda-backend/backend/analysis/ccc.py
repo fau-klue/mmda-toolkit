@@ -87,7 +87,7 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
                     roles[cpos].append(None)
 
         ret[idx] = {
-            'word': list(df['word']),   # list of words
+            'word': list(df['word']),    # list of words
             p_query: list(df[p_query]),  # secondary p-att
             'role': list(roles.values())  # roles
         }
@@ -143,7 +143,28 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
             flags=None
         )
 
-    # drop superfluous columns
-    collocates = collocates.drop(['in_nodes', 'marginal', 'N'], axis=1)
+    # drop superfluous columns and sort
+    collocates = collocates[[
+        'f',
+        'f2',
+        'log_likelihood',
+        'log_ratio',
+        'mutual_information',
+        'z_score',
+        't_score'
+    ]]
+
+    # rename AMs
+    am_dict = {
+        'log_likelihood': 'log-likelihood',
+        'f': 'co-oc. freq.',
+        'mutual_information': 'mutual information',
+        'log_ratio': 'log-ratio',
+        'f2': 'marginal freq.',
+        't_score': 't-score',
+        'z_score': 'z-score'
+    }
+    collocates = collocates.rename(am_dict, axis=1)
+    print(collocates)
 
     return collocates
