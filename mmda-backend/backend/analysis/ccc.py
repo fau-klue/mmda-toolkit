@@ -165,6 +165,5 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
         'z_score': 'z-score'
     }
     collocates = collocates.rename(am_dict, axis=1)
-    print(collocates)
 
     return collocates
