@@ -680,9 +680,8 @@ def get_collocate_for_analysis(username, analysis):
         return jsonify({'msg': 'empty result'}), 404
 
     # post-process result
-    df = collocates.to_dict()
-
-    return jsonify(df), 200
+    df_json = collocates.to_json()
+    return df_json, 200
 
 
 #####################
@@ -803,4 +802,6 @@ def get_concordance_for_analysis(username, analysis):
         log.debug('no concordance available for analysis %s', analysis)
         return jsonify({'msg': 'empty result'}), 404
 
-    return jsonify(concordance), 200
+    conc_json = jsonify(concordance)
+
+    return conc_json, 200

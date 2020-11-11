@@ -5,7 +5,12 @@
     </div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
-    <WordcloudBottomSheet ref="bottomSheet" v-bind:onclickitem="centerItemLocation" />
+    <WordcloudBottomSheet ref="bottomSheet" v-bind:onclickitem="centerItemLocation" v-bind:sheetVisible="sheetVisible" v-bind:onchangevisibility="onChangeVisibility" />
+    <v-layout style="position:absolute;height:calc(100vh - 48px);width:100%;pointer-events:none">
+      <v-layout v-if="!sheetVisible" justify-center align-end>
+        <v-btn color="info" style="pointer-events:all;z-index:9000" class="text-xs-center" @click="_getTopicConcordancesFromList">Concordance Lines</v-btn>
+      </v-layout>
+    </v-layout>
   </div>
 </template>
 
@@ -35,7 +40,9 @@ export default {
     wc: null,
     resizeEvent: null,
     has_data: false,
-    conc_request_cache: ['test']
+    conc_request_cache: ['test'],
+    request_names: [],
+    sheetVisible: true
   }),
   computed: {
     ...mapGetters({
@@ -88,6 +95,9 @@ export default {
     },
     collocatesCompare(){
       this.wc.changeAM();
+    },
+    sheetVisible(){
+      console.log("in WordcloudContent: " + this.sheetVisible)
     }
   },
   methods: {
@@ -105,8 +115,11 @@ export default {
       addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
       setAM: 'wordcloud/setAssociationMeasure',
       setShowMinimap: 'wordcloud/setShowMinimap',
-       
+      
     }),
+      onChangeVisibility(x){
+        this.sheetVisible=x
+      },
       cancelConcordanceRequest(){
           this.AnalysiscancelConcordanceRequest()
           this.getTopicConcordancesFromList([])
@@ -222,6 +235,11 @@ export default {
       this.wc.centerAtWord(item_string);
     },
     getTopicConcordancesFromList (names) {
+      this.request_names=names;
+    },
+    _getTopicConcordancesFromList () {
+      this.sheetVisible=true;
+      let names=this.request_names;
       if(!this.analysis) return;
         if( names.length==this.conc_request_cache.length
             && names.map((a,i)=>a==this.conc_request_cache[i] )

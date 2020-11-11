@@ -43,7 +43,7 @@
                 <span :key="'h_'+idx" 
                   @click="selectItem(el)"
                   :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
-                  :style="el.style"
+                  :style="el.style + ';direction:ltr'"
                   :title="el.lemma">{{el.text}}</span>
               </template>
               <!-- invisible x at the end,
@@ -256,7 +256,8 @@ export default {
           }
           else{
               if(el.role.includes(this.keywordRole)){
-                  r . keyword.text += ' '+el.text
+                  r . keyword.text += ' '+el.text;
+                  r . keyword.lemma += ' '+el.lemma
               }
               else{
                   r . tail.push(el);
