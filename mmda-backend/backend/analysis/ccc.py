@@ -5,7 +5,7 @@ Concordance and Collocation Computation
 """
 
 from ccc import Corpus
-from ccc.discoursemes import Disc, DiscCon
+from ccc.discoursemes import Discourseme as Disc, DiscoursemeConstellation as DiscCon
 from collections import defaultdict
 
 import logging
