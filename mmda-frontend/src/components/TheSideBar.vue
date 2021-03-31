@@ -51,14 +51,14 @@ export default {
   data: () => ({
     sidebar: true,
     items: [
-      { title: 'Profile', icon: 'perm_identity', route: '/profile' },
-      { title: 'Analysis', icon: 'dashboard', route: '/analysis' },
-      { title: 'Discourseme', icon: 'subject', route: '/discourseme' },
-      { title: 'Discursive Position', icon: 'question_answer', route: '/discursive' }
+      { title: 'Queries', icon: 'dashboard', route: '/analysis' },
+      { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
+      { title: 'Constellations', icon: 'question_answer', route: '/discursive' },
+      { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
     ],
     admins: [
       { title: 'Users', icon: 'subject', route: '/admin/users' },
-      { title: 'Objects', icon: 'question_answer', route: '/admin/objects' }
+      { title: 'Objects', icon: 'subject', route: '/admin/objects' }
     ]
   }),
   computed: {

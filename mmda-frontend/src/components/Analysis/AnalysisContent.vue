@@ -6,15 +6,17 @@
         <v-layout v-if="analysis" justify-space-between row>
           <v-flex xs8 sm8>
 
-            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Analysis </v-alert>
+            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Query Updated </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="analysis.name" :value="analysis.name" label="Analysis Name" :rules="[rules.required, rules.counter]"></v-text-field>
-              <v-text-field :value="analysis.corpus" label="Corpus" box readonly></v-text-field>
-              <v-text-field :value="analysis.topic_discourseme.items" label="Topic Items" box readonly></v-text-field>
-              <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="P-Query Attribute"></v-text-field>
-              <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="S-Break Attribute"></v-text-field>
+              <v-text-field v-model="analysis.name" :value="analysis.name" label="discourseme name" :rules="[rules.required, rules.counter]"></v-text-field>
+              <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
+              <v-text-field :value="analysis.topic_discourseme.items" label="items" box readonly></v-text-field>
+              <v-layout row>
+              <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>&nbsp;
+              <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
+            </v-layout>
 
               <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
               <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
@@ -26,9 +28,10 @@
 
             <v-dialog v-model="dialogDelete" max-width="290">
               <v-card>
-                <v-card-title class="headline">Delete Analysis?</v-card-title>
+                <v-card-title class="headline">Delete Query?</v-card-title>
                 <v-card-text>
-                  You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.                </v-card-text>
+                  You’re about to permanently delete this query. Once deleted, it cannot be undone or recovered.
+		</v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn outline @click="dialogDelete = false">Close</v-btn>
@@ -49,27 +52,27 @@
 
         </v-layout>
 
+	<h1 class="my-3 title">Concordance:
+          <v-btn v-if="!concordances_loading" icon ripple>
+            <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+          </v-btn>
+        </h1>
+        <v-layout v-if="concordances||concordances_loading||show_concordances" row>
+          <v-flex xs12 sm12>
+            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" v-bind:shown="true"/>
+          </v-flex>
+        </v-layout>
+        <v-layout v-else><v-btn color="info" outline class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
+        </v-layout>
+
         <v-layout v-if="analysis" row>
           <v-flex xs12 sm12>
               <AnalysisItemTable/>
               </v-flex>
         </v-layout>
 
-        <v-layout v-if="concordances||concordances_loading||show_concordances" row>
-          <v-flex xs12 sm12>
-            <h1 class="my-3 title">Concordances:
-              <v-btn v-if="!concordances_loading" icon ripple>
-                <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
-              </v-btn>
-            </h1>
-            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" v-bind:shown="true"/>
-          </v-flex>
-        </v-layout>
-        <v-layout v-else><v-btn color="info" outline class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
-</v-layout>
         <v-layout row>
           <v-flex xs12 sm12>
-            <h1 class="title">Discoursemes:</h1>
             <AnalysisDiscoursemeList/>
           </v-flex>
         </v-layout>

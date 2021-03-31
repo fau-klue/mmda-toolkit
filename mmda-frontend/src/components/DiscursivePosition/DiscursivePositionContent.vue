@@ -6,11 +6,11 @@
         <v-layout justify-space-between row>
           <v-flex v-if="theDiscursivePosition" xs12 sm12>
 
-            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Discursive Position </v-alert>
+            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Constellation </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="theDiscursivePosition.name" :value="theDiscursivePosition.name" label="Discursive Position Name" :rules="[rules.required, rules.counter]"></v-text-field>
+              <v-text-field v-model="theDiscursivePosition.name" :value="theDiscursivePosition.name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
 
                <v-btn color="info" :to="/discursive/ + theDiscursivePosition.id + /concordances/" class="text-lg-right">Extract Concordances</v-btn>
               <v-btn color="success" class="text-lg-right" @click="updatePosition">Update Name</v-btn>

@@ -7,7 +7,7 @@
           <v-container>
             <v-layout>
               <v-flex xs12 sm12>
-                <h1 class="display-1">New Discursive Position</h1>
+                <h1 class="display-1">New Discourseme Constellation</h1>
               </v-flex>
             </v-layout>
           </v-container>
@@ -41,13 +41,13 @@
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Generating Discursive Position...</p>
+                  <p>Generating Constellation ...</p>
                 </div>
                 <v-form v-else>
                   <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
-                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Discursive Position creation</v-alert>
+                  <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Constellation creation</v-alert>
 
-                  <v-text-field v-model="name" label="Discursive Position Name" :rules="[rules.required, rules.counter]"></v-text-field>
+                  <v-text-field v-model="name" label="Constellation Name" :rules="[rules.required, rules.counter]"></v-text-field>
 
                   <v-combobox
                     v-model="selectDiscoursemes"

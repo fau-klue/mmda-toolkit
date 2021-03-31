@@ -9,7 +9,7 @@
             <v-alert v-if="nodata" value="true" dismissible color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-                <p v-if="discourseme.is_topic" class="title"><v-icon color="orange">grade</v-icon> Topic Discourseme</p>
+                <p v-if="discourseme.is_topic" class="title"><v-icon color="orange">grade</v-icon> Queried Discourseme</p>
 
               <v-text-field v-model="discourseme.name" label="Discourseme Name" :rules="[rules.required, rules.counter]"></v-text-field>
               <v-combobox
@@ -22,11 +22,11 @@
                 ></v-combobox>
             </v-form>
 
-            <v-btn color="success" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
+            <v-btn color="success" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="updateDiscourseme">update</v-btn>
             <v-btn color="success" v-else class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
-            <v-btn color="error" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
+            <v-btn color="error" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="deleteDiscourseme">delete</v-btn>
             <v-btn color="error" v-else outline class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
-            <v-btn color="error" outline class="text-lg-right" @click="createAnalysis">Use For New Analysis</v-btn>
+            <v-btn color="error" outline class="text-lg-right" @click="createAnalysis">use for new query</v-btn>
 
           </v-flex>
         </v-layout>

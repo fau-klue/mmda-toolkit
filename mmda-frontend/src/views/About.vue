@@ -5,7 +5,7 @@
 
       <h1>{{ $t("about.headline") }}</h1>
       <p/>
-      <h2>{{ $t("about.headline1") }}</h2>
+      <h3>{{ $t("about.headline1") }}</h3>
       <p>{{ $t("about.paragraph1_1") }}</p>
       <h3>{{ $t("about.headline1_1") }}</h3>
       <p>{{ $t("about.paragraph1_2") }}</p>

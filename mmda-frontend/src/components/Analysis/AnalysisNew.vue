@@ -27,32 +27,32 @@
                   {{ $t("analysis.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">Name</h1>
+                <h1 class="subheading">name</h1>
                 <p>
                   {{ $t("analysis.new.helpName") }}
                 </p>
 
-                <h1 class="subheading">Corpus</h1>
+                <h1 class="subheading">corpus</h1>
                 <p>
                   {{ $t("analysis.new.helpCorpus") }}
                 </p>
 
-                <h1 class="subheading">Items</h1>
+                <h1 class="subheading">items</h1>
                 <p>
                   {{ $t("analysis.new.helpItems") }}
                 </p>
 
-                <h1 class="subheading">Window Size</h1>
+                <h1 class="subheading">window</h1>
                 <p>
                   {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
-                <h1 class="subheading">P-Query</h1>
+                <h1 class="subheading">p-query</h1>
                 <p>
                   {{ $t("analysis.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">S-Break</h1>
+                <h1 class="subheading">s-break</h1>
                 <p>
                   {{ $t("analysis.new.helpSBreak") }}
                 </p>
@@ -62,37 +62,33 @@
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Generating Analysis...</p>
+                  <p>Querying the Corpus...</p>
                 </div>
                 <v-form v-else>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
-                  <v-text-field v-model="name" label="Analysis Name" :rules="[rules.required, rules.counter]"></v-text-field>
-                  <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="Corpus"></v-autocomplete>
+                  <v-text-field v-model="name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
+                  <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus"></v-autocomplete>
                   <v-combobox
                     v-model="selectItems"
                     :items="items"
-                    label="Topic Items"
+                    label="items"
                     :rules="[rules.required, rules.counter]"
                     multiple
                     chips
                     ></v-combobox>
-
-                  <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" label="Window Size"></v-slider>
-                 <!-- <v-text-field v-model="pQuery" label="P-Query Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
-                  <v-text-field v-model="sBreak" label="S-Break Attribute" :rules="[rules.required, rules.alphanum, rules.counter]"></v-text-field>
--->
+                  <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" label="window"></v-slider>
                   <v-layout row>
                     <v-combobox class="col-5"
                       v-model="pQuery"
                       :items="pQueries"
-                      label="P-Query Attribute"
+                      label="p-query"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
-                    ></v-combobox>
+                    ></v-combobox>&nbsp;
                     <v-combobox class="col-5"
                       v-model="sBreak"
                       :items="sBreaks"
-                      label="S-Break Attribute"
+                      label="s-break"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
                     ></v-combobox>
                   </v-layout>
@@ -120,16 +116,16 @@ export default {
     error: null,
     items: [],
     loading: false,
-    min: 2,
+    min: 1,
     max: 20,
     name: '',
-    pQuery: 'word',
-    sBreak: 's',
-    pQueries:['word', 'lemma' ],
-    sBreaks:['s', 'p', 'tweet'],
+    pQuery: '',
+    sBreak: '',
+    pQueries:[],
+    sBreaks:[],
     selectCorpus: '',
     selectItems: [],
-    selectWindow: 3,
+    selectWindow: 5,
     rules: rules,
   }),
   computed: {

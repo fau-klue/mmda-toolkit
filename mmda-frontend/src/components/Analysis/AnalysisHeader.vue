@@ -4,7 +4,7 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs6>
-          <h1 class="display-1">{{ $t("sidebar.analysis") }}</h1>
+          <h1 class="display-1">Discourseme Queries</h1>
         </v-flex>
         <v-flex xs6 class="text-xs-right">
           <v-btn color="success" class="text-lg-right" to="/analysis/new">{{ $t("analysis.newAnalysis") }}</v-btn>

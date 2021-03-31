@@ -1,14 +1,13 @@
 <template>
 <v-layout row>
   <v-flex xs12 sm12>
-    <h1 class="my-3 title">Collocation and Coordinates:
+    <h1 class="my-3 title">Collocates:
 
     <v-btn icon ripple>
       <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
     </v-btn>
     </h1>
-    <h3 class="my-3 body-2">Window Size</h3>
-    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always"
+    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always" label="window size"
       thumb-size="28" @change="setSize"></v-slider>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
@@ -16,7 +15,7 @@
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p v-if="loadingCoordinates">Loading Coordinates...</p>
-      <p v-if="loadingCollocates">Loading Collocation...</p>
+      <p v-if="loadingCollocates">Loading Collocates...</p>
     </div>
 
     <v-data-table
@@ -215,7 +214,7 @@ export default {
         }) 
       : [];
       return [
-        {text:'Items',value:'name',align:'center'},
+        {text:'item',value:'name',align:'center'},
         ...Coll,
         { text: 'x (t-SNE)', value: 'tsne_x', align:"center" },
         { text: 'y (t-SNE)', value: 'tsne_y', align:'center' },

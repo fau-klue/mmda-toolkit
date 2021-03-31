@@ -5,7 +5,7 @@
       <v-layout wrap row>
         <v-flex xs12>
           <div v-if="analysis">
-          <p class="headline">Analysis ({{ analysis.length }})</p>
+          <p class="headline">Queries ({{ analysis.length }})</p>
           <v-list>
             <v-list-tile v-for="item in analysis" :key="item.id" avatar>
               <v-list-tile-avatar>
@@ -13,8 +13,7 @@
               </v-list-tile-avatar>
               <v-list-tile-content>
                   {{item.name}}
-                  (ID: {{item.id}})
-                  User: {{item.user_id}}
+                  (ID: {{item.id}}, User: {{item.user_id}})
               </v-list-tile-content>
               <v-list-tile-action>
                 <v-btn icon @click="removeObject('analysis', item)">
@@ -35,8 +34,7 @@
               <v-list-tile-content>
                 <v-list-tile-title>
                   {{item.name}}
-                  (ID: {{item.id}})
-                  User: {{item.user_id}}
+                  (ID: {{item.id}}, User: {{item.user_id}})
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -49,7 +47,7 @@
           </div>
 
           <div v-if="positions">
-          <p class="headline">Discursive Positions ({{ positions.length }})</p>
+          <p class="headline">Constellations ({{ positions.length }})</p>
           <v-list>
             <v-list-tile v-for="item in positions" :key="item.id" avatar>
               <v-list-tile-avatar>
@@ -58,8 +56,7 @@
               <v-list-tile-content>
                 <v-list-tile-title>
                   {{item.name}}
-                  (ID: {{item.id}})
-                  User: {{item.user_id}}
+                  (ID: {{item.id}}, User: {{item.user_id}})
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>

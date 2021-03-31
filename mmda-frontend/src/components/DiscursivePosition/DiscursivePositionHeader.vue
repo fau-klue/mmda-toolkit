@@ -4,10 +4,10 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs6>
-          <h1 class="display-1">Discursive Position</h1>
+          <h1 class="display-1">Discourseme Constellations</h1>
         </v-flex>
         <v-flex xs6 class="text-xs-right">
-          <v-btn color="success" class="text-lg-right" to="/discursive/new">New Discursive Position</v-btn>
+          <v-btn color="success" class="text-lg-right" to="/discursive/new">New Constellation</v-btn>
         </v-flex>
       </v-layout>
     </v-card-text>
