@@ -47,12 +47,12 @@
                   {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
-                <h1 class="subheading">p-query</h1>
+                <h1 class="subheading">query layer (p-att)</h1>
                 <p>
                   {{ $t("analysis.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">s-break</h1>
+                <h1 class="subheading">context break (s-att)</h1>
                 <p>
                   {{ $t("analysis.new.helpSBreak") }}
                 </p>
@@ -82,13 +82,13 @@
                     <v-combobox class="col-5"
                       v-model="pQuery"
                       :items="pQueries"
-                      label="p-query"
+                      label="query layer (p-att)"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
                     ></v-combobox>&nbsp;
                     <v-combobox class="col-5"
                       v-model="sBreak"
                       :items="sBreaks"
-                      label="s-break"
+                      label="context break (s-att)"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
                     ></v-combobox>
                   </v-layout>
@@ -138,10 +138,10 @@ export default {
   watch: {
     selectCorpus(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
-      this.pQueries = ['word', 'lemma' ]
-      this.sBreaks= ['s', 'p', 'tweet'] 
       if(C){
-        if(C.p_att){
+          this.pQueries = ['word', 'lemma' ] // TODO: get from backend
+          this.sBreaks= ['s', 'p', 'tweet'] // TODO: get from backend
+          if(C.p_att){
           if(typeof C.p_att ==='string'){
             this.pQueries = [C.p_att];
           }else if(typeof C.p_att === 'object' && C.p_att[0]){
