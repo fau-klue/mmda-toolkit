@@ -130,21 +130,18 @@ def create_analysis(username):
     log.debug('created analysis %s', analysis.id)
 
     # collocates: dict of dataframes with key == window_size
-    # TODO: re-implement efficiently in CCC
-    collocates = dict()
-    for window in range(1, max_window_size):
-        collocates[window] = get_collocates(
-            corpus_name=analysis.corpus,
-            topic_items=items,
-            s_context=s_break,
-            window_size=window,
-            context=analysis.max_window_size,
-            p_query=p_query,
-            s_query=None,
-            ams=None,
-            cut_off=cut_off,
-            order=order
-        )
+    collocates = get_collocates(
+        corpus_name=analysis.corpus,
+        topic_items=items,
+        s_context=s_break,
+        window_sizes=range(1, max_window_size),
+        context=analysis.max_window_size,
+        p_query=p_query,
+        s_query=None,
+        ams=None,
+        cut_off=cut_off,
+        order=order
+    )
 
     # get tokens for coordinate generation
     # TODO: re-implement in backend
@@ -470,22 +467,19 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     db.session.add(analysis_discourseme)
 
     # collocates: dict of dataframes with key == window_size
-    # TODO: re-implement efficiently in CCC
-    collocates = dict()
-    for window in range(1, analysis.max_window_size):
-        collocates[window] = get_collocates(
-            corpus_name=analysis.corpus,
-            topic_items=topic_discourseme.items,
-            s_context=analysis.s_break,
-            window_size=window,
-            context=analysis.max_window_size,
-            p_query=analysis.p_query,
-            additional_discoursemes={str(discourseme.id): discourseme.items},
-            s_query=None,
-            ams=None,
-            cut_off=200,
-            order='log_likelihood'
-        )
+    collocates = get_collocates(
+        corpus_name=analysis.corpus,
+        topic_items=topic_discourseme.items,
+        s_context=analysis.s_break,
+        window_sizes=range(1, analysis.max_window_size),
+        context=analysis.max_window_size,
+        p_query=analysis.p_query,
+        additional_discoursemes={str(discourseme.id): discourseme.items},
+        s_query=None,
+        ams=None,
+        cut_off=200,
+        order='log_likelihood'
+    )
 
     # get tokens for coordinate generation
     # TODO: re-implement in backend
@@ -665,7 +659,7 @@ def get_collocate_for_analysis(username, analysis):
         corpus_name=analysis.corpus,
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
-        window_size=window_size,
+        window_sizes=[window_size],
         context=analysis.max_window_size,
         additional_discoursemes=additional_discoursemes,
         p_query=analysis.p_query,
@@ -673,7 +667,7 @@ def get_collocate_for_analysis(username, analysis):
         ams=None,
         cut_off=cut_off,
         order=order
-    )
+    )[window_size]
 
     if collocates.empty:
         log.debug('no collocates available for window size %s', window_size)
@@ -754,9 +748,6 @@ def get_concordance_for_analysis(username, analysis):
     discourseme_ids = request.args.getlist('discourseme', None)
     # ... optional additional items
     items = [cqp_escape(i) for i in request.args.getlist('item', None)]
-    print("A")
-    print(items)
-    print("B")
     # ... how many?
     cut_off = request.args.get('cut_off', 100)
     # ... how to sort them?

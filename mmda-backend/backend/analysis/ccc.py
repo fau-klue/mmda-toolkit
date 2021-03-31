@@ -95,7 +95,7 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
     return ret
 
 
-def get_collocates(corpus_name, topic_items, s_context, window_size,
+def get_collocates(corpus_name, topic_items, s_context, window_sizes,
                    context=20, additional_discoursemes=[],
                    p_query='lemma', s_query=None, ams=None,
                    cut_off=200, order='log_likelihood'):
@@ -114,56 +114,60 @@ def get_collocates(corpus_name, topic_items, s_context, window_size,
         context=context
     )
 
-    if not additional_discoursemes:
-        # single discourseme
-        collocates = topic_disc.collocates(
-            window=window_size,
-            order=order,
-            cut_off=cut_off,
-            p_query=p_query,
-            ams=ams,
-            min_freq=2,
-            frequencies=False,
-            flags=None
-        )
-    else:
-        # discursive position
-        dp = DiscCon(topic_disc)
-        for key in additional_discoursemes.keys():
-            dp.add_items(additional_discoursemes[key])
+    # TODO speed up in backend
+    collocates = dict()
+    for window in window_sizes:
 
-        collocates = dp.collocates(
-            window=window_size,
-            order=order,
-            cut_off=cut_off,
-            p_query=p_query,
-            ams=ams,
-            min_freq=2,
-            frequencies=False,
-            flags=None
-        )
+        if not additional_discoursemes:
+            # single discourseme
+            coll_window = topic_disc.collocates(
+                window=window,
+                order=order,
+                cut_off=cut_off,
+                p_query=p_query,
+                ams=ams,
+                min_freq=2,
+                frequencies=False,
+                flags=None
+            )
+        else:
+            # discursive position
+            dp = DiscCon(topic_disc)
+            for key in additional_discoursemes.keys():
+                dp.add_items(additional_discoursemes[key])
 
-    # drop superfluous columns and sort
-    collocates = collocates[[
-        'f',
-        'f2',
-        'log_likelihood',
-        'log_ratio',
-        'mutual_information',
-        'z_score',
-        't_score'
-    ]]
+            coll_window = dp.collocates(
+                window=window,
+                order=order,
+                cut_off=cut_off,
+                p_query=p_query,
+                ams=ams,
+                min_freq=2,
+                frequencies=False,
+                flags=None
+            )
 
-    # rename AMs
-    am_dict = {
-        'log_likelihood': 'log-likelihood',
-        'f': 'co-oc. freq.',
-        'mutual_information': 'mutual information',
-        'log_ratio': 'log-ratio',
-        'f2': 'marginal freq.',
-        't_score': 't-score',
-        'z_score': 'z-score'
-    }
-    collocates = collocates.rename(am_dict, axis=1)
+        # drop superfluous columns and sort
+        coll_window = coll_window[[
+            'log_likelihood',
+            'log_ratio',
+            'f',
+            'f2',
+            'mutual_information',
+            'z_score',
+            't_score'
+        ]]
+
+        # rename AMs
+        am_dict = {
+            'log_likelihood': 'log-likelihood',
+            'f': 'co-oc. freq.',
+            'mutual_information': 'mutual information',
+            'log_ratio': 'log-ratio',
+            'f2': 'marginal freq.',
+            't_score': 't-score',
+            'z_score': 'z-score'
+        }
+        collocates[window] = coll_window.rename(am_dict, axis=1)
 
     return collocates
