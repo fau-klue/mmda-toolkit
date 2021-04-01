@@ -55,7 +55,7 @@ def login():
 
 
 @login_blueprint.route('/api/refresh/', methods=['POST'])
-# @jwt_refresh_token_required
+# @jwt_refresh_token_required TODO
 @jwt_required()
 def refresh():
     """
