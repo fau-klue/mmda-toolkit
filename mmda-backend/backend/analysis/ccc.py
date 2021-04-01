@@ -19,7 +19,7 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
                     additional_discoursemes=[], p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
                     s_query=None, order='random', cut_off=100,
-                    form='dataframes'):
+                    form='dataframe'):
 
     if s_query is None:
         s_query = s_context
@@ -32,9 +32,7 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
         corpus,
         items=topic_items,
         p_query=p_query,
-        s_query=s_query,
-        s_context=s_context,
-        context=context
+        s_query=s_query
     )
 
     # init discourseme constellation
@@ -68,7 +66,7 @@ def get_concordance(corpus_name, topic_items, topic_name, s_context,
     # TODO: implement as form='json' in cwb-ccc
     concordance = concordance.reset_index()
     ret = dict()
-    for idx, df in zip(concordance['match'], concordance['df']):
+    for idx, df in zip(concordance['match'], concordance['dataframe']):
 
         # rename columns according to given names for discoursemes
         df = df.rename(columns=id2name)
@@ -109,9 +107,7 @@ def get_collocates(corpus_name, topic_items, s_context, window_sizes,
         corpus,
         items=topic_items,
         p_query=p_query,
-        s_query=s_query,
-        s_context=s_context,
-        context=context
+        s_query=s_query
     )
 
     # TODO speed up in backend
@@ -121,7 +117,7 @@ def get_collocates(corpus_name, topic_items, s_context, window_sizes,
         if not additional_discoursemes:
             # single discourseme
             coll_window = topic_disc.collocates(
-                window=window,
+                window_sizes=window,
                 order=order,
                 cut_off=cut_off,
                 p_query=p_query,

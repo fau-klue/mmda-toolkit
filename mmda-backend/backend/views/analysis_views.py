@@ -753,7 +753,7 @@ def get_concordance_for_analysis(username, analysis):
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    s_show = [request.args.get('s_meta', analysis.s_break)]
+    s_show = [i for i in request.args.getlist('s_meta', None)]
 
     # pre-process request
     # ... get associated topic discourseme
@@ -770,6 +770,8 @@ def get_concordance_for_analysis(username, analysis):
         ).all()
         for d in discoursemes:
             additional_discoursemes[str(d.id)] = d.items
+    # pack p-attributes
+    p_show = list(set(['word', analysis.p_query]))
 
     # use cwb-ccc to extract concordance lines
     concordance = get_concordance(
@@ -781,12 +783,12 @@ def get_concordance_for_analysis(username, analysis):
         context=analysis.max_window_size,
         additional_discoursemes=additional_discoursemes,
         p_query=analysis.p_query,
-        p_show=list(set(['word', analysis.p_query])),
+        p_show=p_show,
         s_show=s_show,
-        s_query=None,
+        s_query=analysis.s_break,
         order=order,
         cut_off=cut_off,
-        form='dataframes'
+        form='dataframe'
     )
 
     if concordance is None:
