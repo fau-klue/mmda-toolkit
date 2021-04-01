@@ -13,7 +13,7 @@ log = getLogger('mmda-logger')
 
 # READ
 @corpus_blueprint.route('/api/corpus/', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_corpora():
     """
     Returns a list of available corpora as JSON array with their details.
@@ -28,7 +28,7 @@ def get_corpora():
 
 # READ
 @corpus_blueprint.route('/api/corpus/<corpus>/', methods=['GET'])
-@jwt_required
+@jwt_required()
 def get_corpus(corpus):
     """
     Returns details for a given corpus as JSON object.
