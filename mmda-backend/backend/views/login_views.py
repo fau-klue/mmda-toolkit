@@ -5,7 +5,6 @@ Login views
 
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
-# , jwt_refresh_token_required
 from flask_jwt_extended import create_refresh_token, create_access_token
 from flask_expects_json import expects_json
 from logging import getLogger
@@ -55,8 +54,7 @@ def login():
 
 
 @login_blueprint.route('/api/refresh/', methods=['POST'])
-# @jwt_refresh_token_required TODO
-@jwt_required()
+@jwt_required(refresh=True)
 def refresh():
     """
     Return a new token if the user has a refresh token
