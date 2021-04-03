@@ -4,7 +4,7 @@
 Concordance and Collocation Computation
 """
 
-from ccc import Corpus
+from ccc import Corpora, Corpus
 from ccc.discoursemes import Discourseme as Disc, DiscoursemeConstellation as DiscCon
 from collections import defaultdict
 
@@ -12,6 +12,32 @@ import logging
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
+
+
+REGISTRY_PATH = "/usr/local/share/cwb/registry"
+CQP_BIN = "cqp"
+DATA_PATH = "/tmp/mmda-ccc-data/"
+
+
+def show_corpora():
+    corpora = Corpora(CQP_BIN, REGISTRY_PATH).show()
+    return corpora
+
+
+def show_corpus(corpus_name):
+    corpus = Corpus(corpus_name, cqp_bin=CQP_BIN,
+                    registry_path=REGISTRY_PATH, data_path=DATA_PATH)
+    attributes = corpus.attributes_available
+    p_atts = list(
+        attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
+    )
+    s_atts = attributes[attributes['type'] == 's-Att']
+    s_atts = list(s_atts[~s_atts['annotation']]['attribute'].values)
+    crps = {
+        'p-atts': p_atts,
+        's-atts': s_atts
+    }
+    return crps
 
 
 def get_concordance(corpus_name, topic_items, topic_name, s_context,

@@ -132,15 +132,17 @@ export default {
     ...mapGetters({
       user: 'login/user',
       corpora: 'corpus/corpora',
-      analysis: 'analysis/analysis',
+      analysis: 'analysis/analysis'
     })
   },
   watch: {
     selectCorpus(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
-          this.pQueries = ['word', 'lemma' ] // TODO: get from backend
-          this.sBreaks= ['s', 'p', 'tweet'] // TODO: get from backend
+          // this.pQueries = ['word', 'lemma' ] // TODO: get from backend
+          // this.sBreaks= ['s', 'p', 'tweet'] // TODO: get from backend
+          this.pQueries = C.pQueries
+          this.sBreaks = C.sBreaks
           if(C.p_att){
           if(typeof C.p_att ==='string'){
             this.pQueries = [C.p_att];
