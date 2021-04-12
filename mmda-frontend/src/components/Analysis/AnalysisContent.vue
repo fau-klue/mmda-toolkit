@@ -6,7 +6,7 @@
         <v-layout v-if="analysis" justify-space-between row>
           <v-flex xs8 sm8>
 
-            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Query Updated </v-alert>
+            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Analysis Updated </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
@@ -28,9 +28,9 @@
 
             <v-dialog v-model="dialogDelete" max-width="290">
               <v-card>
-                <v-card-title class="headline">Delete Query?</v-card-title>
+                <v-card-title class="headline">Delete Analysis?</v-card-title>
                 <v-card-text>
-                  You’re about to permanently delete this query. Once deleted, it cannot be undone or recovered.
+                  You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.
 		</v-card-text>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -57,6 +57,7 @@
             <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
           </v-btn>
         </h1>
+        <!-- concordance lines -->
         <v-layout v-if="concordances||concordances_loading||show_concordances" row>
           <v-flex xs12 sm12>
             <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" v-bind:shown="true"/>
@@ -65,12 +66,14 @@
         <v-layout v-else><v-btn color="info" outline class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
         </v-layout>
 
+        <!-- collocates -->
         <v-layout v-if="analysis" row>
           <v-flex xs12 sm12>
               <AnalysisItemTable/>
               </v-flex>
         </v-layout>
 
+        <!-- discourseme overview -->
         <v-layout row>
           <v-flex xs12 sm12>
             <AnalysisDiscoursemeList/>

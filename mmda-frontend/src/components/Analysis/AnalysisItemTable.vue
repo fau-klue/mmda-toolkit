@@ -7,7 +7,7 @@
       <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
     </v-btn>
     </h1>
-    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always" label="window size"
+    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always" label="context window"
       thumb-size="28" @change="setSize"></v-slider>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
@@ -83,8 +83,7 @@ export default {
     loadingConcordances:false,
     loadingCollocates:false,
     loadingCoordinates:false,
-    selectWindow: 3,
-    min: 2,
+    min: 1,
   }),
   watch:{
     windowSize(){

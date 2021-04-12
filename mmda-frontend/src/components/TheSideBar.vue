@@ -51,7 +51,7 @@ export default {
   data: () => ({
     sidebar: true,
     items: [
-      { title: 'Queries', icon: 'dashboard', route: '/analysis' },
+      { title: 'Analyses', icon: 'dashboard', route: '/analysis' },
       { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
       { title: 'Constellations', icon: 'question_answer', route: '/discursive' },
       { title: 'User Profile', icon: 'perm_identity', route: '/profile' },

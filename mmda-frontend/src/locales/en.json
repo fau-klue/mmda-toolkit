@@ -52,7 +52,7 @@
     },
     "sidebar": {
 	"profile": "Profile",
-	"analysis": "Queries",
+	"analysis": "Analyses",
 	"discourseme": "Discoursemes",
 	"position": "Discourseme Constellation",
 	"administration": "Administration",
@@ -74,7 +74,7 @@
 	}
     },
     "analysis": {
-	"newAnalysis": "New Query",
+	"newAnalysis": "New Discourseme Analysis",
 	"name": "Name",
 	"corpus": "Corpus",
 	"associatedDiscoursemes": "Associated Discoursemes",
@@ -85,33 +85,35 @@
 	"reloadCoordinates": "Reload Coordinates",
 	"delete": "Delete",
 	"new": {
-	    "name": "name",
+	    "helpTitle": "Discourseme Analysis",
+	    "helpText": "Query for discourseme in a corpus as a starting point for a collocation analysis.",
+	    "name": "discourseme name",
+	    "helpName": "name of this discourseme",
 	    "corpus": "corpus",
+	    "helpCorpus": "the CWB corpus",
 	    "items": "items",
-	    "windowSize": "window",
-	    "helpTitle": "Discourseme Query",
-	    "helpText": "Select one or more lexical items as a starting point for a collocation analysis within a corpus.",
-	    "helpName": "name for this discourseme",
-	    "helpCorpus": "the corpus to be queried",
-	    "helpItems": "lemmas or multi-lemma units forming the node of the collocation analysis",
-	    "helpWindowSize": "maximum window size for the collocation analysis",
-	    "helpPQuery": "positional attribute to query (e.g. word, lemma, pos, etc.)",
-	    "helpSBreak": "structural attribute for breaking the collocation windows (e.g. sentence, paragraph, tweet, etc).",
-	    "missing_data": "Please enter missing data",
-	    "invalid_input": "Entered data is not valid",
-	    "no_collocates": "No collocates of the given items were found in the given corpus.",
+	    "helpItems": "uni- or n-gram queries forming the node of the collocation analysis (e.g. 'powerplant', 'nuclear energy')",
+            "pquery": "query layer (p-att)",
+	    "helpPQuery": "positional attribute to query (e.g. word, lemma)",
+            "sbreak": "context break (s-att)",
+	    "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet).",
+            "windowSize": "context",
+	    "helpWindowSize": "maximum number of tokens to look left and right of the matches",
+	    "missing_data": "Please enter missing data.",
+	    "invalid_input": "Entered data is not valid.",
+	    "no_collocates": "No collocates of the given item(s) were found in the given corpus.",
 	    "no_topic": "None of the items have been found in the given corpus."
 	},
     "concordances":{
-	"not_found":"No such query or no concordance available.",
+	"not_found":"No such analysis or no concordance available.",
 	"invalid_input":"Concordance parameters invalid."
     },
 	"collocates":{
-	    "not_found": "No such query or no collocates available.",
+	    "not_found": "No such analysis or no collocates available.",
 	    "invalid_input": "Collocation parameters invalid."
 	},
 	"coordinates_request":{
-	    "not_found": "Query not available."
+	    "not_found": "Analysis not available."
 	}
     },
     "discourseme": {

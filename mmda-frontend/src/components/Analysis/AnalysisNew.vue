@@ -1,5 +1,6 @@
 <template>
 <v-container grid-list-md>
+  <!-- heading -->
   <v-layout wrap row>
     <v-flex xs12>
       <v-card flat>
@@ -22,53 +23,67 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
+                
+                <!-- left box: explanations -->
                 <h1 class="title">{{ $t("analysis.new.helpTitle") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">name</h1>
+                <h1 class="subheading">{{ $t("analysis.new.name") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpName") }}
                 </p>
 
-                <h1 class="subheading">corpus</h1>
+                <h1 class="subheading">{{ $t("analysis.new.corpus") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpCorpus") }}
                 </p>
 
-                <h1 class="subheading">items</h1>
+                <h1 class="subheading">{{ $t("analysis.new.items") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpItems") }}
                 </p>
 
-                <h1 class="subheading">window</h1>
+                <h1 class="subheading">{{ $t("analysis.new.windowSize") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
-                <h1 class="subheading">query layer (p-att)</h1>
+                <h1 class="subheading">{{ $t("analysis.new.pquery") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">context break (s-att)</h1>
+                <h1 class="subheading">{{ $t("analysis.new.sbreak") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpSBreak") }}
                 </p>
 
               </v-flex>
 
+              <!-- right box: input field -->
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Querying the Corpus...</p>
+                  <p>... querying corpus and creating semantic space ...</p>
                 </div>
                 <v-form v-else>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
-                  <v-text-field v-model="name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
-                  <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus"></v-autocomplete>
+                  <v-text-field
+                    v-model="name"
+                    label="discourseme name"
+                    :rules="[rules.required, rules.counter]"
+                    ></v-text-field>
+                  <v-autocomplete
+                    v-model="selectCorpus"
+                    clearable
+                    :items="corpora"
+                    item-value="name_api"
+                    item-text="name"
+                    label="corpus"
+                    ></v-autocomplete>
                   <v-combobox
                     v-model="selectItems"
                     :items="items"
@@ -77,22 +92,29 @@
                     multiple
                     chips
                     ></v-combobox>
-                  <v-slider v-model="selectWindow" :max="max" :min="min" thumb-label="always" label="window"></v-slider>
                   <v-layout row>
-                    <v-combobox class="col-5"
+                    <v-combobox
+                      class="col-5"
                       v-model="pQuery"
                       :items="pQueries"
                       label="query layer (p-att)"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
-                    ></v-combobox>&nbsp;
-                    <v-combobox class="col-5"
+                      ></v-combobox>&nbsp;
+                    <v-combobox
+                      class="col-5"
                       v-model="sBreak"
                       :items="sBreaks"
                       label="context break (s-att)"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
-                    ></v-combobox>
+                      ></v-combobox>
                   </v-layout>
-
+                  <v-slider
+                    v-model="selectWindow"
+                    :max="max"
+                    :min="min"
+                    thumb-label="always"
+                    label="context"
+                    ></v-slider>
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
@@ -117,15 +139,16 @@ export default {
     items: [],
     loading: false,
     min: 1,
-    max: 20,
+    max: 25,
     name: '',
     pQuery: '',
+    // pQueryName: 'a',  
     sBreak: '',
     pQueries:[],
     sBreaks:[],
     selectCorpus: '',
     selectItems: [],
-    selectWindow: 5,
+    selectWindow: 10,
     rules: rules,
   }),
   computed: {
@@ -139,8 +162,6 @@ export default {
     selectCorpus(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
-          // this.pQueries = ['word', 'lemma' ] // TODO: get from backend
-          // this.sBreaks= ['s', 'p', 'tweet'] // TODO: get from backend
           this.pQueries = C.pQueries
           this.sBreaks = C.sBreaks
           if(C.p_att){
@@ -158,8 +179,7 @@ export default {
           }
         }
       }
-      this.pQuery = this.pQueries[0];
-      this.sBreak = this.sBreaks[0]; 
+      this.pQuery = this.pQueries[0]
     }
   },
   methods: {
