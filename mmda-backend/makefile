@@ -1,5 +1,5 @@
 all: database run
-	
+
 windowed: database
 	gnome-terminal -- pipenv run python3 manage.py runserver
 install:
@@ -29,6 +29,6 @@ clear_all: clean clear_cache clear_db clear_lock
 clear_lock:
 	rm Pipfile.lock
 clear_cache:
-	rm /tmp/mmda-cache -r
+	rm /tmp/mmda-ccc-data/ -r
 clear_db:
 	rm /tmp/backend.sqlite
