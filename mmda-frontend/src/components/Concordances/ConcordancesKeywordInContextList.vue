@@ -152,7 +152,7 @@ export default {
     implementedSOC_conc: false, //TODO:
     id: null,
     error: null,
-    keywordRole: 'topic',
+    keywordRole: 'node',
     useSentiment:false,
     concordancesRequested: false,
     //loadingConcordances: false,

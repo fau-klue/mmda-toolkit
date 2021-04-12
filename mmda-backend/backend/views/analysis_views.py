@@ -645,7 +645,7 @@ def get_collocate_for_analysis(username, analysis):
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['temp'] = items
+        additional_discoursemes['collocate'] = items
     if discourseme_ids:
         # get all discoursemes from database and append
         discoursemes = Discourseme.query.filter(
@@ -762,7 +762,7 @@ def get_concordance_for_analysis(username, analysis):
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['temp'] = items
+        additional_discoursemes['collocate'] = items
     if discourseme_ids:
         # get all discoursemes from database and append
         discoursemes = Discourseme.query.filter(
