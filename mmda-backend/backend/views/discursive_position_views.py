@@ -349,7 +349,7 @@ def get_discursive_position_concordances(username, discursive_position):
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['temp'] = items
+        additional_discoursemes['collocate'] = items
     if not discursive.discourseme:
         log.debug('Discursive Position %s has no Discoursemes associated', discursive.id)
     else:
@@ -369,7 +369,6 @@ def get_discursive_position_concordances(username, discursive_position):
     ret = {}
     for corpus in corpora:
 
-        print(analysis.s_break)
         # use cwb-ccc to extract data
         concordance = ccc_concordance(
             corpus_name=corpus,
@@ -395,6 +394,6 @@ def get_discursive_position_concordances(username, discursive_position):
             'extracted concordances for corpus %s with analysis %s', corpus, analysis
         )
 
-        ret[corpus] = concordance
+        ret[current_app.config['CORPORA'][corpus]['name']] = concordance
 
     return jsonify(ret), 200
