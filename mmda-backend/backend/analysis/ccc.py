@@ -5,8 +5,7 @@ Concordance and Collocation Computation
 """
 
 from ccc import Corpora, Corpus
-from ccc.discoursemes import Discourseme as Disc, DiscoursemeConstellation as DiscCon
-from collections import defaultdict
+from ccc.discoursemes import get_concordance, get_collocates
 
 import logging
 
@@ -15,8 +14,9 @@ log = logging.getLogger('mmda-logger')
 
 
 REGISTRY_PATH = "/usr/local/share/cwb/registry"
-CQP_BIN = "cqp"
 DATA_PATH = "/tmp/mmda-ccc-data/"
+CQP_BIN = "cqp"
+LIB_PATH = None
 
 
 def show_corpora():
@@ -25,8 +25,10 @@ def show_corpora():
 
 
 def show_corpus(corpus_name):
-    corpus = Corpus(corpus_name, cqp_bin=CQP_BIN,
-                    registry_path=REGISTRY_PATH, data_path=DATA_PATH)
+    corpus = Corpus(corpus_name,
+                    cqp_bin=CQP_BIN,
+                    registry_path=REGISTRY_PATH,
+                    data_path=DATA_PATH)
     attributes = corpus.attributes_available
     p_atts = list(
         attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
@@ -40,156 +42,63 @@ def show_corpus(corpus_name):
     return crps
 
 
-def get_concordance(corpus_name, topic_items, topic_name, s_context,
+def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
                     window_size, context=20,
-                    additional_discoursemes=[], p_query='lemma',
+                    additional_discoursemes={}, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
-                    s_query=None, order='random', cut_off=100,
-                    form='dataframe'):
+                    s_query=None, order='random', cut_off=100):
 
-    if s_query is None:
-        s_query = s_context
+    flags_query = "%cd"
+    escape_query = True
+    window = window_size
+    topic_name = 'topic'
 
-    # init corpus
-    corpus = Corpus(corpus_name)
-
-    # init topic discourseme
-    topic_disc = Disc(
-        corpus,
-        items=topic_items,
-        p_query=p_query,
-        s_query=s_query
+    conc = get_concordance(
+        corpus_name,
+        topic_name, topic_items, p_query, s_query, flags_query, escape_query,
+        s_context, context,
+        additional_discoursemes,
+        p_show, s_show, window, order, cut_off,
+        LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
     )
 
-    # init discourseme constellation
-    dp = DiscCon(topic_disc)
+    from pprint import pprint
+    pprint(conc)
 
-    # id2name: mapper from ccc cache names to discourseme names
-    id2name = {
-        topic_disc.idx: topic_name
-    }
-
-    # add discoursemes to discourseme constellation
-    for key in additional_discoursemes.keys():
-        idx = dp.add_items(additional_discoursemes[key])
-        id2name[idx] = key
-
-    # extract concordance
-    concordance = dp.concordance(
-        window=window_size,
-        matches=None,
-        p_show=p_show,
-        s_show=s_show,
-        order=order,
-        cut_off=cut_off,
-        form=form
-    )
-
-    if concordance.empty:
-        return None
-
-    # convert each concordance line to dictionary, create roles
-    # TODO: implement as form='json' in cwb-ccc
-    concordance = concordance.reset_index()
-    ret = dict()
-    for idx, df in zip(concordance['match'], concordance['dataframe']):
-
-        # rename columns according to given names for discoursemes
-        df = df.rename(columns=id2name)
-
-        # get roles as dict
-        roles = defaultdict(list)
-        for cpos, row in df.iterrows():
-            for col_name in id2name.values():
-                if row[col_name]:
-                    # TODO: propagate proper info about discourseme names
-                    if col_name == topic_name:
-                        roles[cpos].append('topic')
-                    else:
-                        roles[cpos].append('collocate')
-                else:
-                    roles[cpos].append(None)
-
-        ret[idx] = {
-            'word': list(df['word']),    # list of words
-            p_query: list(df[p_query]),  # secondary p-att
-            'role': list(roles.values())  # roles
-        }
-
-    return ret
+    return conc
 
 
-def get_collocates(corpus_name, topic_items, s_context, window_sizes,
-                   context=20, additional_discoursemes=[],
+def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
+                   context=20, additional_discoursemes={},
                    p_query='lemma', s_query=None, ams=None,
                    cut_off=200, order='log_likelihood'):
 
-    if s_query is None:
-        s_query = s_context
+    flags_query = "%cd"
+    flags_show = ""
+    escape = True
+    p_show = [p_query]
+    windows = window_sizes
+    min_freq = 2
 
-    corpus = Corpus(corpus_name)
-
-    topic_disc = Disc(
-        corpus,
-        items=topic_items,
-        p_query=p_query,
-        s_query=s_query
+    coll = get_collocates(
+        corpus_name,
+        topic_items,
+        p_query,
+        s_query,
+        flags_query,
+        escape,
+        s_context,
+        context,
+        additional_discoursemes,
+        windows,
+        p_show,
+        flags_show,
+        min_freq,
+        order,
+        cut_off,
+        LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
     )
 
-    # TODO speed up in backend
-    collocates = dict()
-    for window in window_sizes:
+    print(coll)
 
-        if not additional_discoursemes:
-            # single discourseme
-            coll_window = topic_disc.collocates(
-                window_sizes=window,
-                order=order,
-                cut_off=cut_off,
-                p_query=p_query,
-                ams=ams,
-                min_freq=2,
-                frequencies=False,
-                flags=None
-            )
-        else:
-            # discursive position
-            dp = DiscCon(topic_disc)
-            for key in additional_discoursemes.keys():
-                dp.add_items(additional_discoursemes[key])
-
-            coll_window = dp.collocates(
-                window=window,
-                order=order,
-                cut_off=cut_off,
-                p_query=p_query,
-                ams=ams,
-                min_freq=2,
-                frequencies=False,
-                flags=None
-            )
-
-        # drop superfluous columns and sort
-        coll_window = coll_window[[
-            'log_likelihood',
-            'log_ratio',
-            'f',
-            'f2',
-            'mutual_information',
-            'z_score',
-            't_score'
-        ]]
-
-        # rename AMs
-        am_dict = {
-            'log_likelihood': 'log-likelihood',
-            'f': 'co-oc. freq.',
-            'mutual_information': 'mutual information',
-            'log_ratio': 'log-ratio',
-            'f2': 'marginal freq.',
-            't_score': 't-score',
-            'z_score': 'z-score'
-        }
-        collocates[window] = coll_window.rename(am_dict, axis=1)
-
-    return collocates
+    return coll

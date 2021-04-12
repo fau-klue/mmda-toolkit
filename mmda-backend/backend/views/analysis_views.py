@@ -17,7 +17,7 @@ from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.tsne import (
     generate_semantic_space, generate_discourseme_coordinates
 )
-from backend.analysis.ccc import get_concordance, get_collocates
+from backend.analysis.ccc import ccc_concordance, ccc_collocates
 # backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import (
@@ -130,7 +130,7 @@ def create_analysis(username):
     log.debug('created analysis %s', analysis.id)
 
     # collocates: dict of dataframes with key == window_size
-    collocates = get_collocates(
+    collocates = ccc_collocates(
         corpus_name=analysis.corpus,
         topic_items=items,
         s_context=s_break,
@@ -467,7 +467,7 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     db.session.add(analysis_discourseme)
 
     # collocates: dict of dataframes with key == window_size
-    collocates = get_collocates(
+    collocates = ccc_collocates(
         corpus_name=analysis.corpus,
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
@@ -655,7 +655,7 @@ def get_collocate_for_analysis(username, analysis):
             additional_discoursemes[str(d.id)] = d.items
 
     # use cwb-ccc to extract data
-    collocates = get_collocates(
+    collocates = ccc_collocates(
         corpus_name=analysis.corpus,
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
@@ -774,7 +774,7 @@ def get_concordance_for_analysis(username, analysis):
     p_show = list(set(['word', analysis.p_query]))
 
     # use cwb-ccc to extract concordance lines
-    concordance = get_concordance(
+    concordance = ccc_concordance(
         corpus_name=analysis.corpus,
         topic_items=topic_discourseme.items,
         topic_name=topic_discourseme.name,
@@ -787,8 +787,7 @@ def get_concordance_for_analysis(username, analysis):
         s_show=s_show,
         s_query=analysis.s_break,
         order=order,
-        cut_off=cut_off,
-        form='dataframe'
+        cut_off=cut_off
     )
 
     if concordance is None:

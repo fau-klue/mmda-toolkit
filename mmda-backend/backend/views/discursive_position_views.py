@@ -7,6 +7,7 @@ Discursive Position views
 # requirements
 from flask import Blueprint, request, jsonify, current_app
 from flask_expects_json import expects_json
+from ccc.utils import cqp_escape
 
 # backend
 from backend import db
@@ -16,7 +17,7 @@ from backend.analysis.validators import (
     DISCURSIVE_POSITION_SCHEMA,
     DISCURSIVE_POSITION_UPDATE_SCHEMA
 )
-from backend.analysis.ccc import get_concordance
+from backend.analysis.ccc import ccc_concordance
 # backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import (
@@ -327,13 +328,13 @@ def get_discursive_position_concordances(username, discursive_position):
     # ... window size
     window_size = int(request.args.get('window_size', 3))
     # ... optional additional items
-    items = request.args.getlist('item', None)
+    items = [cqp_escape(i) for i in request.args.getlist('item', None)]
     # ... how many?
     cut_off = request.args.get('cut_off', 100)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    s_show = [request.args.get('s_meta', analysis.s_break)]
+    s_show = [i for i in request.args.getlist('s_meta', None)]
 
     # pre-process request
     # ... get associated topic discourseme
@@ -362,11 +363,15 @@ def get_discursive_position_concordances(username, discursive_position):
         for d in discoursemes:
             additional_discoursemes[str(d.id)] = d.items
 
+    # pack p-attributes
+    p_show = list(set(['word', analysis.p_query]))
+
     ret = {}
     for corpus in corpora:
 
+        print(analysis.s_break)
         # use cwb-ccc to extract data
-        concordance = get_concordance(
+        concordance = ccc_concordance(
             corpus_name=corpus,
             topic_items=topic_discourseme.items,
             topic_name=topic_discourseme.name,
@@ -375,12 +380,11 @@ def get_discursive_position_concordances(username, discursive_position):
             context=analysis.max_window_size,
             additional_discoursemes=additional_discoursemes,
             p_query=analysis.p_query,
-            p_show=list(set(['word', analysis.p_query])),
+            p_show=p_show,
             s_show=s_show,
-            s_query=None,
+            s_query=analysis.s_break,
             order=order,
-            cut_off=cut_off,
-            form='dataframes'
+            cut_off=cut_off
         )
 
         if concordance is None:
@@ -392,6 +396,5 @@ def get_discursive_position_concordances(username, discursive_position):
         )
 
         ret[corpus] = concordance
-    # print(ret)
 
     return jsonify(ret), 200
