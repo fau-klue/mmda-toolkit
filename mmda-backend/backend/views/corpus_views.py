@@ -6,7 +6,7 @@ Corpus view
 from flask import Blueprint, jsonify, current_app
 from flask_jwt_extended import jwt_required
 from logging import getLogger
-from backend.analysis.ccc import show_corpora, show_corpus
+from backend.analysis.ccc import ccc_corpora, ccc_corpus
 
 
 corpus_blueprint = Blueprint('corpus', __name__, template_folder='templates')
@@ -23,11 +23,11 @@ def get_corpora():
 
     # Get and transform for Frontend
     corpora = current_app.config['CORPORA']
-    cwb_corpora = show_corpora()
+    cwb_corpora = ccc_corpora()
     ret = list()
     for corpus in corpora.values():
         if corpus['name_api'] in cwb_corpora.index:
-            crps = show_corpus(corpus['name_api'])
+            crps = ccc_corpus(corpus['name_api'])
             corpus['pQueries'] = crps['p-atts']
             corpus['sBreaks'] = crps['s-atts']
             ret.append(corpus)
@@ -49,7 +49,6 @@ def get_corpus(corpus):
         log.debug('No such corpus %s', corpus)
         return jsonify({'msg': 'No such corpus'}), 404
 
-    print(show_corpus(corpus))
     corpus = corpora[corpus]
 
     return jsonify(corpus), 200

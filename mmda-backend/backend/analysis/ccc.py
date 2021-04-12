@@ -19,12 +19,12 @@ CQP_BIN = "cqp"
 LIB_PATH = None
 
 
-def show_corpora():
+def ccc_corpora():
     corpora = Corpora(CQP_BIN, REGISTRY_PATH).show()
     return corpora
 
 
-def show_corpus(corpus_name):
+def ccc_corpus(corpus_name):
     corpus = Corpus(corpus_name,
                     cqp_bin=CQP_BIN,
                     registry_path=REGISTRY_PATH,
@@ -62,9 +62,6 @@ def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
         LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
     )
 
-    from pprint import pprint
-    pprint(conc)
-
     return conc
 
 
@@ -98,7 +95,5 @@ def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
         cut_off,
         LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
     )
-
-    print(coll)
 
     return coll
