@@ -6,6 +6,7 @@ Concordance and Collocation Computation
 
 from ccc import Corpora, Corpus
 from ccc.discoursemes import get_concordance, get_collocates
+from anycache import anycache
 
 import logging
 
@@ -14,7 +15,8 @@ log = logging.getLogger('mmda-logger')
 
 
 REGISTRY_PATH = "/usr/local/share/cwb/registry"
-DATA_PATH = "/tmp/mmda-ccc-data/"
+CCC_PATH = "/tmp/mmda-ccc-data/"
+CACHE_PATH = "/tmp/mmda-cache/"
 CQP_BIN = "cqp"
 LIB_PATH = None
 
@@ -28,7 +30,7 @@ def ccc_corpus(corpus_name):
     corpus = Corpus(corpus_name,
                     cqp_bin=CQP_BIN,
                     registry_path=REGISTRY_PATH,
-                    data_path=DATA_PATH)
+                    data_path=CCC_PATH)
     attributes = corpus.attributes_available
     p_atts = list(
         attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
@@ -42,6 +44,7 @@ def ccc_corpus(corpus_name):
     return crps
 
 
+@anycache(CACHE_PATH)
 def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
                     window_size, context=20,
                     additional_discoursemes={}, p_query='lemma',
@@ -59,12 +62,13 @@ def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
         s_context, context,
         additional_discoursemes,
         p_show, s_show, window, order, cut_off,
-        LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
+        LIB_PATH, CQP_BIN, REGISTRY_PATH, CCC_PATH
     )
 
     return conc
 
 
+@anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
                    context=20, additional_discoursemes={},
                    p_query='lemma', s_query=None, ams=None,
@@ -93,7 +97,7 @@ def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
         min_freq,
         order,
         cut_off,
-        LIB_PATH, CQP_BIN, REGISTRY_PATH, DATA_PATH
+        LIB_PATH, CQP_BIN, REGISTRY_PATH, CCC_PATH
     )
 
     return coll
