@@ -6,7 +6,7 @@ import analysis from './modules/analysis'
 import coordinates from './modules/coordinates'
 import corpus from './modules/corpus'
 import discourseme from './modules/discourseme'
-import discursive from './modules/discursive'
+import constellation from './modules/constellation'
 import login from './modules/login'
 import profile from './modules/profile'
 import wordcloud from './modules/wordcloud'
@@ -21,7 +21,7 @@ const store = new Vuex.Store({
     coordinates: coordinates,
     corpus: corpus,
     discourseme: discourseme,
-    discursive: discursive,
+    constellation: constellation,
     login: login,
     profile: profile,
     wordcloud: wordcloud,

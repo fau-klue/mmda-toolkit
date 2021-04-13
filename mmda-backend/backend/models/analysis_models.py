@@ -142,38 +142,38 @@ class AnalysisDiscoursemes(db.Model):
     discourseme_id = db.Column(db.Integer(), db.ForeignKey('discourseme.id', ondelete='CASCADE'))
 
 
-class DiscursivePositionDiscoursemes(db.Model):
+class ConstellationDiscoursemes(db.Model):
     """
-    Discursive Position Discourseme association model
+    Constellation Discourseme association model
     """
 
-    __tablename__ = 'discursive_position_discoursemes'
+    __tablename__ = 'constellation_discoursemes'
 
     id = db.Column(db.Integer(), primary_key=True)
-    discursive_position_id = db.Column(db.Integer(), db.ForeignKey('discursive_position.id', ondelete='CASCADE'))
+    constellation_id = db.Column(db.Integer(), db.ForeignKey('constellation.id', ondelete='CASCADE'))
     discourseme_id = db.Column(db.Integer(), db.ForeignKey('discourseme.id', ondelete='CASCADE'))
 
 
-class DiscursivePosition(db.Model):
+class Constellation(db.Model):
     """
-    Discursive position data model
+    Constellatoin data model
     """
 
-    __tablename__ = 'discursive_position'
+    __tablename__ = 'constellation'
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)
     user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
 
     # Relationship
-    user = db.relationship('User', back_populates='discursive_position')
-    discourseme = db.relationship('Discourseme', secondary='discursive_position_discoursemes', backref=db.backref('discursive_position', lazy='dynamic'))
+    user = db.relationship('User', back_populates='constellation')
+    discourseme = db.relationship('Discourseme', secondary='constellation_discoursemes', backref=db.backref('constellation', lazy='dynamic'))
 
     @property
     def serialize(self):
         """
         Return object data in easily serializeable format
-        :return: Dictionary containing the discursive position values
+        :return: Dictionary containing the constellation values
         :rtype: dict
         """
 

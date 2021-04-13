@@ -10,7 +10,7 @@ from .corpus_views import corpus_blueprint
 from .coordinates_views import coordinates_blueprint
 from .analysis_views import analysis_blueprint
 from .discourseme_views import discourseme_blueprint
-from .discursive_position_views import discursive_blueprint
+from .constellation_views import constellation_blueprint
 
 
 def register_blueprints(app):
@@ -25,4 +25,4 @@ def register_blueprints(app):
     app.register_blueprint(analysis_blueprint)
     app.register_blueprint(discourseme_blueprint)
     app.register_blueprint(coordinates_blueprint)
-    app.register_blueprint(discursive_blueprint)
+    app.register_blueprint(constellation_blueprint)

@@ -591,7 +591,7 @@ def get_collocate_for_analysis(username, analysis):
       - name: discourseme
         type: list
         required: False
-        description: discourseme id(s) to include in discursive position
+        description: discourseme id(s) to include in constellation
       - name: collocate
         type: list
         required: False
@@ -701,7 +701,7 @@ def get_concordance_for_analysis(username, analysis):
       - name: discourseme
         type: list
         required: False
-        description: discourseme id(s) to include in discursive position
+        description: discourseme id(s) to include in constellation
       - name: item
         type: list
         required: False

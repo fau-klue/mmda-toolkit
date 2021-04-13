@@ -29,7 +29,7 @@ class User(db.Model, UserMixin):
     roles = db.relationship('Role', secondary='users_roles', backref=db.backref('users', lazy='dynamic'))
     analysis = db.relationship('Analysis', backref=db.backref('users'))
     discourseme = db.relationship('Discourseme', backref=db.backref('users'))
-    discursive_position = db.relationship('DiscursivePosition', backref=db.backref('users'))
+    constellation = db.relationship('Constellation', backref=db.backref('users'))
 
     @property
     def serialize(self):

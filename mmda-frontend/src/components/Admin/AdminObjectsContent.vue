@@ -46,10 +46,10 @@
           </v-list>
           </div>
 
-          <div v-if="positions">
-          <p class="headline">Constellations ({{ positions.length }})</p>
+          <div v-if="constellations">
+          <p class="headline">Constellations ({{ constellations.length }})</p>
           <v-list>
-            <v-list-tile v-for="item in positions" :key="item.id" avatar>
+            <v-list-tile v-for="item in constellations" :key="item.id" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">question_answer</v-icon>
               </v-list-tile-avatar>
@@ -60,7 +60,7 @@
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn icon @click="removeObject('discursiveposition', item)">
+                <v-btn icon @click="removeObject('constellation', item)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>
@@ -89,14 +89,14 @@ export default {
       user: 'login/user',
       analysis: 'admin/analysis',
       discoursemes: 'admin/discoursemes',
-      positions: 'admin/positions'
+      constellations: 'admin/constellations'
     })
   },
   methods: {
     ...mapActions({
       getAllAnalysis: 'admin/getAllAnalysis',
       getAllDiscoursemes: 'admin/getAllDiscoursemes',
-      getAllPositions: 'admin/getAllPositions',
+      getAllConstellations: 'admin/getAllConstellations',
       deleteObject: 'admin/deleteObject'
     }),
     removeObject (type, object) {
@@ -128,8 +128,8 @@ export default {
       }).catch((error) => {
         this.error = error
       })
-      // Positions
-      this.getAllPositions().then(() => {
+      // Constellations
+      this.getAllConstellations().then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error

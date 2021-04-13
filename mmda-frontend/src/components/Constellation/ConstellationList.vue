@@ -8,12 +8,12 @@
             <v-text-field label="Search" prepend-inner-icon="search" v-model="search" clearable @click:clear="clearSearch"></v-text-field>
 
             <v-list two-line subheader>
-              <v-list-tile v-for="position in filteredItems" :key="position.id" avatar :to="/discursive/ + position.id">
+              <v-list-tile v-for="constellation in filteredItems" :key="constellation.id" avatar :to="/constellation/ + constellation.id">
                 <v-list-tile-avatar>
                   <v-icon class="grey lighten-1 white--text">question_answer</v-icon>
                 </v-list-tile-avatar>
                 <v-list-tile-content>
-                  <v-list-tile-title>{{ position.name }} (ID:{{ position.id }})</v-list-tile-title>
+                  <v-list-tile-title>{{ constellation.name }} (ID:{{ constellation.id }})</v-list-tile-title>
                 </v-list-tile-content>
               </v-list-tile>
             </v-list>
@@ -29,22 +29,22 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'DiscursivePositionList',
+  name: 'ConstellationList',
   data: () => ({
     search: ''
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
-      userPositions: 'discursive/userDiscursivePositions'
+      userConstellations: 'constellation/userConstellations'
     }),
     filteredItems() {
       var F = []
-      if(!this.userPositions) return [];
+      if(!this.userConstellations) return [];
       if (!this.search) {
-        F = this.userPositions
+        F = this.userConstellations
       } else {
-        F = this.userPositions.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
+        F = this.userConstellations.filter(items => items.name.toLowerCase().search(this.search) >= 0 )
       }
       F.sort((x)=>x.id)
       return F;
@@ -52,13 +52,13 @@ export default {
   },
   methods: {
     ...mapActions({
-      getUserDiscursivePositions: 'discursive/getUserDiscursivePositions'
+      getUserConstellations: 'constellation/getUserConstellations'
     }),
     clearSearch () {
       this.search = ''
     },
-    loadPositions () {
-      this.getUserDiscursivePositions(this.user.username).then(() => {
+    loadConstellations () {
+      this.getUserConstellations(this.user.username).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -66,7 +66,7 @@ export default {
     }
   },
   created () {
-    this.loadPositions()
+    this.loadConstellations()
   }
 }
 

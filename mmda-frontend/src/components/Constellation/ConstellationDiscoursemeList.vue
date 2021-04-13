@@ -4,8 +4,8 @@
     <v-layout>
       <v-flex xs6 sm6>
         <h1 class="title">Associated Discoursemes:</h1>
-        <v-list two-line subheader v-if="positionDiscoursemes">
-          <v-list-tile v-for="discourseme in positionDiscoursemes" :key="discourseme.id" avatar>
+        <v-list two-line subheader v-if="constellationDiscoursemes">
+          <v-list-tile v-for="discourseme in constellationDiscoursemes" :key="discourseme.id" avatar>
             <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
             <v-list-tile-avatar>
               <v-icon class="grey--text">subject</v-icon>
@@ -25,7 +25,7 @@
               </v-btn>
             </v-list-tile-action>
           </v-list-tile>
-          <h2 v-if="positionDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
+          <h2 v-if="constellationDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
         </v-list>
 
       </v-flex>
@@ -64,7 +64,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'DiscursivePositionDiscoursemeList',
+  name: 'ConstellationDiscoursemeList',
   data: () => ({
     search: '',
     error: null,
@@ -73,31 +73,31 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      positionDiscoursemes: 'discursive/discoursemes',
-      theDiscursivePosition: 'discursive/discursivePosition',
+      constellationDiscoursemes: 'constellation/discoursemes',
+      theConstellation: 'constellation/constellationConstellation',
       userDiscoursemes: 'discourseme/userDiscoursemes'
     }),
     discoursemeUnion () {
-      const positionDiscoursemeIDs = this.positionDiscoursemes.map(d => d.id)
+      const constellationDiscoursemeIDs = this.constellationDiscoursemes.map(d => d.id)
       // Add own topic discourseme, cause you cant add that
-      positionDiscoursemeIDs.push(this.theDiscursivePosition.topic_id)
-      return this.userDiscoursemes.filter(items => !positionDiscoursemeIDs.includes(items.id)  )
+      constellationDiscoursemeIDs.push(this.theConstellation.topic_id)
+      return this.userDiscoursemes.filter(items => !constellationDiscoursemeIDs.includes(items.id)  )
     }
   },
   methods: {
     ...mapActions({
-      getDiscursivePositionDiscoursemes: 'discursive/getDiscursivePositionDiscoursemes',
+      getConstellationDiscoursemes: 'constellation/getConstellationDiscoursemes',
       getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
-      removeDiscoursemeFromDiscursivePosition: 'discursive/removeDiscoursemeFromDiscursivePosition',
-      addDiscoursemeToDiscursivePosition: 'discursive/addDiscoursemeToDiscursivePosition',
+      removeDiscoursemeFromConstellation: 'constellation/removeDiscoursemeFromConstellation',
+      addDiscoursemeToConstellation: 'constellation/addDiscoursemeToConstellation',
     }),
-    loadPositionDiscoursemes () {
+    loadConstellationDiscoursemes () {
       const data = {
         username: this.user.username,
-        position_id: this.id
+        constellation_id: this.id
       }
 
-      this.getDiscursivePositionDiscoursemes(data).then(() => {
+      this.getConstellationDiscoursemes(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -113,12 +113,12 @@ export default {
     addDiscourseme (id) {
       const data = {
         username: this.user.username,
-        position_id: this.id,
+        constellation_id: this.id,
         discourseme_id: id
       }
 
       this.loading = true
-      this.addDiscoursemeToDiscursivePosition(data).then(() => {
+      this.addDiscoursemeToConstellation(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -128,12 +128,12 @@ export default {
     removeDiscourseme (id) {
       const data = {
         username: this.user.username,
-        position_id: this.id,
+        constellation_id: this.id,
         discourseme_id: id
       }
 
       this.loading = true
-      this.removeDiscoursemeFromDiscursivePosition(data).then(() => {
+      this.removeDiscoursemeFromConstellation(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -145,7 +145,7 @@ export default {
   created () {
     this.id = this.$route.params.id
     this.loadDiscoursemes()
-    this.loadPositionDiscoursemes()
+    this.loadConstellationDiscoursemes()
   }
 }
 

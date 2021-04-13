@@ -54,7 +54,7 @@
 	"profile": "Profile",
 	"analysis": "Analyses",
 	"discourseme": "Discoursemes",
-	"position": "Discourseme Constellation",
+	"constellation": "Discourseme Constellation",
 	"administration": "Administration",
 	"users": "Users",
 	"objects": "Objects"
@@ -129,8 +129,8 @@
 	    "helpItems": "Set of lemmas or multi-lemma units."
 	}
     },
-    "position": {
-	"newPosition": "New Constellation",
+    "constellation": {
+	"newConstellation": "New Constellation",
 	"name": "Name",
 	"associatedDiscoursemes": "Associated Discoursemes",
 	"availableDiscoursemes": "Available Discoursemes",

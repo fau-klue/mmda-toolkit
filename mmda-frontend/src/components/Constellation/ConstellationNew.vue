@@ -22,19 +22,19 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                <h1 class="title">{{ $t("position.new.helpTitle") }}</h1>
+                <h1 class="title">{{ $t("constellation.new.helpTitle") }}</h1>
                 <p>
-                  {{ $t("position.new.helpText") }}
+                  {{ $t("constellation.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("position.new.name") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.new.name") }}</h1>
                 <p>
-                  {{ $t("position.new.helpName") }}
+                  {{ $t("constellation.new.helpName") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("position.new.discoursemes") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.new.discoursemes") }}</h1>
                 <p>
-                  {{ $t("position.new.helpDiscoursemes") }}
+                  {{ $t("constellation.new.helpDiscoursemes") }}
                 </p>
 
               </v-flex>
@@ -58,7 +58,7 @@
                     chips
                     ></v-combobox>
 
-                  <v-btn color="success" class="text-lg-right" @click="addPosition">Submit</v-btn>
+                  <v-btn color="success" class="text-lg-right" @click="addConstellation">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
               </v-flex>
@@ -76,7 +76,7 @@ import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
 export default {
-  name: 'DiscursivePositionNewContent',
+  name: 'ConstellationNewContent',
   data: () => ({
     error: null,
     loading: false,
@@ -93,7 +93,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      addUserDiscursivePosition: 'discursive/addUserDiscursivePosition'
+      addUserConstellation: 'constellation/addUserConstellation'
     }),
     clear () {
       this.error = null
@@ -101,7 +101,7 @@ export default {
       this.name = ''
       this.selectDiscoursemes = []
     },
-    addPosition () {
+    addConstellation () {
       this.nodata = false
 
       if (!this.name || this.selectDiscoursemes.length === 0) {
@@ -116,9 +116,9 @@ export default {
       }
 
       this.loading = true
-      this.addUserDiscursivePosition(data).then(() => {
+      this.addUserConstellation(data).then(() => {
         this.error = null
-        this.$router.push('/discursive')
+        this.$router.push('/constellation')
       }).catch((error) => {
         this.error = error
       }).then(() => {

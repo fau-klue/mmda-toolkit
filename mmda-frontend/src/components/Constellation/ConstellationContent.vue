@@ -1,0 +1,112 @@
+<template>
+<div>
+  <v-card flat>
+    <v-card-text>
+      <v-container>
+        <v-layout justify-space-between row>
+          <v-flex v-if="theConstellation" xs12 sm12>
+
+            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Constellation </v-alert>
+            <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
+
+            <v-form>
+              <v-text-field v-model="theConstellation.name" :value="theConstellation.name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
+
+               <v-btn color="info" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Extract Concordances</v-btn>
+              <v-btn color="success" class="text-lg-right" @click="updateConstellation">Update Name</v-btn>
+              <v-btn color="error" outline class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
+
+               <ConstellationDiscoursemeList/>
+
+            </v-form>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-card-text>
+  </v-card>
+  </div>
+</template>
+
+<script>
+import { mapActions, mapGetters } from 'vuex'
+import ConstellationDiscoursemeList from '@/components/Constellation/ConstellationDiscoursemeList.vue'
+
+import rules from '@/utils/validation'
+
+export default {
+  name: 'ConstellationContent',
+  components: {
+    ConstellationDiscoursemeList
+  },
+  data: () => ({
+    id: null,
+    error: null,
+    nodata: false,
+    updated: false,
+    rules: rules
+  }),
+  computed: {
+    ...mapGetters({
+      user: 'login/user',
+      theConstellation: 'constellation/constellation'
+    })
+  },
+  methods: {
+    ...mapActions({
+      getUserSingleConstellation: 'constellation/getUserSingleConstellation',
+      updateUserConstellation: 'constellation/updateUserConstellation',
+      deleteUserConstellation: 'constellation/deleteUserConstellation'
+    }),
+    loadConstellation () {
+      const data = {
+        username: this.user.username,
+        constellation_id: this.id
+      }
+      this.getUserSingleConstellation(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
+    },
+    updateConstellation () {
+      this.nodata = false
+      this.updated = false
+
+      if (!this.theConstellation.name) {
+        this.nodata = true
+        return
+      }
+
+      const data = {
+        constellation_id: this.id,
+        username: this.user.username,
+        name: this.theConstellation.name
+      }
+
+      this.updateUserConstellation(data).then(() => {
+        this.error = null
+        this.updated = true
+      }).catch((error) => {
+        this.error = error
+      })
+    },
+    deleteConstellation () {
+      const data = {
+        username: this.user.username,
+        constellation_id: this.id
+      }
+      this.deleteUserConstellation(data).then(() => {
+        this.error = null
+        this.$router.push('/constellation')
+      }).catch((error) => {
+        this.error = error
+      })
+    }
+  },
+  created () {
+    this.id = this.$route.params.id
+    this.loadConstellation()
+  }
+}
+
+</script>

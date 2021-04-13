@@ -1,6 +1,6 @@
 <template>
 <div>
-  <DiscursivePositionSelection/>
+  <ConstellationSelection/>
 
   <v-card flat v-if="concordances.length!==0">
     <v-card-text>
@@ -32,15 +32,15 @@
 </template>
 
 <script>
-import DiscursivePositionSelection from '@/components/DiscursivePosition/DiscursivePositionCorporaSelection.vue'
+import ConstellationSelection from '@/components/Constellation/ConstellationCorporaSelection.vue'
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'DiscursivePositionConcordances',
+  name: 'ConstellationConcordances',
   components: {
-    DiscursivePositionSelection,
+    ConstellationSelection,
     ConcordancesKeywordInContextList
   },
   data: () => ({
@@ -52,12 +52,12 @@ export default {
     ...mapGetters({
       user: 'login/user',
       analysis: 'analysis/analysis',
-      concordances: 'discursive/concordances',
+      concordances: 'constellation/concordances',
     })
   },
     methods: {
     ...mapActions({
-      getDiscursivePositionConcordances: 'discursive/getDiscursivePositionConcordances'
+      getConstellationConcordances: 'constellation/getConstellationConcordances'
     }),
   }
 }

@@ -11,8 +11,8 @@ const state = {
   analysis: null,
   // List of all discoursemes
   discoursemes: null,
-  // List of all positions
-  positions: null
+  // List of all constellations
+  constellations: null
 }
 
 const getters = {
@@ -25,8 +25,8 @@ const getters = {
   discoursemes (state) {
     return state.discoursemes
   },
-  positions (state) {
-    return state.positions
+  constellations (state) {
+    return state.constellations
   }
 }
 
@@ -71,7 +71,7 @@ const actions = {
       api.delete(`/admin/${data.object}/${data.object_id}/`).then(function () {
         dispatch('getAllAnalysis')
         dispatch('getAllDiscoursemes')
-        dispatch('getAllPositions')
+        dispatch('getAllConstellations')
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -100,11 +100,11 @@ const actions = {
       })
     })
   },
-  getAllPositions ({commit}) {
-    // Get list of all positions
+  getAllConstellations ({commit}) {
+    // Get list of all constellations
     return new Promise((resolve, reject) => {
-      api.get(`/admin/discursiveposition/`).then(function (response) {
-        commit('setPositions', response.data)
+      api.get(`/admin/constellation/`).then(function (response) {
+        commit('setConstellations', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -123,8 +123,8 @@ const mutations = {
   setDiscoursemes (state, discoursemes) {
     state.discoursemes = discoursemes
   },
-  setPositions (state, positions) {
-    state.positions = positions
+  setConstellations (state, constellations) {
+    state.constellations = constellations
   }
 }
 

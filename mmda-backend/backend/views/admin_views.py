@@ -12,7 +12,7 @@ from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.commands.init_db import find_or_create_user
 from backend import admin_required
 from backend.models.user_models import User, Role
-from backend.models.analysis_models import Analysis, Discourseme, DiscursivePosition
+from backend.models.analysis_models import Analysis, Discourseme, Constellation
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -156,14 +156,14 @@ def get_discourseme():
 
 
 # READ
-@admin_blueprint.route('/api/admin/discursiveposition/', methods=['GET'])
+@admin_blueprint.route('/api/admin/constellation/', methods=['GET'])
 @admin_required
-def get_discursive_position():
+def get_constellation():
     """
-    Admin: List all discursive position
+    Admin: List all constellation
     """
 
-    items = DiscursivePosition.query.all()
+    items = Constellation.query.all()
     items_serial = [item.serialize for item in items]
 
     return jsonify(items_serial), 200
@@ -210,20 +210,20 @@ def delete_discourseme(discourseme):
 
 
 # DELETE
-@admin_blueprint.route('/api/admin/discursiveposition/<discursive_position>/', methods=['DELETE'])
+@admin_blueprint.route('/api/admin/constellation/<constellation>/', methods=['DELETE'])
 @admin_required
-def delete_discursive_position(discursive_position):
+def delete_constellation(constellation):
     """
-    Admin: Remove a discursive position
+    Admin: Remove a constellation
     """
 
-    item = DiscursivePosition.query.filter_by(id=discursive_position).first()
+    item = Constellation.query.filter_by(id=constellation).first()
     if not item:
-        log.debug('No such item %s', discursive_position)
+        log.debug('No such item %s', constellation)
         return jsonify({'msg': 'No such item'}), 404
 
     db.session.delete(item)
     db.session.commit()
 
-    log.debug('Deleted position %s', discursive_position)
+    log.debug('Deleted constellation %s', constellation)
     return jsonify({'msg': 'Deleted'}), 200

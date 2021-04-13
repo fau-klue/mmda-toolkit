@@ -16,7 +16,7 @@ LOGIN_SCHEMA = {
 PASSWORD_SCHEMA = {
     'type': 'object',
     'properties': {
-        'password': {'type': 'string','minLength': 8, 'maxLength': 255}
+        'password': {'type': 'string', 'minLength': 8, 'maxLength': 255}
     },
     'required': ['password']
 }
@@ -92,7 +92,7 @@ DISCOURSEME_SCHEMA = {
     'required': ['name', 'items']
 }
 
-DISCURSIVE_POSITION_SCHEMA = {
+CONSTELLATION_SCHEMA = {
     'type': 'object',
     'properties': {
         'name': {'type': 'string', 'maxLength': 255},
@@ -106,7 +106,7 @@ DISCURSIVE_POSITION_SCHEMA = {
     'required': ['name']
 }
 
-DISCURSIVE_POSITION_UPDATE_SCHEMA = {
+CONSTELLATION_UPDATE_SCHEMA = {
     'type': 'object',
     'properties': {
         'name': {'type': 'string', 'maxLength': 255},

@@ -7,17 +7,17 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                <h1 class="title">{{ $t("position.extraction.helpTitle") }}</h1>
+                <h1 class="title">{{ $t("constellation.extraction.helpTitle") }}</h1>
                 <p>
-                  {{ $t("position.extraction.helpText") }}
+                  {{ $t("constellation.extraction.helpText") }}
                 </p>
-                <h1 class="subheading">{{ $t("position.extraction.corpora") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.extraction.corpora") }}</h1>
                 <p>
-                  {{ $t("position.extraction.helpCorpora") }}
+                  {{ $t("constellation.extraction.helpCorpora") }}
                 </p>
-                <h1 class="subheading">{{ $t("position.extraction.analysis") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.extraction.analysis") }}</h1>
                 <p>
-                  {{ $t("position.extraction.helpAnalysis") }}
+                  {{ $t("constellation.extraction.helpAnalysis") }}
                 </p>
 
               </v-flex>
@@ -62,7 +62,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'DiscursivePositionCorporaSelection',
+  name: 'ConstellationCorporaSelection',
   data: () => ({
     id: null,
     error: null,
@@ -105,7 +105,7 @@ export default {
       getCorpora: 'corpus/getCorpora',
       getUserAnalysis: 'analysis/getUserAnalysis',
       getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
-      getDiscursivePositionConcordances: 'discursive/getDiscursivePositionConcordances'
+      getConstellationConcordances: 'constellation/getConstellationConcordances'
     }),
     clear () {
       this.error = null
@@ -155,13 +155,13 @@ export default {
 
         const data = {
           username: this.user.username,
-          position_id: this.id,
+          constellation_id: this.id,
           window_size: this.selectWindow,
           analysis: this.analysis.id,
           corpora: this.selectedCorpora
         }
 
-        this.getDiscursivePositionConcordances(data).then(() => {
+        this.getConstellationConcordances(data).then(() => {
           this.error = null
         }).catch((error) => {
           this.error = error

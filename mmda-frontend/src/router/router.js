@@ -84,26 +84,26 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "discoursemecontent" */ '@/views/DiscoursemeContent.vue')
     },
     {
-      path: '/discursive',
-      name: 'discursivelist',
-      component: () => import(/* webpackChunkName: "discursivelist" */ '@/views/DiscursivePositionList.vue')
+      path: '/constellation',
+      name: 'constellationlist',
+      component: () => import(/* webpackChunkName: "constellationlist" */ '@/views/ConstellationList.vue')
     },
     {
-      path: '/discursive/new',
-      name: 'discursivenew',
-      component: () => import(/* webpackChunkName: "discursivenew" */ '@/views/DiscursivePositionNew.vue')
+      path: '/constellation/new',
+      name: 'constellationnew',
+      component: () => import(/* webpackChunkName: "constellationnew" */ '@/views/ConstellationNew.vue')
     },
     {
-      path: '/discursive/:id',
+      path: '/constellation/:id',
       props: true,
-      name: 'discursivecontent',
-      component: () => import(/* webpackChunkName: "discursivecontent" */ '@/views/DiscursivePositionContent.vue')
+      name: 'constellationcontent',
+      component: () => import(/* webpackChunkName: "constellationcontent" */ '@/views/ConstellationContent.vue')
     },
     {
-      path: '/discursive/:id/concordances',
+      path: '/constellation/:id/concordances',
       props: true,
-      name: 'discursiveconcordances',
-      component: () => import(/* webpackChunkName: "discursiveconcordances" */ '@/views/DiscursivePositionConcordances.vue')
+      name: 'constellationconcordances',
+      component: () => import(/* webpackChunkName: "constellationconcordances" */ '@/views/ConstellationConcordances.vue')
     }
   ]
 })

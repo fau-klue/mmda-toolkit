@@ -53,7 +53,7 @@ export default {
     items: [
       { title: 'Analyses', icon: 'dashboard', route: '/analysis' },
       { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
-      { title: 'Constellations', icon: 'question_answer', route: '/discursive' },
+      { title: 'Constellations', icon: 'question_answer', route: '/constellation' },
       { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
     ],
     admins: [
