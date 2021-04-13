@@ -138,8 +138,8 @@
 	    "name": "Constellation Name",
 	    "discoursemes": "Discoursemes",
 	    "helpTitle": "What is a Constellation?",
-	    "helpText": "A constellation is a user-created list of discoursemes, e.g. a certain attitude that can be taken towards a topic.",
-	    "helpName": "User-defined name for the new constellation",
+	    "helpText": "A constellation is a the co-occurrence of several discoursemes, e.g. a certain attitude towards a topic.",
+	    "helpName": "Name for the new constellation",
 	    "helpDiscoursemes": "A selection of the available discoursemes that are included in the constellation."
 	},
 	"extraction": {
