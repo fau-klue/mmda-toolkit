@@ -45,6 +45,7 @@ def ccc_corpus(corpus_name):
 
 
 @anycache(CACHE_PATH)
+# TODO take care of caching for random order
 def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
                     window_size, context=20,
                     additional_discoursemes={}, p_query='lemma',
