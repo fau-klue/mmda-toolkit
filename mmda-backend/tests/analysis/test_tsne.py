@@ -1,6 +1,6 @@
 import pandas
 from pandas import DataFrame
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 import unittest.mock as mock
 
 from backend.analysis import tsne
@@ -16,7 +16,7 @@ def test_coord_load_vectors_fail():
     assert_frame_equal(actual, expected)
 
 
-@mock.patch('backend.analysis.coordinates.tsne.Magnitude')
+@mock.patch('backend.analysis.tsne.Magnitude')
 def test_coord_load_vectors(mock_pymag):
 
     mock_pymag.return_value.query.side_effect = [
@@ -37,7 +37,7 @@ def test_coord_load_vectors(mock_pymag):
     assert_frame_equal(actual, expected)
 
 
-@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+@mock.patch('backend.analysis.tsne.load_vectors')
 def test_coord_generate_2d_coordinates(mock_vectors):
 
     mock_data = pandas.DataFrame(data=[[1, 1, 1], [2, 2, 2]],
@@ -54,7 +54,7 @@ def test_coord_generate_2d_coordinates(mock_vectors):
     assert list(actual['user_y']) == [None, None]
 
 
-@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+@mock.patch('backend.analysis.tsne.load_vectors')
 def test_coord_generate_2d_coordinates_error(mock_vectors):
 
     fail = tsne.generate_semantic_space(
@@ -90,8 +90,8 @@ def test_calculate_item_coordinates():
     # assert expected.equals(actual) == True
 
 
-@mock.patch('backend.analysis.coordinates.tsne.calculate_item_coordinates')
-@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+@mock.patch('backend.analysis.tsne.calculate_item_coordinates')
+@mock.patch('backend.analysis.tsne.load_vectors')
 def test_generate_discourse_coordinates(mock_vectors, mock_combine):
 
     mock_coordinates = DataFrame({
@@ -123,8 +123,8 @@ def test_generate_discourse_coordinates(mock_vectors, mock_combine):
     assert_frame_equal(actual, expected)
 
 
-@mock.patch('backend.analysis.coordinates.tsne.calculate_item_coordinates')
-@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+@mock.patch('backend.analysis.tsne.calculate_item_coordinates')
+@mock.patch('backend.analysis.tsne.load_vectors')
 def test_generate_discourse_coordinates_with_empty_list(mock_vectors, mock_combine):
 
     mock_coordinates = DataFrame({
@@ -145,8 +145,8 @@ def test_generate_discourse_coordinates_with_empty_list(mock_vectors, mock_combi
     assert_frame_equal(actual, expected)
 
 
-@mock.patch('backend.analysis.coordinates.tsne.calculate_item_coordinates')
-@mock.patch('backend.analysis.coordinates.tsne.load_vectors')
+@mock.patch('backend.analysis.tsne.calculate_item_coordinates')
+@mock.patch('backend.analysis.tsne.load_vectors')
 def test_generate_discourse_coordinates_with_user(mock_vectors, mock_combine):
 
     mock_coordinates = DataFrame({

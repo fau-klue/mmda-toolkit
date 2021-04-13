@@ -1,12 +1,12 @@
-from backend.analysis.ccc import get_concordance, get_collocates
+from backend.analysis.ccc import ccc_concordance, ccc_collocates
 import pytest
 
 
 @pytest.mark.conc
-def test_get_concordance(germaparl):
+def test_ccc_concordance_simple(germaparl):
 
     name = 'topic'
-    conc = get_concordance(
+    conc = ccc_concordance(
         corpus_name=germaparl['corpus']['name'],
         topic_items=germaparl['discoursemes'][name],
         topic_name=name,
@@ -18,10 +18,10 @@ def test_get_concordance(germaparl):
 
 
 @pytest.mark.conc
-def test_get_concordance_dp(germaparl):
+def test_ccc_concordance_constellation(germaparl):
 
     name = 'topic'
-    conc = get_concordance(
+    conc = ccc_concordance(
         corpus_name=germaparl['corpus']['name'],
         topic_items=germaparl['discoursemes'].pop(name),
         topic_name=name,
@@ -35,9 +35,9 @@ def test_get_concordance_dp(germaparl):
 
 
 @pytest.mark.conc
-def test_get_concordance_dp_2(germaparl):
+def test_ccc_concordance_constellation_2(germaparl):
 
-    conc = get_concordance(
+    conc = ccc_concordance(
         corpus_name=germaparl['corpus']['name'],
         topic_items=['Merkel'],
         topic_name='topic',
@@ -52,9 +52,9 @@ def test_get_concordance_dp_2(germaparl):
 
 
 @pytest.mark.conc
-def test_get_concordance_dp_3(germaparl):
+def test_ccc_concordance_constellation_3(germaparl):
 
-    conc = get_concordance(
+    conc = ccc_concordance(
         corpus_name=germaparl['corpus']['name'],
         topic_items=['Merkel'],
         topic_name='topic',
@@ -68,28 +68,28 @@ def test_get_concordance_dp_3(germaparl):
 
 
 @pytest.mark.coll
-def test_get_collocates(germaparl):
+def test_ccc_collocates_simple(germaparl):
 
     name = 'topic'
-    coll = get_collocates(
+    coll = ccc_collocates(
         corpus_name=germaparl['corpus']['name'],
         topic_items=germaparl['discoursemes'][name],
         s_context=germaparl['parameters']['s_context'],
-        window_size=5,
+        window_sizes=[3, 5, 7],
         context=germaparl['parameters']['context']
     )
     print(coll)
 
 
 @pytest.mark.coll
-def test_get_collocates_dp(germaparl):
+def test_ccc_collocates_constellation(germaparl):
 
     name = 'topic'
-    coll = get_collocates(
+    coll = ccc_collocates(
         corpus_name=germaparl['corpus']['name'],
         topic_items=germaparl['discoursemes'][name],
         s_context=germaparl['parameters']['s_context'],
-        window_size=5,
+        window_sizes=[3, 5, 7],
         context=germaparl['parameters']['context'],
         additional_discoursemes={'temp': ['Verhandlung']},
     )
