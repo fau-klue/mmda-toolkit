@@ -43,7 +43,7 @@
                     ></v-select>
 
                   <v-autocomplete v-model="selectedAnalysisId" clearable :items="userAnalysis" item-value="id" item-text="name" label="Analysis"></v-autocomplete>
-		  <v-slider v-model="selectWindow" :max="maxWindow" :min="minWindow" thumb-label="always"
+                  <v-slider v-model="selectWindow" :max="maxWindow" :min="minWindow" thumb-label="always"
             thumb-size="28"></v-slider>
                   <v-btn color="success" class="text-lg-right" @click="loadConcordances">Submit</v-btn>
                   <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
@@ -75,22 +75,22 @@ export default {
       minWindow: 1
   }),
     watch: {
-	selectedAnalysisId(){
-	    // console.log(this.selectedAnalysisId)
-	    // console.log(this.selectWindow)
-	    this.loadAnalysis(this.selectedAnalysisId).then(()=>{
-		this.selectWindow = this.analysis.max_window_size
-	    })
-	},
-	selectWindow(){
-	    console.log(this.selectWindow)
-	},
-	analysis(){
-	    // console.log(this.selectedAnalysisId)
-	    // console.log(this.selectWindow)
-	    // this.selectWindow = this.analysis.max_window_size
-	    this.maxWindow = this.analysis.max_window_size
-	}
+        selectedAnalysisId(){
+            // console.log(this.selectedAnalysisId)
+            // console.log(this.selectWindow)
+            this.loadAnalysis(this.selectedAnalysisId).then(()=>{
+                this.selectWindow = this.analysis.max_window_size
+            })
+        },
+        selectWindow(){
+            console.log(this.selectWindow)
+        },
+        analysis(){
+            // console.log(this.selectedAnalysisId)
+            // console.log(this.selectWindow)
+            // this.selectWindow = this.analysis.max_window_size
+            this.maxWindow = this.analysis.max_window_size
+        }
     },
   computed: {
     ...mapGetters({
