@@ -9,14 +9,16 @@ import pytest
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_get_coordinates(mock_coords, client, header):
 
-    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
+    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],
+                                                columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
+                                                index=['foo', 'bar'])
 
     data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel', 'Seehofer'], 'p_query': 'word', 's_break': 's'}
     response = client.post(url_for('analysis.create_analysis', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
+                           json=data)
 
     response = client.get(url_for('coordinates.get_coordinates',
                                   username='student1',
@@ -33,7 +35,9 @@ def test_get_coordinates(mock_coords, client, header):
 @mock.patch('backend.views.coordinates_views.generate_semantic_space')
 def test_reload_coordinates(mock_coords, client, header):
 
-    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
+    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],
+                                                columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
+                                                index=['foo', 'bar'])
 
     response = client.put(url_for('coordinates.reload_coordinates',
                                   username='student1',
@@ -68,11 +72,11 @@ def test_delete_coordinates(client, header):
     data = {'das': {'user_x': 100, 'user_y': 100}}
 
     response = client.delete(url_for('coordinates.delete_coordinates',
-                                  username='student1',
-                                  analysis=1),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+                                     username='student1',
+                                     analysis=1),
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=header,
+                             json=data)
 
     assert response.status_code == 200

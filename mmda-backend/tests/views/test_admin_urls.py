@@ -1,7 +1,5 @@
 from flask import url_for
-import unittest.mock as mock
 import pytest
-import pandas
 
 
 @pytest.mark.api
@@ -12,7 +10,7 @@ def test_users_list(client, admin_header):
                           content_type='application/json',
                           headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
@@ -23,7 +21,7 @@ def test_no_access(client, header):
                           content_type='application/json',
                           headers=header)
 
-    assert response.status_code==403
+    assert response.status_code == 403
 
 
 @pytest.mark.api
@@ -38,12 +36,12 @@ def test_create_user(client, admin_header):
     }
 
     response = client.post(url_for('admin.create_user'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header,
-                          json=new_user)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=admin_header,
+                           json=new_user)
 
-    assert response.status_code==201
+    assert response.status_code == 201
 
     # Password too short
     new_user = {
@@ -55,12 +53,12 @@ def test_create_user(client, admin_header):
     }
 
     response = client.post(url_for('admin.create_user'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header,
-                          json=new_user)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=admin_header,
+                           json=new_user)
 
-    assert response.status_code==400
+    assert response.status_code == 400
 
 
 @pytest.mark.api
@@ -76,12 +74,12 @@ def test_no_such_role_createuser(client, admin_header):
     }
 
     response = client.post(url_for('admin.create_user'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header,
-                          json=new_user)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=admin_header,
+                           json=new_user)
 
-    assert response.status_code==404
+    assert response.status_code == 404
 
 
 @pytest.mark.api
@@ -97,12 +95,12 @@ def test_create_admin_user(client, admin_header):
     }
 
     response = client.post(url_for('admin.create_user'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header,
-                          json=new_user)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=admin_header,
+                           json=new_user)
 
-    assert response.status_code==201
+    assert response.status_code == 201
 
 
 @pytest.mark.api
@@ -116,8 +114,7 @@ def test_update_password(client, admin_header):
                           headers=admin_header,
                           json=data)
 
-
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
@@ -132,28 +129,28 @@ def test_delete_user(client, admin_header):
     }
 
     response = client.post(url_for('admin.create_user'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header,
-                          json=new_user)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=admin_header,
+                           json=new_user)
 
     response = client.delete(url_for('admin.delete_user', username='johnsnow'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header)
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
 def test_delete_admin_user(client, admin_header):
 
     response = client.delete(url_for('admin.delete_user', username='admin'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header)
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=admin_header)
 
-    assert response.status_code==409
+    assert response.status_code == 409
 
 
 @pytest.mark.api
@@ -164,21 +161,21 @@ def test_get_items(client, admin_header):
                           content_type='application/json',
                           headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
     response = client.get(url_for('admin.get_discourseme'),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
-    response = client.get(url_for('admin.get_discursive_position'),
+    response = client.get(url_for('admin.get_constellation'),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
@@ -186,43 +183,43 @@ def test_delete_discourseme(client, header, admin_header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
     response = client.post(url_for('discourseme.create_discourseme', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
+                           json=data)
 
     response = client.delete(url_for('admin.delete_discourseme', discourseme=1),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header)
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
 def test_delete_position(client, header, admin_header):
 
     data = {'name': 'foobar', 'discoursemes': [1]}
-    response = client.post(url_for('discursive_position.create_discursive_position', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+    response = client.post(url_for('constellation.create_constellation', username='student1'),
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
+                           json=data)
 
-    response = client.delete(url_for('admin.delete_discursive_position', discursive_position=1),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header)
+    response = client.delete(url_for('admin.delete_constellation', constellation=1),
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=admin_header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
 def test_delete_analysis_noanalysis(client, header, admin_header):
 
     response = client.delete(url_for('admin.delete_analysis', analysis=2),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=admin_header)
+                             follow_redirects=True,
+                             content_type='application/json',
+                             headers=admin_header)
 
-    assert response.status_code==404
+    assert response.status_code == 404
