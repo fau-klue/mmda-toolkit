@@ -7,6 +7,16 @@ from flask_user import UserMixin
 from backend import db
 
 
+users_roles = db.Table(
+    # many to many mapping:
+    # - a user can have several roles
+    # - a role can be token by several users
+    'UsersRoles',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'))
+)
+
+
 class User(db.Model, UserMixin):
     """
     User data model
@@ -20,16 +30,22 @@ class User(db.Model, UserMixin):
     email_confirmed_at = db.Column(db.DateTime())
     password = db.Column(db.String(255), nullable=False, server_default='')
     reset_password_token = db.Column(db.Unicode(255), nullable=False, server_default=u'')
-    active = db.Column(db.Boolean(), nullable=False, server_default='0')
+    # active = db.Column(db.Boolean(), nullable=False, server_default='0')
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='0')
     first_name = db.Column(db.Unicode(255), nullable=False, server_default=u'')
     last_name = db.Column(db.Unicode(255), nullable=False, server_default=u'')
 
-    # Relationships
-    roles = db.relationship('Role', secondary='users_roles', backref=db.backref('users', lazy='dynamic'))
-    analysis = db.relationship('Analysis', backref=db.backref('users'))
-    discourseme = db.relationship('Discourseme', backref=db.backref('users'))
-    constellation = db.relationship('Constellation', backref=db.backref('users'))
+    # FOREIGN KEYS #
+    # roles
+    roles = db.relationship('Role',
+                            secondary=users_roles,
+                            backref=db.backref('users', lazy='dynamic'))
+    # analyses
+    analyses = db.relationship('Analysis', backref='users', lazy=True)
+    # discoursemes
+    discoursemes = db.relationship('Discourseme', backref='users', lazy=True)
+    # constellations
+    constellations = db.relationship('Constellation', backref='users', lazy=True)
 
     @property
     def serialize(self):
@@ -54,19 +70,9 @@ class Role(db.Model):
     """
     Role data model
     """
+
     __tablename__ = 'roles'
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(255), nullable=False, server_default=u'', unique=True)  # for @roles_accepted()
     description = db.Column(db.Unicode(255), server_default=u'')
-
-
-class UsersRoles(db.Model):
-    """
-    UserRoles association model
-    """
-    __tablename__ = 'users_roles'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = db.Column(db.Integer(), db.ForeignKey('roles.id', ondelete='CASCADE'))

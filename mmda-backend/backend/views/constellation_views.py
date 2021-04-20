@@ -23,7 +23,6 @@ from backend.models.user_models import User
 from backend.models.analysis_models import (
     Analysis,
     Discourseme,
-    ConstellationDiscoursemes,
     Constellation
 )
 
@@ -70,13 +69,13 @@ def create_constellation(username):
             continue
 
         # Check if exists alread
-        constellation_discourseme = ConstellationDiscoursemes.query.filter_by(constellation_id=constellation.id, discourseme_id=discourseme.id).first()
+        constellation_discourseme = discourseme in constellation.discoursemes
         if constellation_discourseme:
             continue
 
         # Add discourseme link
-        constellation_discourseme = ConstellationDiscoursemes(constellation_id=constellation.id, discourseme_id=discourseme.id)
-        db.session.add(constellation_discourseme)
+        constellation.discoursemes.append(discourseme)
+        db.session.add(constellation)
         log.debug('Added Discourseme %s to Constellation  %s', discourseme.id, constellation.id)
 
     db.session.commit()
@@ -100,6 +99,7 @@ def get_constellation(username, constellation):
 
     # Get from DB
     constellation = Constellation.query.filter_by(id=constellation, user_id=user.id).first()
+
     if not constellation:
         log.debug('No such Constellation %s', constellation)
         return jsonify({'msg': 'No such constellation'}), 404
@@ -202,7 +202,7 @@ def get_discoursemes_for_constellation(username, constellation):
         return jsonify({'msg': 'No such constellation'}), 404
 
     # Get Discoursemes list from DB
-    constellation_discoursemes = [discourseme.serialize for discourseme in constellation.discourseme]
+    constellation_discoursemes = [discourseme.serialize for discourseme in constellation.discoursemes]
     if not constellation_discoursemes:
         log.debug('Constellation %s has no Discoursemes associated', constellation.id)
         return jsonify([]), 200
@@ -237,15 +237,13 @@ def put_discourseme_into_constellation(username, constellation, discourseme):
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if exists
-    constellation_discourseme = ConstellationDiscoursemes.query.filter_by(constellation_id=constellation.id, discourseme_id=discourseme.id).first()
-
-    if constellation_discourseme:
+    if discourseme in constellation.discoursemes:
         log.debug('Discourseme %s already linked to Constellation %s', discourseme, constellation)
         return jsonify({'msg': 'Already linked'}), 200
 
     # Add Link to DB
-    constellation_discourseme = ConstellationDiscoursemes(constellation_id=constellation.id, discourseme_id=discourseme.id)
-    db.session.add(constellation_discourseme)
+    constellation.discoursemes.append(discourseme)
+    db.session.add(constellation)
     db.session.commit()
     log.debug('Linked Discourseme %s to Constellation %s', discourseme, constellation)
 
@@ -278,13 +276,12 @@ def delete_discourseme_from_constellation(username, constellation, discourseme):
         log.debug('No such Discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
-    constellation_discourseme = ConstellationDiscoursemes.query.filter_by(constellation_id=constellation.id, discourseme_id=discourseme.id).first()
-
-    if not constellation_discourseme:
+    if discourseme not in constellation.discoursemes:
         log.debug('Discourseme %s is not linked to Constellation %s', discourseme, constellation)
         return jsonify({'msg': 'Not found'}), 404
 
-    db.session.delete(constellation_discourseme)
+    constellation.discoursemes.remove(discourseme)
+    db.sesion.add(constellation)
     db.session.commit()
     log.debug('Unlinked Discourseme %s to Constellation %s', discourseme, constellation)
 
@@ -350,11 +347,11 @@ def get_constellation_concordances(username, constellation):
     if items:
         # create discourseme for additional items on the fly
         additional_discoursemes['collocate'] = items
-    if not constellation.discourseme:
+    if not constellation.discoursemes:
         log.debug('Constellation %s has no Discoursemes associated', constellation.id)
     else:
         discourseme_ids = [
-            d.id for d in constellation.discourseme if d.id != topic_discourseme.id
+            d.id for d in constellation.discoursemes if d.id != topic_discourseme.id
         ]
         # get all discoursemes from database and append
         discoursemes = Discourseme.query.filter(

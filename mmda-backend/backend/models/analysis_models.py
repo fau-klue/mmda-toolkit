@@ -1,10 +1,60 @@
 """
-Analysis Models
+Analysis Models:
+
+- Discourseme
+- Constellation
+- Analysis
+- Coordinates
+
+Relationships:
+
+=== one to many ===
+# (topic) discourseme - analysis
+- a discourseme (parent) can have several analyses (children)
+- an analysis has exactly one topic discourseme
+
+# user - [analysis, discourseme, constellation]
+- a user can have several analyses
+- an analysis belongs to exactly one user
+
+=== one to one ===
+# analysis - coordinates
+- an analysis (parent) has exactly one coordinates table (child)
+- a coordinates table belongs to exactly one analysis
+
+=== many to many ===
+# analysis - discoursemes
+- an analysis has several associated discoursemes
+- a discourseme can belong to several analyses
+
+# constellation - discoursemes
+- a constellation has several associated discoursemes
+- a discourseme can belong to several constellations
+
 """
 
 
 from pandas import read_json
 from backend import db
+
+
+analyses_discoursemes = db.Table(
+    # many to many mapping:
+    # - an analysis has several associated discoursemes
+    # - a discourseme can belong to several analyses
+    'AnalysesDiscoursemes',
+    db.Column('analysis_id', db.Integer, db.ForeignKey('analysis.id')),
+    db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
+)
+
+constellation_discoursemes = db.Table(
+    # many to many mapping:
+    # - a constellation has several associated discoursemes
+    # - a discourseme can belong to several constellations
+    'ConstellationDiscoursemes',
+    db.Column('constellation_id', db.Integer, db.ForeignKey('constellation.id')),
+    db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
+)
 
 
 class Analysis(db.Model):
@@ -16,27 +66,31 @@ class Analysis(db.Model):
     _separator = ','
 
     id = db.Column(db.Integer, primary_key=True)
-    # Maximum window size
-    max_window_size = db.Column(db.Integer, nullable=True)
-    # p_query: p-attribute for the query (e.g. lemma, pos)
-    p_query = db.Column(db.Unicode(255), nullable=False)
-    # s_break: s-attribute for sentence break (e.g. <s>, <tweet>)
-    s_break = db.Column(db.Unicode(255), nullable=False)
-    # association_measures
-    _association_measures = db.Column(db.Unicode(), nullable=True)
 
     name = db.Column(db.Unicode(255), nullable=False)
     corpus = db.Column(db.Unicode(255), nullable=False)
+    p_query = db.Column(db.Unicode(255), nullable=False)
+    s_break = db.Column(db.Unicode(255), nullable=False)
+    max_window_size = db.Column(db.Integer, nullable=True)
+    # association_measures are stored as <str>, will be returned as <list>
+    _association_measures = db.Column(db.Unicode(), nullable=True)
+
+    # FOREIGN KEYS ##
+    # topic discourseme id
+    topic_id = db.Column(db.Integer(),
+                         db.ForeignKey('discourseme.id'),
+                         nullable=False)
+    # coordinates
+    coordinates_id = db.Column(db.Integer(),
+                               db.ForeignKey('coordinates.id', ondelete='CASCADE'))
+    # users
     user_id = db.Column(db.Integer(),
                         db.ForeignKey('users.id', ondelete='CASCADE'))
-    topic_id = db.Column(db.Integer(),
-                         db.ForeignKey('discourseme.id', ondelete='SET NULL'))
 
-    # Relationship
-    user = db.relationship('User', back_populates='analysis')
-    discourseme = db.relationship('Discourseme',
-                                  secondary='analysis_discoursemes',
-                                  backref=db.backref('analysis', lazy='dynamic'))
+    # associated discoursemes
+    discoursemes = db.relationship("Discourseme",
+                                   secondary=analyses_discoursemes,
+                                   backref=db.backref('analyses_associated', lazy=True))
 
     @property
     def association_measures(self):
@@ -86,14 +140,21 @@ class Discourseme(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)
-    # topic means it's a topic discourseme, associated with an analysis
-    topic = db.Column(db.Boolean(), nullable=True, server_default='0')
-    # Items are a string containing the lexical items, will be returned as a list.
-    _items = db.Column(db.Unicode(), nullable=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
 
-    # Relationship
-    user = db.relationship('User', back_populates='discourseme')
+    # items are stored as <str>, will be returned as <list>
+    _items = db.Column(db.Unicode(), nullable=True)
+
+    # linked analyses as a topic
+    analyses = db.relationship('Analysis', backref='discourseme', lazy=True)
+
+    # users
+    user_id = db.Column(db.Integer(),
+                        db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    # topic = is there an associated analysis?
+    @property
+    def topic(self):
+        return len(self.analyses) > 0
 
     @property
     def items(self):
@@ -130,44 +191,24 @@ class Discourseme(db.Model):
         }
 
 
-class AnalysisDiscoursemes(db.Model):
-    """
-    Analysis Discourseme association model
-    """
-
-    __tablename__ = 'analysis_discoursemes'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    analysis_id = db.Column(db.Integer(), db.ForeignKey('analysis.id', ondelete='CASCADE'))
-    discourseme_id = db.Column(db.Integer(), db.ForeignKey('discourseme.id', ondelete='CASCADE'))
-
-
-class ConstellationDiscoursemes(db.Model):
-    """
-    Constellation Discourseme association model
-    """
-
-    __tablename__ = 'constellation_discoursemes'
-
-    id = db.Column(db.Integer(), primary_key=True)
-    constellation_id = db.Column(db.Integer(), db.ForeignKey('constellation.id', ondelete='CASCADE'))
-    discourseme_id = db.Column(db.Integer(), db.ForeignKey('discourseme.id', ondelete='CASCADE'))
-
-
 class Constellation(db.Model):
     """
-    Constellatoin data model
+    Constellation data model
     """
 
     __tablename__ = 'constellation'
 
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)
-    user_id = db.Column(db.Integer(), db.ForeignKey('users.id', ondelete='CASCADE'))
 
-    # Relationship
-    user = db.relationship('User', back_populates='constellation')
-    discourseme = db.relationship('Discourseme', secondary='constellation_discoursemes', backref=db.backref('constellation', lazy='dynamic'))
+    # users
+    user_id = db.Column(db.Integer(),
+                        db.ForeignKey('users.id', ondelete='CASCADE'))
+
+    # associated discoursemes
+    discoursemes = db.relationship("Discourseme",
+                                   secondary=constellation_discoursemes,
+                                   backref=db.backref('constellations', lazy=True))
 
     @property
     def serialize(self):
@@ -180,26 +221,37 @@ class Constellation(db.Model):
         return {
             'id': self.id,
             'user_id': self.user_id,
-            'name': self.name
+            'name': self.name,
+            'discoursemes': [discourseme.id for discourseme in self.discoursemes]
         }
 
 
 class Coordinates(db.Model):
     """
     Coordinates data model
+    - 1:1-relationship with Analysis
     """
 
-    __tablename__ = 'coordinate'
+    __tablename__ = 'coordinates'
 
     id = db.Column(db.Integer(), primary_key=True)
-    # This will store a pandas DataFrame as JSON String (not all databases support JSON)
+
+    # data is stored as JSON <str>, will be returned as <pd.DataFrame>
+    # NB: not all databases support JSON
     _data = db.Column(db.Unicode(255*255), nullable=True)
-    analysis_id = db.Column(db.Integer(), db.ForeignKey('analysis.id', ondelete='CASCADE'))
+
+    # analysis
+    # analysis = db.relationship('Analysis',
+    #                            backref='coordinates',
+    #                            lazy=True,
+    #                            uselist=False)
+    analysis_id = db.Column(db.Integer(),
+                            db.ForeignKey('analysis.id'))
 
     @property
     def data(self):
         """
-        Read JSON String an create DataFrame
+        Read JSON String and create DataFrame
         :return: Pandas DataFrame from JSON
         :rtype: DataFrame
         """

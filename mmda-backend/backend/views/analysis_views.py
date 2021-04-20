@@ -21,7 +21,7 @@ from backend.analysis.ccc import ccc_concordance, ccc_collocates
 # backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import (
-    Analysis, AnalysisDiscoursemes, Discourseme, Coordinates
+    Analysis, Discourseme, Coordinates
 )
 
 # logging
@@ -105,11 +105,11 @@ def create_analysis(username):
         return jsonify({'msg': 'wrong request parameters'}), 400
 
     # add topic discourseme to db
+    # TODO only if not exists
     topic_discourseme = Discourseme(
         name=analysis_name,
         items=items,
-        user_id=user.id,
-        topic=True
+        user_id=user.id
     )
     db.session.add(topic_discourseme)
     db.session.commit()
@@ -328,12 +328,6 @@ def delete_analysis(username, analysis):
         log.debug('no such analysis %s', analysis)
         return jsonify({'msg': 'no such analysis'}), 404
 
-    # change topic discourseme to regular discourseme
-    discourseme = Discourseme.query.filter_by(
-        id=analysis.topic_id,
-        user_id=user.id
-    ).first()
-    discourseme.topic = False
     db.session.delete(analysis)
     db.session.commit()
 
@@ -381,7 +375,7 @@ def get_discoursemes_for_analysis(username, analysis):
 
     # get discoursemes as list
     analysis_discoursemes = [
-        discourseme.serialize for discourseme in analysis.discourseme
+        discourseme.serialize for discourseme in analysis.discoursemes
     ]
     if not analysis_discoursemes:
         log.debug('no disoursemes associated')
@@ -440,20 +434,18 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         return jsonify({'msg': 'no such discourseme'}), 404
 
     # check if already linked or discourseme is topic discourseme of analysis
-    analysis_discourseme = AnalysisDiscoursemes.query.filter_by(
-        analysis_id=analysis.id, discourseme_id=discourseme.id
-    ).first()
+    analysis_discourseme = discourseme in analysis.discoursemes
     is_own_topic_discourseme = discourseme.id == analysis.topic_id
     if is_own_topic_discourseme:
         log.debug(
             'discourseme %s is already topic of the analysis', discourseme
         )
-        return jsonify({'msg': 'discourseme is already topic discourseme'}), 409
+        return jsonify({'msg': 'discourseme is already topic'}), 409
     if analysis_discourseme:
         log.debug(
             'discourseme %s is already linked', discourseme
         )
-        return jsonify({'msg': 'discourseme is already linked'}), 200
+        return jsonify({'msg': 'discourseme is already associated'}), 200
 
     # get topic discourseme
     topic_discourseme = Discourseme.query.filter_by(
@@ -461,10 +453,8 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     ).first()
 
     # add link
-    analysis_discourseme = AnalysisDiscoursemes(
-        analysis_id=analysis.id, discourseme_id=discourseme.id
-    )
-    db.session.add(analysis_discourseme)
+    analysis.discoursemes.append(discourseme)
+    db.session.add(analysis)
 
     # collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
@@ -552,16 +542,13 @@ def delete_discourseme_from_analysis(username, analysis, discourseme):
         return jsonify({'msg': 'no such discourseme'}), 404
 
     # check link
-    analysis_discourseme = AnalysisDiscoursemes.query.filter_by(
-        analysis_id=analysis.id,
-        discourseme_id=discourseme.id
-    ).first()
+    analysis_discourseme = discourseme in analysis.discoursemes
     if not analysis_discourseme:
         log.warn('discourseme %s not linked to analysis %s', discourseme, analysis)
         return jsonify({'msg': 'discourseme not linked to analysis'}), 404
 
     # delete
-    db.session.delete(analysis_discourseme)
+    analysis.discoursemes.remove(discourseme)
     db.session.commit()
 
     log.debug('deleted discourseme %s from analysis %s', discourseme, analysis)
