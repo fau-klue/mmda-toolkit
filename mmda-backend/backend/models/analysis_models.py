@@ -83,7 +83,7 @@ class Analysis(db.Model):
     # coordinates
     coordinates_id = db.Column(db.Integer(),
                                db.ForeignKey('coordinates.id', ondelete='CASCADE'))
-    # users
+    # user
     user_id = db.Column(db.Integer(),
                         db.ForeignKey('users.id', ondelete='CASCADE'))
 

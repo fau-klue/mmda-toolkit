@@ -67,25 +67,47 @@ def test_discourseme_update(client, header):
 @pytest.mark.api
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_discourseme_update_topic(mock_coords, client, header):
-    # You cannot edit a topic discourseme
+    # old behaviour: You cannot edit a topic discourseme
+    # TODO You can! Why not? (many-to-many mapping)
 
-    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
+    mock_coords.return_value = pandas.DataFrame(
+        data=[[1.0, 2.0, 3.0, 4.0]],
+        columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
+        index=['foo', 'bar']
+    )
 
-    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar',
+            'corpus': 'GERMAPARL_1114',
+            'items': ['Merkel'],
+            'p_query': 'word',
+            's_break': 's'}
+
     response = client.post(url_for('analysis.create_analysis', username='student1'),
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
+                           json=data)
+
+    analysis_id = response.json['msg']
+
+    response = client.get(url_for('analysis.get_analysis',
+                                  username='student1',
+                                  analysis=analysis_id),
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
+    discourseme_id = response.json['topic_id']
+
+    data = {'name': 'newname',
+            'items': ['something']}
+
+    response = client.put(url_for('discourseme.update_discourseme',
+                                  username='student1',
+                                  discourseme=discourseme_id),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header,
                           json=data)
-
-    data = {'name': 'newname', 'items': ['something']}
-    response = client.put(url_for('discourseme.update_discourseme',
-                                     username='student1',
-                                     discourseme=3),
-                             follow_redirects=True,
-                             content_type='application/json',
-                             headers=header,
-                             json=data)
 
     assert response.status_code==409
 
@@ -94,15 +116,18 @@ def test_discourseme_update_topic(mock_coords, client, header):
 def test_discourseme_delete(client, header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
-    response = client.post(url_for('discourseme.create_discourseme', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+    response = client.post(
+        url_for('discourseme.create_discourseme', username='student1'),
+        follow_redirects=True,
+        content_type='application/json',
+        headers=header,
+        json=data
+    )
+    discourseme_id = response.json['msg']
 
     response = client.delete(url_for('discourseme.delete_discourseme',
                                      username='student1',
-                                     discourseme=2),
+                                     discourseme=discourseme_id),
                              follow_redirects=True,
                              content_type='application/json',
                              headers=header)

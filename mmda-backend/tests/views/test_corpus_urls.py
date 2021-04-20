@@ -16,7 +16,7 @@ def test_corpora(client, header):
 @pytest.mark.api
 def test_corpus(client, header):
 
-    response = client.get(url_for('corpus.get_corpus', corpus='SZ_SMALL'),
+    response = client.get(url_for('corpus.get_corpus', corpus='GERMAPARL_1114'),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)

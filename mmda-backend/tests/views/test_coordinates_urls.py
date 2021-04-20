@@ -13,7 +13,7 @@ def test_get_coordinates(mock_coords, client, header):
                                                 columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
                                                 index=['foo', 'bar'])
 
-    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel', 'Seehofer'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar', 'corpus': 'GERMAPARL_1114', 'items': ['Merkel', 'Seehofer'], 'p_query': 'word', 's_break': 's'}
     response = client.post(url_for('analysis.create_analysis', username='student1'),
                            follow_redirects=True,
                            content_type='application/json',

@@ -102,7 +102,7 @@ def create_analysis(username):
     # check corpus
     if corpus_name not in current_app.config['CORPORA']:
         log.debug('no such corpus "%s"', corpus_name)
-        return jsonify({'msg': 'wrong request parameters'}), 400
+        return jsonify({'msg': 'no such corpus'}), 400
 
     # add topic discourseme to db
     # TODO only if not exists

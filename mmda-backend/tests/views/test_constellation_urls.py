@@ -29,18 +29,20 @@ def test_constellation_create(client, header):
 def test_constellation_get_concordance_not_params(client, header):
 
     # Missing corpora
-    just_items = 'analysis=123'
-    response = client.get(url_for('constellation.get_constellation_concordances', username='student1', constellation=1),
-                          query_string=just_items,
+    wrong_analysis = 'analysis=123'
+    response = client.get(url_for('constellation.get_constellation_concordances',
+                                  username='student1', constellation=1),
+                          query_string=wrong_analysis,
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)
 
-    assert response.status_code == 400
+    assert response.status_code == 404
 
     # Missing analysis
-    just_corpus = 'corpus=SZ_SMALL'
-    response = client.get(url_for('constellation.get_constellation_concordances', username='student1', constellation=1),
+    just_corpus = 'corpus=GERMAPARL_1114'
+    response = client.get(url_for('constellation.get_constellation_concordances',
+                                  username='student1', constellation=1),
                           query_string=just_corpus,
                           follow_redirects=True,
                           content_type='application/json',
@@ -50,21 +52,20 @@ def test_constellation_get_concordance_not_params(client, header):
 
 
 @pytest.mark.api
-@pytest.mark.xfail
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_constellation_get_concordance(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],
                                                 columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'], index=['foo', 'bar'])
 
-    data = {'name': 'foobar', 'corpus': 'SZ_SMALL', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar', 'corpus': 'GERMAPARL_1114', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
     client.post(url_for('analysis.create_analysis', username='student1'),
                 follow_redirects=True,
                 content_type='application/json',
                 headers=header,
                 json=data)
 
-    data = 'analysis=1&corpus=SZ_SMALL'
+    data = 'analysis=1&corpus=GERMAPARL_1114'
     response = client.get(url_for('constellation.get_constellation_concordances', username='student1', constellation=1),
                           query_string=data,
                           follow_redirects=True,

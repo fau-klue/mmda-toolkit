@@ -281,7 +281,7 @@ def delete_discourseme_from_constellation(username, constellation, discourseme):
         return jsonify({'msg': 'Not found'}), 404
 
     constellation.discoursemes.remove(discourseme)
-    db.sesion.add(constellation)
+    db.session.add(constellation)
     db.session.commit()
     log.debug('Unlinked Discourseme %s to Constellation %s', discourseme, constellation)
 
