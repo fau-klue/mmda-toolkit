@@ -30,8 +30,8 @@ vi /opt/data/mmda/corpora_settings_production.py
 5. Copy systemd unit files
 
 ```bash
-cp mmda-refactor/deployment/docker-mmda-backend.service /etc/systemd/system/
-cp mmda-refactor/deployment/docker-mmda-fronend.service /etc/systemd/system/
+cp deployment/docker-mmda-backend.service /etc/systemd/system/
+cp deployment/docker-mmda-frontend.service /etc/systemd/system/
 systemctl reload-daemon
 ```
 
