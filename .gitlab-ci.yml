@@ -12,7 +12,7 @@ cache:
 
 backend-lint:
   stage: lint
-  image: python:3.6
+  image: python:3.7
   allow_failure: true
   script:
     - cd mmda-backend/
@@ -39,9 +39,9 @@ frontend-test:
     - node --version; yarn --version
     - yarn run test:unit
 
-backend-test:python3-6:
+backend-test:python3-7:
   stage: test
-  image: python:3.6
+  image: python:3.7
   before_script:
     - python --version; pip --version
     - cd mmda-backend/
@@ -50,21 +50,20 @@ backend-test:python3-6:
   script:
     - pipenv run pytest --cov-report term-missing -v --cov=backend/
 
-backend-test:python3-5:
+backend-test:python3-8:
   stage: test
-  image: python:3.5
-  allow_failure: true
+  image: python:3.8
   before_script:
     - python --version; pip --version
     - cd mmda-backend/
     - pip install --quiet -r requirements.txt
     - pipenv install --system --dev
   script:
-    - pipenv run pytest -v
+    - pipenv run pytest --cov-report term-missing -v --cov=backend/
 
 openapi-documentation:
   stage: build
-  image: python:3.6
+  image: python:3.7
   before_script:
     - pip3 install --quiet pyyaml
   script:
