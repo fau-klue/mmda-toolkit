@@ -14,7 +14,7 @@
               <v-layout row>
                 <v-text-field v-model="discourseme.id" :value="discourseme.id" label="ID" box readonly />
                 <v-spacer/>
-                <v-text-field v-model="discourseme.name" label="name" :rules="[rules.required, rules.counter]"/>
+                <v-text-field v-model="discourseme.name" label="name" :rules="[rules.required, rules.counter]" box background-color="white"/>
               </v-layout>
               
               <v-combobox v-model="discourseme.items" :items="discourseme.items" label="items" :rules="[rules.required, rules.counter]" multiple chips></v-combobox>

@@ -1,79 +1,88 @@
 <template>
-<v-card class="kwic-view-card" v-if="shown">
-  <v-card-text>
+<v-layout row>
+  <v-flex xs12 sm12>
 
-    <v-alert v-if="error&&!loading" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
-    <v-alert v-else-if="!concordances&&!loading" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
+    <v-card-title v-if="showHeader">
+      Concordance (window: {{ windowSize }})
+      <v-btn v-if="!loading" icon ripple>
+        <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+      </v-btn>
+    </v-card-title>
     
-    <div v-else-if="loading" class="text-md-center">
-      <v-progress-circular indeterminate color="primary"></v-progress-circular>
-      <p v-if="loading">Loading Concordance...</p>
-      <p v-if="loading && typeof loading==='object' && !(implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
-      <p v-if="loading && typeof loading==='object' && (implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"] ["+loading.soc_items+"]"}}</p>
-    </div>
-    
-    <v-data-table v-else
-                  :items="tableContent"
-                  :headers="headers"
-                  :disable-initial-sort="false"
-                  :hide-actions="tableContent.length<=5"
-                  compact
-                  class="kwic-view-table kwic-view-compact"
-                  @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))"
-                  >
-      <template slot="items" slot-scope="props">
-        <td class="text-xs-center"
-            >
-          <v-menu open-on-hover top offset-y>
-            <span slot="activator" class="kwic-id">{{ props.item.match_pos }}</span>
-            <v-list>
-              <v-list-tile>
-                <v-list-tile-content>
-                  {{props.item.head_text+' '+props.item.keyword.text+' '+props.item.tail_text}}
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-menu>
-        </td>
-        <td class="text-xs-right kwic-context kwic-left">
-          <span style="color:#0000;">x</span> 
-          <!-- invisible x at the beginning,
-               preventing special characters like @#,.- etc to be moved to the end of the sentence by ellipsis/rtl -->
-          <template v-for="(el,idx) in props.item.head">
-            <span :key="'s_'+idx">&#160;</span>
-            <span :key="'h_'+idx" 
-                  @click="selectItem(el)"
-                  :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
-                  :style="el.style + ';direction:ltr'"
-                  :title="el.lemma">{{el.text}}</span>
+    <v-card class="kwic-view-card">
+      <v-card-text>
+        <v-alert v-if="error&&!loading" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{ error }}</v-alert>
+        <v-alert v-else-if="!concordances&&!loading" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
+        
+        <div v-else-if="loading" class="text-md-center">
+          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          <p v-if="loading">Loading Concordance...</p>
+          <p v-if="loading && typeof loading==='object' && !(implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
+          <p v-if="loading && typeof loading==='object' && (implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"] ["+loading.soc_items+"]"}}</p>
+        </div>
+        
+        <v-data-table v-else
+                      :items="tableContent"
+                      :headers="headers"
+                      :disable-initial-sort="false"
+                      :hide-actions="tableContent.length<=5"
+                      compact
+                      class="kwic-view-table kwic-view-compact"
+                      @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))"
+                      >
+          <template slot="items" slot-scope="props">
+            <td class="text-xs-center">
+              <v-menu open-on-hover top offset-y>
+                <span slot="activator" class="kwic-id">{{ props.item.match_pos }}</span>
+                <v-list>
+                  <v-list-tile>
+                    <v-list-tile-content>
+                      {{props.item.head_text+' '+props.item.keyword.text+' '+props.item.tail_text}}
+                    </v-list-tile-content>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
+            </td>
+            <td class="text-xs-right kwic-context kwic-left">
+              <span style="color:#0000;">x</span> 
+              <!-- invisible x at the beginning, preventing special characters like @#,.- etc to be moved to the end of the sentence by ellipsis/rtl -->
+              <template v-for="(el,idx) in props.item.head">
+                <span :key="'s_'+idx">&#160;</span>
+                <span :key="'h_'+idx" 
+                      @click="selectItem(el)"
+                      :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                      :style="el.style + ';direction:ltr'"
+                      :title="el.lemma">{{el.text}}</span>
+              </template>
+              <!-- invisible x at the end, preventing special characters like @#,.- etc to be moved to the front of the sentence by ellipsis/rtl -->
+              <span style="color:#0000;">x</span> 
+            </td>
+            <td class="text-xs-center keyword" 
+                @click="toggleKwicMode" 
+                :class="'concordance '+props.item.keyword.role"
+                :title="props.item.keyword.lemma"><span class="kwic-keyword">{{ props.item.keyword.text }}</span></td>
+            <td class="text-xs-left kwic-context">
+              <template v-for="(el,idx) in props.item.tail">
+                <span :key="'s2_'+idx">&#160;</span>
+                <span :key="'t_'+idx"
+                      @click="selectItem(el)"
+                      :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
+                      :style="el.style"
+                      :title="el.lemma">{{el.text}}</span>
+              </template>
+            </td>
+            <td v-if="useSentiment" class="text-xs-center kwic-sentiment"
+                :value="props.item.sentiment"
+                :style="'color:'+sentimentColor[ props.item.sentiment ]">
+              {{ sentimentEmotion[ props.item.sentiment ] }}
+            </td>
           </template>
-          <!-- invisible x at the end,
-               preventing special characters like @#,.- etc to be moved to the front of the sentence by ellipsis/rtl -->
-          <span style="color:#0000;">x</span> 
-        </td>
-        <td class="text-xs-center keyword" 
-            @click="toggleKwicMode" 
-            :class="'concordance '+props.item.keyword.role"
-            :title="props.item.keyword.lemma"><span class="kwic-keyword">{{ props.item.keyword.text }}</span></td>
-        <td class="text-xs-left kwic-context">
-          <template v-for="(el,idx) in props.item.tail">
-            <span :key="'s2_'+idx">&#160;</span>
-            <span :key="'t_'+idx"
-                  @click="selectItem(el)"
-                  :class="'concordance '+el.role + (!isCollocate(el.lemma) ? ' nocollocate':'') "
-                  :style="el.style"
-                  :title="el.lemma">{{el.text}}</span>
-          </template>
-        </td>
-        <td v-if="useSentiment" class="text-xs-center kwic-sentiment"
-            :value="props.item.sentiment"
-            :style="'color:'+sentimentColor[ props.item.sentiment ]">
-          {{ sentimentEmotion[ props.item.sentiment ] }}
-        </td>
-      </template>
-    </v-data-table>
-  </v-card-text>
-</v-card>
+        </v-data-table>
+      </v-card-text>
+    </v-card>
+  </v-flex>
+</v-layout>
+
 </template>
 
 <style>
@@ -148,7 +157,7 @@ export default {
   name: 'ConcordancesKeywordInContextList',
   components: {
   },
-  props:['concordances','loading','onclickitem', 'shown'],
+  props: ['showHeader', 'concordances', 'loading', 'onclickitem'],
   data: () => ({
     implementedSOC_conc: false, //TODO:
     id: null,
@@ -165,12 +174,23 @@ export default {
       this.concordancesRequested = true;
       this.error=null;
       //the required data (see setupIt) is available only after two ticks
-
       this.update();
     },
     loading(){
       if(this.loading) this.concordancesRequested = true;
-      //console.log("load "+this.loading);
+      // console.log("load "+this.loading);
+    },
+    windowSize(){
+      this.getConcordances({
+        username :this.user.username,
+        analysis_id: this.id,
+        //corpus:           this.analysis.corpus,
+        topic_items:      this.analysis.items,
+        soc_items: undefined, //TODO
+        collocate_items:  name? [name]: [],
+        window_size:      this.windowSize
+      })
+      this.update()
     }
   },
   computed: {
@@ -194,10 +214,10 @@ export default {
     tableContent () {
       var C = [];
       if(!this.corpus) return C;
-      //var p_att = 'p_query';//this.corpus.p_att;
+      // var p_att = 'p_query';//this.corpus.p_att;
       
-      //console.log(p_att);
-
+      // console.log(p_att);
+      // console.debug(this.concordances)
       if(!this.concordances) return C;
       for(var ci of Object.keys(this.concordances)){
         var c = this.concordances[ci]
@@ -207,7 +227,7 @@ export default {
           keyword:{text:'',role:'',lemma:''},
           tail:[],
           sentiment:0,
-          //these are for sorting context -purposes
+          // these are for sorting context -purposes
           reverse_head_text:'',
           head_text:'',
           tail_text:''
@@ -215,11 +235,11 @@ export default {
         Object.assign(r, c);
         var beforeKeyword = true;
 
-        //TODO:: assign correct sentiment
+        // TODO:: assign correct sentiment
         r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
 
         for(var i=0; i<c.word.length; ++i){  
-          //console.log(c);
+          // console.log(c);
           var el = {
             text:   c.word[i],
             role:   c.role[i]? c.role[i].join(" "): "None",
@@ -387,9 +407,9 @@ export default {
     }
   },
   created () {
+
     this.id = this.$route.params.id;
     if(!this.analysis) return this.$router.push('/analysis'); //fallback
-
 
     this.getCorpus(this.analysis.corpus).catch((error)=>{
       this.error = "Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
@@ -400,7 +420,7 @@ export default {
       this.update();
       this.clickOnLemma();
     }
-      // console.log("we are here");
+    // console.log("we are here");
   }
 }
 

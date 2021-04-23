@@ -1,29 +1,27 @@
 <template>
-<v-layout row>
+<v-layout v-if="analysis" row>
   <v-flex xs12 sm12>
-
+    
     <v-card-title>
-      Collocates
+      Collocates (window: {{ windowSize }})
       <v-btn icon ripple>
         <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
       </v-btn>
       <v-spacer/>
-      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setSize"/>
-      <v-spacer/>
       <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details ></v-text-field>
     </v-card-title>
-
-    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
-
+    
+    <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{ error }}</v-alert>
+    
     <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p v-if="loadingCoordinates">Loading Coordinates...</p>
       <p v-if="loadingCollocates">Loading Collocates...</p>
     </div>
-
+    
     <!-- TODO: sorting, number of items -->
     <v-data-table v-else :headers="headers" :items="transposedCoordinates" :items-per-page="10" :search="search" :sort-by="'log ratio'" class="elevation-1">
-
+      
       <template slot="items" slot-scope="props">
         <td v-for="el in headers" :key="props.item.name+el.text" class="text-xs-center">
           <div v-if="el.value==='name'">
@@ -37,16 +35,16 @@
           <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
           <div v-else>
             <div class="analysis-table-sphere" :style="
-            'width:'+props.item[el.value+'#Norm']*2+'rem;'
-            +'height:'+props.item[el.value+'#Norm']*2+'rem;'
-            +'border-radius:'+props.item[el.value+'#Norm']+'rem;'">
+                                                       'width:'+props.item[el.value+'#Norm']*2+'rem;'
+                                                       +'height:'+props.item[el.value+'#Norm']*2+'rem;'
+                                                       +'border-radius:'+props.item[el.value+'#Norm']+'rem;'">
               <div class="analysis-table-number">{{props.item[el.value]}}</div>
             </div>
           </div>
         </td>
       </template>
-
-  </v-data-table>
+      
+    </v-data-table>
   </v-flex>
 </v-layout>
 </template>
@@ -83,12 +81,11 @@ export default {
     loadingConcordances:false,
     loadingCollocates:false,
     loadingCoordinates:false,
-    min: 1,
-    selectWindow: 5
+    min: 1
   }),
   watch:{
     windowSize(){
-      this.selectWindow = this.windowSize;
+      this.getCollocates();
     },
     analysis(){
       this.init();
@@ -228,7 +225,6 @@ export default {
       getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
       getAnalysisCollocates:  'analysis/getAnalysisCollocates',
       getConcordances:        'analysis/getConcordances',
-      setWindowSize:          'wordcloud/setWindowSize',
       resetConcordances:      'analysis/resetConcordances'
     }),
     error_message_for(error, prefix, codes){
@@ -240,10 +236,6 @@ export default {
     },
     downloadCollocationCSV(){
       downloadText("collocation.csv",this.csvText.replace(/"/g,'&quot;'));
-    },
-    setSize(){
-      this.setWindowSize(this.selectWindow);
-      this.getCollocates();
     },
     map_value(value){
       return Math.log(1 + Math.max(0,value));
@@ -283,18 +275,16 @@ export default {
     init(){
       this.loadingCoordinates = true;
       if(this.analysis&&this.analysis.id==this.id){
-        this.setWindowSize( Math.min(this.windowSize,this.analysis&&this.analysis.id==this.id?this.analysis.context:2)).then(()=>{
-          this.selectWindow = this.windowSize;
-          this.getAnalysisCoordinates({
-            username:     this.user.username, 
-            analysis_id:  this.id
-          }).catch((error)=>{
-            this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
-          }).then(()=>{
-            this.loadingCoordinates = false;
-          });
-          this.getCollocates();
+        this.selectWindow = this.windowSize;
+        this.getAnalysisCoordinates({
+          username:     this.user.username, 
+          analysis_id:  this.id
+        }).catch((error)=>{
+          this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
+        }).then(()=>{
+          this.loadingCoordinates = false;
         });
+        this.getCollocates();
       }
     }
   },
