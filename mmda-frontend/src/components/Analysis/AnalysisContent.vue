@@ -39,8 +39,6 @@
               <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
             </v-layout>
 
-            <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
-
             <v-dialog v-model="dialogDelete" max-width="290">
               <v-card>
                 <v-card-title class="headline">Delete Analysis?</v-card-title>
@@ -73,15 +71,19 @@
       </v-container>
 
       <v-container>
+        <AnalysisDiscoursemeList/>
+      </v-container>
+
+      <v-container>
+        <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
+      </v-container>
+
+      <v-container>
         <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
       </v-container>
 
       <v-container>
-        <AnalysisItemTable/>
-      </v-container>
-
-      <v-container>
-        <AnalysisDiscoursemeList/>
+        <ItemTable/>
       </v-container>
 
     </v-card-text>
@@ -102,7 +104,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
-import AnalysisItemTable from '@/components/Analysis/AnalysisItemTable.vue'
+import ItemTable from '@/components/ItemTable/ItemTable.vue'
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 import WordcloudMinimap from '@/components/Wordcloud/WordcloudMinimap.vue'
 
@@ -112,7 +114,7 @@ export default {
   name: 'AnalysisContent',
   components: {
     AnalysisDiscoursemeList,
-    AnalysisItemTable,
+    ItemTable,
     ConcordancesKeywordInContextList,
     WordcloudMinimap,
     //AnalysisCoordinates

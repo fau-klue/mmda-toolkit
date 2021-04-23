@@ -73,7 +73,7 @@ import { mapActions, mapGetters } from 'vuex'
 import { downloadText } from '@/wordcloud/util_misc.js'
 
 export default {
-  name: 'AnalysisItemTable',
+  name: 'ItemTable',
   data: () => ({
     search: '',
     error: null,
