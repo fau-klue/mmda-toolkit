@@ -86,7 +86,7 @@
 	"delete": "Delete",
 	"new": {
 	    "helpTitle": "Discourseme Analysis",
-	    "helpText": "Start and interactive collocation analysis.",
+	    "helpText": "Start an interactive collocation analysis of a discourseme in a CWB-indexed corpus.",
 	    "name": "discourseme",
 	    "helpName": "either select a discourseme or enter a name for a new discourseme",
 	    "corpus": "corpus",
@@ -123,10 +123,10 @@
 	"new": {
 	    "name": "name",
 	    "items": "items",
-	    "helpTitle": "What is a Discourseme?",
-	    "helpText": "A discourseme is a user-created list of lexical items, e.g. a list of near-synonymous lemmas.",
-	    "helpName": "User-defined name for the new discourseme",
-	    "helpItems": "Set of lemmas or multi-lemma units."
+	    "helpTitle": "Discourseme",
+	    "helpText": "Define an abstract discourseme, i.e. a named family of lexical items.",
+	    "helpName": "name of the new discourseme (should be concise)",
+	    "helpItems": "set of lexical items (e.g. near-synonymous lemmas)"
 	}
     },
     "constellation": {

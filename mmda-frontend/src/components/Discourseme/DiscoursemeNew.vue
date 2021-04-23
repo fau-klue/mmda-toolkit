@@ -47,17 +47,18 @@
                 <v-form v-else>
                   <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Discourseme creation</v-alert>
-                  <v-text-field v-model="name" label="Discourseme Name" :rules="[rules.required, rules.counter]"></v-text-field>
+                  <v-text-field v-model="name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
                   <v-combobox
                     v-model="select"
                     :items="items"
-                    label="Discourseme Items"
+                    label="items"
                     :rules="[rules.required, rules.counter]"
                     multiple
                     chips
                     ></v-combobox>
 
                   <v-btn color="success" class="text-lg-right" @click="addDiscourseme">Submit</v-btn>
+                  <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
               </v-flex>
             </v-layout>
@@ -93,6 +94,11 @@ export default {
     ...mapActions({
       addUserDiscourseme: 'discourseme/addUserDiscourseme'
     }),
+    clear () {
+      this.error = null
+      this.select = []
+      this.name = ''
+    },
     addDiscourseme () {
       this.nodata = false
 

@@ -16,6 +16,7 @@
       </v-card>
     </v-flex>
   </v-layout>
+  <!-- content -->
   <v-layout wrap row>
     <v-flex xs12>
       <v-card flat>
@@ -45,11 +46,6 @@
                   {{ $t("analysis.new.helpItems") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.windowSize") }}</h1>
-                <p>
-                  {{ $t("analysis.new.helpWindowSize") }}
-                </p>
-
                 <h1 class="subheading">{{ $t("analysis.new.pquery") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpPQuery") }}
@@ -58,6 +54,11 @@
                 <h1 class="subheading">{{ $t("analysis.new.sbreak") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpSBreak") }}
+                </p>
+
+                <h1 class="subheading">{{ $t("analysis.new.windowSize") }}</h1>
+                <p>
+                  {{ $t("analysis.new.helpWindowSize") }}
                 </p>
 
               </v-flex>
@@ -119,7 +120,7 @@
                     label="context"
                     ></v-slider>
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
-                  <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
+                  <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
               </v-flex>
             </v-layout>
