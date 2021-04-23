@@ -102,7 +102,7 @@
                       :items="pQueries"
                       label="query layer (p-att)"
                       :rules="[rules.required, rules.alphanum, rules.counter]"
-                      ></v-combobox>&nbsp;
+                      ></v-combobox><v-spacer/>
                     <v-combobox
                       class="col-5"
                       v-model="sBreak"

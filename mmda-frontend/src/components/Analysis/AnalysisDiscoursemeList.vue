@@ -3,9 +3,8 @@
   <v-container>
     <v-layout>
       <v-flex xs6 sm6>
-
-        <h1 class="my-3 title">Associated Discoursemes:</h1>
-        <v-list two-line subheader v-if="analysisDiscoursemes">
+        <v-card-title>Associated Discoursemes</v-card-title>
+        <v-list two-line subheader v-if="analysisDiscoursemes.length > 0">
           <v-list-tile v-for="discourseme in analysisDiscoursemes" :key="discourseme.id" avatar>
             <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
             <v-list-tile-avatar>
@@ -31,8 +30,7 @@
 
       </v-flex>
       <v-flex xs6 sm6>
-
-        <h1 class="my-3 title">Available Discoursemes:</h1>
+        <v-card-title>Available Discoursemes</v-card-title>
         <v-list two-line subheader v-if="userDiscoursemes">
           <v-list-tile v-for="discourseme in discoursemeUnion" :key="discourseme.id" avatar>
             <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>

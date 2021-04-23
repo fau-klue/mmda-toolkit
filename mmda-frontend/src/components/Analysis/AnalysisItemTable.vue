@@ -1,14 +1,17 @@
 <template>
 <v-layout row>
   <v-flex xs12 sm12>
-    <h1 class="my-3 title">Collocates:
 
-    <v-btn icon ripple>
-      <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
-    </v-btn>
-    </h1>
-    <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" label="context window"
-      thumb-size="28" @change="setSize"></v-slider>
+    <v-card-title>
+      Collocates
+      <v-btn icon ripple>
+        <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
+      </v-btn>
+      <v-spacer/>
+      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setSize"/>
+      <v-spacer/>
+      <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details ></v-text-field>
+    </v-card-title>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
 
@@ -18,13 +21,8 @@
       <p v-if="loadingCollocates">Loading Collocates...</p>
     </div>
 
-    <v-data-table
-      v-else
-      :headers="headers"
-      :items="transposedCoordinates"
-      :items-per-page="10"
-      class="elevation-1"
-      >
+    <!-- TODO: sorting, number of items -->
+    <v-data-table v-else :headers="headers" :items="transposedCoordinates" :items-per-page="10" :search="search" :sort-by="'log ratio'" class="elevation-1">
 
       <template slot="items" slot-scope="props">
         <td v-for="el in headers" :key="props.item.name+el.text" class="text-xs-center">
@@ -47,6 +45,7 @@
           </div>
         </td>
       </template>
+
   </v-data-table>
   </v-flex>
 </v-layout>
@@ -122,7 +121,7 @@ export default {
       return R;
     },
     transposedCoordinatesFullPrecision () {
-      //TODO: does this know, that it needs both this.coordinates and this.collocates?
+      // TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
       var R = {}, val;
       if(this.coordinates){
@@ -149,7 +148,7 @@ export default {
       return Object.values(R);
     },
     transposedCoordinates () {
-      //TODO: does this know, that it needs both this.coordinates and this.collocates?
+      // TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
       var R={},val;
       if(this.coordinates){
@@ -259,7 +258,7 @@ export default {
         username : this.user.username,
         analysis_id: this.id,
         //corpus:         this.analysis.corpus, 
-        topic_items:    this.analysis.topic_discourseme.items,
+        topic_items:    this.analysis.items,
         soc_items: undefined,
         collocate_items: [item.name], 
         window_size:    this.windowSize

@@ -75,7 +75,7 @@ UPDATE_SCHEMA = {
         's_break': {'type': 'string', 'maxLength': 255},
         'p_query': {'type': 'string', 'maxLength': 255},
     },
-    'required': ['name', 'window_size', 's_break', 'p_query']
+    'required': ['name']
 }
 
 DISCOURSEME_SCHEMA = {

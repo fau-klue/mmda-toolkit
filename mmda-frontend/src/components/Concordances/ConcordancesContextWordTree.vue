@@ -173,8 +173,8 @@ export default {
       this.getConcordances({
         username :this.user.username,
         analysis_id: this.id,
-//        corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.topic_discourseme.items,
+        //        corpus:           this.analysis.corpus,
+        topic_items:      this.analysis.items,
         soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize

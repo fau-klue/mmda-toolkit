@@ -628,8 +628,6 @@ def get_collocate_for_analysis(username, analysis):
     order = request.args.get('order', 'log_likelihood')
 
     # pre-process request
-    # ... get associated topic discourseme
-    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
     # ... floating discoursemes
     additional_discoursemes = dict()
     if items:
@@ -646,7 +644,7 @@ def get_collocate_for_analysis(username, analysis):
     # use cwb-ccc to extract data
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
-        topic_items=topic_discourseme.items,
+        topic_items=analysis.items,
         s_context=analysis.s_break,
         window_sizes=[window_size],
         context=analysis.context,
@@ -765,7 +763,7 @@ def get_concordance_for_analysis(username, analysis):
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
         corpus_name=analysis.corpus,
-        topic_items=topic_discourseme.items,
+        topic_items=analysis.items,
         topic_name=topic_discourseme.name,
         s_context=analysis.s_break,
         window_size=window_size,

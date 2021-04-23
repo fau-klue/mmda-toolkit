@@ -251,7 +251,7 @@ export default {
         username :this.user.username,
         analysis_id: this.analysis.id,
         //corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.topic_discourseme.items,
+        topic_items:      this.analysis.items,
         //soc_items: this.SOC_items,
         discourseme_ids:this.discourseme_ids,
         collocate_items:  names,

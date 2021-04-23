@@ -2,89 +2,105 @@
 <div>
   <v-card flat>
     <v-card-text>
+
       <v-container>
         <v-layout v-if="analysis" justify-space-between row>
           <v-flex xs8 sm8>
+            <v-card-title>Analysis</v-card-title>
 
-            <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Analysis Updated </v-alert>
+            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Analysis Updated </v-alert>
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
-              <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name"></v-text-field>
-              <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
-              <v-text-field :value="analysis.topic_discourseme.items" label="items" box readonly></v-text-field>
               <v-layout row>
-              <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>&nbsp;
-              <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
-            </v-layout>
+                <v-text-field v-model="analysis.topic_discourseme.id" :value="analysis.topic_discourseme.id" label="ID" box readonly></v-text-field>
+                <v-spacer/>
+                <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name"></v-text-field>
+                <v-btn color="info" class="text-lg-right" @click="updateAnalysis">Update</v-btn>
+              </v-layout>
 
-              <!-- <v-btn color="info" class="text-lg-right" :to="/analysis/ + analysis.id + /wordcloud/">Open WordCloud</v-btn> -->
-              <v-btn color="success" class="text-lg-right" @click="updateAnalysis">Update Name</v-btn>
-              <v-btn color="info" outline class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
-              <v-btn color="error" outline class="text-lg-right" @click.stop="dialogDelete = true" >Delete</v-btn>
-              <v-btn color="info" outline class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
-
+              <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
+              <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
+              <v-text-field :value="analysis.items" label="items" box readonly></v-text-field>
+              <v-layout row>
+                <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>
+                <v-spacer/>
+                <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
+              </v-layout>
             </v-form>
 
-            <v-dialog v-model="dialogDelete" max-width="290">
-              <v-card>
-                <v-card-title class="headline">Delete Analysis?</v-card-title>
-                <v-card-text>
-                  You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.
-		</v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn outline @click="dialogDelete = false">Close</v-btn>
-                  <v-btn color="error" @click="deleteAnalysis">Delete</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
-
+            <v-layout row>
+              <v-btn color="success" class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
+              <v-spacer/>
+              <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
+              <v-dialog v-model="dialogDelete" max-width="290">
+                <v-card>
+                  <v-card-title class="headline">Delete Analysis?</v-card-title>
+                  <v-card-text>
+                    You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer/>
+                    <v-btn outline @click="dialogDelete = false">Close</v-btn>
+                    <v-btn color="error" @click="deleteAnalysis">Delete</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+            </v-layout>
           </v-flex>
-
+          <v-spacer/>
           <v-flex xs4 sm4>
+            <v-card-title>WordCloud</v-card-title>
             <div class="minimap_button" @click="gotoWordcloud" title="Open Wordcloud">
-              <WordcloudMinimap v-bind:label="'Open Wordcloud'"
-                                v-bind:height="25"
-                  />
-                </div>
+              <WordcloudMinimap v-bind:height="25"/>
+            </div>
+            <div class="text-xs-center">
+              <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Coordinates</v-btn>
+            </div>
           </v-flex>
-
         </v-layout>
-
-	<h1 class="my-3 title">Concordance:
-          <v-btn v-if="!concordances_loading" icon ripple>
-            <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
-          </v-btn>
-        </h1>
-        <!-- concordance lines -->
+      </v-container>
+      
+      <v-container>
+        <!-- concordance -->
         <v-layout v-if="concordances||concordances_loading||show_concordances" row>
           <v-flex xs12 sm12>
+            <v-card-title>
+              Concordance
+              <v-btn v-if="!concordances_loading" icon ripple>
+                <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
+              </v-btn>
+            </v-card-title>
             <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" v-bind:shown="true"/>
           </v-flex>
         </v-layout>
-        <v-layout v-else><v-btn color="info" outline class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
+        <v-layout v-else>
+          <v-card-title>Concordance</v-card-title>
+          <v-btn color="info" class="text-lg-right" @click="show_concordances=true">Show Concordance</v-btn>
         </v-layout>
+      </v-container>
 
+      <v-container>
         <!-- collocates -->
         <v-layout v-if="analysis" row>
           <v-flex xs12 sm12>
-              <AnalysisItemTable/>
-              </v-flex>
+            <AnalysisItemTable/>
+          </v-flex>
         </v-layout>
+      </v-container>
 
+      <v-container>
         <!-- discourseme overview -->
         <v-layout row>
           <v-flex xs12 sm12>
             <AnalysisDiscoursemeList/>
           </v-flex>
         </v-layout>
-
       </v-container>
+
     </v-card-text>
   </v-card>
-  </div>
+</div>
 </template>
 
 <style>
@@ -186,7 +202,7 @@ export default {
       var q = "?name="+A.name;
       q+="&corpus="+A.corpus;
       q+="&window="+A.context;
-      for(var i of A.topic_discourseme.items) q+="&item="+i;
+      for(var i of A.items) q+="&item="+i;
       this.$router.push('/analysis/new'+q);
     },
     updateAnalysis () {
@@ -202,9 +218,9 @@ export default {
         analysis_id: this.id,
         username: this.user.username,
         name: this.analysis.name,
-        p_query: this.analysis.p_query,
-        s_break: this.analysis.s_break,
-        window_size: this.analysis.context
+        // p_query: this.analysis.p_query,
+        // s_break: this.analysis.s_break,
+        // window_size: this.analysis.context
       }
 
       this.updateUserAnalysis(data).then(() => {
@@ -228,7 +244,7 @@ export default {
   },
   created () {
     this.id = this.$route.params.id
-    this.resetConcordances();
+    this.resetConcordances()
     this.loadAnalysis()
   }
 }
