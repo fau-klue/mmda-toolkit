@@ -98,7 +98,7 @@ const actions = {
     })
   },
   updateUserAnalysis ({commit}, data) { // eslint-disable-line no-unused-vars
-      // Update analysis details
+    // Update analysis details
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')

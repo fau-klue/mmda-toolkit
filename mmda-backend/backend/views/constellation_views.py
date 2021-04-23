@@ -373,7 +373,7 @@ def get_constellation_concordances(username, constellation):
             topic_name=topic_discourseme.name,
             s_context=analysis.s_break,
             window_size=window_size,
-            context=analysis.max_window_size,
+            context=analysis.context,
             additional_discoursemes=additional_discoursemes,
             p_query=analysis.p_query,
             p_show=p_show,

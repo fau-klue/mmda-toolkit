@@ -59,9 +59,9 @@ def create_analysis(username):
       - corpus_name: corpus_name
         type: str
         description: name of corpus
-      - name: window_size
+      - name: context
         type: int
-        description: maximum window size [3]
+        description: context size in tokens [10]
       - name: p_query
         type: str
         description: p-attribute to query on [lemma]
@@ -90,9 +90,10 @@ def create_analysis(username):
     user = User.query.filter_by(username=username).first()
 
     # check request
+    discourseme = request.json.get('discourseme', None)
     analysis_name = request.json.get('name', None)
     corpus_name = request.json.get('corpus', None)
-    max_window_size = request.json.get('window_size', 3)
+    context = request.json.get('context', 10)
     p_query = request.json.get('p_query', 'lemma')
     s_break = request.json.get('s_break', None)
     items = request.json.get('items', [])
@@ -104,38 +105,41 @@ def create_analysis(username):
         log.debug('no such corpus "%s"', corpus_name)
         return jsonify({'msg': 'no such corpus'}), 400
 
-    # add topic discourseme to db
-    # TODO only if not exists
-    topic_discourseme = Discourseme(
-        name=analysis_name,
-        items=items,
-        user_id=user.id
-    )
-    db.session.add(topic_discourseme)
-    db.session.commit()
-    log.debug('created topic discourseme %s', topic_discourseme.id)
+    # create new discourseme if necessary
+    if isinstance(discourseme, str):
+        topic_discourseme = Discourseme(
+            name=discourseme,
+            items=items,
+            user_id=user.id
+        )
+        db.session.add(topic_discourseme)
+        db.session.commit()
+        log.debug('created discourseme %s', topic_discourseme.id)
+    else:
+        topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
 
     # add analysis to db
     analysis = Analysis(
         name=analysis_name,
         corpus=corpus_name,
-        user_id=user.id,
-        topic_id=topic_discourseme.id,
-        max_window_size=max_window_size,
         p_query=p_query,
-        s_break=s_break
+        s_break=s_break,
+        context=context,
+        items=items,
+        topic_id=topic_discourseme.id,
+        user_id=user.id,
     )
     db.session.add(analysis)
     db.session.commit()
-    log.debug('created analysis %s', analysis.id)
+    log.debug('initialized analysis %s', analysis.id)
 
     # collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
         topic_items=items,
         s_context=s_break,
-        window_sizes=range(1, max_window_size),
-        context=analysis.max_window_size,
+        window_sizes=range(1, context),
+        context=analysis.context,
         p_query=p_query,
         s_query=None,
         ams=None,
@@ -175,6 +179,33 @@ def create_analysis(username):
     return jsonify({'msg': analysis.id}), 201
 
 
+# READ ALL
+@analysis_blueprint.route(
+    '/api/user/<username>/analysis/',
+    methods=['GET']
+)
+@user_required
+def get_all_analysis(username):
+    """ List all analyses for given user.
+
+    parameters:
+      - username: username
+        type: str
+        description: username, links to user
+    responses:
+      200:
+         description: list of serialized analyses
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    analyses = Analysis.query.filter_by(user_id=user.id).all()
+    analyses_list = [analysis.serialize for analysis in analyses]
+
+    return jsonify(analyses_list), 200
+
+
 # READ
 @analysis_blueprint.route(
     '/api/user/<username>/analysis/<analysis>/',
@@ -209,39 +240,12 @@ def get_analysis(username, analysis):
         log.debug('no such analysis %s', analysis)
         return jsonify({'msg': 'no such analysis'}), 404
 
-    # get and add topic discourseme details
-    discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    analysis_dict = analysis.serialize
-    analysis_dict['topic_discourseme'] = discourseme.serialize
+    # # get and add topic discourseme details
+    # discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+    # analysis_dict = analysis.serialize
+    # analysis_dict['topic_discourseme'] = discourseme.serialize
 
-    return jsonify(analysis_dict), 200
-
-
-# READ
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/',
-    methods=['GET']
-)
-@user_required
-def get_all_analysis(username):
-    """ List all analyses for given user.
-
-    parameters:
-      - username: username
-        type: str
-        description: username, links to user
-    responses:
-      200:
-         description: list of serialized analyses
-    """
-
-    # get user
-    user = User.query.filter_by(username=username).first()
-
-    analyses = Analysis.query.filter_by(user_id=user.id).all()
-    analyses_list = [analysis.serialize for analysis in analyses]
-
-    return jsonify(analyses_list), 200
+    return jsonify(analysis.serialize), 200
 
 
 # UPDATE
@@ -270,10 +274,8 @@ def update_analysis(username, analysis):
        400:
          description: "wrong request parameters"
     """
-
     # get user
     user = User.query.filter_by(username=username).first()
-
     # check request
     name = request.json.get('name', None)
     if not name:
@@ -461,8 +463,8 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         corpus_name=analysis.corpus,
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
-        window_sizes=range(1, analysis.max_window_size),
-        context=analysis.max_window_size,
+        window_sizes=range(1, analysis.context),
+        context=analysis.context,
         p_query=analysis.p_query,
         additional_discoursemes={str(discourseme.id): discourseme.items},
         s_query=None,
@@ -647,7 +649,7 @@ def get_collocate_for_analysis(username, analysis):
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
         window_sizes=[window_size],
-        context=analysis.max_window_size,
+        context=analysis.context,
         additional_discoursemes=additional_discoursemes,
         p_query=analysis.p_query,
         s_query=None,
@@ -767,7 +769,7 @@ def get_concordance_for_analysis(username, analysis):
         topic_name=topic_discourseme.name,
         s_context=analysis.s_break,
         window_size=window_size,
-        context=analysis.max_window_size,
+        context=analysis.context,
         additional_discoursemes=additional_discoursemes,
         p_query=analysis.p_query,
         p_show=p_show,

@@ -71,11 +71,14 @@
                 <v-form v-else>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
-                  <v-text-field
-                    v-model="name"
-                    label="discourseme name"
-                    :rules="[rules.required, rules.counter]"
-                    ></v-text-field>
+                  <v-combobox
+                    class="col-5"
+                    v-model="selectDiscourseme"
+                    :items="userDiscoursemes"
+                    label="discourseme"
+                    item-text="name"
+                    :rules="[rules.required]"
+                    ></v-combobox>
                   <v-autocomplete
                     v-model="selectCorpus"
                     clearable
@@ -128,7 +131,7 @@
 </v-container>
 </template>
 
-  <script>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
@@ -140,22 +143,23 @@ export default {
     loading: false,
     min: 1,
     max: 25,
-    name: '',
+    name: 'untitled',           // TODO: make configurable
     pQuery: '',
-    // pQueryName: 'a',  
     sBreak: '',
-    pQueries:[],
-    sBreaks:[],
+    pQueries: [],
+    sBreaks: [],
     selectCorpus: '',
     selectItems: [],
     selectWindow: 10,
+    selectDiscourseme: '',
     rules: rules,
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
       corpora: 'corpus/corpora',
-      analysis: 'analysis/analysis'
+      analysis: 'analysis/analysis',
+      userDiscoursemes: 'discourseme/userDiscoursemes',
     })
   },
   watch: {
@@ -185,7 +189,7 @@ export default {
   methods: {
     ...mapActions({
       getCorpora: 'corpus/getCorpora',
-      getUserAnalysis: 'analysis/getUserAnalysis',
+      getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
       addUserAnalysis: 'analysis/addUserAnalysis'
     }),
     error_message_for(error, prefix, codes){
@@ -206,17 +210,17 @@ export default {
     clear () {
       this.error = null
       this.items = []
-      this.name = ''
       this.pQuery = 'word'
       this.sBreak = 's'
       this.selectCorpus = ''
       this.selectItems = []
-      this.selectWindow = 3
+      this.selectWindow = 10,
+      this.selectDiscourseme = ''
     },
     addAnalysis () {
       this.error = null;
 
-      if (!this.name || this.selectItems.length === 0 || !this.selectCorpus) {
+      if ( this.selectItems.length === 0 || !this.selectCorpus) {
         this.error = this.$t("analysis.new.missing_data")
         return
       }
@@ -226,10 +230,11 @@ export default {
         username: this.user.username,
         name: this.name,
         items: this.selectItems,
-        window_size: this.selectWindow,
+        context: this.selectWindow,
         p_query: this.pQuery,
         s_break: this.sBreak,
-        corpus: this.selectCorpus
+        corpus: this.selectCorpus,
+        discourseme: this.selectDiscourseme
       }
 
       this.addUserAnalysis(data).then(() => {
@@ -247,7 +252,11 @@ export default {
     },
     getParametersFromRoute(){
       let r = this.$route.query
-      if(r.name) this.name = r.name
+      if(r.discourseme) {
+        this.selectDiscourseme = this.userDiscoursemes.find(
+          (o)=>o.id == r.discourseme
+        )
+      }
       if(r.window) this.selectWindow = Number.parseInt(r.window)
       if(r.corpus) this.selectCorpus = r.corpus
       if(r.item){
@@ -257,13 +266,14 @@ export default {
     }
   },
   created () {
+    this.getUserDiscoursemes(this.user.username)
     this.getCorpora().then(() => {
       this.error = null
       this.getParametersFromRoute();
     }).catch((error) => {
       this.error = this.error_message_for(error,"",{});
     }).then(() => {
-      this.loading = false
+        this.loading = false
     })
   }
 }

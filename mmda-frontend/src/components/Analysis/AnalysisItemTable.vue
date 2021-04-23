@@ -7,7 +7,7 @@
       <v-icon class="grey--text text--lighten-1" title="download collocation list (.csv)" @click="downloadCollocationCSV">file_copy</v-icon>
     </v-btn>
     </h1>
-    <v-slider v-model="selectWindow" :max="analysis.max_window_size" :min="min" thumb-label="always" label="context window"
+    <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" label="context window"
       thumb-size="28" @change="setSize"></v-slider>
 
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{error}}</v-alert>
@@ -22,6 +22,7 @@
       v-else
       :headers="headers"
       :items="transposedCoordinates"
+      :items-per-page="10"
       class="elevation-1"
       >
 
@@ -84,6 +85,7 @@ export default {
     loadingCollocates:false,
     loadingCoordinates:false,
     min: 1,
+    selectWindow: 5
   }),
   watch:{
     windowSize(){
@@ -282,7 +284,7 @@ export default {
     init(){
       this.loadingCoordinates = true;
       if(this.analysis&&this.analysis.id==this.id){
-        this.setWindowSize( Math.min(this.windowSize,this.analysis&&this.analysis.id==this.id?this.analysis.max_window_size:2)).then(()=>{
+        this.setWindowSize( Math.min(this.windowSize,this.analysis&&this.analysis.id==this.id?this.analysis.context:2)).then(()=>{
           this.selectWindow = this.windowSize;
           this.getAnalysisCoordinates({
             username:     this.user.username, 

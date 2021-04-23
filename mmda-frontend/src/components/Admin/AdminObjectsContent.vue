@@ -5,7 +5,7 @@
       <v-layout wrap row>
         <v-flex xs12>
           <div v-if="analysis">
-          <p class="headline">Queries ({{ analysis.length }})</p>
+          <p class="headline">Analyses ({{ analysis.length }})</p>
           <v-list>
             <v-list-tile v-for="item in analysis" :key="item.id" avatar>
               <v-list-tile-avatar>

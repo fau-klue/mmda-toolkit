@@ -1,33 +1,75 @@
 <template>
 <div>
   <v-card flat>
+    <v-card-title>Discourseme </v-card-title>
     <v-card-text>
       <v-container>
         <v-layout justify-space-between row>
           <v-flex v-if="discourseme" xs12 sm12>
-            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Updated Discourseme</v-alert>
-            <v-alert v-if="nodata" value="true" dismissible color="warning" icon="priority_high" outline>Missing Data</v-alert>
+
+            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>
+              Updated Discourseme
+            </v-alert>
+            <v-alert v-if="nodata" value="true" dismissible color="warning" icon="priority_high" outline>
+              Missing Data
+            </v-alert>
 
             <v-form>
-                <p v-if="discourseme.is_topic" class="title"><v-icon color="orange">grade</v-icon> Queried Discourseme</p>
-
-              <v-text-field v-model="discourseme.name" label="Discourseme Name" :rules="[rules.required, rules.counter]"></v-text-field>
+              
+              <v-layout row>
+                <v-text-field
+                  v-model="discourseme.name"
+                  label="Name"
+                  :rules="[rules.required, rules.counter]"
+                >
+                </v-text-field>
+                &nbsp;
+                <v-text-field
+                  v-model="discourseme.id"
+                  :value="discourseme.id"
+                  label="ID"
+                  box readonly
+                  >
+                </v-text-field>
+              </v-layout>
+              
               <v-combobox
                 v-model="discourseme.items"
                 :items="discourseme.items"
-                label="Discourseme Items"
+                label="Items"
                 :rules="[rules.required, rules.counter]"
                 multiple
                 chips
                 ></v-combobox>
+
             </v-form>
 
-            <v-btn color="success" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="updateDiscourseme">update</v-btn>
-            <v-btn color="success" v-else class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
-            <v-btn color="error" v-if="discourseme.is_topic" disabled class="text-lg-right" @click="deleteDiscourseme">delete</v-btn>
-            <v-btn color="error" v-else outline class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
-            <v-btn color="error" outline class="text-lg-right" @click="createAnalysis">use for new query</v-btn>
+            <v-btn color="success" outline class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
+            <v-btn color="error" outline class="text-lg-right" @click="deleteDiscourseme">Delete</v-btn>
+            <v-btn color="success" outline class="text-lg-right" @click="createAnalysis">analyze</v-btn>
 
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </v-card-text>
+  </v-card>
+  <v-card flat>
+    <v-card-text>
+      <v-card-title>Analyses</v-card-title>
+      <v-container>
+        <v-layout>
+          <v-flex xs12 sm12>
+            <v-list two-line subheader>
+              <v-list-tile v-for="analysis in filteredAnalyses" :key="analysis.id" avatar :to="/analysis/ + analysis.id">
+                <v-list-tile-avatar>
+                  <v-icon class="grey lighten-1 white--text">dashboard</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title> Analysis in Corpus "{{ analysis.corpus }}" (Analysis ID: {{ analysis.id }}, name: {{ analysis.name }})</v-list-tile-title>
+                  <v-list-tile-sub-title>items: {{ analysis.items }} </v-list-tile-sub-title>
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
           </v-flex>
         </v-layout>
       </v-container>
@@ -36,7 +78,7 @@
 </div>
 </template>
 
-  <script>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
@@ -53,7 +95,15 @@ export default {
     ...mapGetters({
       user: 'login/user',
       discourseme: 'discourseme/discourseme',
-    })
+      analyses: 'analysis/userAnalysis'
+    }),
+    filteredAnalyses() {
+      var F = [];
+      if(!this.analyses) return [];
+      F = this.analyses.filter(item => item.topic_id === this.discourseme.id );
+      F.sort((x)=>x.id);     // sort by latest creation-date = id
+      return F;
+    },
   },
   methods: {
     ...mapActions({
@@ -61,12 +111,14 @@ export default {
       deleteUserDiscourseme: 'discourseme/deleteUserDiscourseme',
       getUserDiscourseme: 'discourseme/getUserDiscourseme'
     }),
+    // CREATE ANALYSIS
     createAnalysis () {
       if(!this.discourseme) return;
-      var q = "?name="+this.discourseme.name;
+      var q = "?discourseme="+this.discourseme.id;
       for(var i of this.discourseme.items) q+="&item="+i;
       this.$router.push('/analysis/new'+q);
     },
+    // LOAD DISCOURSEME
     loadDiscourseme () {
 
       const data = {
@@ -79,7 +131,9 @@ export default {
       }).catch((error) => {
         this.error = error
       })
+
     },
+    // DELETE DISCOURSEME
     deleteDiscourseme () {
 
       const data = {
@@ -94,6 +148,7 @@ export default {
         this.error = error
       })
     },
+    // UPDATE
     updateDiscourseme () {
       this.nodata = false
       this.updated = false
@@ -118,10 +173,13 @@ export default {
       })
     }
   },
+
+
   created () {
     this.id = this.$route.params.id
     this.loadDiscourseme()
   }
+
 }
 
 </script>

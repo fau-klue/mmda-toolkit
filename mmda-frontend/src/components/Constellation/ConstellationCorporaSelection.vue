@@ -79,7 +79,7 @@ export default {
             // console.log(this.selectedAnalysisId)
             // console.log(this.selectWindow)
             this.loadAnalysis(this.selectedAnalysisId).then(()=>{
-                this.selectWindow = this.analysis.max_window_size
+                this.selectWindow = this.analysis.context
             })
         },
         selectWindow(){
@@ -89,7 +89,7 @@ export default {
             // console.log(this.selectedAnalysisId)
             // console.log(this.selectWindow)
             // this.selectWindow = this.analysis.max_window_size
-            this.maxWindow = this.analysis.max_window_size
+            this.maxWindow = this.analysis.context
         }
     },
   computed: {

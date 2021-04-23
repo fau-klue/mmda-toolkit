@@ -67,26 +67,28 @@ class Analysis(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
 
-    name = db.Column(db.Unicode(255), nullable=False)
+    name = db.Column(db.Unicode(255))
     corpus = db.Column(db.Unicode(255), nullable=False)
     p_query = db.Column(db.Unicode(255), nullable=False)
     s_break = db.Column(db.Unicode(255), nullable=False)
-    max_window_size = db.Column(db.Integer, nullable=True)
+    context = db.Column(db.Integer, nullable=True)
     # association_measures are stored as <str>, will be returned as <list>
     _association_measures = db.Column(db.Unicode(), nullable=True)
+    # items are stored as <str>, will be returned as <list>
+    _items = db.Column(db.Unicode(), nullable=False)
 
-    # FOREIGN KEYS ##
-    # topic discourseme id
+    # FOREIGN KEYS FOR PARENTS
     topic_id = db.Column(db.Integer(),
-                         db.ForeignKey('discourseme.id'),
+                         db.ForeignKey('discourseme.id', ondelete='CASCADE'),
                          nullable=False)
-    # coordinates
-    coordinates_id = db.Column(db.Integer(),
-                               db.ForeignKey('coordinates.id', ondelete='CASCADE'))
-    # user
     user_id = db.Column(db.Integer(),
                         db.ForeignKey('users.id', ondelete='CASCADE'))
 
+    # RELATIONSHIP DEFINITIONS FOR CHILDREN
+    coordinates = db.relationship("Coordinates",
+                                  backref='analysis',
+                                  cascade='all, delete',
+                                  lazy=True)
     # associated discoursemes
     discoursemes = db.relationship("Discourseme",
                                    secondary=analyses_discoursemes,
@@ -117,7 +119,6 @@ class Analysis(db.Model):
         :return: Dictionary containing the analysis values
         :rtype: dict
         """
-
         return {
             'id': self.id,
             'name': self.name,
@@ -126,8 +127,28 @@ class Analysis(db.Model):
             'topic_id': self.topic_id,
             'p_query': self.p_query,
             's_break': self.s_break,
-            'max_window_size': self.max_window_size
+            'context': self.context,
+            'items': self.items,
+            'topic_discourseme': Discourseme.query.filter_by(id=self.topic_id).first().serialize
         }
+
+    @property
+    def items(self):
+        """
+        Read string and turn into list
+        :return: Items as list
+        :rtype: list
+        """
+        return self._items.split(self._separator)
+
+    @items.setter
+    def items(self, items):
+        """
+        Turn list into String
+        :return: Items as str
+        :rtype: str
+        """
+        self._items = self._separator.join(items)
 
 
 class Discourseme(db.Model):
@@ -144,8 +165,9 @@ class Discourseme(db.Model):
     # items are stored as <str>, will be returned as <list>
     _items = db.Column(db.Unicode(), nullable=True)
 
-    # linked analyses as a topic
-    analyses = db.relationship('Analysis', backref='discourseme', lazy=True)
+    # linked analyses as a topic (discourseme is parent of analysis)
+    analyses = db.relationship('Analysis', backref='topic',
+                               cascade='all, delete')
 
     # users
     user_id = db.Column(db.Integer(),
@@ -187,7 +209,8 @@ class Discourseme(db.Model):
             'name': self.name,
             'is_topic': self.topic,
             'user_id': self.user_id,
-            'items': self._items.split(self._separator)
+            'items': self._items.split(self._separator),
+            'analyses': [analysis.id for analysis in self.analyses]
         }
 
 
@@ -241,12 +264,8 @@ class Coordinates(db.Model):
     _data = db.Column(db.Unicode(255*255), nullable=True)
 
     # analysis
-    # analysis = db.relationship('Analysis',
-    #                            backref='coordinates',
-    #                            lazy=True,
-    #                            uselist=False)
     analysis_id = db.Column(db.Integer(),
-                            db.ForeignKey('analysis.id'))
+                            db.ForeignKey('analysis.id', ondelete='CASCADE'))
 
     @property
     def data(self):

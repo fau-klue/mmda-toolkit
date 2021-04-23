@@ -10,7 +10,8 @@
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="analysis.name" :value="analysis.name" label="discourseme name" :rules="[rules.required, rules.counter]"></v-text-field>
+              <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
+              <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name"></v-text-field>
               <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
               <v-text-field :value="analysis.topic_discourseme.items" label="items" box readonly></v-text-field>
               <v-layout row>
@@ -184,7 +185,7 @@ export default {
       let A = this.analysis;
       var q = "?name="+A.name;
       q+="&corpus="+A.corpus;
-      q+="&window="+A.max_window_size;
+      q+="&window="+A.context;
       for(var i of A.topic_discourseme.items) q+="&item="+i;
       this.$router.push('/analysis/new'+q);
     },
@@ -202,7 +203,8 @@ export default {
         username: this.user.username,
         name: this.analysis.name,
         p_query: this.analysis.p_query,
-        s_break: this.analysis.s_break
+        s_break: this.analysis.s_break,
+        window_size: this.analysis.context
       }
 
       this.updateUserAnalysis(data).then(() => {

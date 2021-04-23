@@ -86,9 +86,9 @@
 	"delete": "Delete",
 	"new": {
 	    "helpTitle": "Discourseme Analysis",
-	    "helpText": "Query for discourseme in a corpus as a starting point for a collocation analysis.",
-	    "name": "discourseme name",
-	    "helpName": "name of this discourseme",
+	    "helpText": "Start and interactive collocation analysis.",
+	    "name": "discourseme",
+	    "helpName": "either select a discourseme or enter a name for a new discourseme",
 	    "corpus": "corpus",
 	    "helpCorpus": "the CWB corpus",
 	    "items": "items",

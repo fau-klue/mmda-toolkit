@@ -103,10 +103,6 @@ def update_discourseme(username, discourseme):
         log.debug('No such discourseme %s', discourseme)
         return jsonify({'msg': 'No such discourseme'}), 404
 
-    if discourseme.topic:
-        log.debug('Cannot edit topic discourseme %s', discourseme)
-        return jsonify({'msg': 'Cannot edit topic discourseme'}), 409
-
     discourseme.name = name
     discourseme.items = items
     db.session.commit()
@@ -133,9 +129,10 @@ def delete_discourseme(username, discourseme):
         return jsonify({'msg': 'No such discourseme'}), 404
 
     # Check if topic, cause you cant delete these without deleting the analysis
-    if discourseme.topic:
-        log.debug('Cannot delete topic discourseme %s', discourseme)
-        return jsonify({'msg': 'Cannot delete topic discourseme'}), 409
+    # NEW BEHAVIOUR: you *can* delete any discourseme, corresponding analyses will be deleted with it
+    # if discourseme.topic:
+    #     log.debug('Cannot delete topic discourseme %s', discourseme)
+    #     return jsonify({'msg': 'Cannot delete topic discourseme'}), 409
 
     db.session.delete(discourseme)
     db.session.commit()
