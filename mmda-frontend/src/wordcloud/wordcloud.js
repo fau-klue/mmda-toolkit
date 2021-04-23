@@ -791,8 +791,8 @@ class WordcloudWindow {
           continue;
         }
         G.addItem(n);
-        avgX += n.data.tsne_x;
-        avgY += n.data.tsne_y;
+        avgX += n.data.x;
+        avgY += n.data.y;
         avgC ++;
       }
       if(avgC){
@@ -801,7 +801,7 @@ class WordcloudWindow {
       for(var name of unknownWords){
         //TODO:: what coordinates should these words have??
         // place them at the average of the other words in the discourseme
-        n = this.addWord({name:name, tsne_x:avgX ,tsne_y:avgY, user_x:null, user_y:null});
+        n = this.addWord({name:name, x:avgX ,y:avgY, x_user:null, y_user:null});
         G.addItem(n);
       }
 

@@ -10,10 +10,10 @@
       >
       <template slot="items" slot-scope="props">
         <td>{{ props.item.name }}</td>
-        <td class="text-xs-right">{{ props.item.tsne_x }}</td>
-        <td class="text-xs-right">{{ props.item.tsne_y }}</td>
-        <td class="text-xs-right">{{ props.item.user_x }}</td>
-        <td class="text-xs-right">{{ props.item.user_y }}</td>
+        <td class="text-xs-right">{{ props.item.x }}</td>
+        <td class="text-xs-right">{{ props.item.y }}</td>
+        <td class="text-xs-right">{{ props.item.x_user }}</td>
+        <td class="text-xs-right">{{ props.item.y_user }}</td>
       </template>
   </v-data-table>
   </v-flex>
@@ -36,10 +36,10 @@ export default {
         //sortable: false,
         value: 'name'
       },
-      { text: 'x (t-SNE)', value: 'tsne_x' },
-      { text: 'y (t-SNE)', value: 'tsne_y' },
-      { text: 'x (User)', value: 'user_x' },
-      { text: 'y (User)', value: 'user_y' },
+      { text: 'x (auto)', value: 'x' },
+      { text: 'y (auto)', value: 'y' },
+      { text: 'x (user)', value: 'x_user' },
+      { text: 'y (user)', value: 'y_user' },
     ],
   }),
   computed: {

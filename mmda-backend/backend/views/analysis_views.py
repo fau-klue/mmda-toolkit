@@ -14,7 +14,7 @@ from backend import db
 from backend import user_required
 # backend.analysis
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.tsne import (
+from backend.analysis.semspace import (
     generate_semantic_space, generate_discourseme_coordinates
 )
 from backend.analysis.ccc import ccc_concordance, ccc_collocates

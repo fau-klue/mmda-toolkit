@@ -169,10 +169,10 @@ class WordElement {
       fwdEvent(this, this.el, v);
     
     var eps = 0.00000001;
-    if(w.user_x!==null 
-    && (Math.abs(w.user_x-w.tsne_x) > eps
-    ||  Math.abs(w.user_y-w.tsne_y) > eps )){
-      this.user_defined_position = [w.user_x,w.user_y];
+    if(w.x_user!==null 
+    && (Math.abs(w.x_user-w.x) > eps
+    ||  Math.abs(w.y_user-w.y) > eps )){
+      this.user_defined_position = [w.x_user,w.y_user];
     }
   }
   link(window) {
@@ -217,7 +217,7 @@ class WordElement {
     return this._normalSizeC;
   }
   get original_position() {
-    return [this.data.tsne_x, this.data.tsne_y];
+    return [this.data.x, this.data.y];
   }
 
   get computed_position() {
@@ -368,8 +368,8 @@ class WordElement {
     
    // this.window.component.setUserCoordinate(this.data.name, p[0], p[1]);
 
-    this.data.user_x = p[0];
-    this.data.user_y = p[1];
+    this.data.x_user = p[0];
+    this.data.y_user = p[1];
 
 
     if (this.groups.size == 1) {
@@ -384,18 +384,18 @@ class WordElement {
   matches(data){
     var eps = 0.000000001;
 
-    var match = (this.data.tsne_x == data.tsne_x || Math.abs(this.data.tsne_x - data.tsne_x) < eps)
-      && (this.data.tsne_y == data.tsne_y || Math.abs(this.data.tsne_y - data.tsne_y) < eps)
-      && (this.data.user_x == data.user_x || Math.abs(this.data.user_x - data.user_x) < eps)
-      && (this.data.user_y == data.user_y || Math.abs(this.data.user_y - data.user_y) < eps)
+    var match = (this.data.x == data.x || Math.abs(this.data.x - data.x) < eps)
+      && (this.data.y == data.y || Math.abs(this.data.y - data.y) < eps)
+      && (this.data.x_user == data.x_user || Math.abs(this.data.x_user - data.x_user) < eps)
+      && (this.data.y_user == data.y_user || Math.abs(this.data.y_user - data.y_user) < eps)
 
       /*
     if(!match){
       console.log(this.data.name
-        +" "+(this.data.tsne_x-data.tsne_x)
-        +" "+(this.data.tsne_y-data.tsne_y)
-        +" "+(this.data.user_x-data.user_x)
-        +" "+(this.data.user_y-data.user_y)
+        +" "+(this.data.x-data.x)
+        +" "+(this.data.y-data.y)
+        +" "+(this.data.x_user-data.x_user)
+        +" "+(this.data.y_user-data.y_user)
         );
     }*/
     return match;
@@ -403,21 +403,21 @@ class WordElement {
 
 
   drop(){
-    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
+    this.window.component.setUserCoordinate(this.data.name, this.data.x_user, this.data.y_user);
   }
     
   deleteUserPosition(){
     this._user_defined_position = null;
-    //this.data.user_x = this.data.tsne_x;
-    //this.data.user_y = this.data.tsne_y;
+    //this.data.x_user = this.data.x;
+    //this.data.y_user = this.data.y;
 
     //TODO::: make this work in backend
-    //this.data.user_x = null;  
-    //this.data.user_y = null;
-    this.data.user_x = "null";
-    this.data.user_y = "null";
+    //this.data.x_user = null;  
+    //this.data.y_user = null;
+    this.data.x_user = "null";
+    this.data.y_user = "null";
 
-    this.window.component.setUserCoordinate(this.data.name, this.data.user_x, this.data.user_y);
+    this.window.component.setUserCoordinate(this.data.name, this.data.x_user, this.data.y_user);
   }
 
   dropAt(el) {

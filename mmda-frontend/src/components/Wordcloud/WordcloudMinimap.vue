@@ -74,7 +74,7 @@ export default {
       }
       for(var c of Object.keys(this.coordinates)){
         var d = this.coordinates[c];
-        res.push({title:c, style:styleForPosition([d.tsne_x,d.tsne_y])});
+        res.push({title:c, style:styleForPosition([d.x,d.y])});
       }
       return res;
     },
@@ -86,8 +86,8 @@ export default {
       if(!this.coordinates) return b;
       for(var c of Object.keys(this.coordinates)){
         var d = this.coordinates[c];
-        b.min = min2([d.tsne_x,d.tsne_y],b.min);
-        b.max = max2([d.tsne_x,d.tsne_y],b.max);
+        b.min = min2([d.x,d.y],b.min);
+        b.max = max2([d.x,d.y],b.max);
       }
       return b;
     }

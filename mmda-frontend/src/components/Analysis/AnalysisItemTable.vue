@@ -216,10 +216,10 @@ export default {
       return [
         {text:'item',value:'name',align:'center'},
         ...Coll,
-        { text: 'x (t-SNE)', value: 'tsne_x', align:"center" },
-        { text: 'y (t-SNE)', value: 'tsne_y', align:'center' },
-        { text: 'x (User)', value: 'user_x', align:'center' },
-        { text: 'y (User)', value: 'user_y', align:'center' }
+        { text: 'x (auto)', value: 'x', align:"center" },
+        { text: 'y (auto)', value: 'y', align:'center' },
+        { text: 'x (user)', value: 'x_user', align:'center' },
+        { text: 'y (user)', value: 'y_user', align:'center' }
       ];
     }
   },

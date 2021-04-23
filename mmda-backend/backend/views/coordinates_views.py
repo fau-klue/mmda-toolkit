@@ -12,9 +12,7 @@ from numpy import nan
 # backend
 from backend import db
 from backend import user_required
-# backend.analysis
-from backend.analysis.tsne import generate_semantic_space
-# backend.models
+from backend.analysis.semspace import generate_semantic_space
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
 
