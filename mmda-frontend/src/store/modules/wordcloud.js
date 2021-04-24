@@ -10,7 +10,6 @@ const state = {
   associationMeasure: null,
   showMinimap: true,
   secondOrderCollocationDiscoursemeIDs: [],
-  
   collocatesToCompare: null,
 }
 

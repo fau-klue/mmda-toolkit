@@ -3,10 +3,10 @@
   <v-card flat>
     <v-card-text>
 
-      <v-container>
-        <v-layout v-if="analysis" justify-space-between row>
-          <v-flex xs8 sm8>
+      <v-container v-if="analysis">
+        <v-layout justify-space-between row>
 
+          <v-flex xs8 sm8>
             <!-- <v-card-title>Analysis</v-card-title> -->
 
             <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Analysis Updated </v-alert>
@@ -70,7 +70,7 @@
         
       </v-container>
 
-      <v-container>
+      <v-container v-if="analysis">
         <AnalysisDiscoursemeList/>
       </v-container>
 
@@ -78,11 +78,11 @@
         <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
       </v-container>
 
-      <v-container>
+      <v-container v-if="analysis">
         <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
       </v-container>
 
-      <v-container>
+      <v-container v-if="analysis">
         <ItemTable/>
       </v-container>
 
@@ -116,8 +116,7 @@ export default {
     AnalysisDiscoursemeList,
     ItemTable,
     ConcordancesKeywordInContextList,
-    WordcloudMinimap,
-    //AnalysisCoordinates
+    WordcloudMinimap
   },
   data: () => ({
     id: null,

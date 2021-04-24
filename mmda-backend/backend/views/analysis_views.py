@@ -685,10 +685,6 @@ def get_concordance_for_analysis(username, analysis):
         type: int
         description: window size for context
         default: 3
-      - name: discourseme
-        type: list
-        required: False
-        description: discourseme id(s) to include in constellation
       - name: item
         type: list
         required: False
@@ -736,7 +732,7 @@ def get_concordance_for_analysis(username, analysis):
     # ... optional additional items
     items = [cqp_escape(i) for i in request.args.getlist('item', None)]
     # ... how many?
-    cut_off = request.args.get('cut_off', 100)
+    cut_off = request.args.get('cut_off', 1000)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
@@ -745,18 +741,22 @@ def get_concordance_for_analysis(username, analysis):
     # pre-process request
     # ... get associated topic discourseme
     topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    # ... floating discoursemes
+    # ... further discoursemes as a dict {name: items}
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
         additional_discoursemes['collocate'] = items
-    if discourseme_ids:
-        # get all discoursemes from database and append
-        discoursemes = Discourseme.query.filter(
-            Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
-        ).all()
-        for d in discoursemes:
-            additional_discoursemes[str(d.id)] = d.items
+
+    # print(additional_discoursemes)
+    # for discourseme in analysis.discoursemes:
+    #     additional_discoursemes[discourseme.name] = discourseme.items
+    # get all discoursemes from database and append
+    discoursemes = Discourseme.query.filter(
+        Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
+    ).all()
+    for d in discoursemes:
+        additional_discoursemes[str(d.id)] = d.items
+
     # pack p-attributes
     p_show = list(set(['word', analysis.p_query]))
 

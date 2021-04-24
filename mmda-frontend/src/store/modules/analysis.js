@@ -214,49 +214,49 @@ const actions = {
   getConcordances ({commit}, data ) {
     // Get Concordances
     return new Promise((resolve, reject) => {
+      // username
+      // analysis_id
+      // (items)
+      // (window_size)
 
-      //if (!data.corpus) return reject('No corpus provided')
       if (!data.username) return reject('No username provided')
       if (data.analysis_id===undefined) return reject('No analysis_id provided')
-      //if (!data.topic_items) return reject('No topic items provided')
 
       let params = new URLSearchParams()
-      // Concat item parameter. api/?item=foo&item=bar
-      //data.topic_items.forEach((item)=>{ params.append("item", item) })
 
-      if(data.collocate_items){
-        // Concat item parameter. api/?collocate=foo&collocate=bar
-        //data.collocate_items.forEach((item)=>{ params.append("collocate", item) })
-        data.collocate_items.forEach((item)=>{ params.append("item", item) })
+      if(data.items){
+        data.items.forEach((item)=>{ params.append("item", item) })
+      }
+
+      if(data.window_size){
+         params.append("window_size", data.window_size)
       }
 
       //Second order concordances
       //if(data.discourseme_items) for(var it of data.discourseme_items) params.append("collocate", it);
-      if(data.discourseme_id) params.append("discourseme",data.discourseme_id);
-      if(data.discourseme_ids) for(var it of data.discourseme_ids) params.append("discourseme", it);
-
-      if(data.window_size){
-         // Append api/?window_size=12
-         //console.log("Ws "+data.window_size);
-         params.append("window_size", data.window_size)
+      // if(data.discourseme_id) {
+      //   params.append("discourseme",data.discourseme_id);
+      // }
+      if(data.discourseme_ids) {
+        for(var it of data.discourseme_ids) params.append("discourseme", it);
       }
 
       const request = {
         params: params
       }
-      //console.log("req called");
+
       commit('setConcordancesLoading', data);
       api.get(`/user/${data.username}/analysis/${data.analysis_id}/concordance/`, request).then(function (response) {
         // only accept the loading, if data is the latest call
         // otherwise another request has happened and this one is invalid
-        //  TODO:: cancel prevous requests upon a new one (i.e. notify the server to drop the activity)
+        // TODO:: cancel prevous requests upon a new one (i.e. notify the server to drop the activity)
         if(data == state.concordances_loading){
-          //console.log("req fullfilled");
+          // console.log("req fullfilled");
           commit('setConcordances', response.data)
           commit('setConcordancesLoading',null)
-        //}else{
-        //  console.log("req dropped");
         }
+        //}else{
+        // console.log("req dropped");
         resolve()
       }).catch(function (error) {
         commit('setConcordances',null)

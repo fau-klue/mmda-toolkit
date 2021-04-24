@@ -8,29 +8,25 @@
         <v-icon class="grey--text text--lighten-1" title="download concordances (.csv)" @click="downloadConcordancesCSV">file_copy</v-icon>
       </v-btn>
     </v-card-title>
-    
+
     <v-card class="kwic-view-card">
       <v-card-text>
+
         <v-alert v-if="error&&!loading" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{ error }}</v-alert>
         <v-alert v-else-if="!concordances&&!loading" value="true" color="info" icon="priority_high" outline>No concordance requested</v-alert>
-        
+
         <div v-else-if="loading" class="text-md-center">
+          <p>Loading Concordance...</p>
+          <p>{{ loading }}</p>
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
-          <p v-if="loading">Loading Concordance...</p>
-          <p v-if="loading && typeof loading==='object' && !(implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"]"}}</p>
-          <p v-if="loading && typeof loading==='object' && (implementedSOC_conc && loading.soc_items)">{{"["+loading.topic_items+"] ["+loading.collocate_items+"] ["+loading.soc_items+"]"}}</p>
         </div>
-        
-        <v-data-table v-else
-                      :items="tableContent"
-                      :headers="headers"
-                      :disable-initial-sort="false"
-                      :hide-actions="tableContent.length<=5"
-                      compact
-                      class="kwic-view-table kwic-view-compact"
-                      @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))"
-                      >
+
+        <v-data-table v-else :items="tableContent" :headers="headers" :disable-initial-sort="true"
+                      :hide-actions="tableContent.length<=5" class="kwic-view-table kwic-view-compact"
+                      @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))">
+
           <template slot="items" slot-scope="props">
+
             <td class="text-xs-center">
               <v-menu open-on-hover top offset-y>
                 <span slot="activator" class="kwic-id">{{ props.item.match_pos }}</span>
@@ -43,6 +39,7 @@
                 </v-list>
               </v-menu>
             </td>
+
             <td class="text-xs-right kwic-context kwic-left">
               <span style="color:#0000;">x</span> 
               <!-- invisible x at the beginning, preventing special characters like @#,.- etc to be moved to the end of the sentence by ellipsis/rtl -->
@@ -57,10 +54,13 @@
               <!-- invisible x at the end, preventing special characters like @#,.- etc to be moved to the front of the sentence by ellipsis/rtl -->
               <span style="color:#0000;">x</span> 
             </td>
+
             <td class="text-xs-center keyword" 
                 @click="toggleKwicMode" 
                 :class="'concordance '+props.item.keyword.role"
-                :title="props.item.keyword.lemma"><span class="kwic-keyword">{{ props.item.keyword.text }}</span></td>
+                :title="props.item.keyword.lemma"><span class="kwic-keyword">{{ props.item.keyword.text }}</span>
+            </td>
+
             <td class="text-xs-left kwic-context">
               <template v-for="(el,idx) in props.item.tail">
                 <span :key="'s2_'+idx">&#160;</span>
@@ -71,12 +71,19 @@
                       :title="el.lemma">{{el.text}}</span>
               </template>
             </td>
+
             <td v-if="useSentiment" class="text-xs-center kwic-sentiment"
                 :value="props.item.sentiment"
                 :style="'color:'+sentimentColor[ props.item.sentiment ]">
               {{ sentimentEmotion[ props.item.sentiment ] }}
             </td>
+
+            <!-- <td class="text-xs-center"> -->
+            <!--   {{ props.item.meta }} -->
+            <!-- </td> -->
+
           </template>
+
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -159,21 +166,22 @@ export default {
   },
   props: ['showHeader', 'concordances', 'loading', 'onclickitem'],
   data: () => ({
+    item: null,
     implementedSOC_conc: false, //TODO:
     id: null,
     error: null,
     keywordRole: 'node',
-    useSentiment:false,
+    useSentiment: false,
     concordancesRequested: false,
-    //loadingConcordances: false,
-    sentimentColor:['green','yellow','red'],
-    sentimentEmotion:['😃','😐','😠'],
+    loadingConcordances: false,
+    sentimentColor: ['green','yellow','red'],
+    sentimentEmotion: ['😃','😐','😠'],
   }),
   watch:{
     concordances(){
       this.concordancesRequested = true;
       this.error=null;
-      //the required data (see setupIt) is available only after two ticks
+      // the required data (see setupIt) is available only after two ticks
       this.update();
     },
     loading(){
@@ -184,11 +192,7 @@ export default {
       this.getConcordances({
         username :this.user.username,
         analysis_id: this.id,
-        //corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.items,
-        soc_items: undefined, //TODO
-        collocate_items:  name? [name]: [],
-        window_size:      this.windowSize
+        window_size: this.windowSize,
       })
       this.update()
     }
@@ -222,21 +226,23 @@ export default {
       for(var ci of Object.keys(this.concordances)){
         var c = this.concordances[ci]
         var r = { 
-            head:[],
-            match_pos: ci,
-          keyword:{text:'',role:'',lemma:''},
-          tail:[],
-          sentiment:0,
+          head: [],
+          match_pos: ci,
+          keyword: {text:'',role:'',lemma:''},
+          tail: [],
+          // meta: [],
+          sentiment: 0,
           // these are for sorting context -purposes
-          reverse_head_text:'',
-          head_text:'',
-          tail_text:''
-          };
+          reverse_head_text: '',
+          head_text: '',
+          tail_text: ''
+        };
         Object.assign(r, c);
         var beforeKeyword = true;
 
         // TODO:: assign correct sentiment
         r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
+        // r.meta = 's'
 
         for(var i=0; i<c.word.length; ++i){  
           // console.log(c);
@@ -254,8 +260,8 @@ export default {
               if(!role){
                 //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
                 //continue;
-                  // nr = -1;
-                  continue;
+                // nr = -1;
+                continue;
               }
               if(nr!==nr) continue;
               var col = random_color(nr);
@@ -264,7 +270,6 @@ export default {
               el.style += 'background-color: ' + hex_color_from_array(col) + ";";
               //console.log(el.style);
           }
-
 
           if(beforeKeyword && el.role.includes(this.keywordRole)){
             beforeKeyword=false;
@@ -364,7 +369,6 @@ export default {
         //id.style.width = w+2*pad+"px";      
         domSet(id,'width',w+2*pad+'px');
 
-
         E = document.getElementsByClassName("kwic-keyword");
         w = Array.from(E).reduce((sum,e)=>Math.max(e.offsetWidth,sum),0);
         var kw = document.getElementsByClassName("kwic-keyword-head")[0];
@@ -379,7 +383,7 @@ export default {
     },
     selectItem (item) {
       //TODO::: there exists no collocate-role anymore so changing the mode is not necessary anymore (even though it might still be beneficial)
-      //if( item.role.includes('collocate') || item.role.includes('topic') ) this.toggleKwicMode(); 
+      // if( item.role.includes('collocate') || item.role.includes('topic') ) this.toggleKwicMode(); 
       //else if( item.role == 'out_of_window') return;
       if(this.onclickitem) this.onclickitem(item.lemma);
       else this.clickOnLemma(item.lemma);
@@ -389,17 +393,14 @@ export default {
       //this.keywordRole = this.keywordRole=='collocate'?'topic':'collocate';
       //this.update();
     },
-    clickOnLemma (name) {
+    clickOnLemma (item) {
       this.error = null;
       this.concordancesRequested = true;
       this.getConcordances({
         username :this.user.username,
         analysis_id: this.id,
-        //corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.items,
-        soc_items: undefined, //TODO
-        collocate_items:  name? [name]: [],
-        window_size:      this.windowSize
+        window_size: this.windowSize,
+        items: item? [item]: []
       }).catch((error)=>{
         this.error = this.error_message_for(error,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{

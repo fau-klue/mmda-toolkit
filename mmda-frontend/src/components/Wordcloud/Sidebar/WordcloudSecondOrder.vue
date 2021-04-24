@@ -4,15 +4,7 @@
   <v-card v-if="notMini">
     <v-card-text>
       <v-layout v-if="use_second_order_collocation" class="my-4" row wrap>
-             <v-combobox
-                    v-model="secondOrderIDs"
-                    :items="analysisDiscoursemes"
-                    item-text="name"
-                    label="discoursemes"
-                    multiple
-                    chips
-                    @change="setSOC"
-               ></v-combobox>
+        <v-combobox v-model="secondOrderIDs" :items="analysisDiscoursemes" item-text="name" label="discoursemes" multiple chips @change="setSOC" ></v-combobox>
       </v-layout>
     </v-card-text>
   </v-card>
@@ -32,7 +24,7 @@ export default {
     am_value2: null,
     selectWindow: 3,
     selectWindow2: 3,
-    secondOrderIDs:[],
+    secondOrderIDs: [],
   }),
   watch:{
     AM(){

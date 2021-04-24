@@ -20,7 +20,7 @@
     </div>
     
     <!-- TODO: sorting, number of items -->
-    <v-data-table v-else :headers="headers" :items="transposedCoordinates" :items-per-page="10" :search="search" :sort-by="'log ratio'" class="elevation-1">
+    <v-data-table v-else :headers="headers" :items="transposedCoordinates" :items-per-page="10" :search="search" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" class="elevation-1">
       
       <template slot="items" slot-scope="props">
         <td v-for="el in headers" :key="props.item.name+el.text" class="text-xs-center">
@@ -34,8 +34,7 @@
           </div>
           <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
           <div v-else>
-            <div class="analysis-table-sphere" :style="
-                                                       'width:'+props.item[el.value+'#Norm']*2+'rem;'
+            <div class="analysis-table-sphere" :style="'width:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'height:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'border-radius:'+props.item[el.value+'#Norm']+'rem;'">
               <div class="analysis-table-number">{{props.item[el.value]}}</div>
@@ -81,7 +80,9 @@ export default {
     loadingConcordances:false,
     loadingCollocates:false,
     loadingCoordinates:false,
-    min: 1
+    min: 1,
+    sortBy: 'log-ratio',
+    sortDesc: true,
   }),
   watch:{
     windowSize(){
@@ -247,13 +248,11 @@ export default {
       if(!this.analysis) return;
       this.loadingConcordances = true;
       this.getConcordances({
-        username : this.user.username,
+        username: this.user.username,
         analysis_id: this.id,
-        //corpus:         this.analysis.corpus, 
-        topic_items:    this.analysis.items,
-        soc_items: undefined,
-        collocate_items: [item.name], 
-        window_size:    this.windowSize
+        // soc_items: undefined,
+        items: [item.name], 
+        window_size: this.windowSize
       }).catch((e)=>{
         this.error = this.error_message_for(e,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{

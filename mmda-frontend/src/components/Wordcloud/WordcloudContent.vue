@@ -1,16 +1,17 @@
 <template>
   <div>
-    <div class="structured_wordcloud_container">
-      <!-- This is controlled by the wordcloud.js -->
-    </div>
+
+    <div class="structured_wordcloud_container"><!-- This is controlled by the wordcloud.js --></div>
 
     <WordcloudSidebar v-bind:wc="wc"/>
+
     <WordcloudBottomSheet ref="bottomSheet" v-bind:onclickitem="centerItemLocation" v-bind:sheetVisible="sheetVisible" v-bind:onchangevisibility="onChangeVisibility" />
     <v-layout style="position:absolute;height:calc(100vh - 48px);width:100%;pointer-events:none">
       <v-layout v-if="!sheetVisible" justify-center align-end>
         <v-btn color="info" style="pointer-events:all;z-index:9000" class="text-xs-center" @click="_getTopicConcordancesFromList">Concordance Lines</v-btn>
       </v-layout>
     </v-layout>
+
   </div>
 </template>
 
@@ -250,12 +251,9 @@ export default {
       this.getConcordances({
         username :this.user.username,
         analysis_id: this.analysis.id,
-        //corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.items,
-        //soc_items: this.SOC_items,
-        discourseme_ids:this.discourseme_ids,
-        collocate_items:  names,
-        window_size:      this.windowSize
+        discourseme_ids: this.discourseme_ids,
+        items: names,
+        window_size: this.windowSize
       }).catch((error)=>{
         this.$refs.bottomSheet.error = error.response.data.msg;
         //this.error = error
