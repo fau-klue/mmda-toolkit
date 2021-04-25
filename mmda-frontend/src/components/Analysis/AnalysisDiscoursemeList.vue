@@ -29,7 +29,6 @@
               </v-list-tile>
               <h2 v-if="analysisDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
             </v-list>
-            
           </v-flex>
           <v-flex xs6 sm6>
             <v-card-title>Available Discoursemes</v-card-title>
@@ -55,7 +54,6 @@
                 </v-list-tile-action>
               </v-list-tile>
             </v-list>
-            
           </v-flex>
         </v-layout>
       </v-container>

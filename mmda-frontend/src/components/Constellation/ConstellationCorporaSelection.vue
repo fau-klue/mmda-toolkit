@@ -83,7 +83,7 @@ export default {
             })
         },
         selectWindow(){
-            console.log(this.selectWindow)
+          // console.log(this.selectWindow)
         },
         analysis(){
             // console.log(this.selectedAnalysisId)

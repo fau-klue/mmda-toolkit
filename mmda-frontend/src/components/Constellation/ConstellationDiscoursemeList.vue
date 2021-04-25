@@ -1,63 +1,65 @@
 <template>
-<div>
-  <v-container>
-    <v-layout>
-      <v-flex xs6 sm6>
-        <h1 class="title">Associated Discoursemes:</h1>
-        <v-list two-line subheader v-if="constellationDiscoursemes">
-          <v-list-tile v-for="discourseme in constellationDiscoursemes" :key="discourseme.id" avatar>
-            <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
-            <v-list-tile-avatar>
-              <v-icon class="grey--text">subject</v-icon>
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ discourseme.name }}</v-list-tile-title>
-              <v-list-tile-sub-title>{{ discourseme.items }}</v-list-tile-sub-title>
-            </v-list-tile-content>
-            <v-list-tile-action >
-              <v-btn :loading="loading" icon ripple :to="/discourseme/ + discourseme.id">
-                <v-icon class="grey--text text--lighten-1">info</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-            <v-list-tile-action>
-              <v-btn :loading="loading" icon @click="removeDiscourseme(discourseme.id)">
-                <v-icon class="red--text text--lighten-1">remove</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-          <h2 v-if="constellationDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
-        </v-list>
-
-      </v-flex>
-      <v-flex xs6 sm6>
-
-        <h1 class="title">Available Discoursemes:</h1>
-        <v-list two-line subheader v-if="userDiscoursemes">
-          <v-list-tile v-for="discourseme in discoursemeUnion" :key="discourseme.id" avatar>
-            <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
-            <v-list-tile-avatar>
-              <v-icon class="grey--text">subject</v-icon>
-            </v-list-tile-avatar>
-            <v-list-tile-content>
-              <v-list-tile-title>{{ discourseme.name }}</v-list-tile-title>
-              <v-list-tile-sub-title>{{ discourseme.items }}</v-list-tile-sub-title>
-            </v-list-tile-content>
-            <v-list-tile-action>
-              <v-btn :loading="loading" icon ripple :to="/discourseme/ + discourseme.id">
-                <v-icon class="grey--text text--lighten-1">info</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-            <v-list-tile-action>
-              <v-btn  :loading="loading" icon @click="addDiscourseme(discourseme.id)">
-                <v-icon class="green--text text--lighten-1">add</v-icon>
-              </v-btn>
-            </v-list-tile-action>
-          </v-list-tile>
-        </v-list>
-        </v-flex>
-    </v-layout>
-  </v-container>
-</div>
+<v-layout row>
+  <v-flex xs12 sm12>
+    <div>
+      <v-container>
+        <v-layout>
+          <v-flex xs6 sm6>
+            <v-card-title>Associated Discoursemes</v-card-title>
+            <v-list two-line subheader v-if="constellationDiscoursemes">
+              <v-list-tile v-for="discourseme in constellationDiscoursemes" :key="discourseme.id" avatar>
+                <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
+                <v-list-tile-avatar>
+                  <v-icon class="grey--text">subject</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ discourseme.name }}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{ discourseme.items }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+                <v-list-tile-action >
+                  <v-btn :loading="loading" icon ripple :to="/discourseme/ + discourseme.id">
+                    <v-icon class="grey--text text--lighten-1">info</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+                <v-list-tile-action>
+                  <v-btn :loading="loading" icon @click="removeDiscourseme(discourseme.id)">
+                    <v-icon class="red--text text--lighten-1">remove</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+              <h2 v-if="constellationDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
+            </v-list>
+          </v-flex>
+          <v-flex xs6 sm6>
+            <v-card-title>Available Discoursemes</v-card-title>
+            <v-list two-line subheader v-if="userDiscoursemes">
+              <v-list-tile v-for="discourseme in discoursemeUnion" :key="discourseme.id" avatar>
+                <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
+                <v-list-tile-avatar>
+                  <v-icon class="grey--text">subject</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>{{ discourseme.name }}</v-list-tile-title>
+                  <v-list-tile-sub-title>{{ discourseme.items }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+                <v-list-tile-action>
+                  <v-btn :loading="loading" icon ripple :to="/discourseme/ + discourseme.id">
+                    <v-icon class="grey--text text--lighten-1">info</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+                <v-list-tile-action>
+                  <v-btn  :loading="loading" icon @click="addDiscourseme(discourseme.id)">
+                    <v-icon class="green--text text--lighten-1">add</v-icon>
+                  </v-btn>
+                </v-list-tile-action>
+              </v-list-tile>
+            </v-list>
+          </v-flex>
+        </v-layout>
+      </v-container>
+    </div>
+  </v-flex>
+</v-layout>
 </template>
 
 <script>
@@ -74,7 +76,7 @@ export default {
     ...mapGetters({
       user: 'login/user',
       constellationDiscoursemes: 'constellation/discoursemes',
-      theConstellation: 'constellation/constellationConstellation',
+      theConstellation: 'constellation/constellation',
       userDiscoursemes: 'discourseme/userDiscoursemes'
     }),
     discoursemeUnion () {

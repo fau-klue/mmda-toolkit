@@ -7,24 +7,36 @@
           <v-flex v-if="theConstellation" xs12 sm12>
 
             <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Constellation </v-alert>
+
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>
-              <v-text-field v-model="theConstellation.name" :value="theConstellation.name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
+              <v-layout row>
+                <v-text-field v-model="theConstellation.id" :value="theConstellation.id" label="ID" box readonly></v-text-field>
+                <v-spacer/>
+                <v-text-field v-model="theConstellation.name" :value="theConstellation.name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
+              </v-layout>
 
-               <v-btn color="info" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Extract Concordances</v-btn>
-              <v-btn color="success" class="text-lg-right" @click="updateConstellation">Update Name</v-btn>
-              <v-btn color="error" outline class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
-
-               <ConstellationDiscoursemeList/>
+              <v-layout row>
+                <v-btn color="info" class="text-lg-right" @click="updateConstellation">Update</v-btn>
+                <v-btn color="success" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Extract Concordances</v-btn>
+                <v-spacer/>
+                <v-btn color="error" outline class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
+              </v-layout>
 
             </v-form>
+
           </v-flex>
         </v-layout>
       </v-container>
+
+      <v-container>
+        <ConstellationDiscoursemeList/>
+      </v-container>
+      
     </v-card-text>
   </v-card>
-  </div>
+</div>
 </template>
 
 <script>
