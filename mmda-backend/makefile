@@ -31,4 +31,4 @@ clear_lock:
 clear_cache:
 	rm /tmp/mmda-ccc-data/ -r
 clear_db:
-	rm /tmp/backend.sqlite
+	rm instance/backend.sqlite

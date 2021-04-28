@@ -2,7 +2,12 @@
 Testing specific settings
 """
 
+# DO NOT use "DEBUG = True" in production environments
 DEBUG = False
+
+# JWT Settings
+JWT_ACCESS_TOKEN_EXPIRES = False
+JWT_REFRESH_TOKEN_EXPIRES = False
 
 # Flask-Mail settings
 MAIL_SERVER = 'localhost'
@@ -17,4 +22,6 @@ USER_APP_NAME = 'MMDA Backend'
 USER_EMAIL_SENDER_NAME = 'FAU'
 USER_EMAIL_SENDER_EMAIL = 'mmda@fau.de'
 
-ADMINS = ['"Admin" <admin@fau.de>']
+ADMINS = [
+    '"Admin" <admin@fau.de>'
+]

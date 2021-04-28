@@ -10,11 +10,16 @@ def test_create_analysis(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(
         data=[[1.0, 2.0, 3.0, 4.0]],
-        columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
+        columns=['x', 'y', 'x_user', 'y_user'],
         index=['foo', 'bar']
     )
 
-    data = {'name': 'foobar', 'corpus': 'GERMAPARL_1114', 'items': ['Merkel'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar',
+            'discourseme': 'foobar',
+            'corpus': 'GERMAPARL1318',
+            'items': ['Merkel'],
+            'p_query': 'word',
+            's_break': 's'}
 
     response = client.post(
         url_for('analysis.create_analysis', username='student1'),

@@ -68,7 +68,7 @@ def test_discourseme_update(client, header):
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_discourseme_update_topic(mock_coords, client, header):
     # old behaviour: You cannot edit a topic discourseme
-    # TODO You can! Why not? (many-to-many mapping)
+    # new behaviour: You can! Why not? (many-to-many mapping)
 
     mock_coords.return_value = pandas.DataFrame(
         data=[[1.0, 2.0, 3.0, 4.0]],
@@ -76,8 +76,9 @@ def test_discourseme_update_topic(mock_coords, client, header):
         index=['foo', 'bar']
     )
 
-    data = {'name': 'foobar',
-            'corpus': 'GERMAPARL_1114',
+    data = {'discourseme': 'foobar',
+            'name': 'foobar',
+            'corpus': 'GERMAPARL1318',
             'items': ['Merkel'],
             'p_query': 'word',
             's_break': 's'}
@@ -96,8 +97,8 @@ def test_discourseme_update_topic(mock_coords, client, header):
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)
-    discourseme_id = response.json['topic_id']
 
+    discourseme_id = response.json['topic_id']
     data = {'name': 'newname',
             'items': ['something']}
 
@@ -108,8 +109,9 @@ def test_discourseme_update_topic(mock_coords, client, header):
                           content_type='application/json',
                           headers=header,
                           json=data)
+    print(response.json)
 
-    assert response.status_code==409
+    assert response.status_code == 200
 
 
 @pytest.mark.api

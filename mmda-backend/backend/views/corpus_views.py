@@ -23,11 +23,15 @@ def get_corpora():
 
     # Get and transform for Frontend
     corpora = current_app.config['CORPORA']
-    cwb_corpora = ccc_corpora()
+    cwb_corpora = ccc_corpora(cqp_bin=current_app.config['CCC_CQP_BIN'],
+                              registry_path=current_app.config['CCC_REGISTRY_PATH'])
     ret = list()
     for corpus in corpora.values():
         if corpus['name_api'] in cwb_corpora.index:
-            crps = ccc_corpus(corpus['name_api'])
+            crps = ccc_corpus(corpus['name_api'],
+                              cqp_bin=current_app.config['CCC_CQP_BIN'],
+                              registry_path=current_app.config['CCC_REGISTRY_PATH'],
+                              data_path=current_app.config['CCC_DATA_PATH'])
             corpus['pQueries'] = crps['p-atts']
             corpus['sBreaks'] = crps['s-atts']
             ret.append(corpus)

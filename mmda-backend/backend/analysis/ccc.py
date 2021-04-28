@@ -13,24 +13,19 @@ import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
 
-
-REGISTRY_PATH = "/usr/local/share/cwb/registry"
-CCC_PATH = "/tmp/mmda-ccc-data/"
-CACHE_PATH = "/tmp/mmda-cache/"
-CQP_BIN = "cqp"
-LIB_PATH = None
+CACHE_PATH = '/tmp/mmda-anycache/'
 
 
-def ccc_corpora():
-    corpora = Corpora(CQP_BIN, REGISTRY_PATH).show()
+def ccc_corpora(cqp_bin, registry_path):
+    corpora = Corpora(cqp_bin, registry_path).show()
     return corpora
 
 
-def ccc_corpus(corpus_name):
+def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     corpus = Corpus(corpus_name,
-                    cqp_bin=CQP_BIN,
-                    registry_path=REGISTRY_PATH,
-                    data_path=CCC_PATH)
+                    cqp_bin=cqp_bin,
+                    registry_path=registry_path,
+                    data_path=data_path)
     attributes = corpus.attributes_available
     p_atts = list(
         attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
@@ -46,7 +41,8 @@ def ccc_corpus(corpus_name):
 
 @anycache(CACHE_PATH)
 # TODO take care of caching for random order
-def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
+def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path, lib_path,
+                    topic_items, topic_name, s_context,
                     window_size, context=20,
                     additional_discoursemes={}, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
@@ -63,14 +59,15 @@ def ccc_concordance(corpus_name, topic_items, topic_name, s_context,
         s_context, context,
         additional_discoursemes,
         p_show, s_show, window, order, cut_off,
-        LIB_PATH, CQP_BIN, REGISTRY_PATH, CCC_PATH
+        lib_path, cqp_bin, registry_path, data_path
     )
 
     return conc
 
 
 @anycache(CACHE_PATH)
-def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
+def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path, lib_path,
+                   topic_items, s_context, window_sizes,
                    context=20, additional_discoursemes={},
                    p_query='lemma', s_query=None, ams=None,
                    cut_off=200, order='log_likelihood'):
@@ -98,7 +95,15 @@ def ccc_collocates(corpus_name, topic_items, s_context, window_sizes,
         min_freq,
         order,
         cut_off,
-        LIB_PATH, CQP_BIN, REGISTRY_PATH, CCC_PATH
+        lib_path, cqp_bin, registry_path, data_path
     )
 
     return coll
+
+
+@anycache(CACHE_PATH)
+def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
+                  topic_items, p_query='lemma',
+                  p_show=['word'], s_query=None):
+
+    return {'msg': 'received'}

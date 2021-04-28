@@ -156,11 +156,6 @@ def create_app(extra_config_settings={}):
     # Load extra settings from extra_config_settings param
     app.config.update(extra_config_settings)
 
-    # Preflight: Check if config is available
-    if not preflight_check_config_passed(app):
-        print('Error: Config files not initialized')
-        exit(1)
-
     # Load environment settings
     print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
     app.config.from_object('backend.local_settings_{ENV}'.format(
@@ -170,10 +165,31 @@ def create_app(extra_config_settings={}):
         ENV=app.config['APP_ENV']
     ))
 
+    # Set database URI if not set (done here to use the instance path)
+    if 'SQLALCHEMY_DATABASE_URI' not in app.config:
+        app.config.update(
+            SQLALCHEMY_DATABASE_URI=str(os.getenv(
+                'SQL_DATABASE_URI',
+                default="sqlite:///" + os.path.join(app.instance_path, 'backend.sqlite')
+            ))
+        )
+
+    # Preflight: Check if config is available
+    if not preflight_check_config_passed(app):
+        print('Error: Config files not initialized')
+        exit(1)
+
     # Create central logging instance
-    logger = create_logger('mmda-logger',
-                           log_file=app.config['APP_LOG_FILE'],
-                           is_debug=app.config['DEBUG'])
+    app.logger = create_logger('mmda-logger',
+                               log_file=app.config['APP_LOG_FILE'],
+                               is_debug=app.config['DEBUG'])
+
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path, exist_ok=True)
+    except OSError:
+        app.logger.error("could not create instance folder")
+        raise OSError
 
     # Preflight: Check if wordvectors are available
     preflight_check_vectors_passed(app)

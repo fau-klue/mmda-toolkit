@@ -17,7 +17,7 @@ from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import (
     generate_semantic_space, generate_discourseme_coordinates
 )
-from backend.analysis.ccc import ccc_concordance, ccc_collocates
+from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
 # backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import (
@@ -115,8 +115,14 @@ def create_analysis(username):
         db.session.add(topic_discourseme)
         db.session.commit()
         log.debug('created discourseme %s', topic_discourseme.id)
+    elif isinstance(discourseme, dict):
+        topic_discourseme = Discourseme.query.filter_by(
+            id=discourseme['id']
+        ).first()
     else:
-        topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
+        return jsonify({
+            'msg': "discourseme of type %s" % str(type(discourseme))
+        }), 400
 
     # add analysis to db
     analysis = Analysis(
@@ -136,6 +142,10 @@ def create_analysis(username):
     # collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=items,
         s_context=s_break,
         window_sizes=range(1, context),
@@ -461,6 +471,10 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
     # collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=topic_discourseme.items,
         s_context=analysis.s_break,
         window_sizes=range(1, analysis.context),
@@ -644,6 +658,10 @@ def get_collocate_for_analysis(username, analysis):
     # use cwb-ccc to extract data
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=analysis.items,
         s_context=analysis.s_break,
         window_sizes=[window_size],
@@ -763,6 +781,10 @@ def get_concordance_for_analysis(username, analysis):
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
         corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=analysis.items,
         topic_name=topic_discourseme.name,
         s_context=analysis.s_break,
@@ -784,3 +806,63 @@ def get_concordance_for_analysis(username, analysis):
     conc_json = jsonify(concordance)
 
     return conc_json, 200
+
+
+#######################
+# FREQUENCY BREAKDOWN #
+#######################
+@analysis_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/breakdown/',
+    methods=['GET']
+)
+@user_required
+def get_breakdown_for_analysis(username, analysis):
+    """ Get concordance lines for analysis.
+
+    parameters:
+      - name: username
+        description: username, links to user
+      - name: analysis
+        description: analysis_id
+    responses:
+      200:
+        description: breakdown
+      400:
+        description: "wrong request parameters"
+      404:
+        description: "empty result"
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # check request
+    # ... analysis
+    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    if not analysis:
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'empty result'}), 404
+
+    # pack p-attributes
+    p_show = list(set(['word', analysis.p_query]))
+
+    # use cwb-ccc to extract concordance lines
+    breakdown = ccc_breakdown(
+        corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
+        topic_items=analysis.items,
+        p_query=analysis.p_query,
+        p_show=p_show,
+        s_query=analysis.s_break,
+    )
+
+    if breakdown is None:
+        log.debug('no breakdown available for analysis %s', analysis)
+        return jsonify({'msg': 'empty result'}), 404
+
+    breakdown_json = jsonify(breakdown)
+
+    return breakdown_json, 200

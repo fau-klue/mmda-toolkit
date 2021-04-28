@@ -9,11 +9,19 @@ import pytest
 @mock.patch('backend.views.analysis_views.generate_semantic_space')
 def test_get_coordinates(mock_coords, client, header):
 
-    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],
-                                                columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
-                                                index=['foo', 'bar'])
+    mock_coords.return_value = pandas.DataFrame(
+        data=[[1.0, 2.0, 3.0, 4.0]],
+        columns=['x', 'y', 'x_user', 'y_user'],
+        index=['foo', 'bar']
+    )
 
-    data = {'name': 'foobar', 'corpus': 'GERMAPARL_1114', 'items': ['Merkel', 'Seehofer'], 'p_query': 'word', 's_break': 's'}
+    data = {'name': 'foobar',
+            'discourseme': 'foobar',
+            'corpus': 'GERMAPARL1318',
+            'items': ['Merkel'],
+            'p_query': 'word',
+            's_break': 's'}
+
     response = client.post(url_for('analysis.create_analysis', username='student1'),
                            follow_redirects=True,
                            content_type='application/json',
@@ -35,9 +43,11 @@ def test_get_coordinates(mock_coords, client, header):
 @mock.patch('backend.views.coordinates_views.generate_semantic_space')
 def test_reload_coordinates(mock_coords, client, header):
 
-    mock_coords.return_value = pandas.DataFrame(data=[[1.0, 2.0, 3.0, 4.0]],
-                                                columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
-                                                index=['foo', 'bar'])
+    mock_coords.return_value = pandas.DataFrame(
+        data=[[1.0, 2.0, 3.0, 4.0]],
+        columns=['x', 'y', 'x_user', 'y_user'],
+        index=['foo', 'bar']
+    )
 
     response = client.put(url_for('coordinates.reload_coordinates',
                                   username='student1',
@@ -53,7 +63,7 @@ def test_reload_coordinates(mock_coords, client, header):
 @pytest.mark.api
 def test_update_coordinates(client, header):
 
-    data = {'das': {'user_x': 100, 'user_y': 100}}
+    data = {'das': {'x_user': 100, 'y_user': 100}}
 
     response = client.put(url_for('coordinates.update_coordinates',
                                   username='student1',

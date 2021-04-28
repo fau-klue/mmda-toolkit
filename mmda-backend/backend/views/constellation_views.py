@@ -369,6 +369,10 @@ def get_constellation_concordances(username, constellation):
         # use cwb-ccc to extract data
         concordance = ccc_concordance(
             corpus_name=corpus,
+            cqp_bin=current_app.config['CCC_CQP_BIN'],
+            registry_path=current_app.config['CCC_REGISTRY_PATH'],
+            data_path=current_app.config['CCC_DATA_PATH'],
+            lib_path=current_app.config['CCC_LIB_PATH'],
             topic_items=topic_discourseme.items,
             topic_name=topic_discourseme.name,
             s_context=analysis.s_break,
