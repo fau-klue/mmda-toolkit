@@ -70,24 +70,18 @@
         
       </v-container>
       
-      <v-container v-if="analysis">
+      <v-container v-if="breakdown">
         <v-card-title>
           Frequency Breakdown
         </v-card-title>
         <template>
-          <v-data-table
-            :headers="breakdownHeaders"
-            :items="breakdown"
-            :rows-per-page="-1"
-            class="elevation-1"
-            >
+          <v-data-table :headers="breakdownHeaders" :items="breakdown" :pagination.sync="pagination" class="elevation-1">
             <template v-slot:items="props">
               <td>{{ props.item.item }}</td>
               <td>{{ props.item.freq }}</td>
             </template>
           </v-data-table>
         </template>
-        
       </v-container>
 
       <v-container v-if="analysis">
@@ -146,8 +140,15 @@ export default {
     dialogDelete: false,
     rules: rules,
     min: 1,
-    breakdownHeaders: [{text: "item", align: "left", value: "item"},
-                       {text: "Frequency", value: "freq"}]
+    breakdownHeaders: [
+      {text: "item", align: "left", value: "item"},
+      {text: "frequency", value: "freq"}
+    ],
+    pagination: {
+      sortBy: 'freq',
+      descending: true,
+      rowsPerPage: 10
+    }
   }),
   computed: {
     ...mapGetters({

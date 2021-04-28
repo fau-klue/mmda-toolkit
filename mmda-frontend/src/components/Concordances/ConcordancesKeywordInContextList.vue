@@ -21,7 +21,7 @@
           <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </div>
 
-        <v-data-table v-else :items="tableContent" :headers="headers" :disable-initial-sort="true"
+        <v-data-table v-else :items="tableContent" :headers="headers" :disable-initial-sort="true" :pagination.sync="pagination"
                       :hide-actions="tableContent.length<=5" class="kwic-view-table kwic-view-compact"
                       @update:pagination="$nextTick(()=>$nextTick(()=>setupTableSize()))">
 
@@ -176,6 +176,11 @@ export default {
     loadingConcordances: false,
     sentimentColor: ['green','yellow','red'],
     sentimentEmotion: ['😃','😐','😠'],
+    pagination: {
+      sortBy: 'log likelihood',
+      descending: true,
+      rowsPerPage: 10
+    }
   }),
   watch:{
     concordances(){

@@ -20,7 +20,7 @@
     </div>
     
     <!-- TODO: sorting, number of items -->
-    <v-data-table v-else :headers="headers" :items="transposedCoordinates" :items-per-page="10" :search="search" :sort-by.sync="sortBy" :sort-desc.sync="sortDesc" class="elevation-1">
+    <v-data-table v-else :headers="headers" :items="transposedCoordinates" :search="search" :pagination.sync="pagination" class="elevation-1">
       
       <template slot="items" slot-scope="props">
         <td v-for="el in headers" :key="props.item.name+el.text" class="text-xs-center">
@@ -81,8 +81,11 @@ export default {
     loadingCollocates:false,
     loadingCoordinates:false,
     min: 1,
-    sortBy: 'log-ratio',
-    sortDesc: true,
+    pagination: {
+      sortBy: 'log likelihood',
+      descending: true,
+      rowsPerPage: 10
+    }
   }),
   watch:{
     windowSize(){
