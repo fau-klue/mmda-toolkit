@@ -6,13 +6,12 @@ from logging import getLogger
 from pandas import DataFrame
 from pymagnitude import Magnitude
 from scipy.spatial.distance import cosine
-from sklearn.manifold import TSNE
-from umap import UMAP
+
 
 log = getLogger('mmda-logger')
 
 
-class SemanticSpace(object):
+class SemanticSpace:
 
     def __init__(self, database_path):
         """
@@ -51,7 +50,7 @@ class SemanticSpace(object):
 
         return df
 
-    def generate_semspace(self, tokens, method='umap'):
+    def generate_semspace(self, tokens, method='tsne'):
         """
         creates 2d-coordinates for a list of tokens
 
@@ -69,12 +68,14 @@ class SemanticSpace(object):
 
         # set up transformer
         if method == 'tsne':
+            from sklearn.manifold import TSNE
             transformer = TSNE(n_components=2,
                                metric='euclidean',
                                perplexity=10.,
                                verbose=0)
 
         elif method == 'umap':
+            from umap import UMAP
             transformer = UMAP()
 
         else:
