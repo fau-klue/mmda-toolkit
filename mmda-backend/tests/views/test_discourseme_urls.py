@@ -109,7 +109,6 @@ def test_discourseme_update_topic(mock_coords, client, header):
                           content_type='application/json',
                           headers=header,
                           json=data)
-    print(response.json)
 
     assert response.status_code == 200
 
