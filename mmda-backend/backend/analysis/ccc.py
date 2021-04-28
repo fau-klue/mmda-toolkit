@@ -101,9 +101,80 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     return coll
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
-                  topic_items, p_query='lemma',
-                  p_show=['word'], s_query=None):
+                  topic_items, p_query='lemma', s_query=None, p_show=['word']):
 
-    return {'msg': 'received'}
+    flags_query = "%cd"
+    flags_show = ""
+    escape = True
+
+    breakdown = get_breakdown(
+        corpus_name,
+        topic_items,
+        p_query,
+        s_query,
+        flags_query,
+        escape,
+        p_show,
+        flags_show,
+        lib_path, cqp_bin, registry_path, data_path
+    )
+
+    return breakdown
+
+
+# @anycache(ANYCACHE_PATH)
+def get_breakdown(corpus_name,
+                  topic_items,
+                  p_query='lemma',
+                  s_query=None,
+                  flags_query="%cd",
+                  escape_items=True,
+                  p_show=['word', 'lemma'],
+                  flags_show="",
+                  lib_path=None, cqp_bin='cqp',
+                  registry_path='/usr/local/share/cwb/registry/',
+                  data_path='/tmp/ccc-data/'):
+    """
+    :param str corpus_name: name corpus in CWB registry
+
+    :param list topic_items: list of lexical items
+    :param str p_query: p-att layer to query
+    :param str s_query: s-att to use for delimiting queries
+    :param str flags_query: flags to use for querying
+    :param bool escape_items: whether to cqp-escape the query items
+
+    :param list p_show: p-atts to use for collocation analysis
+    :param str flags_show: post-hoc folding ("%cd") with cwb-ccc-algorithm
+
+    :param str lib_path:
+    :param str cqp_bin:
+    :param str registry_path:
+    :param str data_path:
+
+    :return: dict of breakdown
+    :rtype: dict
+
+    """
+    from ccc import Corpus
+    from ccc.utils import format_cqp_query
+
+    # init corpus
+    corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
+
+    # init discourseme constellation
+    topic_query = format_cqp_query(topic_items,
+                                   p_query=p_query, s_query=s_query,
+                                   flags=flags_query, escape=escape_items)
+    dump = corpus.query(topic_query, context=None)
+
+    # convert to dictionary
+    out = list()
+    for row in dump.breakdown().iterrows():
+        out.append({
+            'item': row[0][0],
+            'freq': int(row[1]['freq'])
+        })
+
+    return out

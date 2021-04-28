@@ -844,7 +844,7 @@ def get_breakdown_for_analysis(username, analysis):
         return jsonify({'msg': 'empty result'}), 404
 
     # pack p-attributes
-    p_show = list(set(['word', analysis.p_query]))
+    p_show = request.args.getlist('p_show', ['word'])
 
     # use cwb-ccc to extract concordance lines
     breakdown = ccc_breakdown(

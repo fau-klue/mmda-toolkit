@@ -2,17 +2,17 @@
 <div>
   <v-card flat>
     <v-card-text>
-
+      
       <v-container v-if="analysis">
         <v-layout justify-space-between row>
-
+          
           <v-flex xs8 sm8>
             <!-- <v-card-title>Analysis</v-card-title> -->
-
+            
             <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Analysis Updated </v-alert>
-
+            
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
-
+            
             <v-form>
               <v-layout row>
                 <v-text-field v-model="analysis.id" :value="analysis.id" label="ID" box readonly></v-text-field>
@@ -31,14 +31,14 @@
                 <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
               </v-layout>
             </v-form>
-
+            
             <v-layout row>
               <v-btn color="info" class="text-lg-right" @click="updateAnalysis">Update</v-btn>
               <v-btn color="success" class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
               <v-spacer/>
               <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
             </v-layout>
-
+            
             <v-dialog v-model="dialogDelete" max-width="290">
               <v-card>
                 <v-card-title class="headline">Delete Analysis?</v-card-title>
@@ -55,7 +55,7 @@
           </v-flex>
           
           <v-spacer/>
-
+          
           <v-flex xs4 sm4>
             <!-- <v-card-title>WordCloud</v-card-title> -->
             <div class="text-xs-center">
@@ -65,8 +65,28 @@
               <WordcloudMinimap v-bind:height="20"/>
             </div>
           </v-flex>
-
+          
         </v-layout>
+        
+      </v-container>
+      
+      <v-container v-if="analysis">
+        <v-card-title>
+          Frequency Breakdown
+        </v-card-title>
+        <template>
+          <v-data-table
+            :headers="breakdownHeaders"
+            :items="breakdown"
+            :rows-per-page="-1"
+            class="elevation-1"
+            >
+            <template v-slot:items="props">
+              <td>{{ props.item.item }}</td>
+              <td>{{ props.item.freq }}</td>
+            </template>
+          </v-data-table>
+        </template>
         
       </v-container>
 
@@ -74,12 +94,12 @@
         <AnalysisDiscoursemeList/>
       </v-container>
 
-      <v-container>
-        <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
-      </v-container>
-
       <v-container v-if="analysis">
         <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
+      </v-container>
+
+      <v-container>
+        <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
       </v-container>
 
       <v-container v-if="analysis">
@@ -125,7 +145,9 @@ export default {
     updated: false,
     dialogDelete: false,
     rules: rules,
-    min: 1
+    min: 1,
+    breakdownHeaders: [{text: "item", align: "left", value: "item"},
+                       {text: "Frequency", value: "freq"}]
   }),
   computed: {
     ...mapGetters({
@@ -135,7 +157,8 @@ export default {
       collocates:'analysis/collocates',
       concordances:'analysis/concordances',
       concordances_loading:'analysis/concordances_loading',
-      windowSize: 'wordcloud/windowSize'
+      windowSize: 'wordcloud/windowSize',
+      breakdown: 'analysis/breakdown'
     })
   },
   methods: {
@@ -145,7 +168,8 @@ export default {
       updateUserAnalysis: 'analysis/updateUserAnalysis',
       deleteUserAnalysis: 'analysis/deleteUserAnalysis',
       reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
-      resetConcordances: 'analysis/resetConcordances'
+      resetConcordances: 'analysis/resetConcordances',
+      getAnalysisBreakdown: 'analysis/getAnalysisBreakdown'
     }),
     loadAnalysis () {
       const data = {
@@ -227,6 +251,10 @@ export default {
     this.id = this.$route.params.id
     this.resetConcordances()
     this.loadAnalysis()
+    this.getAnalysisBreakdown({
+      username: this.user.username,
+      analysis_id: this.id
+    })
   }
 }
 

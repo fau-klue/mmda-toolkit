@@ -13,9 +13,11 @@ const state = {
   discoursemes: [],
   // Collocates of analysis
   collocates: null,
-
+  // Concordances of analysis
   concordances: null,
   concordances_loading : null,
+  // Frequency breakdown of analysis
+  breakdown: null
 }
 
 const getters = {
@@ -36,6 +38,9 @@ const getters = {
   },
   concordances_loading (state) {
     return state.concordances_loading
+  },
+  breakdown (state) {
+    return state.breakdown
   }
 }
 
@@ -271,6 +276,27 @@ const actions = {
   },
   resetConcordances({commit}){
     commit('setConcordances',null);
+  },
+  getAnalysisBreakdown ({commit}, data){
+    // Get frequency breakdown for analysis
+    return new Promise((resolve, reject) => {
+
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
+
+      let params = new URLSearchParams()
+      if (data.p_show) params.append("p_show", data.p_show)
+      const request = {
+        params: params
+      }
+
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/breakdown/`, request).then(function (response) {
+        commit('setBreakdown', response.data);
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
 }
 
@@ -294,8 +320,11 @@ const mutations = {
   setConcordances (state, concordances) {
     state.concordances = concordances
   },
-  setConcordancesLoading(state,concordances_loading){
+  setConcordancesLoading(state, concordances_loading){
     state.concordances_loading = concordances_loading;
+  },
+  setBreakdown (state, breakdown) {
+    state.breakdown = breakdown
   }
 }
 
