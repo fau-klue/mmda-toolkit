@@ -15,28 +15,40 @@
             
             <v-form>
               <v-layout row>
-                <v-text-field v-model="analysis.id" :value="analysis.id" label="ID" box readonly></v-text-field>
-                <v-spacer/>
-                <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name" box background-color="white"></v-text-field>
-              </v-layout>
-              <v-layout row>
-                <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
-                <v-spacer/>
-                <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
+                <v-flex xs3 sm2>
+                  <v-text-field v-model="analysis.id" :value="analysis.id" label="ID" box readonly></v-text-field>
+                </v-flex>
+                <v-flex xs3 sm5>
+                  <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
+                </v-flex>
+                <v-flex xs3 sm5>
+                  <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
+                </v-flex>
+                <!-- <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name" box background-color="white"></v-text-field> -->
               </v-layout>
               <v-text-field :value="analysis.items" label="items" box readonly></v-text-field>
               <v-layout row>
-                <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>
-                <v-spacer/>
-                <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
+                <v-flex xs3 sm4>
+                  <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>
+                </v-flex>
+                <v-flex xs3 sm4>
+                  <v-text-field v-model="analysis.p_analysis" :value="analysis.p_analysis" label="analysis layer (p-att)" box readonly></v-text-field>
+                </v-flex>
+                <v-flex xs3 sm4>
+                  <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
+                </v-flex>
               </v-layout>
             </v-form>
             
             <v-layout row>
-              <v-btn color="info" class="text-lg-right" @click="updateAnalysis">Update</v-btn>
-              <v-btn color="success" class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
+              <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
               <v-spacer/>
+              <v-btn color="success" class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
               <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
+            </v-layout>
+
+            <v-layout row>
+              <v-slider :value="windowSize" :max="analysis.context" ticks="always" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
             </v-layout>
             
             <v-dialog v-model="dialogDelete" max-width="290">
@@ -58,10 +70,7 @@
           
           <v-flex xs4 sm4>
             <!-- <v-card-title>WordCloud</v-card-title> -->
-            <div class="text-xs-center">
-              <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Space</v-btn>
-            </div>
-            <div class="minimap_button" @click="gotoWordcloud" title="Open Wordcloud">
+            <div class="minimap_button" @click="gotoWordcloud" title="Open Semantic Map">
               <WordcloudMinimap v-bind:height="20"/>
             </div>
           </v-flex>
@@ -69,37 +78,36 @@
         </v-layout>
         
       </v-container>
-      
-      <v-container v-if="breakdown">
-        <v-card-title>
-          Frequency Breakdown
-        </v-card-title>
-        <template>
-          <v-data-table :headers="breakdownHeaders" :items="breakdown" :pagination.sync="pagination" class="elevation-1">
-            <template v-slot:items="props">
-              <td>{{ props.item.item }}</td>
-              <td>{{ props.item.freq }}</td>
-            </template>
-          </v-data-table>
-        </template>
-      </v-container>
-
-      <v-container v-if="analysis">
-        <AnalysisDiscoursemeList/>
-      </v-container>
-
-      <v-container v-if="analysis">
-        <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
-      </v-container>
 
       <v-container>
-        <v-slider :value="windowSize" :max="analysis.context" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
-      </v-container>
+        <v-tabs color="blue" dark >
 
-      <v-container v-if="analysis">
-        <ItemTable/>
-      </v-container>
+          <v-tab :key="1">Frequency Breakdown</v-tab>
+          <v-tab :key="2">Associated Discoursemes</v-tab>
+          <v-tab :key="3">Concordance Lines</v-tab>
+          <v-tab :key="4">Collocate Table</v-tab>
 
+          <v-tab-item :key="1">
+            <template>
+              <v-data-table :headers="breakdownHeaders" :items="breakdown" :pagination.sync="pagination" class="elevation-1">
+                <template v-slot:items="props">
+                  <td>{{ props.item.item }}</td>
+                  <td>{{ props.item.freq }}</td>
+                </template>
+              </v-data-table>
+            </template>
+          </v-tab-item>
+          <v-tab-item :key="2">
+            <AnalysisDiscoursemeList/>
+          </v-tab-item>
+          <v-tab-item :key="3">
+            <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
+          </v-tab-item>
+          <v-tab-item :key="4">
+            <ItemTable/>
+          </v-tab-item>
+        </v-tabs>
+      </v-container>
     </v-card-text>
   </v-card>
 </div>

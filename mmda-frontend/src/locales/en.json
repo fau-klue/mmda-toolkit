@@ -1,173 +1,175 @@
 {
-    "common": {
-	"missingData": "Please enter missing data.",
-	"required": "Input required",
-	"search": "Search",
-	"submit": "Submit",
-	"clear": "Clear",
-	"update": "Update",
-	"delete": "Delete"
+  "common": {
+    "missingData": "Please enter missing data.",
+    "required": "Input required",
+    "search": "Search",
+    "submit": "Submit",
+    "clear": "Clear",
+    "update": "Update",
+    "delete": "Delete"
+  },
+  "login": {
+    "username": "Username",
+    "password": "Password",
+    "missing_input": "Please enter username and password.",
+    "bad_request": "Incorrect username or password (password length has to be >= 8).",
+    "unauthorized": "Incorrect username or password.",
+    "network": "Network Error."
+  },
+  "toolbar": {
+    "home": "Home",
+    "about": "Vignette",
+    "login": "Login",
+    "logout": "Logout"
+  },
+  "sidebar": {
+    "profile": "Profile",
+    "analysis": "Analyses",
+    "discourseme": "Discoursemes",
+    "constellation": "Discourseme Constellation",
+    "administration": "Administration",
+    "users": "Users",
+    "objects": "Objects"
+  },
+  "profile": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "updateProfile": "Update Profile",
+    "updatePassword": "Update Password",
+    "password": "New Password",
+    "passwordRepeat": "Repeat new Password",
+    "messages": {
+      "passwordMatch": "Passwords do not match.",
+      "passwordChanged": "Password changed.",
+      "updateProfile": "Profile Updated."
+    }
+  },
+  "analysis": {
+    "newAnalysis": "New Analysis",
+    "name": "Name",
+    "corpus": "Corpus",
+    "associatedDiscoursemes": "Associated Discoursemes",
+    "availableDiscoursemes": "Available Discoursemes",
+    "coordinates": "Coordinates",
+    "openWordcloud": "Open Wordcloud",
+    "updateName": "Update Name",
+    "reloadCoordinates": "Reload Coordinates",
+    "delete": "Delete",
+    "new": {
+      "helpTitle": "Discourseme Analysis",
+      "helpText": "Query a corpus for a discourseme and start an interactive collocation analysis.",
+      "corpus": "corpus",
+      "helpCorpus": "the CWB corpus",
+      "name": "discourseme",
+      "helpName": "either select a discourseme or enter a name for a new discourseme",
+      "items": "items",
+      "helpItems": "uni- or n-gram queries forming the node of the collocation analysis (e.g. 'powerplant', 'nuclear energy')",
+      "pQuery": "query layer (p-att)",
+      "helpPQuery": "positional attribute to query (e.g. word, lemma)",
+      "pAnalysis": "analysis layer (p-att)",
+      "helpPAnalysis": "positional attribute to analyze (e.g. word, lemma)",
+      "sBreak": "context break (s-att)",
+      "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet).",
+      "windowSize": "context",
+      "helpWindowSize": "maximum number of tokens to look left and right of the matches",
+      "missing_data": "Please enter missing data.",
+      "invalid_input": "Entered data is not valid.",
+      "no_collocates": "No collocates of the given item(s) were found in the given corpus.",
+      "no_topic": "None of the items have been found in the given corpus."
     },
-    "index": {
-      "headline1": "MMDA: An interactive toolkit for Corpus-based Discourse Analysis",
-	"paragraph1": "Corpus-based Discourse Analysis (CDA) is a popular and highly successful technique for the investigation of socio-political research questions.  The CDA procedure starts from a collocation analysis for a given node (oftentimes representing a topic of interest).  The collocates are then grouped into semantically meaningful categories (e.g. attitudes and opinions) based on careful inspection of the corresponding KWIC concordances.",
-	"paragraph2": "The web application you are using here – the interactive Mixed Methods Discourse Analysis (MMDA) toolkit – is a bespoke software solution that combines the necessary steps of CDA into a single consistent and efficient working environment. The most labour-intensive task of CDA, the manual grouping of lexical items into discoursemes, can be carried out interactively via drag & drop.",
-	"paragraph3": "From a Digital Humanities perspective, the toolkit can be understood as an attempt to blend close and distant reading techniques.  On the one hand, the app provides you with an intuitive visualization of collocation profiles in form of a semantic map.   On the other hand, easily accessible and exportable concordance lines accompany all summarizations.",
-	"paragraph4": "See the Vignette for further info or click on New Discourseme.",
-	"headlinePublications": "Conference Presentations",
-	"headlineAcknowledgements": "Acknowledgements",
-	"Acknowledgements": "This work was supported by the Emerging Fields Initiative (EFI) of Friedrich-Alexander-Universität Erlangen-Nürnberg, project title Exploring the 'Fukushima Effect' (EFE)."
+    "concordances":{
+      "not_found":"No such analysis or no concordance available.",
+      "invalid_input":"Concordance parameters invalid."
     },
-    "about": {
-	"headline": "Vignette",
-	"headline1": "Functionality and Prerequisites",
-	"paragraph1_1": "The MMDA toolkit can be used in a specialized way to (1) query corpora using the Corpus Query Processor (CQP) of the IMS Open Corpus Workbench (CWB), (2) to visualize collocation lists via semantic maps, (3) to create and store discoursemes in a consistent database, and (4) to analyse discourseme constellations.  In principle, any corpus indexed with the CWB can be imported in the toolkit.  For all visualzations, word embeddings of the respective token-layer (for the given language and register) must be at hand.",
-	"headline1_1": "Using MMDA for CDA",
-	"paragraph1_2": "A typical starting point of CDA is a 'topic query': a set of words and multi-word units on any positional annotation layer of the corpus. The available layers depend on the actual linguistic annotation of the corpus at hand, but for most corpora the three layers 'word' and 'lemma' should be present. A typical topic query is made up of semantically related topic nodes such as {'erneuerbare Energie', 'Windenergie', 'Solarenergie', 'Wasserkraft'}, which aims to capture a specific topic you are interested in. For a topic in the sense of CDA, it is reasonable to query on the lemma layer, i.e. to choose 'p-att: lemma' in the 'New Analysis' pane.",
-	"paragraph1_3": "The 'window size' and 's-break' parameters determine the windows around the retrieved topic nodes that will be highlighted in concordance views and which will be used to determine the domain of collocate candidates. For most texts, sentences should be used as break points ('s-break: s'). Newspaper texts might also contain 'article' or 'p' (for paragraph); CMC data might contain 'tweet' or 'post'. The most generic s-break value is 'text'. Typical values for the window size are 3 to 10, although some researchers might be interested in values as low as 1 (essentially looking for trigrams), others in window sizes of 10 and above, looking for patterns across lexical items far away from one another.",
-	"paragraph1_4": "Every analysis – consisting of topic query, s-att, p-att, and corpus – has to be named for further identification. This way, topic queries (and their related analyses) can be used within later analyses.",
-	"headline2": "Inspecting an analysis",
- 	"paragraph2_1": "The immediate result of the analysis is a summarization of the cotext (the textual context defined by window size and s-break) of the topic nodes: You can see (1)  the 'frequency breakdown' of the topic query. (2) The 'collocation' segment presents the collocate candidates of the topic nodes for different association measures subject to window size. (3) The 'concordance' segment shows concordance lines of the topic query.",
-	"paragraph2_2": "Additionally, a semantic cloud of the lexical items in the collocation list can be displayed. The initial cloud is a straightforward visualization of the collocation table: It uses a stochastic dimensionality reduction algorithm to place the lexical items in a semantically structured two-dimensional plane (especially trying to place semantically similar items next to one another). The size of the lexical items represent the association of the item with the topic query; the collocation parameters can be used for changing the appearance of the semantic cloud.",
-	"paragraph2_3": "Clicking on items in the semantic cloud retrieves concordances for co-occurrences of the respective item and the topic query.",
-	"headline3": "Forming discoursemes",
-	"paragraph3_1": "A discourseme is a user-created selection of related lexical items. On its surface, it represents a simple list of lexical items, which the researcher decided belong together. The list of topic nodes form a special discourseme – the topic discourseme.",
-	"paragraph3_2": "The semantic cloud is interactive, meaning that lexical items can be grouped together via drag & drop to form additional discoursemes. The cloud can also display second-order collocates of a selected discourseme in the same semantic cloud, i.e. lexical items that are highly associated with the co-occurrence of the topic discourseme and the selected discourseme.",
-	"headline4": "Forming constellations",
-	"paragraph4_1": "The easiest discourseme constellation that can be formed consists of a topic discourseme and one further a group of collocates. Such a constellation prototypically consists of the topic (realized by the topic discourseme) and a certain attitude that can be taken towards that topic (realized by the second discourseme)."
+    "collocates":{
+      "not_found": "No such analysis or no collocates available.",
+      "invalid_input": "Collocation parameters invalid."
     },
-    "login": {
-	"username": "Username",
-	"password": "Password",
-	"missing_input": "Please enter username and password.",
-	"bad_request": "Incorrect username or password (password length has to be >= 8).",
-	"unauthorized": "Incorrect username or password.",
-	"network": "Network Error."
+    "coordinates_request":{
+      "not_found": "Analysis not available."
+    }
+  },
+  "discourseme": {
+    "newDiscourseme": "New Discourseme",
+    "name": "Name",
+    "items": "Lexical Items",
+    "new": {
+      "name": "name",
+      "items": "items",
+      "helpTitle": "Discourseme",
+      "helpText": "Define an abstract discourseme, i.e. a named family of lexical items.",
+      "helpName": "name of the new discourseme (should be concise)",
+      "helpItems": "set of lexical items (e.g. near-synonymous lemmas)"
+    }
+  },
+  "constellation": {
+    "newConstellation": "New Constellation",
+    "name": "Name",
+    "associatedDiscoursemes": "Associated Discoursemes",
+    "availableDiscoursemes": "Available Discoursemes",
+    "new": {
+      "name": "Constellation Name",
+      "discoursemes": "Discoursemes",
+      "helpTitle": "What is a Constellation?",
+      "helpText": "A constellation is a the co-occurrence of several discoursemes, e.g. a certain attitude towards a topic.",
+      "helpName": "Name for the new constellation",
+      "helpDiscoursemes": "A selection of the available discoursemes that are included in the constellation."
     },
-    "toolbar": {
-	"home": "Home",
-	"about": "Vignette",
-	"login": "Login",
-	"logout": "Logout"
-    },
-    "sidebar": {
-	"profile": "Profile",
-	"analysis": "Analyses",
-	"discourseme": "Discoursemes",
-	"constellation": "Discourseme Constellation",
-	"administration": "Administration",
-	"users": "Users",
-	"objects": "Objects"
-    },
-    "profile": {
+    "extraction": {
+      "helpTitle": "Constellation Concordance Extraction",
+      "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
+      "corpora": "Corpora",
+      "helpCorpora": "Selection of corpora to extract (random) concordances from.",
+      "analysis": "Analysis",
+      "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
+    }
+  },
+    "admin": {
+      "addUser": "Add User",
+      "newUser": {
+	"username": "User Name",
 	"firstName": "First Name",
 	"lastName": "Last Name",
 	"email": "Email",
-	"updateProfile": "Update Profile",
-	"updatePassword": "Update Password",
 	"password": "New Password",
 	"passwordRepeat": "Repeat new Password",
-	"messages": {
-	    "passwordMatch": "Passwords do not match.",
-	    "passwordChanged": "Password changed.",
-	    "updateProfile": "Profile Updated."
-	}
+	"isAdmin": "New User is Administrator",
+	"addUser": "Add User"
+      }
     },
-    "analysis": {
-	"newAnalysis": "New Analysis",
-	"name": "Name",
-	"corpus": "Corpus",
-	"associatedDiscoursemes": "Associated Discoursemes",
-	"availableDiscoursemes": "Available Discoursemes",
-	"coordinates": "Coordinates",
-	"openWordcloud": "Open Wordcloud",
-	"updateName": "Update Name",
-	"reloadCoordinates": "Reload Coordinates",
-	"delete": "Delete",
-	"new": {
-	    "helpTitle": "Discourseme Analysis",
-	    "helpText": "Start an interactive collocation analysis of a discourseme in a CWB-indexed corpus.",
-	    "name": "discourseme",
-	    "helpName": "either select a discourseme or enter a name for a new discourseme",
-	    "corpus": "corpus",
-	    "helpCorpus": "the CWB corpus",
-	    "items": "items",
-	    "helpItems": "uni- or n-gram queries forming the node of the collocation analysis (e.g. 'powerplant', 'nuclear energy')",
-            "pquery": "query layer (p-att)",
-	    "helpPQuery": "positional attribute to query (e.g. word, lemma)",
-            "sbreak": "context break (s-att)",
-	    "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet).",
-            "windowSize": "context",
-	    "helpWindowSize": "maximum number of tokens to look left and right of the matches",
-	    "missing_data": "Please enter missing data.",
-	    "invalid_input": "Entered data is not valid.",
-	    "no_collocates": "No collocates of the given item(s) were found in the given corpus.",
-	    "no_topic": "None of the items have been found in the given corpus."
-	},
-    "concordances":{
-	"not_found":"No such analysis or no concordance available.",
-	"invalid_input":"Concordance parameters invalid."
-    },
-	"collocates":{
-	    "not_found": "No such analysis or no collocates available.",
-	    "invalid_input": "Collocation parameters invalid."
-	},
-	"coordinates_request":{
-	    "not_found": "Analysis not available."
-	}
-    },
-    "discourseme": {
-	"newDiscourseme": "New Discourseme",
-	"name": "Name",
-	"items": "Lexical Items",
-	"new": {
-	    "name": "name",
-	    "items": "items",
-	    "helpTitle": "Discourseme",
-	    "helpText": "Define an abstract discourseme, i.e. a named family of lexical items.",
-	    "helpName": "name of the new discourseme (should be concise)",
-	    "helpItems": "set of lexical items (e.g. near-synonymous lemmas)"
-	}
-    },
-    "constellation": {
-	"newConstellation": "New Constellation",
-	"name": "Name",
-	"associatedDiscoursemes": "Associated Discoursemes",
-	"availableDiscoursemes": "Available Discoursemes",
-	"new": {
-	    "name": "Constellation Name",
-	    "discoursemes": "Discoursemes",
-	    "helpTitle": "What is a Constellation?",
-	    "helpText": "A constellation is a the co-occurrence of several discoursemes, e.g. a certain attitude towards a topic.",
-	    "helpName": "Name for the new constellation",
-	    "helpDiscoursemes": "A selection of the available discoursemes that are included in the constellation."
-	},
-	"extraction": {
-	    "helpTitle": "Constellation Concordance Extraction",
-	    "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
-	    "corpora": "Corpora",
-	    "helpCorpora": "Selection of corpora to extract (random) concordances from.",
-	    "analysis": "Analysis",
-	    "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
-	}
-    },
-    "admin": {
-	"addUser": "Add User",
-	"newUser": {
-	    "username": "User Name",
-	    "firstName": "First Name",
-	    "lastName": "Last Name",
-	    "email": "Email",
-	    "password": "New Password",
-	    "passwordRepeat": "Repeat new Password",
-	    "isAdmin": "New User is Administrator",
-	    "addUser": "Add User"
-	}
-    },
-    "wordcloud": {
-	"sidebar": {
-	    "metadata": "Metadata",
-	    "windowSize": "Window Size"
+  "wordcloud": {
+    "sidebar": {
+      "metadata": "Metadata",
+      "windowSize": "Window Size"
     }
+  },
+  "index": {
+    "headline1": "MMDA: An interactive toolkit for Corpus-based Discourse Analysis",
+    "paragraph1": "Corpus-based Discourse Analysis (CDA) is a popular and highly successful technique for the investigation of socio-political research questions.  The CDA procedure starts from a collocation analysis for a given node (oftentimes representing a topic of interest).  The collocates are then grouped into semantically meaningful categories (e.g. attitudes and opinions) based on careful inspection of the corresponding KWIC concordances.",
+    "paragraph2": "The web application you are using here – the interactive Mixed Methods Discourse Analysis (MMDA) toolkit – is a bespoke software solution that combines the necessary steps of CDA into a single consistent and efficient working environment. The most labour-intensive task of CDA, the manual grouping of lexical items into discoursemes, can be carried out interactively via drag & drop.",
+    "paragraph3": "From a Digital Humanities perspective, the toolkit can be understood as an attempt to blend close and distant reading techniques.  On the one hand, the app provides you with an intuitive visualization of collocation profiles in form of a semantic map.   On the other hand, easily accessible and exportable concordance lines accompany all summarizations.",
+    "paragraph4": "See the Vignette for further info or click on New Discourseme.",
+    "headlinePublications": "Conference Presentations",
+    "headlineAcknowledgements": "Acknowledgements",
+    "Acknowledgements": "This work was supported by the Emerging Fields Initiative (EFI) of Friedrich-Alexander-Universität Erlangen-Nürnberg, project title Exploring the 'Fukushima Effect' (EFE)."
+  },
+  "about": {
+    "headline": "Vignette",
+    "headline1": "Functionality and Prerequisites",
+    "paragraph1_1": "The MMDA toolkit can be used in a specialized way to (1) query corpora using the Corpus Query Processor (CQP) of the IMS Open Corpus Workbench (CWB), (2) to visualize collocation lists via semantic maps, (3) to create and store discoursemes in a consistent database, and (4) to analyse discourseme constellations.  In principle, any corpus indexed with the CWB can be imported in the toolkit.  For all visualzations, word embeddings of the respective token-layer (for the given language and register) must be at hand.",
+    "headline1_1": "Using MMDA for CDA",
+    "paragraph1_2": "A typical starting point of CDA is a 'topic query': a set of words and multi-word units on any positional annotation layer of the corpus. The available layers depend on the actual linguistic annotation of the corpus at hand, but for most corpora the three layers 'word' and 'lemma' should be present. A typical topic query is made up of semantically related topic nodes such as {'erneuerbare Energie', 'Windenergie', 'Solarenergie', 'Wasserkraft'}, which aims to capture a specific topic you are interested in. For a topic in the sense of CDA, it is reasonable to query on the lemma layer, i.e. to choose 'p-att: lemma' in the 'New Analysis' pane.",
+    "paragraph1_3": "The 'window size' and 's-break' parameters determine the windows around the retrieved topic nodes that will be highlighted in concordance views and which will be used to determine the domain of collocate candidates. For most texts, sentences should be used as break points ('s-break: s'). Newspaper texts might also contain 'article' or 'p' (for paragraph); CMC data might contain 'tweet' or 'post'. The most generic s-break value is 'text'. Typical values for the window size are 3 to 10, although some researchers might be interested in values as low as 1 (essentially looking for trigrams), others in window sizes of 10 and above, looking for patterns across lexical items far away from one another.",
+    "paragraph1_4": "Every analysis – consisting of topic query, s-att, p-att, and corpus – has to be named for further identification. This way, topic queries (and their related analyses) can be used within later analyses.",
+    "headline2": "Inspecting an analysis",
+    "paragraph2_1": "The immediate result of the analysis is a summarization of the cotext (the textual context defined by window size and s-break) of the topic nodes: You can see (1)  the 'frequency breakdown' of the topic query. (2) The 'collocation' segment presents the collocate candidates of the topic nodes for different association measures subject to window size. (3) The 'concordance' segment shows concordance lines of the topic query.",
+    "paragraph2_2": "Additionally, a semantic cloud of the lexical items in the collocation list can be displayed. The initial cloud is a straightforward visualization of the collocation table: It uses a stochastic dimensionality reduction algorithm to place the lexical items in a semantically structured two-dimensional plane (especially trying to place semantically similar items next to one another). The size of the lexical items represent the association of the item with the topic query; the collocation parameters can be used for changing the appearance of the semantic cloud.",
+      "paragraph2_3": "Clicking on items in the semantic cloud retrieves concordances for co-occurrences of the respective item and the topic query.",
+    "headline3": "Forming discoursemes",
+    "paragraph3_1": "A discourseme is a user-created selection of related lexical items. On its surface, it represents a simple list of lexical items, which the researcher decided belong together. The list of topic nodes form a special discourseme – the topic discourseme.",
+    "paragraph3_2": "The semantic cloud is interactive, meaning that lexical items can be grouped together via drag & drop to form additional discoursemes. The cloud can also display second-order collocates of a selected discourseme in the same semantic cloud, i.e. lexical items that are highly associated with the co-occurrence of the topic discourseme and the selected discourseme.",
+    "headline4": "Forming constellations",
+    "paragraph4_1": "The easiest discourseme constellation that can be formed consists of a topic discourseme and one further a group of collocates. Such a constellation prototypically consists of the topic (realized by the topic discourseme) and a certain attitude that can be taken towards that topic (realized by the second discourseme)."
   }
 }

@@ -46,12 +46,17 @@
                   {{ $t("analysis.new.helpItems") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.pquery") }}</h1>
+                <h1 class="subheading">{{ $t("analysis.new.pQuery") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.sbreak") }}</h1>
+                <h1 class="subheading">{{ $t("analysis.new.pAnalysis") }}</h1>
+                <p>
+                  {{ $t("analysis.new.helpPAnalysis") }}
+                </p>
+
+                <h1 class="subheading">{{ $t("analysis.new.sBreak") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpSBreak") }}
                 </p>
@@ -87,8 +92,11 @@
                       <v-slider v-model="selectWindow" inverse-label ticks="always" :min="min" :max="max" thumb-label="always" label="context" ></v-slider>
                     </v-flex>
                   </v-layout>
-                  <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
-                  <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                  <v-layout row>
+                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                    <v-spacer/>
+                    <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
+                  </v-layout>
                 </v-form>
               </v-flex>
             </v-layout>
