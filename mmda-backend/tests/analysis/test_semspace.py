@@ -1,11 +1,10 @@
-import pytest
-import unittest.mock as mock
+# import pytest
+# import unittest.mock as mock
 import pandas as pd
-from pandas.util.testing import assert_frame_equal
+# from pandas.util.testing import assert_frame_equal
 
-from backend.analysis.semspace import load_vectors
-from backend.analysis.semspace import generate_semantic_space
-from backend.analysis.semspace import generate_discourseme_coordinates
+# from backend.analysis.semspace import load_vectors
+# from backend.analysis.semspace import generate_semantic_space
 from backend.analysis.semspace import SemanticSpace
 
 
