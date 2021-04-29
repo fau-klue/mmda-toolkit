@@ -153,14 +153,16 @@ def load_vectors(tokens, vectors_filepath):
     return semspace._get_vectors(tokens)
 
 
-def generate_semantic_space(tokens, vectors_filepath, method='umap'):
-    """
-    Generates 2D coordinates (via word embeddings) for a list of tokens.
-    This function returns a DataFrame with two sets of coordinates: x,y from TSNE and x,y placeholders for coordinates from a user.
+def generate_semantic_space(tokens, vectors_filepath, method='tsne'):
+    """Generate 2D coordinates or a list of items.  This function returns
+    a DataFrame with two sets of coordinates: x, y from an automatic
+    dimensionality reduction method and x, y placeholders for
+    coordinates from a user.
 
     :param list tokens: List of tokens to generate coordinates for.
     :return: pandas.Dataframe with x,y coordinates (tsne, user)
     :rtype: pandas.Dataframe
+
     """
 
     semspace = SemanticSpace(vectors_filepath)
@@ -173,18 +175,20 @@ def generate_semantic_space(tokens, vectors_filepath, method='umap'):
     return coordinates
 
 
-def generate_discourseme_coordinates(items, base_coordinates, vectors_filepath):
-    """
-    Generate 2D coordinates for discourse items.
+def generate_items_coordinates(items, base_coordinates, vectors_filepath):
+    """Generate 2D coordinates for additional items. This method places
+    the given items withn the given base coordinates, taking into
+    consideration their similarities.
 
     :param list items: List of items to generate coordinates for
     :param pandas.DataFrame base_coordinates: TODO
     :param str vectors_filepath: Path to a *.pymagnitude vectors file.
     :return: pandas.Dataframe with x,y coordinates (tsne, user)
     :rtype: pandas.Dataframe
+
     """
 
-    # Check if some if the items are already in the base_coordinates,
+    # Check if some of the items are already in the base_coordinates,
     # If so remove those items
     intersect_items = set(items).intersection(set(base_coordinates.index))
     items = list(set(items) - intersect_items)
