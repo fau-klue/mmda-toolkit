@@ -16,6 +16,18 @@ log = logging.getLogger('mmda-logger')
 CACHE_PATH = '/tmp/mmda-anycache/'
 
 
+def sort_p(p_atts):
+    order = ['lemma_pos', 'lemma', 'word']
+    ordered = [p for p in order if p in p_atts] + [p for p in p_atts if p not in order]
+    return ordered
+
+
+def sort_s(s_atts):
+    order = ['s', 'p', 'tweet', 'text']
+    ordered = [s for s in order if s in s_atts] + [s for s in s_atts if s not in order]
+    return ordered
+
+
 def ccc_corpora(cqp_bin, registry_path):
     corpora = Corpora(cqp_bin, registry_path).show()
     return corpora
@@ -32,9 +44,11 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     )
     s_atts = attributes[attributes['type'] == 's-Att']
     s_atts = list(s_atts[~s_atts['annotation']]['attribute'].values)
+
+    # provide reasonable sort order
     crps = {
-        'p-atts': p_atts,
-        's-atts': s_atts
+        'p-atts': sort_p(p_atts),
+        's-atts': sort_s(s_atts)
     }
     return crps
 
@@ -66,18 +80,13 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 
 
 @anycache(CACHE_PATH)
-def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path, lib_path,
-                   topic_items, s_context, window_sizes,
+def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
+                   lib_path, topic_items, s_context, windows,
                    context=20, additional_discoursemes={},
-                   p_query='lemma', s_query=None, ams=None,
-                   cut_off=200, order='log_likelihood'):
-
-    flags_query = "%cd"
-    flags_show = ""
-    escape = True
-    p_show = [p_query]
-    windows = window_sizes
-    min_freq = 2
+                   p_query='lemma', flags_query='%cd', s_query=None,
+                   p_show=['lemma'], flags_show="", ams=None,
+                   cut_off=200, min_freq=2, order='log_likelihood',
+                   escape=True):
 
     coll = get_collocates(
         corpus_name,

@@ -31,14 +31,14 @@
                   {{ $t("analysis.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.name") }}</h1>
-                <p>
-                  {{ $t("analysis.new.helpName") }}
-                </p>
-
                 <h1 class="subheading">{{ $t("analysis.new.corpus") }}</h1>
                 <p>
                   {{ $t("analysis.new.helpCorpus") }}
+                </p>
+
+                <h1 class="subheading">{{ $t("analysis.new.name") }}</h1>
+                <p>
+                  {{ $t("analysis.new.helpName") }}
                 </p>
 
                 <h1 class="subheading">{{ $t("analysis.new.items") }}</h1>
@@ -72,53 +72,21 @@
                 <v-form v-else>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
-                  <v-combobox
-                    class="col-5"
-                    v-model="selectDiscourseme"
-                    :items="userDiscoursemes"
-                    label="discourseme"
-                    item-text="name"
-                    :rules="[rules.required]"
-                    ></v-combobox>
-                  <v-autocomplete
-                    v-model="selectCorpus"
-                    clearable
-                    :items="corpora"
-                    item-value="name_api"
-                    item-text="name"
-                    label="corpus"
-                    ></v-autocomplete>
-                  <v-combobox
-                    v-model="selectItems"
-                    :items="items"
-                    label="items"
-                    :rules="[rules.required, rules.counter]"
-                    multiple
-                    chips
-                    ></v-combobox>
+                  <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus" :rules="[rules.required]"></v-autocomplete>
+                  <v-combobox class="col-5" v-model="selectDiscourseme" :items="userDiscoursemes" label="discourseme" item-text="name" :rules="[rules.required]"></v-combobox>
+                  <v-combobox v-model="selectItems" :items="items" label="items" :rules="[rules.required, rules.counter]" multiple chips ></v-combobox>
                   <v-layout row>
-                    <v-combobox
-                      class="col-5"
-                      v-model="pQuery"
-                      :items="pQueries"
-                      label="query layer (p-att)"
-                      :rules="[rules.required, rules.alphanum, rules.counter]"
-                      ></v-combobox><v-spacer/>
-                    <v-combobox
-                      class="col-5"
-                      v-model="sBreak"
-                      :items="sBreaks"
-                      label="context break (s-att)"
-                      :rules="[rules.required, rules.alphanum, rules.counter]"
-                      ></v-combobox>
+                    <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
+                    <v-combobox class="col-5" v-model="pAnalysis" :items="pAnalyses" label="analysis layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
                   </v-layout>
-                  <v-slider
-                    v-model="selectWindow"
-                    :max="max"
-                    :min="min"
-                    thumb-label="always"
-                    label="context"
-                    ></v-slider>
+                  <v-layout row>
+                    <v-flex xs6>
+                      <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-slider v-model="selectWindow" inverse-label ticks="always" :min="min" :max="max" thumb-label="always" label="context" ></v-slider>
+                    </v-flex>
+                  </v-layout>
                   <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
                   <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                 </v-form>
@@ -146,8 +114,10 @@ export default {
     max: 25,
     name: 'untitled',           // TODO: make configurable
     pQuery: '',
+    pAnalysis: '',
     sBreak: '',
     pQueries: [],
+    pAnalyses: [],
     sBreaks: [],
     selectCorpus: '',
     selectItems: [],
@@ -167,9 +137,9 @@ export default {
     selectCorpus(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
-          this.pQueries = C.pQueries
-          this.sBreaks = C.sBreaks
-          if(C.p_att){
+        this.pQueries = C.pQueries
+        this.sBreaks = C.sBreaks
+        if(C.p_att){
           if(typeof C.p_att ==='string'){
             this.pQueries = [C.p_att];
           }else if(typeof C.p_att === 'object' && C.p_att[0]){
@@ -185,6 +155,8 @@ export default {
         }
       }
       this.pQuery = this.pQueries[0]
+      this.pAnalysis = this.pQuery
+      this.sBreak = this.sBreaks[0]
     }
   },
   methods: {
@@ -211,8 +183,9 @@ export default {
     clear () {
       this.error = null
       this.items = []
-      this.pQuery = 'word'
-      this.sBreak = 's'
+      this.pQuery = ''
+      this.sBreak = ''
+      this.pAnalysis = ''
       this.selectCorpus = ''
       this.selectItems = []
       this.selectWindow = 10,
@@ -234,6 +207,7 @@ export default {
         context: this.selectWindow,
         p_query: this.pQuery,
         s_break: this.sBreak,
+        p_analysis: this.pAnalysis,
         corpus: this.selectCorpus,
         discourseme: this.selectDiscourseme
       }

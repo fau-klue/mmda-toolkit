@@ -70,6 +70,7 @@ class Analysis(db.Model):
     name = db.Column(db.Unicode(255))
     corpus = db.Column(db.Unicode(255), nullable=False)
     p_query = db.Column(db.Unicode(255), nullable=False)
+    p_analysis = db.Column(db.Unicode(255), nullable=False)
     s_break = db.Column(db.Unicode(255), nullable=False)
     context = db.Column(db.Integer, nullable=True)
     # association_measures are stored as <str>, will be returned as <list>
@@ -126,6 +127,7 @@ class Analysis(db.Model):
             'user_id': self.user_id,
             'topic_id': self.topic_id,
             'p_query': self.p_query,
+            'p_analysis': self.p_analysis,
             's_break': self.s_break,
             'context': self.context,
             'items': self.items,
