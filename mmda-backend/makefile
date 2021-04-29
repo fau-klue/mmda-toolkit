@@ -13,8 +13,8 @@ coverage:
 	pipenv run pytest --cov-report term-missing -v --cov=backend/
 database:
 	pipenv run python3 manage.py init_db
-db:
-	pipenv run python3 manage.py db
+migrate:
+	pipenv run python3 manage.py migrate_db upgrade
 run:
 	pipenv run python3 manage.py runserver
 docker:

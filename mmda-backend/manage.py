@@ -19,7 +19,7 @@ from backend.commands import InitDbCommand, WSGICommand
 
 # Setup Flask-Script with command line commands
 manager = Manager(create_app)
-manager.add_command('db', MigrateCommand)
+manager.add_command('migrate_db', MigrateCommand)
 manager.add_command('init_db', InitDbCommand)
 manager.add_command('run_wsgi', WSGICommand)
 

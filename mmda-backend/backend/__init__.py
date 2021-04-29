@@ -164,6 +164,7 @@ def create_app(extra_config_settings={}):
     app.config.from_object('backend.corpora_settings_{ENV}'.format(
         ENV=app.config['APP_ENV']
     ))
+    app.config.update(ENV=app.config['APP_ENV'])
 
     # Set database URI if not set (done here to use the instance path)
     if 'SQLALCHEMY_DATABASE_URI' not in app.config:
