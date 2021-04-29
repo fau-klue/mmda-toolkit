@@ -14,7 +14,7 @@ from backend import db
 from backend import user_required
 # backend.analysis
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.semspace import generate_semantic_space
+from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
 from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
 # backend.models
 from backend.models.user_models import User
@@ -48,33 +48,39 @@ def create_analysis(username):
     """ Create new analysis for given user.
 
     parameters:
-      - username: username
+      - name: username
         type: str
-        description: username, links to user
-      - name: name
+
+      - name: corpus
         type: str
-        description: analysis name
-      - corpus_name: corpus_name
-        type: str
-        description: name of corpus
-      - name: context
-        type: int
-        description: context size in tokens [10]
+        description: name of corpus in API
+      - name: discourseme
+        type: str or dict
+        description: new discourseme (<str>) or existing discourseme (<dict>)
+      - name: items
+        type: list
+        description: items to search for
+
       - name: p_query
         type: str
         description: p-attribute to query on [lemma]
+      - name: p_analysis
+        type: str
+        description: p-attribute to use for analysis [lemma]
       - name: s_break
         type: str
-        description: s-attribute to break context at
-      - name: items
-        type: list
-        description: topic items
+        description: s-attribute to break context at [text]
+      - name: context
+        type: int
+        description: context size in tokens [10]
+
       - name: cut_off
         type: int
         description: how many collocates? [200]
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
+
     responses:
        201:
          description: analysis.id
@@ -84,57 +90,42 @@ def create_analysis(username):
          description: "empty result"
     """
 
-    # get user
     user = User.query.filter_by(username=username).first()
 
-    # check this
-    discourseme = request.json.get('discourseme', None)
-    analysis_name = request.json.get('name', None)
-    print(discourseme)
+    # PARAMETERS #
+    # required
+    corpus_name = request.json.get('corpus')
+    discourseme = request.json.get('discourseme')
+    items = request.json.get('items')
 
-    # check request
-    corpus_name = request.json.get('corpus', None)
-    context = request.json.get('context', 10)
+    # more or less reasonable defaults
     p_query = request.json.get('p_query', 'lemma')
     p_analysis = request.json.get('p_analysis', 'lemma')
     s_break = request.json.get('s_break', 'text')
-    items = request.json.get('items', [])
+    context = request.json.get('context', 10)
 
     # not set yet
     cut_off = request.json.get('cut_off', 200)
     order = request.json.get('order', 'log_likelihood')
-    flags_query = "%cd"
-    escape = False
-    flags_show = ""
-    p_show = [p_analysis]
-    min_freq = 2
+    flags_query = request.json.get('flags_query', '%cd')
+    escape = request.json.get('escape', False)
+    flags_show = request.json.get('flags_show', '')
+    min_freq = request.json.get('min_freq', 2)
     ams = request.json.get('ams', None)
+    analysis_name = request.json.get('name', None)
 
-    # check corpus
+    # translation
+    p_show = [p_analysis]
+
+    # VALIDATION
     if corpus_name not in current_app.config['CORPORA']:
-        log.debug('no such corpus "%s"', corpus_name)
-        return jsonify({'msg': 'no such corpus'}), 400
+        msg = 'no corpus "%s"', corpus_name
+        log.debug(msg)
+        return jsonify({'msg': msg}), 400
+    # TODO check discourseme and items
 
-    # create new discourseme if necessary
-    if isinstance(discourseme, str):
-        topic_discourseme = Discourseme(
-            name=discourseme,
-            items=items,
-            user_id=user.id
-        )
-        db.session.add(topic_discourseme)
-        db.session.commit()
-        log.debug('created discourseme %s', topic_discourseme.id)
-    elif isinstance(discourseme, dict):
-        topic_discourseme = Discourseme.query.filter_by(
-            id=discourseme['id']
-        ).first()
-    else:
-        return jsonify({
-            'msg': "discourseme of type %s" % str(type(discourseme))
-        }), 400
-
-    # collocates: dict of dataframes with key == window_size
+    # CREATE SEMANTIC SPACE
+    # get collocates: dict of dataframes with key == window_size
     log.debug('starting collocation analysis')
     collocates = ccc_collocates(
         corpus_name=corpus_name,
@@ -178,7 +169,22 @@ def create_analysis(username):
         current_app.config['CORPORA'][corpus_name]['embeddings']
     )
 
-    # add analysis to db
+    # DISCOURSEME MANAGEMENT
+    if isinstance(discourseme, str):
+        # create new discourseme
+        topic_discourseme = Discourseme(name=discourseme, items=items, user_id=user.id)
+        db.session.add(topic_discourseme)
+        db.session.commit()
+        log.debug('created discourseme %s', topic_discourseme.id)
+    elif isinstance(discourseme, dict):
+        # retrieve chosen discourseme
+        topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
+    else:
+        msg = "discourseme of type %s" % str(type(discourseme))
+        log.debug(msg)
+        return jsonify({'msg': msg}), 400
+
+    # ADD ANALYSIS TO DATABASE
     analysis = Analysis(
         name=analysis_name,
         corpus=corpus_name,
@@ -194,6 +200,7 @@ def create_analysis(username):
     db.session.commit()
     log.debug('added analysis %s to db', analysis.id)
 
+    # ADD COORDINATES TO DATABASE
     coordinates = Coordinates(analysis_id=analysis.id)
     coordinates.data = semantic_space
     db.session.add(coordinates)
@@ -273,7 +280,7 @@ def get_analysis(username, analysis):
 @expects_json(UPDATE_SCHEMA)
 @user_required
 def update_analysis(username, analysis):
-    """ Edit analysis.
+    """ Edit analysis. Only the name can be updated. Deprecated.
 
     parameters:
       - username: username
@@ -401,7 +408,7 @@ def get_discoursemes_for_analysis(username, analysis):
 )
 @user_required
 def put_discourseme_into_analysis(username, analysis, discourseme):
-    """ Associate a discourseme with an analysis.
+    """ Associate a discourseme with analysis.
 
     parameters:
       - name: username
@@ -441,7 +448,7 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         log.debug(msg)
         return jsonify({'msg': msg}), 404
 
-    # check if already linked or discourseme is topic discourseme of analysis
+    # check if discourseme already associated or already topic of analysis
     analysis_discourseme = discourseme in analysis.discoursemes
     is_own_topic_discourseme = discourseme.id == analysis.topic_id
     if is_own_topic_discourseme:
@@ -453,94 +460,30 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         log.debug(msg)
         return jsonify({'msg': msg}), 200
 
-    # # collocates: dict of dataframes with key == window_size
-    # log.debug('starting collocation analysis')
-    # collocates = ccc_collocates(
-    #     corpus_name=corpus_name,
-    #     cqp_bin=current_app.config['CCC_CQP_BIN'],
-    #     registry_path=current_app.config['CCC_REGISTRY_PATH'],
-    #     data_path=current_app.config['CCC_DATA_PATH'],
-    #     lib_path=current_app.config['CCC_LIB_PATH'],
-    #     topic_items=items,
-    #     s_context=s_break,
-    #     windows=range(1, context),
-    #     context=context,
-    #     p_query=p_query,
-    #     flags_query=flags_query,
-    #     s_query=s_break,
-    #     p_show=p_show,
-    #     flags_show=flags_show,
-    #     ams=ams,
-    #     cut_off=cut_off,
-    #     min_freq=min_freq,
-    #     order=order,
-    #     escape=escape
-    # )
-
-    # # new coordinates
-    # log.debug('generating coordinates for missing items')
-    # coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
-    # semantic_space = coordinates.data
-    # new_coordinates = generate_discourseme_coordinates(
-    #     discourseme.items,
-    #     semantic_space,
-    #     current_app.config['CORPORA'][analysis.corpus]['embeddings']
-    # )
-    # if not new_coordinates.empty:
-    #     log.debug('appending new coordinates to semantic space')
-    #     semantic_space.append(new_coordinates, sort=True)
-    #     coordinates.data = semantic_space
-    # db.session.commit()
-    # collocates: dict of dataframes with key == window_size
-    # collocates = ccc_collocates(
-    #     corpus_name=analysis.corpus,
-    #     cqp_bin=current_app.config['CCC_CQP_BIN'],
-    #     registry_path=current_app.config['CCC_REGISTRY_PATH'],
-    #     data_path=current_app.config['CCC_DATA_PATH'],
-    #     lib_path=current_app.config['CCC_LIB_PATH'],
-    #     topic_items=analysis.items,
-    #     s_context=analysis.s_break,
-    #     window_sizes=range(1, analysis.context),
-    #     context=analysis.context,
-    #     p_query=analysis.p_query,
-    #     additional_discoursemes={str(discourseme.id): discourseme.items},
-    #     s_query=None,
-    #     ams=None,
-    #     cut_off=200,
-    #     order='log_likelihood'
-    # )
-
-    # # get tokens for coordinate generation
-    # # TODO: reimplement in backend
-    # tokens = []
-    # for df in collocates.values():
-    #     tokens.extend(df.index)
-    # tokens = list(set(tokens))
-    # log.debug('extracted %d tokens for analysis %s' % (len(tokens), analysis.id))
-
-    # log.debug('generating coordinates for missing collocates')
-    # coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
-    # semantic_space = coordinates.data
-    # new_coordinates = generate_discourseme_coordinates(
-    #     discourseme.items,
-    #     semantic_space,
-    #     current_app.config['CORPORA'][analysis.corpus]['embeddings']
-    # )
-    # if not new_coordinates.empty:
-    #     log.debug('appending new coordinates to semantic space')
-    #     semantic_space.append(new_coordinates, sort=True)
-    #     coordinates.data = semantic_space
-    # db.session.commit()
-
-    # log.debug('added discourseme %s to analysis %s', discourseme, analysis)
-    # return jsonify({'msg': 'updated'}), 200
-
     # associate discourseme with analysis
     analysis.discoursemes.append(discourseme)
     db.session.add(analysis)
     db.session.commit()
     msg = 'associated discourseme %s with analysis %s' % (discourseme, analysis)
     log.debug(msg)
+
+    # update semantic space: add discourseme items
+    tokens = set(discourseme.items)
+    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    semantic_space = coordinates.data
+    diff = tokens - set(semantic_space.index)
+    if len(diff) > 0:
+        log.debug("generating additional coordinates for %d items" % len(diff))
+        new_coordinates = generate_items_coordinates(
+            diff,
+            semantic_space,
+            current_app.config['CORPORA'][analysis.corpus]['embeddings']
+        )
+        if not new_coordinates.empty:
+            log.debug('appending new coordinates to semantic space')
+            semantic_space.append(new_coordinates, sort=True)
+            coordinates.data = semantic_space
+            db.session.commit()
 
     return jsonify({'msg': msg}), 200
 
@@ -620,9 +563,11 @@ def get_collocate_for_analysis(username, analysis):
         description: username, links to user
       - name: analysis
         description: analysis id
+
       - name: window_size
         type: int
         description: window size
+
       - name: discourseme
         type: list
         required: False
@@ -630,7 +575,8 @@ def get_collocate_for_analysis(username, analysis):
       - name: collocate
         type: list
         required: False
-        description: lose item(s) for additional discourseme to include
+        description: lose item(s) for ad-hoc discourseme to include
+
       - name: cut_off
         type: int
         description: how many collocates? [200]
@@ -646,53 +592,50 @@ def get_collocate_for_analysis(username, analysis):
       404:
         description: "empty result"
     """
-    # TODO: rename collocate ./. items
 
-    # get user
     user = User.query.filter_by(username=username).first()
-
-    # check request
-    # ... analysis
     analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('No such analysis %s', analysis)
-        return jsonify({'msg': 'empty result'}), 404
-    # ... window size
-    window_size = request.args.get('window_size', 3)
-    try:
-        window_size = int(window_size)
-    except TypeError:
-        log.debug('wrong type of window size')
-        return jsonify({'msg': 'wrong request parameters'}), 400
+
+    # PARAMETERS #
+    # required
+    window_size = int(request.args.get('window_size'))
+
+    # optional
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
     # ... optional additional items
-    items = [cqp_escape(i) for i in request.args.getlist('collocate', None)]
+    items = request.args.getlist('collocate', None)
 
     # not set yet
     cut_off = request.args.get('cut_off', 200)
     order = request.args.get('order', 'log_likelihood')
-    flags_query = "%cd"
-    escape = False
-    flags_show = ""
-    min_freq = 2
+    flags_query = request.args.get('flags_query', '%cd')
+    escape = request.args.get('escape', False)
+    flags_show = request.args.get('flags_show', '')
+    min_freq = request.args.get('min_freq', 2)
     ams = request.args.get('ams', None)
+
+    # VALIDATION
+    if not analysis:
+        msg = 'No such analysis %s' % analysis
+        log.debug(msg)
+        return jsonify({'msg': msg}), 404
 
     # pre-process request
     # ... floating discoursemes
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['collocate'] = items
+        additional_discoursemes['collocate'] = [cqp_escape(i) for i in items]
     if discourseme_ids:
-        # get all discoursemes from database and append
+        # get all associated discoursemes from database and append
         discoursemes = Discourseme.query.filter(
             Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
         ).all()
         for d in discoursemes:
             additional_discoursemes[str(d.id)] = d.items
 
-    # use cwb-ccc to extract data
+    # get collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
         corpus_name=analysis.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
@@ -720,8 +663,27 @@ def get_collocate_for_analysis(username, analysis):
         log.debug('no collocates available for window size %s', window_size)
         return jsonify({'msg': 'empty result'}), 404
 
+    # MAKE SURE THERE ARE COORDINATES FOR ALL TOKENS
+    tokens = set(collocates.index)
+    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    semantic_space = coordinates.data
+    diff = tokens - set(semantic_space.index)
+    if len(diff) > 0:
+        log.debug("generating additional coordinates for %d items" % len(diff))
+        new_coordinates = generate_items_coordinates(
+            diff,
+            semantic_space,
+            current_app.config['CORPORA'][analysis.corpus]['embeddings']
+        )
+        if not new_coordinates.empty:
+            log.debug('appending new coordinates to semantic space')
+            semantic_space = semantic_space.append(new_coordinates, sort=True)
+            coordinates.data = semantic_space
+            db.session.commit()
+
     # post-process result
     df_json = collocates.to_json()
+
     return df_json, 200
 
 

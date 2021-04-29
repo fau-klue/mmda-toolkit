@@ -32,7 +32,7 @@ t = {
 }
 
 
-def test_generate_semantic_space_new(app, test_corpus):
+def test_generate_semantic_space(app, test_corpus):
 
     semspace = SemanticSpace(get_vector_path(app, test_corpus))
     coordinates = semspace.generate_semspace(t['base'], method=t['method'])
