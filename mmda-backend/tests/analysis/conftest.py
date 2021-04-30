@@ -6,6 +6,11 @@ import pytest
 from flask_jwt_extended import create_access_token
 from backend import create_app, db as the_db
 from backend.commands.init_db import init_db
+import os
+
+
+here = os.path.dirname(os.path.realpath(__file__))
+
 
 the_app = create_app(dict(
     TESTING=True,  # Propagate exceptions
@@ -54,9 +59,12 @@ def test_corpus():
         'disc2': ["Ausstieg", "Laufzeit"]
     }
 
+    collocates_atomkraft = set(open(os.path.join(here, "collocates-atomkraft-germaparl1318.txt")).read().split("\n"))
+
     return {
         'corpus_name': corpus_name,
         'query': query,
         'parameters': parameters,
         'discoursemes': discoursemes,
+        'collocates_atomkraft': collocates_atomkraft
     }

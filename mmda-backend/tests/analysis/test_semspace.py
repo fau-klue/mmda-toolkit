@@ -1,54 +1,30 @@
-# import pytest
-# import unittest.mock as mock
-import pandas as pd
-# from pandas.util.testing import assert_frame_equal
-
-# from backend.analysis.semspace import load_vectors
-# from backend.analysis.semspace import generate_semantic_space
-from backend.analysis.semspace import SemanticSpace
+import pytest
+from backend.analysis.semspace import generate_items_coordinates
+from backend.analysis.semspace import generate_semantic_space
 
 
-def get_vector_path(app, corpus):
+def vector_path(app, corpus):
     return app.config['CORPORA'][corpus['corpus_name']]['embeddings']
 
 
-t = {
-    'method': 'umap',
-    'tokens': ['Angela', 'Merkel', 'test', 'fasd'],
-    'base': [
-        'resorbent', 'unshelled', 'geodynamical', 'claustrophile',
-        'nonhormonal', 'tributary', 'tricolon', 'Tyndareus', 'petalous',
-        'catalases', 'catechizer', 'sheepsheads', 'reassemblage',
-        'beknown', 'retired', 'privations', 'stock-punished', 'belongeth',
-        'yard-master', 'dowerless', 'bilker', 'annihilate',
-        'appreciatingly', 'retiracy', 'expands', 'insolubly', 'reflags',
-        'tom-toms', 'regimental', 'permanency', 'transference',
-        'factfinder', 'lopus', 'tempestive', 'hallowed', 'besnowed',
-        'besought', 'photoprotection', 'Moirae', 'semichronic',
-        'laughably', 'corn-tassel', 'do-rags', 'mournfully',
-        'discrepance', 'hedge-bantling', 'villarsia', 'replume',
-        'gossamer', 'Homburg'
-    ]
-}
+@pytest.fixture
+def base_coordinates(app, test_corpus):
+    ell = int(len(test_corpus['collocates_atomkraft'])/5)
+    base_items = list(test_corpus['collocates_atomkraft'])[ell:]
+    base_coordinates = generate_semantic_space(
+        base_items, vector_path(app, test_corpus)
+    )
+    return base_coordinates
 
 
-def test_generate_semantic_space(app, test_corpus):
-
-    semspace = SemanticSpace(get_vector_path(app, test_corpus))
-    coordinates = semspace.generate_semspace(t['base'], method=t['method'])
-
-    # init user coordinates
-    coordinates['user_x'] = None
-    coordinates['user_y'] = None
-
-    assert len(coordinates) == len(t['base'])
-
-
-def test_add_item(app, test_corpus):
-    semspace = SemanticSpace(get_vector_path(app, test_corpus))
-    semspace.generate_semspace(t['base'], method=t['method'])
-    new_coordinates = semspace.add_item(t['tokens'][0])
-    assert isinstance(new_coordinates, pd.Series)
+def test_add_items(app, test_corpus, base_coordinates):
+    ell = int(len(test_corpus['collocates_atomkraft'])/5)
+    new_items = list(test_corpus['collocates_atomkraft'])[1:ell]
+    new_coordinates = generate_items_coordinates(
+        new_items, base_coordinates, vector_path(app, test_corpus)
+    )
+    assert(len(new_coordinates) == len(new_items))
+    assert(isinstance(new_coordinates['x'].sum(), float))
 
 
 # TODO: recycle old tests

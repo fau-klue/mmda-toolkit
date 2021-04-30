@@ -1,11 +1,12 @@
 """
-Module to manage dimensionality transformations.
+Module to manage the semantic space and its two-dimensional coordinates.
 """
 
 from logging import getLogger
 from pandas import DataFrame
+from numpy import where, matmul
 from pymagnitude import Magnitude
-from scipy.spatial.distance import cosine
+from sklearn.metrics.pairwise import cosine_similarity
 
 
 log = getLogger('mmda-logger')
@@ -13,58 +14,53 @@ log = getLogger('mmda-logger')
 
 class SemanticSpace:
 
-    def __init__(self, database_path):
+    def __init__(self, path=None):
         """
-        :param str database_path: Path to a .pymagnitude embeddings file.
-        """
-        self.database = database_path
 
+        :param str path: path to a .magnitude embeddings file.
+
+        """
+        self.database = path
         if self.database is not None:
-            try:
-                self.embeddings = Magnitude(self.database)
+            self.embeddings = Magnitude(self.database)
+        self.coordinates = None
 
-            except RuntimeError:
-                log.error('Could not load Magnitude file at %s', self.database)
-                self.embeddings = None
-                self.database = None
-
-    def _get_vectors(self, tokens):
+    def _embeddings(self, tokens):
         """
-        Loads a subset (tokens) of all WordVectors into Pandas Dataframe.
+        get embeddings for tokens into a DataFrame.
 
-        :param list tokens: List of tokens to load word embeddings for.
-        :return: pandas.Dataframe containing word vectors for the list of tokens.
-        :rtype: pandas.Dataframe
+        :param set tokens: set of tokens to get embeddings for
+
+        :return: Dataframe containing embeddings
+        :rtype: Dataframe
         """
-        if self.embeddings is None:
-            return DataFrame()
 
-        # pymagnitude will find most similar vectors for OOV tokens
-        vectors = []
-        for token in tokens:
-            vectors.append(self.embeddings.query(token))
-
-        # create df
-        df = DataFrame(data=vectors, index=tokens)
-        df.drop_duplicates(inplace=True)
+        items = list(set(tokens))
+        embeddings = [self.embeddings.query(item) for item in items]
+        df = DataFrame(index=items, data=embeddings)
 
         return df
 
-    def generate_semspace(self, tokens, method='tsne'):
-        """
-        creates 2d-coordinates for a list of tokens
+    def generate2d(self, tokens, method='umap'):
+        """creates 2d-coordinates for a list of tokens
 
         :param list tokens: list of tokens to generate coordinates for
+        :param str method: umap / tsne
+
         :return: pandas.Dataframe with x and y coordinates
         :rtype: pandas.Dataframe
+
         """
 
         # load vectors
-        vectors = self._get_vectors(tokens)
+        embeddings = self._embeddings(tokens)
 
-        # if no vectors are loaded (tokens are empty)
-        if vectors.empty:
+        # if no vectors are loaded
+        if embeddings.empty:
             return DataFrame()
+
+        # just in case
+        embeddings = embeddings.dropna()
 
         # set up transformer
         if method == 'tsne':
@@ -83,58 +79,55 @@ class SemanticSpace:
                 'transformation "%s" not supported' % method
             )
 
-        # generate 2d embeddings
-        embeddings = transformer.fit_transform(vectors)
+        # generate 2d coordinates and save as DataFrame
+        coordinates = DataFrame(
+            data=transformer.fit_transform(embeddings),
+            index=embeddings.index,
+            columns=['x', 'y']
+        )
+        coordinates.index.name = 'item'
 
-        # create data frame
-        coordinates = DataFrame(data=embeddings,
-                                index=vectors.index,
-                                columns=['x', 'y'])
-
+        # save as own coordinates
         self.coordinates = coordinates
+
         return coordinates
 
-    def add_item(self, item, base_coordinates=None, cutoff=.2):
+    def add(self, items, cutoff=.2):
+        """caclulates coordinates for new items based on their cosine
+        similarity to the items spanning self.coordinates.
+
+        :param str items: items to add
+        :param float cutoff: cut-off value for cosine similarity
+
+        :return: new coordinates (columns 'x' and 'y', indexed by items)
+        :rtype: DataFrame
+
         """
-        Calculate new coordinates for one embedding, based on embedding similarity.
 
-        :param list item_embedding: TODO
-        :param pandas.DataFrame base_embeddings: TODO
-        :param pandas.DataFrame base_coordinates: TODO
-        :param float cutoff: TODO
-        :return: TODO
-        :rtype: TODO
-        """
+        # get embedding for item
+        item_embeddings = self._embeddings(items)
+        base_embeddings = self._embeddings(self.coordinates.index)
+        base_coordinates = self.coordinates
 
-        # get item_embeddings
-        item_embedding = self._get_vectors([item])
+        # cosine similaritiy matrix (n_items times n_base)
+        sim = cosine_similarity(item_embeddings, base_embeddings)
 
-        # use own coordinates if none provided
-        if base_coordinates is None:
-            base_coordinates = self.coordinates
-        base_embeddings = self._get_vectors(base_coordinates.index)
+        # apply cut-off
+        sim = where(sim < cutoff, 0, sim)
 
-        # calculate similarity scores
-        similarities = []
-        for base_item, base_embedding in zip(base_embeddings.index,
-                                             base_embeddings.values):
-            similarity = 1 - cosine(item_embedding, base_embedding)
+        # norm rows to use as convex combination
+        # TODO catch global 0 error
+        sim = (sim.T/sim.sum(axis=1)).T
 
-            if similarity >= cutoff:
-                similarities.append(similarity)
-            else:
-                similarities.append(0)
+        # matrix multiplication takes care of linear combination
+        new_coordinates = matmul(sim, base_coordinates)
 
-        # check if there's any similar items
-        global_similarity_index = sum(similarities)
+        # convert to DataFrame
+        new_coordinates = DataFrame(new_coordinates)
+        new_coordinates.index = items
 
-        if global_similarity_index == 0:
-            # put in global center
-            new_coordinates = base_coordinates.sum() / len(base_coordinates)
-        else:
-            # weighted average
-            tmp_coordinates = base_coordinates.apply(lambda x: x * similarities)
-            new_coordinates = tmp_coordinates.sum() / global_similarity_index
+        # append
+        self.coordinates = self.coordinates.append(new_coordinates)
 
         return new_coordinates
 
@@ -150,7 +143,7 @@ def load_vectors(tokens, vectors_filepath):
     """
 
     semspace = SemanticSpace(vectors_filepath)
-    return semspace._get_vectors(tokens)
+    return semspace._embeddings(tokens)
 
 
 def generate_semantic_space(tokens, vectors_filepath, method='tsne'):
@@ -166,7 +159,7 @@ def generate_semantic_space(tokens, vectors_filepath, method='tsne'):
     """
 
     semspace = SemanticSpace(vectors_filepath)
-    coordinates = semspace.generate_semspace(tokens, method)
+    coordinates = semspace.generate2d(tokens, method)
 
     # init user coordinates
     coordinates['x_user'] = None
@@ -198,16 +191,9 @@ def generate_items_coordinates(items, base_coordinates, vectors_filepath):
         return DataFrame()
 
     semspace = SemanticSpace(vectors_filepath)
+    semspace.coordinates = base_coordinates[['x', 'y']]
 
-    x = []
-    y = []
-
-    for item in items:
-        new_coordinates = semspace.add_item(item, base_coordinates)
-        x.append(new_coordinates['x'])
-        y.append(new_coordinates['y'])
-
-    new_coordinates = DataFrame({'x': x, 'y': y}, index=items)
+    new_coordinates = semspace.add(items)
 
     # init user coordinates
     new_coordinates['user_x'] = None
