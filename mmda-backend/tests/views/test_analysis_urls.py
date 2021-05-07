@@ -47,12 +47,12 @@ def test_get_analysis_discoursemes(client, header):
 
 
 @pytest.mark.api
-@mock.patch('backend.views.analysis_views.generate_discourseme_coordinates')
+@mock.patch('backend.views.analysis_views.generate_items_coordinates')
 def test_put_discourseme_into_analysis(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(
         data=[[1.0, 2.0, 3.0, 4.0]],
-        columns=['tsne_x', 'tsne_y', 'user_x', 'user_y'],
+        columns=['x', 'y', 'x_user', 'y_user'],
         index=['foo', 'bar']
     )
 
@@ -136,7 +136,7 @@ def test_update_analysis(client, header):
 @pytest.mark.api
 def test_get_collocate_for_analysis(client, header):
 
-    data = 'collocate=Merkel&collocate=Seehofer'
+    data = 'collocate=Merkel&collocate=Seehofer&window_size=10'
     response = client.get(
         url_for('analysis.get_collocate_for_analysis', username='student1', analysis=1),
         query_string=data,
@@ -151,7 +151,7 @@ def test_get_collocate_for_analysis(client, header):
 @pytest.mark.api
 def test_get_collocate_for_analysis_discourseme_id(client, header):
 
-    data = 'discourseme=1'
+    data = 'discourseme=1&window_size=10'
     response = client.get(
         url_for('analysis.get_collocate_for_analysis', username='student1', analysis=1),
         query_string=data,

@@ -16,6 +16,7 @@ from backend import user_required
 from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
 from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
+from backend.analysis.ccc import ccc_corpus, ccc_meta
 # backend.models
 from backend.models.user_models import User
 from backend.models.analysis_models import (
@@ -122,10 +123,11 @@ def create_analysis(username):
         msg = 'no corpus "%s"', corpus_name
         log.debug(msg)
         return jsonify({'msg': msg}), 400
-    # TODO check discourseme and items
+    # TODO check at least discourseme and items
 
-    # CREATE SEMANTIC SPACE
-    # get collocates: dict of dataframes with key == window_size
+    # PROCESS
+    # generate collocate tables: dict of dataframes with key == window_size
+    # == [item] O11 .. E22 AMs .. ==
     log.debug('starting collocation analysis')
     collocates = ccc_collocates(
         corpus_name=corpus_name,
@@ -148,8 +150,8 @@ def create_analysis(username):
         order=order,
         escape=escape
     )
-
     # get tokens for coordinate generation
+    log.debug('generating semantic space')
     # TODO: re-implement in backend
     tokens = []
     for df in collocates.values():
@@ -163,7 +165,7 @@ def create_analysis(username):
         return jsonify({'msg': 'empty result'}), 404
 
     # generate coordinates
-    log.debug('generating semantic space')
+    # dataframe == [token] x y x_user y_user ==
     semantic_space = generate_semantic_space(
         tokens,
         current_app.config['CORPORA'][corpus_name]['embeddings']
@@ -184,7 +186,8 @@ def create_analysis(username):
         log.debug(msg)
         return jsonify({'msg': msg}), 400
 
-    # ADD ANALYSIS TO DATABASE
+    # SAVE TO DATABASE
+    # analysis
     analysis = Analysis(
         name=analysis_name,
         corpus=corpus_name,
@@ -200,9 +203,11 @@ def create_analysis(username):
     db.session.commit()
     log.debug('added analysis %s to db', analysis.id)
 
-    # ADD COORDINATES TO DATABASE
-    coordinates = Coordinates(analysis_id=analysis.id)
-    coordinates.data = semantic_space
+    # semantic space
+    coordinates = Coordinates(
+        analysis_id=analysis.id,
+        data=semantic_space
+    )
     db.session.add(coordinates)
     db.session.commit()
     log.debug('added coordinates %s to db', coordinates.id)
@@ -758,11 +763,16 @@ def get_concordance_for_analysis(username, analysis):
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    s_show = [i for i in request.args.getlist('s_meta', None)]
+    corpus = ccc_corpus(analysis.corpus,
+                        cqp_bin=current_app.config['CCC_CQP_BIN'],
+                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+                        data_path=current_app.config['CCC_DATA_PATH'])
+    # s_show = [i for i in request.args.getlist('s_meta', None)]
+    s_show = corpus['s-annotations']
 
     # pre-process request
-    # ... get associated topic discourseme
-    topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+    # ... get associated topic discourseme (no need if not interested in name)
+    # topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
     # ... further discoursemes as a dict {name: items}
     additional_discoursemes = dict()
     if items:
@@ -789,7 +799,7 @@ def get_concordance_for_analysis(username, analysis):
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=analysis.items,
-        topic_name=topic_discourseme.name,
+        topic_name='topic',
         s_context=analysis.s_break,
         window_size=window_size,
         context=analysis.context,
@@ -869,3 +879,71 @@ def get_breakdown_for_analysis(username, analysis):
     breakdown_json = jsonify(breakdown)
 
     return breakdown_json, 200
+
+
+#####################
+# META DISTRIBUTION #
+#####################
+@analysis_blueprint.route(
+    '/api/user/<username>/analysis/<analysis>/meta/',
+    methods=['GET']
+)
+@user_required
+def get_meta_for_analysis(username, analysis):
+    """ Get concordance lines for analysis.
+
+    parameters:
+      - name: username
+        description: username, links to user
+      - name: analysis
+        description: analysis_id
+    responses:
+      200:
+        description: breakdown
+      400:
+        description: "wrong request parameters"
+      404:
+        description: "empty result"
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # check request
+    # ... analysis
+    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    if not analysis:
+        log.debug('no such analysis %s', analysis)
+        return jsonify({'msg': 'empty result'}), 404
+
+    # pack p-attributes
+    # ... where's the meta data?
+    corpus = ccc_corpus(analysis.corpus,
+                        cqp_bin=current_app.config['CCC_CQP_BIN'],
+                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+                        data_path=current_app.config['CCC_DATA_PATH'])
+    # s_show = [i for i in request.args.getlist('s_meta', None)]
+    s_show = corpus['s-annotations']
+
+    # use cwb-ccc to extract concordance lines
+    meta = ccc_meta(
+        corpus_name=analysis.corpus,
+        cqp_bin=current_app.config['CCC_CQP_BIN'],
+        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+        data_path=current_app.config['CCC_DATA_PATH'],
+        lib_path=current_app.config['CCC_LIB_PATH'],
+        topic_items=analysis.items,
+        p_query=analysis.p_query,
+        s_query=analysis.s_break,
+        flags_query="%cd",
+        s_show=s_show
+    )
+
+    if meta is None:
+        log.debug('no meta data available for analysis %s', analysis)
+        return jsonify({'msg': 'empty result'}), 404
+
+    meta_json = jsonify(meta)
+    print(meta_json)
+
+    return meta_json, 200
