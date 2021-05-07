@@ -93,8 +93,7 @@ def test_ccc_collocates_simple(app, test_corpus):
         lib_path=app.config['CCC_LIB_PATH'],
         topic_items=test_corpus['discoursemes']['topic'],
         s_context=test_corpus['parameters']['s_context'],
-        window_sizes=[3, 5, 7],
-        context=test_corpus['parameters']['context']
+        windows=[3, 5, 7]
     )
     print(coll)
 
@@ -110,7 +109,7 @@ def test_ccc_collocates_constellation(app, test_corpus):
         lib_path=app.config['CCC_LIB_PATH'],
         topic_items=test_corpus['discoursemes']['topic'],
         s_context=test_corpus['parameters']['s_context'],
-        window_sizes=test_corpus['parameters']['window_sizes'],
+        windows=test_corpus['parameters']['window_sizes'],
         context=test_corpus['parameters']['context'],
         additional_discoursemes={'disc1': test_corpus['discoursemes']['disc1']},
     )
