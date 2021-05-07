@@ -17,7 +17,9 @@ const state = {
   concordances: null,
   concordances_loading : null,
   // Frequency breakdown of analysis
-  breakdown: null
+  breakdown: null,
+  // Meta data distribution of analysis
+  meta: null
 }
 
 const getters = {
@@ -41,6 +43,9 @@ const getters = {
   },
   breakdown (state) {
     return state.breakdown
+  },
+  meta (state) {
+    return state.meta
   }
 }
 
@@ -297,7 +302,29 @@ const actions = {
         reject(error)
       })
     })
+  },
+  getAnalysisMeta ({commit}, data){
+    // Get meta data for analysis
+    return new Promise((resolve, reject) => {
+
+      if (!data.username)    return reject('No user provided')
+      if (!data.analysis_id) return reject('No analysis provided')
+
+      let params = new URLSearchParams()
+      if (data.s_show) params.append("s_show", data.s_show)
+      const request = {
+        params: params
+      }
+
+      api.get(`/user/${data.username}/analysis/${data.analysis_id}/meta/`, request).then(function (response) {
+        commit('setMeta', response.data);
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
   }
+
 }
 
 const mutations = {
@@ -325,6 +352,9 @@ const mutations = {
   },
   setBreakdown (state, breakdown) {
     state.breakdown = breakdown
+  },
+  setMeta (state, meta) {
+    state.meta = meta
   }
 }
 

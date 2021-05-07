@@ -86,6 +86,7 @@
           <v-tab :key="2">Associated Discoursemes</v-tab>
           <v-tab :key="3">Concordance Lines</v-tab>
           <v-tab :key="4">Collocate Table</v-tab>
+          <v-tab :key="5">Meta Distribution</v-tab>
 
           <v-tab-item :key="1">
             <template>
@@ -105,6 +106,17 @@
           </v-tab-item>
           <v-tab-item :key="4">
             <ItemTable/>
+          </v-tab-item>
+          <v-tab-item :key="5">
+            <center>
+              <template v-for="m in meta">
+                <v-card v-bind:key="m">
+                  <br/>
+                  <div v-html="m"> </div>
+                  <br/>
+                </v-card>
+              </template>
+            </center>
           </v-tab-item>
         </v-tabs>
       </v-container>
@@ -167,7 +179,8 @@ export default {
       concordances:'analysis/concordances',
       concordances_loading:'analysis/concordances_loading',
       windowSize: 'wordcloud/windowSize',
-      breakdown: 'analysis/breakdown'
+      breakdown: 'analysis/breakdown',
+      meta: 'analysis/meta',
     })
   },
   methods: {
@@ -178,7 +191,8 @@ export default {
       deleteUserAnalysis: 'analysis/deleteUserAnalysis',
       reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
       resetConcordances: 'analysis/resetConcordances',
-      getAnalysisBreakdown: 'analysis/getAnalysisBreakdown'
+      getAnalysisBreakdown: 'analysis/getAnalysisBreakdown',
+      getAnalysisMeta: 'analysis/getAnalysisMeta'
     }),
     loadAnalysis () {
       const data = {
@@ -261,6 +275,10 @@ export default {
     this.resetConcordances()
     this.loadAnalysis()
     this.getAnalysisBreakdown({
+      username: this.user.username,
+      analysis_id: this.id
+    }),
+    this.getAnalysisMeta({
       username: this.user.username,
       analysis_id: this.id
     })

@@ -37,6 +37,12 @@
                     </v-list-tile-content>
                   </v-list-tile>
                 </v-list>
+                <v-card>
+                  <center>
+                    <div v-html="props.item.meta"> </div>
+                  </center>
+                  <br/>
+                </v-card>
               </v-menu>
             </td>
 
@@ -77,10 +83,6 @@
                 :style="'color:'+sentimentColor[ props.item.sentiment ]">
               {{ sentimentEmotion[ props.item.sentiment ] }}
             </td>
-
-            <!-- <td class="text-xs-center"> -->
-            <!--   {{ props.item.meta }} -->
-            <!-- </td> -->
 
           </template>
 
@@ -235,7 +237,7 @@ export default {
           match_pos: ci,
           keyword: {text:'',role:'',lemma:''},
           tail: [],
-          // meta: [],
+          meta: [],
           sentiment: 0,
           // these are for sorting context -purposes
           reverse_head_text: '',
