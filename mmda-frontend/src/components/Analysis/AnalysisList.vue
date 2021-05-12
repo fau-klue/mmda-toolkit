@@ -6,7 +6,7 @@
       <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
         <td class="text-xs-left">{{ props.item.id }}</td>
         <td class="text-xs-left">{{ props.item.corpus }}</td>
-        <td class="text-xs-left">{{ props.item.topic_discourseme.name }}</td>
+        <td class="text-xs-left">{{ props.item.topic_discourseme.name }} (ID: {{ props.item.topic_discourseme.id }})</td>
         <td class="text-xs-left">{{ props.item.items }}</td>
       </router-link>
       <!-- <td> -->
