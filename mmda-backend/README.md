@@ -30,9 +30,8 @@ See also Dockerfile
     # Create DB tables and populate the roles and users tables
     python manage.py init_db
 
-	# TODO deprecated?
     # Run the migrations
-    python manage.py migrate
+    python manage.py migrate_db migrate
 
 # Running in development
 
@@ -85,7 +84,7 @@ See https://help.yahoo.com/kb/SLN27791.html
     # With coverage
     py.test --cov-report term-missing -v --cov=backend/
 
-# cUrl API Examples
+# cURL API Examples
 
 Here are some examples on how to use the API.
 
@@ -100,7 +99,7 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
     # Save the Token in an ENV variable
     export TOKEN='<THE TOKEN>'
 
-    # Onelines
+    # One-liners
     export TOKEN=$(curl -H 'Content-Type: application/json' -X POST http://localhost:5000/api/login/ -d '{"username": "admin", "password": "Squanchy1"}' |  python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
     export TOKEN=$(curl -H 'Content-Type: application/json' -X POST http://localhost:5000/api/login/ -d '{"username": "student1", "password": "Erlangen1"}' |  python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
 
@@ -133,7 +132,7 @@ To consume the Flask API you'll first need to login and acquire an [JSON Web Tok
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X DELETE http://localhost:5000/api/user/student1/analysis/1/discourseme/2/
 
 
-## CREATE Discursive Position
+## Create Constellation
 
     # Add new Discursive Position (with previously created Discourseme IDs)
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" -X POST http://localhost:5000/api/user/student1/discursiveposition/ -d '{"name": "foobar", "discoursemes": [1, 1]}'
