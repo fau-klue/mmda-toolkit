@@ -55,7 +55,7 @@
               <v-card>
                 <v-card-title class="headline">Delete Analysis?</v-card-title>
                 <v-card-text>
-                  You’re about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.
+                  You're about to permanently delete this analysis. Once deleted, it cannot be undone or recovered.
                 </v-card-text>
                 <v-card-actions>
                   <v-spacer/>
@@ -79,7 +79,7 @@
         
       </v-container>
 
-      <v-container>
+      <v-container v-if="analysis">
         <v-tabs color="blue" dark >
 
           <v-tab :key="1">Frequency Breakdown</v-tab>
@@ -272,8 +272,8 @@ export default {
   },
   created () {
     this.id = this.$route.params.id
-    this.resetConcordances()
     this.loadAnalysis()
+    this.resetConcordances()
     this.getAnalysisBreakdown({
       username: this.user.username,
       analysis_id: this.id

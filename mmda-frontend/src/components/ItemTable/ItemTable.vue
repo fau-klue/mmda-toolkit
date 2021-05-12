@@ -18,8 +18,7 @@
       <p v-if="loadingCoordinates">Loading Coordinates...</p>
       <p v-if="loadingCollocates">Loading Collocates...</p>
     </div>
-    
-    <!-- TODO: sorting, number of items -->
+
     <v-data-table v-else :headers="headers" :items="transposedCoordinates" :search="search" :pagination.sync="pagination" class="elevation-1">
       
       <template slot="items" slot-scope="props">
