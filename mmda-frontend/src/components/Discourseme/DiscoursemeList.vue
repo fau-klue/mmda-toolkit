@@ -7,6 +7,9 @@
         <td class="text-xs-left">{{ props.item.id }}</td>
         <td class="text-xs-left">{{ props.item.name }}</td>
         <td class="text-xs-left">{{ props.item.items }}</td>
+        <td class="text-xs-left">
+          <v-icon v-if="props.item.is_topic" color="orange">grade</v-icon>
+        </td>
       </router-link>
     </template>
   </v-data-table>
@@ -25,6 +28,7 @@ export default {
       {text: 'ID', value: 'id', align: 'left'},
       {text: 'name', value: 'name', align: 'left'},
       {text: 'items', value: 'items', align: 'left'},
+      {text: 'analyses', value: 'is_topic', align: 'left'}
       // {text: '', value: 'delete', align: 'center'}
     ],
     pagination: {
