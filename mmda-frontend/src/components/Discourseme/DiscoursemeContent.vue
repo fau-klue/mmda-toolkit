@@ -12,9 +12,14 @@
             <v-form>
               
               <v-layout row>
-                <v-text-field v-model="discourseme.id" :value="discourseme.id" label="ID" box readonly />
-                <v-spacer/>
-                <v-text-field v-model="discourseme.name" label="name" :rules="[rules.required, rules.counter]" box background-color="white"/>
+ 
+                <v-flex xs3 sm1>
+                  <v-text-field v-model="discourseme.id" :value="discourseme.id" label="ID" box readonly />
+                </v-flex>
+                <v-flex xs3 sm11>
+                  <v-text-field v-model="discourseme.name" label="name" :rules="[rules.required, rules.counter]" box background-color="white"/>
+                </v-flex>
+
               </v-layout>
               
               <v-combobox v-model="discourseme.items" :items="discourseme.items" label="items" :rules="[rules.required, rules.counter]" multiple chips></v-combobox>
@@ -48,21 +53,23 @@
 
       <v-container>
         <v-card-title>Analyses</v-card-title>
-        <v-layout>
-          <v-flex v-if="discourseme" xs12 sm12>
-            <v-list two-line subheader>
-              <v-list-tile v-for="analysis in filteredAnalyses" :key="analysis.id" avatar :to="/analysis/ + analysis.id">
-                <v-list-tile-avatar>
-                  <v-icon class="grey lighten-1 white--text">dashboard</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title> Analysis in Corpus "{{ analysis.corpus }}" ("{{ analysis.name }}", ID: {{ analysis.id }})</v-list-tile-title>
-                  <v-list-tile-sub-title>items: {{ analysis.items }} </v-list-tile-sub-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-flex>
-        </v-layout>
+
+        <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
+        <v-data-table v-if="filteredAnalyses" :headers="headers" :items="filteredAnalyses" :search="search" :pagination.sync="pagination" class="elevation-1">
+          <template v-slot:items="props">
+            <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
+              <td class="text-xs-left">{{ props.item.id }}</td>
+              <td class="text-xs-left">{{ props.item.corpus }}</td>
+              <td class="text-xs-left">{{ props.item.items }}</td>
+            </router-link>
+            <!-- <td> -->
+              <!--   <v-btn icon @click="deleteAnalysis(props.item.id)"> -->
+                <!--     <v-icon class="red--text text--lighten-1">delete</v-icon> -->
+                <!--   </v-btn> -->
+              <!-- </td> -->
+          </template>
+        </v-data-table>
+
       </v-container>
     </v-card-text>
   </v-card>
@@ -82,7 +89,17 @@ export default {
     updated: false,
     nodata: false,
     rules: rules,
-    dialogDelete: false
+    dialogDelete: false,
+    headers: [
+      {text: 'ID', value: 'id', align: 'left'},
+      {text: 'corpus', value: 'corpus', align: 'left'},
+      {text: 'items', value: 'items', align: 'left'}
+    ],
+    pagination: {
+      sortBy: 'id',
+      descending: true,
+      rowsPerPage: 25
+    }
   }),
   computed: {
     ...mapGetters({
@@ -168,7 +185,6 @@ export default {
       })
     }
   },
-
 
   created () {
     this.id = this.$route.params.id
