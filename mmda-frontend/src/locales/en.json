@@ -98,8 +98,8 @@
       "name": "name",
       "items": "items",
       "helpTitle": "Discourseme",
-      "helpText": "Define an abstract discourseme, i.e. a named family of lexical items.",
-      "helpName": "name of the new discourseme (should be concise)",
+      "helpText": "Define an abstract discourseme (a named family of lexical items).",
+      "helpName": "(concise) name of the new discourseme",
       "helpItems": "set of lexical items (e.g. near-synonymous lemmas)"
     }
   },
