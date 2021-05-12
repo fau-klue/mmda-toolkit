@@ -1,23 +1,22 @@
 <template>
-  <div>
-    <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
-    <v-data-table v-if="userAnalysis" :headers="headers" :items="userAnalysis" :search="search" :pagination.sync="pagination" class="elevation-1">
-      <template v-slot:items="props">
-        <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
-          <td class="text-xs-left">{{ props.item.id }}</td>
-          <td class="text-xs-left">{{ props.item.corpus }}</td>
-          <td class="text-xs-left">{{ props.item.topic_discourseme.name }}</td>
-          <td class="text-xs-left">{{ props.item.items }}</td>
-        </router-link>
-        <!-- <td> -->
-        <!--   <v-btn icon @click="deleteAnalysis(props.item.id)"> -->
-        <!--     <v-icon class="red--text text--lighten-1">delete</v-icon> -->
-        <!--   </v-btn> -->
-        <!-- </td> -->
-      </template>
-    </v-data-table>
-
-  </div>
+<div>
+  <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
+  <v-data-table v-if="userAnalysis" :headers="headers" :items="userAnalysis" :search="search" :pagination.sync="pagination" class="elevation-1">
+    <template v-slot:items="props">
+      <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
+        <td class="text-xs-left">{{ props.item.id }}</td>
+        <td class="text-xs-left">{{ props.item.corpus }}</td>
+        <td class="text-xs-left">{{ props.item.topic_discourseme.name }}</td>
+        <td class="text-xs-left">{{ props.item.items }}</td>
+      </router-link>
+      <!-- <td> -->
+      <!--   <v-btn icon @click="deleteAnalysis(props.item.id)"> -->
+      <!--     <v-icon class="red--text text--lighten-1">delete</v-icon> -->
+      <!--   </v-btn> -->
+      <!-- </td> -->
+    </template>
+  </v-data-table>
+</div>
 </template>
 
 <script>
