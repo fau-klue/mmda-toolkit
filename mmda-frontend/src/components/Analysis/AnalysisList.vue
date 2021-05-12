@@ -27,7 +27,7 @@ export default {
   name: 'AnalysisList',
   data: () => ({
     search: '',
-    dialogDelete: false,
+    // dialogDelete: false,
     headers: [
       {text: 'ID', value: 'id', align: 'left'},
       {text: 'corpus', value: 'corpus', align: 'left'},
