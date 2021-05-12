@@ -1,28 +1,22 @@
 <template>
   <div>
-  <v-card flat>
-    <v-card-text>
-      <v-container>
-        <v-layout>
-          <v-flex xs12 sm12>
-            <v-text-field label="Search" prepend-inner-icon="search" v-model="search" clearable @click:clear="clearSearch"></v-text-field>
+    <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
+    <v-data-table v-if="userAnalysis" :headers="headers" :items="userAnalysis" :search="search" :pagination.sync="pagination" class="elevation-1">
+      <template v-slot:items="props">
+        <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
+          <td class="text-xs-left">{{ props.item.id }}</td>
+          <td class="text-xs-left">{{ props.item.corpus }}</td>
+          <td class="text-xs-left">{{ props.item.topic_discourseme.name }}</td>
+          <td class="text-xs-left">{{ props.item.items }}</td>
+        </router-link>
+        <!-- <td> -->
+        <!--   <v-btn icon @click="deleteAnalysis(props.item.id)"> -->
+        <!--     <v-icon class="red--text text--lighten-1">delete</v-icon> -->
+        <!--   </v-btn> -->
+        <!-- </td> -->
+      </template>
+    </v-data-table>
 
-            <v-list two-line subheader>
-              <v-list-tile v-for="analysis in filteredItems" :key="analysis.id" avatar :to="/analysis/ + analysis.id">
-                <v-list-tile-avatar>
-                  <v-icon class="grey lighten-1 white--text">dashboard</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title> Analysis of Discourseme "{{ analysis.topic_discourseme.name }}" in Corpus "{{ analysis.corpus }}" ("{{ analysis.name }}", ID: {{ analysis.id }})</v-list-tile-title>
-                  <v-list-tile-sub-title>items: {{ analysis.items }} </v-list-tile-sub-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </v-card-text>
-  </v-card>
   </div>
 </template>
 
@@ -33,29 +27,32 @@ export default {
   name: 'AnalysisList',
   data: () => ({
     search: '',
+    dialogDelete: false,
+    headers: [
+      {text: 'ID', value: 'id', align: 'left'},
+      {text: 'corpus', value: 'corpus', align: 'left'},
+      {text: 'discourseme', value: 'topic_discourseme.name', align: 'left'},
+      {text: 'items', value: 'items', align: 'left'},
+      // {text: '', value: 'delete', align: 'center'}
+    ],
+    pagination: {
+      sortBy: 'id',
+      descending: true,
+      rowsPerPage: 25
+    }
   }),
   computed: {
     ...mapGetters({
       user: 'login/user',
       userAnalysis: 'analysis/userAnalysis',
       isAuthenticated : 'login/isAuthenticated'
-    }),
-    filteredItems() {
-      var F = [];
-      if(!this.userAnalysis) return [];
-      if (!this.search) {
-        F = this.userAnalysis
-      } else {
-        F = this.userAnalysis.filter(items => items.name.toLowerCase().search(this.search.toLowerCase()) >= 0 )
-      }
-      F.sort((x)=>x.id); //sort by latest creation-date //i.e. ~ id
-      return F;
-    }
+    })
   },
   methods: {
     ...mapActions({
       getUserAnalysis: 'analysis/getUserAnalysis',
-      clearJWT: 'login/clearJWT'
+      clearJWT: 'login/clearJWT',
+      // deleteUserAnalysis: 'analysis/deleteUserAnalysis'
     }),
     clearSearch () {
       this.search = ''
@@ -66,7 +63,23 @@ export default {
       }).catch((error) => {
         this.error = error
       })
-    }
+    },
+    // deleteAnalysis (id) {
+    //   this.dialogDelete = false
+    //   const data = {
+    //     username: this.user.username,
+    //     analysis_id: id
+    //   }
+    //   this.deleteUserAnalysis(data).then(() => {
+    //     this.error = null
+    //     this.$router.push('/analysis')
+    //     this.dialogDelete = false
+    //   }).catch((error) => {
+    //     this.error = error
+    //     this.dialogDelete = false
+    //     this.loadAnalysis()
+    //   })
+    // },
   },
   created () {
     if(!this.user || !this.user.username){
@@ -77,7 +90,7 @@ export default {
       })
     }else{
       this.loadAnalysis()
-    } 
+    }
   }
 }
 
