@@ -165,6 +165,9 @@ export default {
       this.pQuery = this.pQueries[0]
       this.pAnalysis = this.pQuery
       this.sBreak = this.sBreaks[0]
+    },
+    selectDiscourseme(){
+      this.selectItems = this.selectDiscourseme.items
     }
   },
   methods: {
