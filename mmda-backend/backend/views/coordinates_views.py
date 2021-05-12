@@ -178,8 +178,8 @@ def delete_coordinates(username, analysis):
     for item in items.keys():
         if item in df.index:
             log.debug('removing user coordinates for %s', item)
-            df.loc[item]['user_x'] = None
-            df.loc[item]['user_y'] = None
+            df.loc[item]['x_user'] = None
+            df.loc[item]['y_user'] = None
 
     # update coordinates dataframe, and save
     coordinates.data = df

@@ -196,7 +196,7 @@ def generate_items_coordinates(items, base_coordinates, vectors_filepath):
     new_coordinates = semspace.add(items)
 
     # init user coordinates
-    new_coordinates['user_x'] = None
-    new_coordinates['user_y'] = None
+    new_coordinates['x_user'] = None
+    new_coordinates['y_user'] = None
 
     return new_coordinates

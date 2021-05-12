@@ -216,7 +216,7 @@ export default {
     },
     setUserCoordinate(name,x,y){
       var obj = {};
-      obj[name] = {user_x:x, user_y:y};
+      obj[name] = {x_user:x, y_user:y};
       this.setCoordinates(obj);
     },
     setCoordinates( obj ) {
