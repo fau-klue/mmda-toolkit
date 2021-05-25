@@ -79,7 +79,7 @@
         
       </v-container>
 
-      <v-container v-if="analysis">
+      <v-container v-if="breakdown">
         <v-tabs color="blue" dark >
 
           <v-tab :key="1">Frequency Breakdown</v-tab>
@@ -191,6 +191,7 @@ export default {
       deleteUserAnalysis: 'analysis/deleteUserAnalysis',
       reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
       resetConcordances: 'analysis/resetConcordances',
+      resetBreakdown: 'analysis/resetBreakdown',
       getAnalysisBreakdown: 'analysis/getAnalysisBreakdown',
       getAnalysisMeta: 'analysis/getAnalysisMeta'
     }),
@@ -273,11 +274,12 @@ export default {
   created () {
     this.id = this.$route.params.id
     this.loadAnalysis()
-    this.resetConcordances()
+    this.resetBreakdown()
     this.getAnalysisBreakdown({
       username: this.user.username,
       analysis_id: this.id
-    }),
+    })
+    this.resetConcordances()
     this.getAnalysisMeta({
       username: this.user.username,
       analysis_id: this.id

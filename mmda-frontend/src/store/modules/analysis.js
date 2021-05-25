@@ -282,6 +282,9 @@ const actions = {
   resetConcordances({commit}){
     commit('setConcordances',null);
   },
+  resetBreakdown({commit}){
+    commit('setBreakdown',null);
+  },
   getAnalysisBreakdown ({commit}, data){
     // Get frequency breakdown for analysis
     return new Promise((resolve, reject) => {
