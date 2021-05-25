@@ -85,6 +85,7 @@ export default {
   name: 'DiscoursemeContent',
   data: () => ({
     id: null,
+    search: '',
     error: null,
     updated: false,
     nodata: false,
