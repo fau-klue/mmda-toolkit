@@ -320,6 +320,9 @@ def get_constellation_concordance(username, constellation):
     # not set yet
     p_show = ['word']
 
+    if corpus_name is None:
+        return jsonify({'msg': 'no corpus provided'}), 404
+
     corpus = ccc_corpus(corpus_name,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
                         registry_path=current_app.config['CCC_REGISTRY_PATH'],

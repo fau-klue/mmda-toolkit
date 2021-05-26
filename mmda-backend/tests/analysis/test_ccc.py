@@ -1,4 +1,5 @@
 from backend.analysis.ccc import ccc_concordance, ccc_collocates
+from backend.analysis.ccc import ccc_constellation_association
 import pytest
 
 
@@ -30,7 +31,7 @@ def test_ccc_concordance_constellation(app, test_corpus):
         registry_path=app.config['CCC_REGISTRY_PATH'],
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
-        topic_items=test_corpus['discoursemes'].pop(name),
+        topic_items=test_corpus['discoursemes'].pop('topic'),
         topic_name=name,
         s_context=test_corpus['parameters']['s_context'],
         window_size=10,
@@ -83,6 +84,7 @@ def test_ccc_concordance_constellation_3(app, test_corpus):
 
 
 @pytest.mark.coll
+@pytest.mark.now
 def test_ccc_collocates_simple(app, test_corpus):
 
     coll = ccc_collocates(
@@ -99,6 +101,7 @@ def test_ccc_collocates_simple(app, test_corpus):
 
 
 @pytest.mark.coll
+@pytest.mark.now
 def test_ccc_collocates_constellation(app, test_corpus):
 
     coll = ccc_collocates(
@@ -114,3 +117,20 @@ def test_ccc_collocates_constellation(app, test_corpus):
         additional_discoursemes={'disc1': test_corpus['discoursemes']['disc1']},
     )
     print(coll)
+
+
+def test_ccc_constellation_association(app, test_corpus):
+
+    assoc = ccc_constellation_association(
+        corpus_name=test_corpus['corpus_name'],
+        cqp_bin=app.config['CCC_CQP_BIN'],
+        registry_path=app.config['CCC_REGISTRY_PATH'],
+        data_path=app.config['CCC_DATA_PATH'],
+        lib_path=app.config['CCC_LIB_PATH'],
+        discoursemes=test_corpus['discoursemes2'],
+        p_query=test_corpus['parameters']['p_query'],
+        s_query=test_corpus['parameters']['s_query'],
+        s_context=test_corpus['parameters']['s_context']
+    )
+
+    print(assoc)

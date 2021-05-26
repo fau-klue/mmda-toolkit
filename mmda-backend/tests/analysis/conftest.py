@@ -3,8 +3,7 @@
 # the fixture function is called and its result is passed to the test function.
 
 import pytest
-from flask_jwt_extended import create_access_token
-from backend import create_app, db as the_db
+from backend import create_app
 from backend.commands.init_db import init_db
 import os
 
@@ -38,7 +37,7 @@ def app():
 
 @pytest.fixture
 def test_corpus():
-    """ settings for GERMAPARL_1114 """
+    """ settings for GERMAPARL1318 """
 
     corpus_name = "GERMAPARL1318"
 
@@ -56,7 +55,17 @@ def test_corpus():
     discoursemes = {
         'topic': ['Atomkraft', 'Atomenergie', 'Kernkraft'],
         'disc1': ["CDU", "CSU"],
-        'disc2': ["Ausstieg", "Laufzeit"]
+        'disc2': ["Ausstieg", "Laufzeit"],
+        # 'disc3': ['Klimawandel'],
+        # 'disc4': ['Wirtschaftskrise']
+    }
+
+    discoursemes2 = {
+        'Klimawandel': ["Klimawandel", "Klimaveränderung", "Klimaänderung", "Klimawechsel", "globale Erwärmung"],
+        'Kampf': ["Bekämpfung", "Kampf", "aufhalten"],
+        'Ressourcen': ["Armut", "Hunger", "Dürre", "Ressourcenknappheit"],
+        'Wetter': ["Sturm", "Wetterereignis", "Naturkatastrophe"],
+        'Anpassung': ["Anpassungsmaßnahme", "Maßnahme", "bewältigen", "Anpassung"]
     }
 
     collocates_atomkraft = set(open(os.path.join(here, "collocates-atomkraft-germaparl1318.txt")).read().split("\n"))
@@ -66,5 +75,6 @@ def test_corpus():
         'query': query,
         'parameters': parameters,
         'discoursemes': discoursemes,
+        'discoursemes2': discoursemes2,
         'collocates_atomkraft': collocates_atomkraft
     }

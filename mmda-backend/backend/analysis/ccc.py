@@ -232,7 +232,8 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
             'f': 'co-oc. freq.',
             'f2': 'marginal freq.'
         }
-        collocates[window] = collocates[window][[list(am_dict.keys())]].rename(am_dict, axis=1)
+        collocates[window] = collocates[window][list(am_dict.keys())]
+        collocates[window] = collocates[window].rename(am_dict, axis=1)
 
     return collocates
 
@@ -459,7 +460,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
     return output
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                                   discoursemes, p_query='lemma', s_query=None,
                                   flags_query="%cd", escape_query=True,
