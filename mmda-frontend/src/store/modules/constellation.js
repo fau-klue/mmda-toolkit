@@ -12,7 +12,9 @@ const state = {
   // Constellation Concordances
   concordances: [],
   // Constellation Discoursemes
-  discoursemes: []
+  discoursemes: [],
+  // Constellation Associations
+  associations: []
 }
 
 const getters = {
@@ -27,10 +29,19 @@ const getters = {
   },
   discoursemes (state) {
     return state.discoursemes
+  },
+  associations (state) {
+    return state.associations
   }
 }
 
 const actions = {
+  resetConstellationConcordances({commit}){
+    commit('setConstellationConcordances',null);
+  },
+  resetConstellationAssociations({commit}){
+    commit('setConstellationAssociations',null);
+  },
   getUserSingleConstellation ({commit}, data) {
     // Get a single Constellation
     return new Promise((resolve, reject) => {
@@ -165,23 +176,45 @@ const actions = {
       })
     })
   },
+  getConstellationAssociations ({commit}, data) {
+    // Get constellation associations
+    return new Promise((resolve, reject) => {
+
+      if (!data.username) return reject('No user provided')
+      if (!data.constellation_id) return reject('No constellation provided')
+      if (!data.corpus) return reject('No corpus provided')
+      if (!data.pQuery) return reject('No p-attribute provided')
+      if (!data.sBreak) return reject('No s-attribute provided')
+
+      let params = new URLSearchParams()
+      params.append("corpus", data.corpus)
+      params.append("p_query", data.pQuery)
+      params.append("s_break", data.sBreak)
+      const request = {
+        params: params
+      }
+      api.get(`/user/${data.username}/constellation/${data.constellation_id}/association/`, request).then(function (response) {
+        commit('setConstellationAssociations', response.data)
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
+  },
   getConstellationConcordances ({commit}, data) {
     // Get Constellations discoursemes
     return new Promise((resolve, reject) => {
 
-      if (!data.username)    return reject('No user provided')
-      if (!data.constellation_id) return reject('No Constellation provided')
-      if (!data.corpora) return reject('No Corpora provided')
-      if (!data.analysis) return reject('No Analysis provided')
-      if (!data.window_size) return reject('No window size provided')
-
+      if (!data.username) return reject('No user provided')
+      if (!data.constellation_id) return reject('No constellation provided')
+      if (!data.corpus) return reject('No corpus provided')
+      if (!data.pQuery) return reject('No p-attribute provided')
+      if (!data.sBreak) return reject('No s-attribute provided')
+ 
       let params = new URLSearchParams()
-      // Concat corpus parameter. api/?corpus=foo&corpus=bar
-      data.corpora.forEach((corpus)=>{ params.append("corpus", corpus) })
-      // Add &analysis=123
-	params.append("analysis", data.analysis)
-	params.append("window_size", data.window_size)
-
+      params.append("corpus", data.corpus)
+      params.append("p_query", data.pQuery)
+      params.append("s_break", data.sBreak)
       const request = {
         params: params
       }
@@ -211,6 +244,10 @@ const mutations = {
   setConstellationSingle (state, constellation) {
     // One Constellation
     state.constellation = constellation
+  },
+  setConstellationAssociations (state, associations) {
+    // One Constellation
+    state.associations = associations
   }
 }
 

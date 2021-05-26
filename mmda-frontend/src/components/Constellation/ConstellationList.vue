@@ -1,28 +1,16 @@
 <template>
-  <div>
-  <v-card flat>
-    <v-card-text>
-      <v-container>
-        <v-layout>
-          <v-flex xs12 sm12>
-            <v-text-field label="Search" prepend-inner-icon="search" v-model="search" clearable @click:clear="clearSearch"></v-text-field>
-
-            <v-list two-line subheader>
-              <v-list-tile v-for="constellation in filteredItems" :key="constellation.id" avatar :to="/constellation/ + constellation.id">
-                <v-list-tile-avatar>
-                  <v-icon class="grey lighten-1 white--text">question_answer</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                  <v-list-tile-title>{{ constellation.name }} (ID:{{ constellation.id }})</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
-            </v-list>
-          </v-flex>
-        </v-layout>
-      </v-container>
-    </v-card-text>
-  </v-card>
-  </div>
+<div>
+  <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
+  <v-data-table v-if="filteredItems" :headers="headers" :items="filteredItems" :search="search" :pagination.sync="pagination" class="elevation-1">
+    <template v-slot:items="props">
+      <router-link :to="/constellation/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
+        <td class="text-xs-left">{{ props.item.id }}</td>
+        <td class="text-xs-left">{{ props.item.name }}</td>
+        <td class="text-xs-left">{{ props.item.discoursemes_names }}</td>
+      </router-link>
+    </template>
+  </v-data-table>
+</div>
 </template>
 
 <script>
@@ -31,7 +19,18 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'ConstellationList',
   data: () => ({
-    search: ''
+    search: '',
+    headers: [
+      {text: 'ID', value: 'id', align: 'left'},
+      {text: 'name', value: 'name', align: 'left'},
+      {text: 'discoursemes', value: 'discoursemes_names', align: 'left'},
+      // {text: '', value: 'delete', align: 'center'}
+    ],
+    pagination: {
+      sortBy: 'id',
+      descending: true,
+      rowsPerPage: 25
+    }
   }),
   computed: {
     ...mapGetters({

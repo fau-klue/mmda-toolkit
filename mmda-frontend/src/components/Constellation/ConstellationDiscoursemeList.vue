@@ -4,11 +4,10 @@
     <div>
       <v-container>
         <v-layout>
-          <v-flex xs6 sm6>
+          <v-flex xs12 sm12>
             <v-card-title>Associated Discoursemes</v-card-title>
             <v-list two-line subheader v-if="constellationDiscoursemes">
               <v-list-tile v-for="discourseme in constellationDiscoursemes" :key="discourseme.id" avatar>
-                <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
                 <v-list-tile-avatar>
                   <v-icon class="grey--text">subject</v-icon>
                 </v-list-tile-avatar>
@@ -30,11 +29,13 @@
               <h2 v-if="constellationDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
             </v-list>
           </v-flex>
-          <v-flex xs6 sm6>
+        </v-layout>
+
+        <v-layout>
+          <v-flex xs12 sm12>
             <v-card-title>Available Discoursemes</v-card-title>
             <v-list two-line subheader v-if="userDiscoursemes">
               <v-list-tile v-for="discourseme in discoursemeUnion" :key="discourseme.id" avatar>
-                <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
                 <v-list-tile-avatar>
                   <v-icon class="grey--text">subject</v-icon>
                 </v-list-tile-avatar>

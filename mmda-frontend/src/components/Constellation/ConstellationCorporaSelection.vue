@@ -11,42 +11,40 @@
                 <p>
                   {{ $t("constellation.extraction.helpText") }}
                 </p>
-                <h1 class="subheading">{{ $t("constellation.extraction.corpora") }}</h1>
+                <h1 class="subheading">{{ $t("analysis.new.corpus") }}</h1>
                 <p>
-                  {{ $t("constellation.extraction.helpCorpora") }}
+                  {{ $t("analysis.new.helpCorpus") }}
                 </p>
-                <h1 class="subheading">{{ $t("constellation.extraction.analysis") }}</h1>
+                <h1 class="subheading">{{ $t("analysis.new.pQuery") }}</h1>
                 <p>
-                  {{ $t("constellation.extraction.helpAnalysis") }}
+                  {{ $t("analysis.new.helpPQuery") }}
+                </p>
+                <h1 class="subheading">{{ $t("analysis.new.sBreak") }}</h1>
+                <p>
+                  {{ $t("analysis.new.helpSBreak") }}
                 </p>
 
               </v-flex>
               <v-flex xs6 sm6>
                 <div v-if="loading" class="text-md-center">
                   <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                  <p>Loading Concordance...</p>
+                  <p>Collecting discoursemes in corpus ...</p>
                 </div>
 
                 <v-form v-else>
                   <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Please enter missing data</v-alert>
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Concordance extraction</v-alert>
-
-                  <v-select
-                    v-model="selectedCorpora"
-                    :items="corpora"
-                    label="Corpora"
-                    item-value="name_api"
-                    item-text="name"
-                    multiple
-                    chips
-                    persistent-hint
-                    ></v-select>
-
-                  <v-autocomplete v-model="selectedAnalysisId" clearable :items="userAnalysis" item-value="id" item-text="name" label="Analysis"></v-autocomplete>
-                  <v-slider v-model="selectWindow" :max="maxWindow" :min="minWindow" thumb-label="always"
-            thumb-size="28"></v-slider>
-                  <v-btn color="success" class="text-lg-right" @click="loadConcordances">Submit</v-btn>
-                  <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
+                  
+                  <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus"></v-autocomplete>
+                  <v-layout row>
+                    <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
+                    <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                  </v-layout>
+                  <v-layout row>
+                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                    <v-spacer/>
+                    <v-btn color="success" class="text-lg-right" @click="loadAssociations">Analyze</v-btn>
+                  </v-layout>
                 </v-form>
               </v-flex>
             </v-layout>
@@ -60,6 +58,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import rules from '@/utils/validation'
 
 export default {
   name: 'ConstellationCorporaSelection',
@@ -68,68 +67,58 @@ export default {
     error: null,
     loading: false,
     nodata: false,
-    selectedCorpora: [],
-      selectedAnalysisId: null,
-      selectWindow: 3,
-      maxWindow: 10,
-      minWindow: 1
+    selectCorpus: '',
+    sBreak: '',
+    sBreaks: [],
+    pQuery: '',
+    pQueries: [],
+    rules: rules
   }),
-    watch: {
-        selectedAnalysisId(){
-            // console.log(this.selectedAnalysisId)
-            // console.log(this.selectWindow)
-            this.loadAnalysis(this.selectedAnalysisId).then(()=>{
-                this.selectWindow = this.analysis.context
-            })
-        },
-        selectWindow(){
-          // console.log(this.selectWindow)
-        },
-        analysis(){
-            // console.log(this.selectedAnalysisId)
-            // console.log(this.selectWindow)
-            // this.selectWindow = this.analysis.max_window_size
-            this.maxWindow = this.analysis.context
+  watch: {
+    selectCorpus(){
+      let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
+      if(C){
+        this.pQueries = C.pQueries
+        this.sBreaks = C.sBreaks
+        if(C.p_att){
+          if(typeof C.p_att ==='string'){
+            this.pQueries = [C.p_att];
+          }else if(typeof C.p_att === 'object' && C.p_att[0]){
+            this.pQueries = C.p_att;
+          }
         }
+        if(C.s_att){
+          if(typeof C.s_att ==='string'){
+            this.sBreaks = [C.s_att];
+          }else if(typeof C.s_att === 'object' && C.s_att[0]){
+            this.sBreaks = C.s_att;
+          }
+        }
+      }
+      this.pQuery = this.pQueries[0]
+      this.sBreak = this.sBreaks[0]
     },
+  },
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
-      corpora: 'corpus/corpora',
-      userAnalysis: 'analysis/userAnalysis',
+      corpora: 'corpus/corpora'
     })
   },
   methods: {
     ...mapActions({
       getCorpora: 'corpus/getCorpora',
-      getUserAnalysis: 'analysis/getUserAnalysis',
-      getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
-      getConstellationConcordances: 'constellation/getConstellationConcordances'
+      getConstellationConcordances: 'constellation/getConstellationConcordances',
+      getConstellationAssociations: 'constellation/getConstellationAssociations',
+      resetConstellationConcordances: 'constellation/resetConstellationConcordances',
+      resetConstellationAssociations: 'constellation/resetConstellationAssociations',
     }),
     clear () {
       this.error = null
       this.nodata = false
-      this.selectedAnalysisId = null,
-      this.selectedCorpora = []
-    },
-    clearSearch () {
-      this.search = ''
-    },
-    loadAnalysisList () {
-      this.getUserAnalysis(this.user.username).then(() => {
-        this.error = null
-      }).catch((error) => {
-        this.error = error
-      })
-    },
-    loadAnalysis (id) {
-      const data = {
-        username: this.user.username,
-        analysis_id: id
-      }
-      // Return Promise
-      return this.getUserSingleAnalysis(data)
+      this.selectCorpus = ''
+      this.pQuery = ''
+      this.sBreak = ''
     },
     loadCorpora () {
       this.getCorpora().then(() => {
@@ -138,43 +127,48 @@ export default {
         this.error = error
       })
     },
-    loadConcordances () {
+    loadAssociations () {
+
+      this.resetConstellationConcordances()
+      this.resetConstellationAssociations()
+      
       this.nodata = false
 
-      if (!this.selectedAnalysisId || this.selectedCorpora.length === 0) {
+      if (this.selectCorpus.length === 0) {
         this.nodata = true
         return
       }
-
       this.loading = true
-      // this.loadAnalysis(this.selectedAnalysisId).then(() => {
-      //   this.error = null
-      // }).catch((error) => {
-      //   this.error = error
-      // }).then(() => {
 
-        const data = {
-          username: this.user.username,
-          constellation_id: this.id,
-          window_size: this.selectWindow,
-          analysis: this.analysis.id,
-          corpora: this.selectedCorpora
-        }
+      const data = {
+        username: this.user.username,
+        constellation_id: this.id,
+        pQuery: this.pQuery,
+        sBreak: this.sBreak,
+        corpus: this.selectCorpus
+      }
 
-        this.getConstellationConcordances(data).then(() => {
-          this.error = null
-        }).catch((error) => {
-          this.error = error
-        }).then(() => {
-          this.loading = false
-        })
-      // })
+      this.getConstellationConcordances(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
+
+      this.getConstellationAssociations(data).then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      }).then(() => {
+        this.loading = false
+      })
+
     }
   },
   created () {
     this.id = this.$route.params.id
-    this.loadAnalysisList()
     this.loadCorpora()
+    this.resetConstellationConcordances()
+    this.resetConstellationAssociations()
   }
 }
 

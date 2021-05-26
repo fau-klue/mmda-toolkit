@@ -1,6 +1,6 @@
 <template>
 <div>
-  <v-card flat>
+  <v-card flat v-if="theConstellation">
     <v-card-text>
       <v-container>
         <v-layout justify-space-between row>
@@ -9,19 +9,23 @@
             <v-alert v-if="updated" value="true" dismissible  color="success" icon="info" outline>Updated Constellation </v-alert>
 
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
-
+            
             <v-form>
+              
               <v-layout row>
-                <v-text-field v-model="theConstellation.id" :value="theConstellation.id" label="ID" box readonly></v-text-field>
-                <v-spacer/>
-                <v-text-field v-model="theConstellation.name" :value="theConstellation.name" label="name" :rules="[rules.required, rules.counter]"></v-text-field>
+                <v-flex xs3 sm1>
+                  <v-text-field v-model="theConstellation.id" :value="theConstellation.id" label="ID" box readonly />
+                </v-flex>
+                <v-flex xs3 sm11>
+                  <v-text-field v-model="theConstellation.name" :value="theConstellation.name" label="name" :rules="[rules.required, rules.counter]" box background-color="white" />
+                </v-flex>
               </v-layout>
 
               <v-layout row>
                 <v-btn color="info" class="text-lg-right" @click="updateConstellation">Update</v-btn>
-                <v-btn color="success" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Extract Concordances</v-btn>
                 <v-spacer/>
-                <v-btn color="error" outline class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
+                <v-btn color="success" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Analyze</v-btn>
+                <v-btn color="error" class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
               </v-layout>
 
             </v-form>

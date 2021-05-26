@@ -70,7 +70,7 @@
       "pAnalysis": "analysis layer (p-att)",
       "helpPAnalysis": "positional attribute to analyze (e.g. word, lemma)",
       "sBreak": "context break (s-att)",
-      "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet).",
+      "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet)",
       "windowSize": "context",
       "helpWindowSize": "maximum number of tokens to look left and right of the matches",
       "missing_data": "Please enter missing data.",
@@ -109,35 +109,31 @@
     "associatedDiscoursemes": "Associated Discoursemes",
     "availableDiscoursemes": "Available Discoursemes",
     "new": {
-      "name": "Constellation Name",
-      "discoursemes": "Discoursemes",
-      "helpTitle": "What is a Constellation?",
-      "helpText": "A constellation is a the co-occurrence of several discoursemes, e.g. a certain attitude towards a topic.",
-      "helpName": "Name for the new constellation",
-      "helpDiscoursemes": "A selection of the available discoursemes that are included in the constellation."
+      "name": "name",
+      "discoursemes": "discoursemes",
+      "helpTitle": "Discourseme Constellation",
+      "helpText": "A constellation is the co-occurrence of several discoursemes, e.g. a topic and certain perspectives towards it.",
+      "helpName": "name for the new constellation",
+      "helpDiscoursemes": "a selection of previously defined discoursemes to be included in the constellation"
     },
     "extraction": {
-      "helpTitle": "Constellation Concordance Extraction",
-      "helpText": "The concordances extraction is based on the previously associated discoursemes, a selection of corpora and a set of topic items (from an analysis).",
-      "corpora": "Corpora",
-      "helpCorpora": "Selection of corpora to extract (random) concordances from.",
-      "analysis": "Analysis",
-      "helpAnalysis": "The topic discourseme items of this analysis will be used for the concordance extraction."
+      "helpTitle": "Constellation Analysis",
+      "helpText": "Calculate textual associations betweens discoursemes of a constellation and extract respective concordance lines."
     }
   },
-    "admin": {
-      "addUser": "Add User",
-      "newUser": {
-	"username": "User Name",
-	"firstName": "First Name",
-	"lastName": "Last Name",
-	"email": "Email",
-	"password": "New Password",
-	"passwordRepeat": "Repeat new Password",
-	"isAdmin": "New User is Administrator",
-	"addUser": "Add User"
-      }
-    },
+  "admin": {
+    "addUser": "Add User",
+    "newUser": {
+      "username": "User Name",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "New Password",
+      "passwordRepeat": "Repeat new Password",
+      "isAdmin": "New User is Administrator",
+      "addUser": "Add User"
+    }
+  },
   "wordcloud": {
     "sidebar": {
       "metadata": "Metadata",
