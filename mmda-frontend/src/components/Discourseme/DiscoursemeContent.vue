@@ -51,7 +51,7 @@
         </v-layout>
       </v-container>
 
-      <v-container>
+      <v-container v-if="discourseme">
         <v-card-title>Analyses</v-card-title>
 
         <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
