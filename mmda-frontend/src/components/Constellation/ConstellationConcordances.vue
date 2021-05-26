@@ -38,7 +38,7 @@
             </v-layout>
           </v-form>
         </v-container>
-        <v-data-table v-if="filteredConcordances" :headers="concordanceHeaders" :items="filteredConcordances" class="elevation-1">
+        <v-data-table v-if="filteredConcordances" :headers="concordanceHeaders" :items="filteredConcordances" :pagination.sync="concordancePagination" class="elevation-1">
           <template v-slot:items="props">
             <td class="text-xs-center">
               <v-menu open-on-hover top offset-y>
@@ -54,7 +54,6 @@
             <td class="text-xs-left">{{ props.item.word }}</td>
           </template>
         </v-data-table>
-        <!-- {{ concordances }} -->
       </v-tab-item>
     </v-tabs>
   </v-container>
@@ -82,6 +81,10 @@ export default {
       sortBy: 'log_likelihood',
       descending: true,
       rowsPerPage: 25
+    },
+    concordancePagination: {
+      sortBy: 'ID',
+      rowsPerPage: 50
     },
     associationHeaders: [
       {text: 'node', align: 'left', value: 'node'},

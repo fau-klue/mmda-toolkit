@@ -377,35 +377,21 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
         registry_path=registry_path,
         data_path=data_path
     )
-    s_context = s_query if not s_context else s_context
-    match_strategy = 'longest'
-
     names = list(discoursemes.keys())
     topic = names[0]
-
-    # init discourseme constellation
+    s_context = s_query if not s_context else s_context
+    match_strategy = 'longest'
     topic_query = format_cqp_query(discoursemes.pop(topic),
                                    p_query=p_query, s_query=s_query,
                                    flags=flags_query, escape=escape_query)
-    topic_dump = corpus.query(topic_query, context=context, context_break=s_context)
 
-    const = Constellation(topic_dump, topic)
-
-    # add further discoursemes
-    for disc_name in discoursemes.keys():
-
-        disc_items = discoursemes[disc_name]
-        disc_query = format_cqp_query(disc_items,
-                                      p_query=p_query, s_query=s_query,
-                                      flags=flags_query, escape=escape_query)
-        disc_dump = corpus.query(disc_query, context=None, context_break=s_context,
-                                 match_strategy=match_strategy)
-
-        const.add_discourseme(disc_dump, disc_name, drop=False, how='outer')
+    df = get_constellation_df(corpus, topic, topic_query, context, s_context,
+                              discoursemes, p_query, s_query, flags_query,
+                              escape_query, match_strategy)
 
     # get relevant columns from constellation dataframe
     # NB: duplicate context-ids
-    df = const.df.set_index('contextid')
+    df = df.set_index('contextid')
     df_reduced = df[~df.index.duplicated(keep='first')][
         ['context', 'contextend']
     ]
@@ -460,7 +446,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
     return output
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                                   discoursemes, p_query='lemma', s_query=None,
                                   flags_query="%cd", escape_query=True,
@@ -486,7 +472,6 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path
     :rtype: DataFrame
 
     """
-
     corpus = Corpus(
         corpus_name=corpus_name,
         lib_path=lib_path,
@@ -494,35 +479,21 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path
         registry_path=registry_path,
         data_path=data_path
     )
-    s_context = s_query if not s_context else s_context
-    match_strategy = 'longest'
-
     names = list(discoursemes.keys())
     topic = names[0]
-
-    # init discourseme constellation
+    s_context = s_query if not s_context else s_context
+    match_strategy = 'longest'
     topic_query = format_cqp_query(discoursemes.pop(topic),
                                    p_query=p_query, s_query=s_query,
                                    flags=flags_query, escape=escape_query)
-    topic_dump = corpus.query(topic_query, context=context, context_break=s_context)
 
-    const = Constellation(topic_dump, topic)
-
-    # add further discoursemes
-    for disc_name in discoursemes.keys():
-
-        disc_items = discoursemes[disc_name]
-        disc_query = format_cqp_query(disc_items,
-                                      p_query=p_query, s_query=s_query,
-                                      flags=flags_query, escape=escape_query)
-        disc_dump = corpus.query(disc_query, context=None, context_break=s_context,
-                                 match_strategy=match_strategy)
-
-        const.add_discourseme(disc_dump, disc_name, drop=False, how='outer')
+    df = get_constellation_df(corpus, topic, topic_query, context, s_context,
+                              discoursemes, p_query, s_query, flags_query,
+                              escape_query, match_strategy)
 
     # get relevant columns from constellation dataframe
     columns = ["_".join(['match', d]) for d in names]
-    df = const.df[['contextid'] + columns].copy()
+    df = df[['contextid'] + columns].copy()
     for c, d in zip(columns, names):
         df[d.split("_")[0]] = ~df[c].isna()
 
@@ -585,3 +556,26 @@ def textual_assocications(cooc, N, column):
     contingencies = contingencies.join(measures)
 
     return contingencies
+
+
+@anycache(CACHE_PATH)
+def get_constellation_df(corpus, topic, topic_query, context, s_context, discoursemes,
+                         p_query, s_query, flags_query, escape_query, match_strategy):
+
+    # init discourseme constellation
+    topic_dump = corpus.query(topic_query, context=context, context_break=s_context)
+    const = Constellation(topic_dump, topic)
+
+    # add further discoursemes
+    for disc_name in discoursemes.keys():
+
+        disc_items = discoursemes[disc_name]
+        disc_query = format_cqp_query(disc_items,
+                                      p_query=p_query, s_query=s_query,
+                                      flags=flags_query, escape=escape_query)
+        disc_dump = corpus.query(disc_query, context=None, context_break=s_context,
+                                 match_strategy=match_strategy)
+
+        const.add_discourseme(disc_dump, disc_name, drop=False, how='outer')
+
+    return const.df

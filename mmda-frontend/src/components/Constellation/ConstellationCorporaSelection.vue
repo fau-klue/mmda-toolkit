@@ -119,6 +119,8 @@ export default {
       this.selectCorpus = ''
       this.pQuery = ''
       this.sBreak = ''
+      this.sBreaks = [],
+      this.pQueries = []
     },
     loadCorpora () {
       this.getCorpora().then(() => {

@@ -313,7 +313,7 @@ def get_constellation_concordance(username, constellation):
     # ... s-break
     s_break = request.args.get('s_break', 'text')
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 10000)
     # ... how to sort them?
     order = request.args.get('order', 'random')
 
@@ -354,7 +354,7 @@ def get_constellation_concordance(username, constellation):
     )
 
     log.debug(
-        'extracted %d concordance lines for corpus %s' % (len(concordance), corpus)
+        'extracted %d concordance lines for corpus %s' % (len(concordance), corpus_name)
     )
 
     return jsonify(concordance), 200
