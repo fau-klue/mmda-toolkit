@@ -98,7 +98,7 @@ export default {
       this.wc.changeAM();
     },
     sheetVisible(){
-      console.log("in WordcloudContent: " + this.sheetVisible)
+      // console.log("in WordcloudContent: " + this.sheetVisible)
     }
   },
   methods: {

@@ -61,7 +61,7 @@ export default {
       this.sheet = true;
     },
     sheet(){
-      console.log("in BottomSheet: " + this.sheet)
+      // console.log("in BottomSheet: " + this.sheet)
       if (this.onchangevisibility){
         this.onchangevisibility(this.sheet)
       }
