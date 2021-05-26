@@ -247,7 +247,8 @@ class Constellation(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'name': self.name,
-            'discoursemes': [discourseme.id for discourseme in self.discoursemes]
+            'discoursemes': [discourseme.id for discourseme in self.discoursemes],
+            'discoursemes_names': [discourseme.name for discourseme in self.discoursemes]
         }
 
 
