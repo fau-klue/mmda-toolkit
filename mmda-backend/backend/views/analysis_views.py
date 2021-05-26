@@ -944,6 +944,5 @@ def get_meta_for_analysis(username, analysis):
         return jsonify({'msg': 'empty result'}), 404
 
     meta_json = jsonify(meta)
-    print(meta_json)
 
     return meta_json, 200
