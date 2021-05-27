@@ -1,4 +1,4 @@
-FROM node:alpine as builder
+FROM node as builder
 LABEL maintainer="markus.opolka@fau.de"
 
 RUN mkdir -p /usr/src/app
