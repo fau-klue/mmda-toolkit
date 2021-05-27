@@ -11,16 +11,19 @@ test:
 	pipenv run pytest -v
 coverage:
 	pipenv run pytest --cov-report term-missing -v --cov=backend/
+
 database:
 	pipenv run python3 manage.py init_db
 migrate:
 	pipenv run python3 manage.py migrate_db upgrade
+
 run:
 	pipenv run python3 manage.py runserver
-docker:
+
+docker_build:
 	docker build -t mmda-backend .
-clean:
-	pipenv clean
+docker_run:
+	docker run -ti mmda-backend
 
 rerun_force: clear_all install database run
 

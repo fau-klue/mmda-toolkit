@@ -12,7 +12,7 @@ cache:
 
 backend-lint:
   stage: lint
-  image: python:3.7
+  image: python:3.8
   allow_failure: true
   script:
     - cd mmda-backend/
