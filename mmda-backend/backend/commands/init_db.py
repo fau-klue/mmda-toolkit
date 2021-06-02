@@ -17,7 +17,7 @@ class InitDbCommand(Command):
     """
 
     def run(self):
-        print(current_app.config['SQLALCHEMY_DATABASE_URI'])
+        print("Database path:", current_app.config['SQLALCHEMY_DATABASE_URI'])
         init_db()
         print('Database has been initialized.')
 
