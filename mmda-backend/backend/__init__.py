@@ -176,13 +176,6 @@ def create_app(extra_config_settings={}):
                                log_file=app.config['APP_LOG_FILE'],
                                is_debug=app.config['DEBUG'])
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path, exist_ok=True)
-    except OSError:
-        app.logger.error("could not create instance folder")
-        raise OSError
-
     # Preflight: Check if wordvectors are available
     preflight_check_vectors_passed(app)
 
