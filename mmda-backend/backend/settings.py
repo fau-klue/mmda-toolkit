@@ -7,40 +7,50 @@ An example file (env_settings_example.py) can be used as a starting point
 
 from os import getenv
 
-# CCC paths, especially CWB Registry
+################################
+# SET VIA ENVIRONMENT VARIABLES
+################################
+# CWB-CCC PATHS
 CCC_REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='/usr/local/share/cwb/registry')
-CCC_DATA_PATH = getenv('CCC_DATA_PATH', default="/tmp/mmda-ccc-data/")
-CCC_CQP_BIN = getenv('CQP_BIN', default="cqp")
-CCC_LIB_PATH = None
+CCC_DATA_PATH = getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc/')
+CCC_CQP_BIN = getenv('CQP_BIN', default='cqp')
+CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
 
-# DO NOT use an Unsecure Secrets in production environments
+# SEPARATE MMDA CACHE
+ANYCACHE_PATH = getenv('ANYCACHE_PATH', '/tmp/mmda-anycache/')
+
+# DATABASE URI
+SQLALCHEMY_DATABASE_URI = getenv('SQL_DATABASE_URI', 'sqlite:////tmp/mmda.sqlite')
+
+# SECRECT KEY (MO: change in production!)
 SECRET_KEY = str(getenv('SECRET_KEY', default='Please Change me in production. Stay Save!'))
 
-# Avoids a SQLAlchemy deprecation warning
-SQLALCHEMY_TRACK_MODIFICATIONS = False
+# ENVIRONMENT
+APP_ENV = str(getenv('ENVIRONMENT', default='development'))
 
-# Get Host and Port from environment, to make Docker life esier
-MMDA_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
-MMDA_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
-MMDA_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
-
-MMDA_APP_ENV = str(getenv('ENVIRONMENT', default='development'))
+# HOST AND PORT (MO: get from environment to make Docker life easier)
 MMDA_APP_HOST = str(getenv('HOST', default='0.0.0.0'))
 MMDA_APP_PORT = int(getenv('PORT', default='5000'))
 
+# TLS SETTINGS
+TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
+TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
+TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
+
+
+#####################
+# CONSTANT VARIABLES
+#####################
 # Application settings
 APP_NAME = "MMDA Backend"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
-APP_ENV = MMDA_APP_ENV
 APP_LOG_FILE = None
 
 # Flask settings - False, since we're using JWT
 WTF_CSRF_ENABLED = False
 
-# TLS settings
-APP_TLS_ENABLE = MMDA_TLS_ENABLE
-APP_TLS_KEYFILE = MMDA_TLS_KEYFILE
-APP_TLS_CERTFILE = MMDA_TLS_CERTFILE
+# Avoids SQLAlchemy deprecation warning
+SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Flask-User settings
 USER_APP_NAME = APP_NAME
