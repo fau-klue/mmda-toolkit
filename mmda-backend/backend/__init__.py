@@ -166,15 +166,6 @@ def create_app(extra_config_settings={}):
     ))
     app.config.update(ENV=app.config['APP_ENV'])
 
-    # Set database URI if not set (done here to use the instance path)
-    if 'SQLALCHEMY_DATABASE_URI' not in app.config:
-        app.config.update(
-            SQLALCHEMY_DATABASE_URI=str(os.getenv(
-                'SQL_DATABASE_URI',
-                default="sqlite:///" + os.path.join(app.instance_path, 'backend.sqlite')
-            ))
-        )
-
     # Preflight: Check if config is available
     if not preflight_check_config_passed(app):
         print('Error: Config files not initialized')
