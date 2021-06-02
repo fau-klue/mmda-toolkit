@@ -14,12 +14,12 @@ from association_measures.measures import calculate_measures
 from anycache import anycache
 from pandas import DataFrame, isna
 
+from backend.settings import ANYCACHE_PATH as CACHE_PATH
+
 import logging
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
-
-CACHE_PATH = '/tmp/mmda-anycache/'
 
 
 def sort_p(p_atts):
