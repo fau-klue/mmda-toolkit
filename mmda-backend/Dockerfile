@@ -44,16 +44,19 @@ RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk && \
 ########################
 # ENVIRONMENT VARIABLES
 ########################
-ENV CWB_REGISTRY_PATH '/opt/cwb/registry'
-ENV DEBIAN_FRONTEND noninteractive
-ENV ENVIRONMENT 'development'
+ENV SECRET_KEY 'changemewhenstartingthecontainer'
+
+ENV ENVIRONMENT 'production'
+ENV SQL_DATABASE_URI 'sqlite:////opt/database/mmda.sqlite'
+ENV CWB_REGISTRY_PATH '/opt/cwb/registry/'
+
 ENV HOST 0.0.0.0
+ENV PORT 5000
 ENV LANG C.UTF-8
 ENV LC_ALL C.UTF-8
-ENV PORT 5000
 ENV PYTHONIOENCODING utf-8
-ENV SECRET_KEY changemewhenstartingthecontainer
-ENV SQL_DATABASE_URI 'sqlite:////var/local/mmda.sqlite'
+ENV DEBIAN_FRONTEND noninteractive
+
 ENV TLS_ENABLE ''
 ENV TLS_CERTFILE '/var/local/cert.pem'
 ENV TLS_KEYFILE '/var/local/key.pem'
@@ -72,6 +75,10 @@ COPY Pipfile Pipfile.lock /app/
 # Pipenv
 RUN pipenv install --dev --system --ignore-pipfile --deploy
 
+
+###################
+# COPY AND RUN APP
+###################
 # We copy the application here, so that the previous layers can be cached
 COPY . /app
 

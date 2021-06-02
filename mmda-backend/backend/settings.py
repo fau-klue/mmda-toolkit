@@ -33,9 +33,9 @@ MMDA_APP_HOST = str(getenv('HOST', default='0.0.0.0'))
 MMDA_APP_PORT = int(getenv('PORT', default='5000'))
 
 # TLS SETTINGS
-TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
-TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
-TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
+APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
+APP_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
+APP_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
 
 
 #####################

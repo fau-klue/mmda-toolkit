@@ -3,57 +3,55 @@ Corpus specific settings
 Contains the available corpora on the system
 
 name: Human-readable name
-wectors: Path to pymagnitude word vectors
+name_api: CWB handle of the corpus
+embeddings: Path to pymagnitude word vectors
 language: Language of corpus
-genre: Genre of the corpus
-engine: Engine the corpus uses
-association_measures: Available ssociation measures in the Engine
+register: Register of the corpus
 """
 
 CORPORA = {
-    'LTWBY2018': {
-        'name': 'Tweets zur Landtagswahl in Bayern 2018',
-        'name_api': 'LTWBY2018',
-        'wectors': '/opt/wectors/deTwitterWord2Vec.magnitude',
+    'INFODEMIC_TWITTER_USERS': {
+        'name': 'Infodemic: Twitter Users',
+        'name_api': 'INFODEMIC_TWITTER_USERS',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
         'language': 'de',
-        'genre': 'Social Media Discourse',
-        's_att': 'tweet',
-        'p_att': 'tt_lemma',
-        'association_measures': ['am.simple.ll',
-                                 'am.log.likelihood',
-                                 'am.Dice',
-                                 'am.MI'],
-        'engine': 'CWBEngine'
+        'register': 'cmc'
     },
-    'AUSTERITY_0925': {
-        'name': 'Austerity 0925',
-        'name_api': 'AUSTERITY_0925',
-        'wectors': '/opt/wectors/enWikiWord2Vec.magnitude',
-        'language': 'en',
-        'genre': 'Newspaper',
-        's_att': 's',
-        'p_att': 'tt_lemma',
-        'association_measures': ['am.simple.ll',
-                                 'am.log.likelihood',
-                                 'am.Dice',
-                                 'am.MI'],
-        'engine': 'CWBEngine'
+    'CORONA_DE_V1': {
+        'name': 'Infodemic: Twitter (March-May 2020)',
+        'name_api': 'CORONA_DE_V1',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
+        'language': 'de'
     },
-    'LTWBY2018_NEWS': {
-        'name': 'Nachrichten zur Landtagswahl in Bayern 2018',
-        'name_api': 'LTWBY2018_NEWS',
-        'wectors': '/opt/wectors/deWikiWord2Vec.magnitude',
+    'BREXIT_V20190522_DEDUP': {
+        'name': 'Brexit Tweets (2016)',
+        'name_api': 'BREXIT_V20190522_DEDUP',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
+        'language': 'en'
+    },
+    'GERMAPARL1318': {
+        'name': 'GermaParl (1996-2006)',
+        'name_api': 'GERMAPARL1318',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
         'language': 'de',
-        'genre': 'Newspaper',
-        's_att': 's',
-        'p_att': 'tt_lemma',
-        'association_measures': ['am.simple.ll',
-                                 'am.log.likelihood',
-                                 'am.Dice',
-                                 'am.MI'],
-        'engine': 'CWBEngine'
+        'description': "Deutscher Bundestag"
     },
+    'SZ_2009_14': {
+        'name': 'Süddeutsche Zeitung (2009-2014)',
+        'name_api': 'SZ_2009_14',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
+        'language': 'de'
+    },
+    'TWEETS_JAP_PHASE_OUT': {
+        'name': 'Japanese tweets about phase-out',
+        'name_api': 'TWEETS_JAP_PHASE_OUT',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
+        'language': 'jap'
+    },
+    'YOMIURI': {
+        'name': 'Yomiuri',
+        'name_api': 'YOMIURI',
+        'embeddings': '/opt/embeddings/deTwitterWord2Vec.magnitude',
+        'language': 'jap'
+    }
 }
-
-
-ENGINES = {} # Gets populated when application starts
