@@ -5,6 +5,10 @@ Production specific settings
 # DO NOT use "DEBUG = True" in production environments
 DEBUG = False
 
+# JWT Settings (seconds)
+JWT_ACCESS_TOKEN_EXPIRES = 60*120
+JWT_REFRESH_TOKEN_EXPIRES = 60*120
+
 # Flask-Mail settings
 MAIL_SERVER = 'localhost'
 MAIL_PORT = 1025
@@ -20,4 +24,4 @@ USER_EMAIL_SENDER_EMAIL = 'mmda@fau.de'
 
 ADMINS = [
     '"Admin" <admin@fau.de>',
-    ]
+]

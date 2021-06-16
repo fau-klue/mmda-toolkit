@@ -1,20 +1,14 @@
-FROM node as builder
-LABEL maintainer="markus.opolka@fau.de"
-
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-COPY . /usr/src/app
-
-# Install and Build Application for production
+FROM node:latest as build-stage
+WORKDIR /app
+COPY package*.json ./
 RUN yarn install
+COPY ./ .
 RUN yarn run build
 
 # Production Ready Image
-FROM nginx:alpine
-LABEL maintainer="markus.opolka@fau.de"
+FROM nginx as production-stage
 # Use the .env.production for settings
-
-COPY --from=builder /usr/src/app/dist /usr/share/nginx/html/
+COPY --from=build-stage /app/dist /usr/share/nginx/html/
 # Custom Webserver Config
 COPY nginx-mmda.conf /etc/nginx/conf.d/default.conf
 
