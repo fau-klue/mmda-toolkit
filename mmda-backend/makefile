@@ -41,14 +41,21 @@ docker_build:
 	docker build -t mmda-backend .
 
 docker_run:
-	docker run -ti --name mmda-backend \
-	-v /home/ausgerechnet/corpora/mmda/:/opt/database/ \
-	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/ \
-	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
-	-v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
+	docker run -ti \
+	-v /data/Philipp/mmda/:/opt/database/ \
+	-v /data/Philipp/mmda/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
+	-v /cip/corpora/projects/EFE/embeddings/:/opt/embeddings/:ro \
+	-v /data/corpora/cqpweb/registry/:/opt/cwb/registry/:ro \
+	-v /data/corpora/cqpweb/corpora/:/data/corpora/cqpweb/corpora/:ro \
+	-v /etc/letsencrypt/:/certs/letsencrypt/:ro \
+	-e TLS_ENABLE=true \
+	-e TLS_CERTFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/fullchain.pem \
+	-e TLS_KEYFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/privkey.pem \
 	-e CWB_REGISTRY_PATH=/opt/cwb/registry/ \
 	-e SQL_DATABASE_URI=sqlite:////opt/database/mmda.sqlite \
+	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
 	-p 5000:5000 \
+	--name mmda-backend \
 	mmda-backend
 
 docker_clean:
