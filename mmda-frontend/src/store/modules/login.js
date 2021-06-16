@@ -10,12 +10,13 @@ const api = axios.create({
 })
 
 /**
- * Adds 14 min to a date, which is one less than the default (15min) of Flask JWT Extended
+ * Adds 12 hours minus 1 minute to the current date
+ * this is one minute less than the 12 hours set in Flask JWT Extended
  * https://flask-jwt-extended.readthedocs.io/en/latest/options.html#configuration-options
  * @param date  Date to start with
  */
 function calculateExpirationDate(date) {
-  const minutes = 14
+  const minutes = (60*12)-1
   return new Date(date.getTime() + minutes*60000)
 }
 

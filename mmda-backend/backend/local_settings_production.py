@@ -6,8 +6,8 @@ Production specific settings
 DEBUG = False
 
 # JWT Settings (seconds)
-JWT_ACCESS_TOKEN_EXPIRES = 60*120
-JWT_REFRESH_TOKEN_EXPIRES = 60*120
+JWT_ACCESS_TOKEN_EXPIRES = 60*60*12
+JWT_REFRESH_TOKEN_EXPIRES = 60*60*12
 
 # Flask-Mail settings
 MAIL_SERVER = 'localhost'
