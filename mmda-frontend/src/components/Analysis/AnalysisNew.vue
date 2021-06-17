@@ -146,12 +146,15 @@ export default {
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
         this.pQueries = C.pQueries
+        this.pAnalyses = C.pQueries
         this.sBreaks = C.sBreaks
         if(C.p_att){
           if(typeof C.p_att ==='string'){
             this.pQueries = [C.p_att];
+            this.pAnalyses = [C.p_att];
           }else if(typeof C.p_att === 'object' && C.p_att[0]){
             this.pQueries = C.p_att;
+            this.pAnalyses = C.p_att;
           }
         }
         if(C.s_att){
