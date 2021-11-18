@@ -3,8 +3,11 @@ from backend.analysis.ccc import ccc_constellation_association
 import pytest
 
 
+###############
+# CONCORDANCE #
+###############
 @pytest.mark.conc
-def test_ccc_concordance_simple(app, test_corpus):
+def test_ccc_simple_concordance(app, test_corpus):
 
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
@@ -22,9 +25,8 @@ def test_ccc_concordance_simple(app, test_corpus):
 
 
 @pytest.mark.conc
-def test_ccc_concordance_constellation(app, test_corpus):
+def test_ccc_constellation_concordance(app, test_corpus):
 
-    name = 'topic'
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
@@ -32,7 +34,7 @@ def test_ccc_concordance_constellation(app, test_corpus):
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
         topic_items=test_corpus['discoursemes'].pop('topic'),
-        topic_name=name,
+        topic_name='topic',
         s_context=test_corpus['parameters']['s_context'],
         window_size=10,
         context=test_corpus['parameters']['context'],
@@ -43,7 +45,7 @@ def test_ccc_concordance_constellation(app, test_corpus):
 
 
 @pytest.mark.conc
-def test_ccc_concordance_constellation_2(app, test_corpus):
+def test_ccc_constellation_concordance_2(app, test_corpus):
 
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
@@ -64,7 +66,7 @@ def test_ccc_concordance_constellation_2(app, test_corpus):
 
 
 @pytest.mark.conc
-def test_ccc_concordance_constellation_3(app, test_corpus):
+def test_ccc_constellation_concordance_3(app, test_corpus):
 
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
@@ -83,9 +85,11 @@ def test_ccc_concordance_constellation_3(app, test_corpus):
     print(conc)
 
 
+###############
+# COLLLOCATES #
+###############
 @pytest.mark.coll
-@pytest.mark.now
-def test_ccc_collocates_simple(app, test_corpus):
+def test_ccc_simple_collocates(app, test_corpus):
 
     coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
@@ -101,8 +105,7 @@ def test_ccc_collocates_simple(app, test_corpus):
 
 
 @pytest.mark.coll
-@pytest.mark.now
-def test_ccc_collocates_constellation(app, test_corpus):
+def test_ccc_constellation_collocates(app, test_corpus):
 
     coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
@@ -119,6 +122,9 @@ def test_ccc_collocates_constellation(app, test_corpus):
     print(coll)
 
 
+###############
+# ASSOCIATION #
+###############
 def test_ccc_constellation_association(app, test_corpus):
 
     assoc = ccc_constellation_association(
@@ -132,5 +138,4 @@ def test_ccc_constellation_association(app, test_corpus):
         s_query=test_corpus['parameters']['s_query'],
         s_context=test_corpus['parameters']['s_context']
     )
-
     print(assoc)

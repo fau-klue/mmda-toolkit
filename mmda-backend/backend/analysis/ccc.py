@@ -5,16 +5,14 @@ Concordance and Collocation Computation
 """
 
 from ccc import Corpora, Corpus
-from ccc.discoursemes import create_constellation, Constellation
-from ccc.discoursemes import role_formatter
+from ccc.discoursemes import create_constellation, role_formatter
 from ccc.utils import format_cqp_query
 from ccc.concordances import Concordance
-from association_measures.measures import calculate_measures
 
-from anycache import anycache
 from pandas import DataFrame, isna
 
-from backend.settings import ANYCACHE_PATH as CACHE_PATH
+# from anycache import anycache
+# from backend.settings import ANYCACHE_PATH as CACHE_PATH
 
 import logging
 
@@ -22,32 +20,30 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
 
 
-def sort_p(p_atts):
+def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
     """sort p-attributes
 
     :param list p_atts: p-attributes
 
     """
-    order = ['lemma_pos', 'lemma', 'word']
     ordered = [p for p in order if p in p_atts] + [p for p in p_atts if p not in order]
     return ordered
 
 
-def sort_s(s_atts):
+def sort_s(s_atts, order=['s', 'p', 'tweet', 'text']):
     """sort s-attributes
 
     :param list s_atts: s-attributes
 
     """
-    order = ['s', 'p', 'tweet', 'text']
     ordered = [s for s in order if s in s_atts] + [s for s in s_atts if s not in order]
     return ordered
 
 
 def ccc_corpora(cqp_bin, registry_path):
-    """show available corpora
+    """get available corpora
 
-    :param str cqp_bin: path to CQP binaries
+    :param str cqp_bin: path to CQP binary
     :param str registry_path: path to CWB registry
 
     """
@@ -58,8 +54,8 @@ def ccc_corpora(cqp_bin, registry_path):
 def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     """get available corpus attributes
 
-    :param str corpus_name: name of corpus in CWB
-    :param str cqp_bin: path to CQP binaries
+    :param str corpus_name: name of corpus in CWB registry
+    :param str cqp_bin: path to CQP binary
     :param str registry_path: path to CWB registry
     :param str data_path: path to data directory
 
@@ -96,17 +92,17 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     additional_discoursemes={}, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
                     s_query=None, order='random', cut_off=100,
-                    flags_query="%cd", escape_query=True):
+                    flags_query='%cd', escape_query=True):
     """get concordance lines for topic (+ additional discoursemes).
 
-    :param str corpus_name: name corpus in CWB registry
-    :param str lib_path:
-    :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
+    :param str corpus_name: name of corpus in CWB registry
+    :param str cqp_bin: path to CQP binary
+    :param str registry_path: path to CWB registry
+    :param str data_path: path to data directory
+    :param str lib_path: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
-    :param str topic_name: name of the topic ("node") discourseme
+    :param str topic_name: name of the topic ('node') discourseme
     :param str s_context: s-att to use for delimiting contexts
     :param int window_size: mark tokens further away from topic as 'out_of_window'
     :param int context: context around the nodes used to identify relevant matches
@@ -161,21 +157,21 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
     return output
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, additional_discoursemes={},
                    p_query='lemma', flags_query='%cd', s_query=None,
-                   p_show=['lemma'], flags_show="", ams=None,
-                   cut_off=200, min_freq=2, order='log_likelihood',
-                   escape=True, frequencies=True):
+                   p_show=['lemma'], flags_show='', ams=None,
+                   cut_off=500, min_freq=2, order='log_likelihood',
+                   escape=True, frequencies=True, topic_name='topic'):
     """get collocates for topic (+ additional discoursemes).
 
-    :param str corpus_name: name corpus in CWB registry
-    :param str lib_path:
-    :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
+    :param str corpus_name: name of corpus in CWB registry
+    :param str cqp_bin: path to CQP binary
+    :param str registry_path: path to CWB registry
+    :param str data_path: path to data directory
+    :param str lib_path: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
     :param str s_context: s-att to use for delimiting contexts
@@ -188,7 +184,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     :param str flags_query: flags to use for querying
     :param str s_query: s-att to use for delimiting queries
     :param list p_show: p-atts to use for collocation analysis
-    :param str flags_show: post-hoc folding ("%cd") with cwb-ccc-algorithm
+    :param str flags_show: post-hoc folding ('%cd') with cwb-ccc-algorithm
     :param list ams: association measures to calculate (None = all)
 
     :param int cut_off: number of collocates to retrieve
@@ -203,9 +199,31 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     """
 
+    # choose and name columns
+    am_dict = {
+        # 'O11': 'cooc. freq. (obs.)',
+        # 'O12', 'O21', 'O22',
+        # 'E11': 'cooc. freq. (exp.)',
+        # 'E12', 'E21', 'E22'
+        # 'in_nodes'
+        # 'marginal'
+        # 'ipm_reference': 'IPM (obs.)',
+        # 'ipm_reference_expected': 'IPM (exp.)',
+        'log_likelihood': 'log likelihood',
+        'dice': 'Dice',
+        'log_ratio': 'log ratio',
+        'mutual_information': 'mutual information',
+        'z_score': 'z-score',
+        't_score': 't-score',
+        'simple_ll': 'simple LL',
+        'local_mutual_information': 'local MI',
+        'conservative_log_ratio': 'Conservative LR',
+        'ipm': 'IPM (obs.)',
+        'ipm_expected': 'IPM (exp.)',
+    }
+
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
-    topic_name = 'topic'
 
     # create constellation
     const = create_constellation(corpus_name,
@@ -221,29 +239,20 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                                   order=order, cut_off=cut_off)
 
     for window in collocates.keys():
-        # rename AMs
-        am_dict = {
-            'log_likelihood': 'log likelihood',
-            'dice': 'Dice',
-            'log_ratio': 'log ratio',
-            'mutual_information': 'mutual information',
-            'z_score': 'z-score',
-            't_score': 't-score',
-            'f': 'co-oc. freq.',
-            'f2': 'marginal freq.'
-        }
+
         collocates[window] = collocates[window][list(am_dict.keys())]
         collocates[window] = collocates[window].rename(am_dict, axis=1)
+        collocates[window]['Dice-1000'] = collocates[window]['Dice'] * 10**3
+        collocates[window] = collocates[window].drop('Dice', axis=1)
 
     return collocates
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
-                  topic_items, p_query='lemma', s_query=None, p_show=['word'],
-                  flags_query="%cd", escape=True, flags_show=""):
+                  topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
+                  flags_query='%cd', escape=True, flags_show=''):
     """get breakdown of topic.
-
     :param str corpus_name: name of corpus in CWB registry
     :param str lib_path:
     :param str cqp_bin:
@@ -256,7 +265,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     :param list p_show: p-atts to base breakdown on
     :param str flags_query: flags to use for querying
     :param bool escape: whether to cqp-escape the query items
-    :param str flags_show: post-hoc folding ("%cd") with cwb-ccc-algorithm TODO
+    :param str flags_show: post-hoc folding ('%cd') with cwb-ccc-algorithm TODO
 
     :return: breakdown
     :rtype: dict
@@ -271,31 +280,31 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                                    p_query=p_query, s_query=s_query,
                                    flags=flags_query, escape=escape)
     dump = corpus.query(topic_query, context=None)
-    breakdown = dump.breakdown()
+    breakdown = dump.breakdown(p_show)
 
     # convert to dictionary
     out = list()
     for row in breakdown.iterrows():
         out.append({
-            'item': row[0][0],
+            'item': row[0],
             'freq': int(row[1]['freq'])
         })
 
     return out
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
              topic_items, p_query='lemma', s_query=None,
-             flags_query="%cd", s_show=['text_id'], order='first',
+             flags_query='%cd', s_show=['text_id'], order='first',
              cut_off=None, escape=True):
     """get meta data of topic.
 
     :param str corpus_name: name of corpus in CWB registry
-    :param str lib_path:
-    :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
+    :param str cqp_bin: path to CQP binary
+    :param str registry_path: path to CWB registry
+    :param str data_path: path to data directory
+    :param str lib_path: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
     :param str p_query: p-att layer to query
@@ -320,36 +329,54 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                                    flags=flags_query, escape=escape)
     dump = corpus.query(topic_query, context=None)
 
+    # get meta data
     meta = dump.concordance(
         s_show=s_show, form='simple', order=order, cut_off=cut_off
     )
+
+    # tabulate
     output = list()
     for s in s_show:
+
+        # tabulate number of tokens
+        # TODO: no need to calculate for each text_x, text_y, etc.
+        lengths = corpus.query_s_att(s)
+        lengths = lengths.df.reset_index()
+        lengths['nr_tokens'] = lengths['matchend'] - lengths['match'] + 1
+
+        # absolute frequency in each subcorpus
         m = meta[s].value_counts()
+
         if len(m) < 100:
-            m = m.to_frame().reset_index()
-            m.columns = [s, 'frequency']
-            m = m.sort_values(by=s)
-            output.append(m.to_html(index=False, bold_rows=False))
+            m = m.to_frame()
+            m.columns = ['frequency']
+            ell = lengths.groupby(s)[['nr_tokens']].agg(sum)
+            ell = ell.join(m, how='outer')
+            ell = ell.fillna(0, downcast='infer')
+            ell['IPM'] = round(ell['frequency'] / ell['nr_tokens'] * 10**6, 2)
+            ell.index.name = s
+            ell = ell.reset_index()
+            output.append(ell.to_html(index=False, bold_rows=False))
 
     return output
 
 
 # @anycache(CACHE_PATH)
 # TODO take care of caching for random order
-def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path, lib_path,
-                                  discoursemes, p_query='lemma', s_query=None,
-                                  flags_query="%cd", escape_query=True,
+def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path,
+                                  data_path, lib_path, discoursemes,
+                                  p_query='lemma', s_query=None,
+                                  flags_query='%cd', escape_query=True,
                                   s_context=None, context=None,
                                   p_show=['word', 'lemma'], s_show=['text_id'],
                                   order='random', cut_off=100):
     """get concordance lines for constellation.
 
-    :param str corpus_name: name corpus in CWB registry
-    :param str lib_path:
-    :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
+    :param str corpus_name: name of corpus in CWB registry
+    :param str cqp_bin: path to CQP binary
+    :param str registry_path: path to CWB registry
+    :param str data_path: path to data directory
+    :param str lib_path: path to library (with macros and wordlists)
 
     :param dict discoursemes: {name: items}
     :param str p_query: p-att layer to query
@@ -380,14 +407,20 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
     names = list(discoursemes.keys())
     topic = names[0]
     s_context = s_query if not s_context else s_context
-    match_strategy = 'longest'
-    topic_query = format_cqp_query(discoursemes.pop(topic),
-                                   p_query=p_query, s_query=s_query,
-                                   flags=flags_query, escape=escape_query)
 
-    df = get_constellation_df(corpus, topic, topic_query, context, s_context,
-                              discoursemes, p_query, s_query, flags_query,
-                              escape_query, match_strategy)
+    topic_name = topic
+    topic_items = discoursemes.pop(topic_name)
+    additional_discoursemes = discoursemes
+    flags = flags_query
+    escape = escape_query
+
+    df = create_constellation(corpus_name, topic_name, topic_items,
+                              p_query, s_query, flags, escape,
+                              s_context, context,
+                              additional_discoursemes,
+                              lib_path, cqp_bin, registry_path, data_path,
+                              match_strategy='longest',
+                              dataframe=True, drop=False)
 
     # get relevant columns from constellation dataframe
     # NB: duplicate context-ids
@@ -396,7 +429,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
         ['context', 'contextend']
     ]
     for name in ([topic] + list(discoursemes.keys())):
-        columns = [m + "_" + name for m in ['offset', 'match', 'matchend']]
+        columns = [m + '_' + name for m in ['offset', 'match', 'matchend']]
         df[name] = df[columns].values.tolist()
         df[name] = df[name].apply(tuple)
         df = df.drop(columns, axis=1)
@@ -418,7 +451,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
                        order=order, cut_off=cut_off)
     names_bool = list()
     for name in ([topic] + list(discoursemes.keys())):
-        name_bool = "_".join(['BOOL', name])
+        name_bool = '_'.join(['BOOL', name])
         lines[name_bool] = lines[name].apply(lambda x: len(x) > 0)
         names_bool.append(name_bool)
     lines = list(lines.apply(
@@ -436,7 +469,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
         meta = dict()
         for s in ['match'] + s_show:
             meta[s] = line.pop(s)
-        line['word'] = " ".join(line['word'])
+        line['word'] = ' '.join(line['word'])
         line['meta'] = DataFrame.from_dict(
             meta, orient='index'
         ).to_html(bold_rows=False, header=False)
@@ -447,11 +480,13 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path, data_path
 
 
 # @anycache(CACHE_PATH)
-def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path, lib_path,
-                                  discoursemes, p_query='lemma', s_query=None,
-                                  flags_query="%cd", escape_query=True,
-                                  s_context=None, context=None):
-    """Pairwise syntactic collocation.
+def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
+                                  data_path, lib_path, discoursemes,
+                                  p_query='lemma', s_query=None,
+                                  flags_query='%cd',
+                                  escape_query=True, s_context=None,
+                                  context=None):
+    """Pairwise association scores for discoursemes.
 
     :param str corpus_name: name corpus in CWB registry
     :param str cqp_bin:
@@ -472,110 +507,33 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path, data_path
     :rtype: DataFrame
 
     """
-    corpus = Corpus(
-        corpus_name=corpus_name,
-        lib_path=lib_path,
-        cqp_bin=cqp_bin,
-        registry_path=registry_path,
-        data_path=data_path
-    )
+
+    # pre-process parameters
+    s_context = s_query if not s_context else s_context
+
+    # get names of topic and further discoursemes
     names = list(discoursemes.keys())
     topic = names[0]
-    s_context = s_query if not s_context else s_context
-    match_strategy = 'longest'
-    topic_query = format_cqp_query(discoursemes.pop(topic),
-                                   p_query=p_query, s_query=s_query,
-                                   flags=flags_query, escape=escape_query)
 
-    df = get_constellation_df(corpus, topic, topic_query, context, s_context,
-                              discoursemes, p_query, s_query, flags_query,
-                              escape_query, match_strategy)
+    topic_name = topic
+    topic_items = discoursemes.pop(topic_name)
+    additional_discoursemes = discoursemes
+    flags = flags_query
+    escape = escape_query
 
-    # get relevant columns from constellation dataframe
-    columns = ["_".join(['match', d]) for d in names]
-    df = df[['contextid'] + columns].copy()
-    for c, d in zip(columns, names):
-        df[d.split("_")[0]] = ~df[c].isna()
+    constellation = create_constellation(corpus_name, topic_name, topic_items,
+                                         p_query, s_query, flags, escape,
+                                         s_context, context,
+                                         additional_discoursemes,
+                                         lib_path, cqp_bin, registry_path, data_path,
+                                         match_strategy='longest',
+                                         text=True)
 
-    # group
-    cooc = df.groupby(['contextid']).agg(any)
-    N = len(corpus.attributes.attribute(s_context, 's'))
+    tables = constellation.associations()
 
-    # create table
-    tables = DataFrame()
-    for name in names:
-        table = textual_assocications(cooc, N, name).reset_index()
-        table['node'] = name
-        tables = tables.append(table)
-
-    # sort and rename columns
-    tables = tables[['node', 'candidate'] + [d for d in tables.columns if d not in ['node', 'candidate']]]
-    am_dict = {
-        'log_likelihood': 'log likelihood',
-        'dice': 'Dice',
-        'log_ratio': 'log ratio',
-        'mutual_information': 'mutual information',
-        'z_score': 'z-score',
-        't_score': 't-score',
-        'f': 'co-oc. freq.',
-        'f2': 'marginal freq.'
-    }
-    # convert
-    for m in am_dict.keys():
-        tables[m] = tables[m].apply(lambda x: round(x, 3))
-    # tables = tables.rename(am_dict, axis=1)
     out = list()
     for row in tables.iterrows():
         v = dict(row[1])
         out.append(v)
 
     return out
-
-
-def textual_assocications(cooc, N, column):
-    """Textual collocations.
-
-    """
-
-    f1 = cooc[column].sum()
-    candidates = [c for c in cooc.columns if c != column]
-    records = list()
-    for candidate in candidates:
-        f2 = cooc[candidate].sum()
-        f = (cooc[[column, candidate]].sum(axis=1) == 2).sum()
-        records.append({
-            'candidate': candidate,
-            'f1': f1 if f1 > 0 else 0.001,
-            'f2': f2 if f2 > 0 else 0.001,
-            'f': f if f > 0 else 0.001,
-            'N': N
-        })
-
-    contingencies = DataFrame(records).set_index('candidate')
-    measures = calculate_measures(contingencies)
-    contingencies = contingencies.join(measures)
-
-    return contingencies
-
-
-@anycache(CACHE_PATH)
-def get_constellation_df(corpus, topic, topic_query, context, s_context, discoursemes,
-                         p_query, s_query, flags_query, escape_query, match_strategy):
-
-    # init discourseme constellation
-    topic_dump = corpus.query(topic_query, context=context, context_break=s_context)
-    const = Constellation(topic_dump, topic)
-
-    # add further discoursemes
-    for disc_name in discoursemes.keys():
-
-        disc_items = discoursemes[disc_name]
-        disc_query = format_cqp_query(disc_items,
-                                      p_query=p_query, s_query=s_query,
-                                      flags=flags_query, escape=escape_query)
-        disc_dump = corpus.query(disc_query, context=None, context_break=s_context,
-                                 match_strategy=match_strategy)
-
-        const.add_discourseme(disc_dump, disc_name, drop=False, how='outer')
-
-    return const.df

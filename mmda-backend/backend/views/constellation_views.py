@@ -396,5 +396,5 @@ def get_constellation_associations(username, constellation):
         p_query=p_query,
         s_query=s_break
     )
-    # assoc = [({'node': 'test', 'candidate': 'test2'})]
+
     return jsonify(assoc), 200

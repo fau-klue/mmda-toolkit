@@ -73,11 +73,13 @@ def create_analysis(username):
         description: s-attribute to break context at [text]
       - name: context
         type: int
-        description: context size in tokens [10]
+        description: context size in tokens
+        default: 10
 
       - name: cut_off
         type: int
-        description: how many collocates? [200]
+        description: how many collocates?
+        default: 500
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -106,7 +108,7 @@ def create_analysis(username):
     context = request.json.get('context', 10)
 
     # not set yet
-    cut_off = request.json.get('cut_off', 200)
+    cut_off = request.json.get('cut_off', 500)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '%cd')
     escape = request.json.get('escape', False)
@@ -584,7 +586,8 @@ def get_collocate_for_analysis(username, analysis):
 
       - name: cut_off
         type: int
-        description: how many collocates? [200]
+        description: how many collocates?
+        default: 500
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -612,7 +615,7 @@ def get_collocate_for_analysis(username, analysis):
     items = request.args.getlist('collocate', None)
 
     # not set yet
-    cut_off = request.args.get('cut_off', 200)
+    cut_off = request.args.get('cut_off', 500)
     order = request.args.get('order', 'log_likelihood')
     flags_query = request.args.get('flags_query', '%cd')
     escape = request.args.get('escape', False)
@@ -719,7 +722,7 @@ def get_concordance_for_analysis(username, analysis):
       - name: cut_off
         type: int
         description: how many lines?
-        default: 100
+        default: 1000
       - name: order
         type: str
         description: how to sort them? (column in result table)
@@ -856,9 +859,6 @@ def get_breakdown_for_analysis(username, analysis):
         log.debug('no such analysis %s', analysis)
         return jsonify({'msg': 'empty result'}), 404
 
-    # pack p-attributes
-    p_show = request.args.getlist('p_show', ['word'])
-
     # use cwb-ccc to extract concordance lines
     breakdown = ccc_breakdown(
         corpus_name=analysis.corpus,
@@ -868,7 +868,7 @@ def get_breakdown_for_analysis(username, analysis):
         lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=analysis.items,
         p_query=analysis.p_query,
-        p_show=p_show,
+        p_show=[analysis.p_analysis],
         s_query=analysis.s_break,
     )
 
