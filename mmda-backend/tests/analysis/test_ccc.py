@@ -1,4 +1,4 @@
-from backend.analysis.ccc import ccc_concordance, ccc_collocates
+from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_keywords
 from backend.analysis.ccc import ccc_constellation_association
 import pytest
 
@@ -122,9 +122,27 @@ def test_ccc_constellation_collocates(app, test_corpus):
     print(coll)
 
 
+############
+# KEYWORDS #
+############
+@pytest.mark.keywords
+def test_ccc_keywords(app, test_corpus):
+
+    kw = ccc_keywords(
+        corpus=test_corpus['corpus_name'],
+        corpus_reference=test_corpus['corpus_name'],
+        cqp_bin=app.config['CCC_CQP_BIN'],
+        registry_path=app.config['CCC_REGISTRY_PATH'],
+        data_path=app.config['CCC_DATA_PATH'],
+        lib_path=app.config['CCC_LIB_PATH']
+    )
+    print(kw)
+
+
 ###############
 # ASSOCIATION #
 ###############
+@pytest.mark.associations
 def test_ccc_constellation_association(app, test_corpus):
 
     assoc = ccc_constellation_association(

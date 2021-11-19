@@ -8,6 +8,7 @@ from ccc import Corpora, Corpus
 from ccc.discoursemes import create_constellation, role_formatter
 from ccc.utils import format_cqp_query
 from ccc.concordances import Concordance
+from ccc.counts import score_counts
 
 from pandas import DataFrame, isna
 
@@ -537,3 +538,24 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
         out.append(v)
 
     return out
+
+
+def ccc_keywords(corpus, corpus_reference,
+                 cqp_bin, registry_path, data_path, lib_path,
+                 p=['lemma'], p_reference=['lemma'],
+                 flags=None, flags_reference=None,
+                 ams=None, cut_off=500, min_freq=2, order='log_likelihood'):
+
+    corpus = Corpus(corpus)
+    corpus_reference = Corpus(corpus_reference)
+
+    left = corpus.marginals(p_atts=p)[['freq']]
+    right = corpus_reference.marginals(p_atts=p_reference)[['freq']]
+
+    # TODO postprocessing
+
+    keywords = score_counts(left, right,
+                            min_freq=min_freq, order=order, cut_off=cut_off,
+                            ams=ams, freq=True, digits=4)
+
+    return keywords
