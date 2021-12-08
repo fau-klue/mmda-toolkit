@@ -24,19 +24,14 @@ Flask-JWT-Extended = "==4.1.0"
 Flask-Caching = "==1.10.1"
 Flask-Cors = "==3.0.7"
 flask-expects-json = "==1.5.0"
-
 email_validator = "==1.1.1"
 werkzeug = "==0.16.1"
 gevent = "==21.1.2"
 pathlib2 = "*"
-
 pandas = "==1.2.0"
-
 scipy = "*"
 pymagnitude = "==0.1.143"
 scikit-learn = "==0.23.1"
 umap-learn = "==0.5.1"
-
 anycache = "==2.0.7"
-cwb-python = {git = "https://github.com/fau-klue/cwb-python"}
-cwb-ccc = {ref = "v0.9.16", git = "https://github.com/ausgerechnet/cwb-ccc"}
+cwb-ccc = {path = "./../../cwb-ccc/dist/cwb-ccc-0.10.1.dev0.tar.gz"}

@@ -15,6 +15,7 @@ from backend import user_required
 from backend.analysis.semspace import generate_semantic_space
 from backend.models.user_models import User
 from backend.models.analysis_models import Analysis, Coordinates
+from backend.models.keyword_models import Keyword
 
 # logging
 from logging import getLogger
@@ -54,6 +55,38 @@ def get_coordinates(username, analysis):
     # Workaround: to_dict and jsonify produce invalid JSON with NaN instead of null
     # orient=index means: {"token1":{"user_x":1,"user_y":2,"tsne_x":3,"tsne_y":4}
     df = df.where(notnull(df), None)
+    ret = df.to_dict(orient='index')
+
+    return jsonify(ret), 200
+
+
+# READ
+@coordinates_blueprint.route(
+    '/api/user/<username>/keyword/<keyword>/coordinates/',
+    methods=['GET']
+)
+@user_required
+def get_coordinates_keywords(username, keyword):
+    """ Get coordinates for keyword analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword %s', keyword)
+        return jsonify({'msg': 'no such keyword'}), 404
+
+    # load coordinates
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    df = coordinates.data
+
+    # Workaround: to_dict and jsonify produce invalid JSON with NaN instead of null
+    df = df.where(notnull(df), None)
+    # orient=index means: {"token1":{"user_x":1,"user_y":2,"tsne_x":3,"tsne_y":4}
     ret = df.to_dict(orient='index')
 
     return jsonify(ret), 200

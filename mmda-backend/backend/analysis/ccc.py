@@ -558,4 +558,32 @@ def ccc_keywords(corpus, corpus_reference,
                             min_freq=min_freq, order=order, cut_off=cut_off,
                             ams=ams, freq=True, digits=4)
 
+    # choose and name columns
+    am_dict = {
+        # 'O11': 'cooc. freq. (obs.)',
+        # 'O12', 'O21', 'O22',
+        # 'E11': 'cooc. freq. (exp.)',
+        # 'E12', 'E21', 'E22'
+        # 'in_nodes'
+        # 'marginal'
+        # 'ipm_reference': 'IPM (obs.)',
+        # 'ipm_reference_expected': 'IPM (exp.)',
+        'log_likelihood': 'log likelihood',
+        'dice': 'Dice',
+        'log_ratio': 'log ratio',
+        'mutual_information': 'mutual information',
+        'z_score': 'z-score',
+        't_score': 't-score',
+        'simple_ll': 'simple LL',
+        'local_mutual_information': 'local MI',
+        'conservative_log_ratio': 'Conservative LR',
+        'ipm': 'IPM (obs.)',
+        'ipm_expected': 'IPM (exp.)',
+    }
+
+    keywords = keywords[list(am_dict.keys())]
+    keywords = keywords.rename(am_dict, axis=1)
+    keywords['Dice-1000'] = keywords['Dice'] * 10**3
+    keywords = keywords.drop('Dice', axis=1)
+
     return keywords

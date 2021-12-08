@@ -270,6 +270,10 @@ class Coordinates(db.Model):
     analysis_id = db.Column(db.Integer(),
                             db.ForeignKey('analysis.id', ondelete='CASCADE'))
 
+    # keyword analysis
+    keyword_id = db.Column(db.Integer(),
+                           db.ForeignKey('keyword.id', ondelete='CASCADE'))
+
     @property
     def data(self):
         """

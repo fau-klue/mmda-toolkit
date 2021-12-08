@@ -1,20 +1,29 @@
 """
-Keywords Models:
+Keyword Models:
 
 """
 
 
 # from pandas import read_json
 from backend import db
-from backend.models.analysis_models import analyses_discoursemes, Discourseme
 
 
-class Keywords(db.Model):
+keyword_discoursemes = db.Table(
+    # many to many mapping:
+    # - a keyword analysis has several associated discoursemes
+    # - a discourseme can belong to several analyses
+    'KeywordDiscoursemes',
+    db.Column('keyword_id', db.Integer, db.ForeignKey('keyword.id')),
+    db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
+)
+
+
+class Keyword(db.Model):
     """
-    Keywords data model
+    Keyword Analysis data model
     """
 
-    __tablename__ = 'keywords'
+    __tablename__ = 'keyword'
     _separator = ','
 
     id = db.Column(db.Integer, primary_key=True)
@@ -26,6 +35,8 @@ class Keywords(db.Model):
     p_reference = db.Column(db.Unicode(255), nullable=True)
     flags = db.Column(db.Unicode(255), nullable=True)
     flags_reference = db.Column(db.Unicode(255), nullable=True)
+    # association_measures are stored as <str>, will be returned as <list>
+    _association_measures = db.Column(db.Unicode(), nullable=True)
 
     # FOREIGN KEYS FOR PARENTS
     user_id = db.Column(db.Integer(),
@@ -33,13 +44,13 @@ class Keywords(db.Model):
 
     # RELATIONSHIP DEFINITIONS FOR CHILDREN
     coordinates = db.relationship("Coordinates",
-                                  backref='keywords',
+                                  backref='keyword',
                                   cascade='all, delete',
                                   lazy=True)
     # associated discoursemes
     discoursemes = db.relationship("Discourseme",
-                                   secondary=analyses_discoursemes,
-                                   backref=db.backref('analyses_associated', lazy=True))
+                                   secondary=keyword_discoursemes,
+                                   backref=db.backref('keyword_associated', lazy=True))
 
     @property
     def association_measures(self):
@@ -68,14 +79,12 @@ class Keywords(db.Model):
         """
         return {
             'id': self.id,
+            'user_id': self.user_id,
             'name': self.name,
             'corpus': self.corpus,
-            'user_id': self.user_id,
-            'topic_id': self.topic_id,
-            'p_query': self.p_query,
-            'p_analysis': self.p_analysis,
-            's_break': self.s_break,
-            'context': self.context,
-            'items': self.items,
-            'topic_discourseme': Discourseme.query.filter_by(id=self.topic_id).first().serialize
+            'corpus_reference': self.corpus_reference,
+            'p': self.p,
+            'p_reference': self.p_reference,
+            'flags': self.flags,
+            'flags_reference': self.flags_reference
         }

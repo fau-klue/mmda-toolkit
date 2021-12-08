@@ -1,3 +1,5 @@
+.PHONY: discoursemes
+
 # INSTALL
 install:
 	pip3 install -r requirements.txt
@@ -18,6 +20,11 @@ coverage:
 # DATABASE
 database:
 	pipenv run python3 manage.py init_db
+
+new_database: clear_db database discoursemes
+
+discoursemes:
+	pipenv run python3 discoursemes/init-discoursemes.py
 
 migrate:
 	pipenv run python3 manage.py migrate_db upgrade
