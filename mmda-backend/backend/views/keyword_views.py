@@ -15,7 +15,7 @@ from backend import user_required
 # backend.analysis
 # from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_keywords, ccc_concordance
+from backend.analysis.ccc import ccc_keywords, ccc_concordance, ccc_corpus
 # backend.models
 from backend.models.user_models import User
 from backend.models.keyword_models import Keyword
@@ -65,6 +65,10 @@ def create_keyword(username):
         type: list
         description: p-attributes to query on [lemma]
 
+      - name: s_break
+        type: str
+        description: where to limit concordance lines
+
       - name: cut_off
         type: int
         description: how many keywords? [None]
@@ -94,6 +98,7 @@ def create_keyword(username):
     p_reference = request.json.get('p_reference', ['lemma'])
     flags = request.json.get('flags', '%cd')
     flags_reference = request.json.get('flags_reference', '%cd')
+    s_break = request.json.get('s_break', 's')
 
     keyword_analysis_name = request.json.get('name', None)
 
@@ -103,7 +108,7 @@ def create_keyword(username):
             msg = 'no corpus "%s"' % c
             log.debug(msg)
             return jsonify({'msg': msg}), 400
-    # TODO check p-attributes
+    # TODO check attributes
 
     # PROCESS
     log.debug('starting keyword analysis')
@@ -145,6 +150,7 @@ def create_keyword(username):
         corpus_reference=corpus_reference,
         p=p,
         p_reference=p_reference,
+        s_break=s_break,
         flags=flags,
         flags_reference=flags_reference,
         user_id=user.id
@@ -622,12 +628,22 @@ def get_concordance_for_keyword(username, keyword):
 
     item = cqp_escape(item)
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 100)
     # ... how to sort them?
     order = request.args.get('order', 'random')
+    # ... where's the meta data?
+    corpus = ccc_corpus(keyword.corpus,
+                        cqp_bin=current_app.config['CCC_CQP_BIN'],
+                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+                        data_path=current_app.config['CCC_DATA_PATH'])
+    # s_show = [i for i in request.args.getlist('s_meta', None)]
+    s_show = corpus['s-annotations']
 
     # pack p-attributes
     p_show = list(set(['word', keyword.p]))
+
+    window_size = request.args.get('window_size', 50)
+    s_break = keyword.s_break
 
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
@@ -638,13 +654,13 @@ def get_concordance_for_keyword(username, keyword):
         lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=[item],
         topic_name='topic',
-        s_context='s',
-        window_size=20,
+        s_context=s_break,
+        window_size=window_size,
         context=None,
         p_query=keyword.p,
         p_show=p_show,
-        s_show=[],
-        s_query='s',
+        s_show=s_show,
+        s_query=s_break,
         order=order,
         cut_off=cut_off
     )

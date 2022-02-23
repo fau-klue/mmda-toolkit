@@ -31,8 +31,9 @@ class Keyword(db.Model):
     name = db.Column(db.Unicode(255))
     corpus = db.Column(db.Unicode(255), nullable=False)
     corpus_reference = db.Column(db.Unicode(255), nullable=False)
-    p = db.Column(db.Unicode(255), nullable=True)
-    p_reference = db.Column(db.Unicode(255), nullable=True)
+    p = db.Column(db.Unicode(255), nullable=False)
+    p_reference = db.Column(db.Unicode(255), nullable=False)
+    s_break = db.Column(db.Unicode(255), nullable=False)
     flags = db.Column(db.Unicode(255), nullable=True)
     flags_reference = db.Column(db.Unicode(255), nullable=True)
     # association_measures are stored as <str>, will be returned as <list>

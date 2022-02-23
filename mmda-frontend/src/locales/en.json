@@ -54,6 +54,8 @@
       "helpCorpus": "select target corpus (left) and reference corpus (right)",
       "p": "query layer (p-att)",
       "helpP": "positional attributes to query (e.g. word, lemma)",
+      "sBreak": "context break (s-att)",
+      "helpSBreak": "structural attribute for breaking the context in concordancing (e.g. sentence (s), paragraph (p), tweet)",
       "flags": "",
       "helpFlags": "",
       "corpusReference": "reference corpus",

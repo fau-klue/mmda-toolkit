@@ -40,6 +40,11 @@
                 <p>
                   {{ $t("keyword.new.helpP") }}
                 </p>
+
+                <h1 class="subheading">{{ $t("keyword.new.sBreak") }}</h1>
+                <p>
+                  {{ $t("keyword.new.helpSBreak") }}
+                </p>
                 
               </v-flex>
               
@@ -60,9 +65,11 @@
                     <v-flex xs6>
                       <v-autocomplete v-model="selectCorpusReference" clearable :items="corpora" item-value="name_api" item-text="name" label="reference" :rules="[rules.required]"></v-autocomplete>
                       <v-combobox class="col-5" v-model="pReference" :items="pListReference" label="query layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
-                        </v-flex>
+                    </v-flex>
                   </v-layout>
                   <v-layout row>
+                    <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    <v-spacer/>
                     <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                     <v-spacer/>
                     <v-btn color="success" class="text-lg-right" @click="addKeyword">Submit</v-btn>
@@ -94,6 +101,8 @@ export default {
     pList: [],
     pReference: '',
     pListReference: [],
+    sBreak: '',
+    sBreaks: [],
     rules: rules,
   }),
   computed: {
@@ -108,8 +117,10 @@ export default {
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
         this.pList = C.pQueries
+        this.sBreaks = C.sBreaks
       }
       this.p = this.pList[0]
+      this.sBreak = this.sBreaks[0]
     },
     selectCorpusReference(){
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpusReference);
