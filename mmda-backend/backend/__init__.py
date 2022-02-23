@@ -47,6 +47,34 @@ def create_logger(name,
     logger = logging.getLogger(name)
     formatter = logging.Formatter(log_format)
 
+    # # automatic HTTPS logging by Werkzeug
+    # log = logging.getLogger('werkzeug')
+    # log.disabled = True
+
+    # # display current loggers:
+    # from pprint import pprint
+    # pprint(logging.Logger.manager.loggerDict)
+
+    # # remove superfluous ones
+    # log_names = [
+    #     'ccc',
+    #     'ccc.cache',
+    #     'ccc.collocates',
+    #     'ccc.concordances',
+    #     'ccc.counts',
+    #     'ccc.cqp',
+    #     'ccc.cwb',
+    #     'ccc.discoursemes',
+    #     'ccc.dumps',
+    #     'ccc.keywords',
+    #     'ccc.utils'
+    # ]
+    # app_logs = map(lambda logname: logging.getLogger(logname), log_names)
+    # for app_log in app_logs:
+    #     for hdlr in app_log.handlers[:]:
+    #         app_log.removeHandler(hdlr)
+
+    # add stdout handler
     stdout_handler = logging.StreamHandler(stdout)
     stdout_handler.setFormatter(formatter)
     logger.addHandler(stdout_handler)
