@@ -141,7 +141,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                               p_show=p_show, s_show=s_show,
                               order=order, cut_off=cut_off)
 
-    # convert to HTML table
+    # convert meta data to HTML tables
     # TODO: speed up!
     output = dict()
     c = 0                       # random key (for sorting)
@@ -202,12 +202,6 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     # choose and name columns
     am_dict = {
-        # 'O11': 'cooc. freq. (obs.)',
-        # 'O12', 'O21', 'O22',
-        # 'E11': 'cooc. freq. (exp.)',
-        # 'E12', 'E21', 'E22'
-        # 'in_nodes'
-        # 'marginal'
         'log_likelihood': 'log likelihood',
         'dice': 'Dice',
         'log_ratio': 'log ratio',
@@ -226,17 +220,23 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     s_query = s_context if s_query is None else s_query
 
     # create constellation
-    const = create_constellation(corpus_name,
-                                 topic_name, topic_items,
-                                 p_query, s_query, flags_query, escape,
-                                 s_context, context,
-                                 additional_discoursemes,
-                                 lib_path, cqp_bin, registry_path, data_path)
-
-    collocates = const.collocates(windows=windows,
-                                  p_show=p_show, flags=flags_show,
-                                  ams=ams, frequencies=frequencies, min_freq=min_freq,
-                                  order=order, cut_off=cut_off)
+    try:
+        const = create_constellation(
+            corpus_name,
+            topic_name, topic_items,
+            p_query, s_query, flags_query, escape,
+            s_context, context,
+            additional_discoursemes,
+            lib_path, cqp_bin, registry_path, data_path
+        )
+    except KeyError:            # no matches
+        return
+    collocates = const.collocates(
+        windows=windows,
+        p_show=p_show, flags=flags_show,
+        ams=ams, frequencies=frequencies, min_freq=min_freq,
+        order=order, cut_off=cut_off
+    )
 
     for window in collocates.keys():
 
@@ -559,14 +559,6 @@ def ccc_keywords(corpus, corpus_reference,
 
     # choose and name columns
     am_dict = {
-        # 'O11': 'cooc. freq. (obs.)',
-        # 'O12', 'O21', 'O22',
-        # 'E11': 'cooc. freq. (exp.)',
-        # 'E12', 'E21', 'E22'
-        # 'in_nodes'
-        # 'marginal'
-        # 'ipm_reference': 'IPM (obs.)',
-        # 'ipm_reference_expected': 'IPM (exp.)',
         'log_likelihood': 'log likelihood',
         'dice': 'Dice',
         'log_ratio': 'log ratio',

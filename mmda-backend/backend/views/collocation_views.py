@@ -152,6 +152,10 @@ def create_collocation(username):
         order=order,
         escape=escape
     )
+
+    if collocates is None:
+        return jsonify({'msg': "no query matches"}), 404
+
     # get tokens for coordinate generation
     log.debug('generating semantic space')
     # TODO: re-implement in backend
