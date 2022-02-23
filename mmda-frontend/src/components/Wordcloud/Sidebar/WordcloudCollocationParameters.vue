@@ -1,17 +1,15 @@
 <template>
 <v-expansion-panel-content>
-  <div slot="header" v-if="notMini" >Collocation Parameters</div>
+  <div slot="header" v-if="notMini">Collocation Parameters</div>
   <v-card v-if="notMini">
     <v-card-text>
       <h3 class="body-2">Window Size</h3>
-      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always"
-      thumb-size="28" @change="setSize"></v-slider>
-
+      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
       <v-layout row wrap>
         <h3 class="body-2">Association Measure</h3>
-          <v-flex xs12>
-            <v-select :items="Object.keys(collocates)" v-model="am_value" @change="setAM"></v-select>
-          </v-flex>
+        <v-flex xs12>
+          <v-select :items="Object.keys(collocates)" v-model="am_value" @change="setAM"></v-select>
+        </v-flex>
       </v-layout>
     </v-card-text>
   </v-card>

@@ -6,7 +6,7 @@
       <v-container>
         <v-layout justify-space-between row>
           <v-flex v-if="discourseme" xs12 sm12>
-            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Updated Discourseme</v-alert>
+            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Discourseme Updated</v-alert>
             <v-alert v-if="nodata" value="true" dismissible color="warning" icon="priority_high" outline>Missing Data</v-alert>
 
             <v-form>

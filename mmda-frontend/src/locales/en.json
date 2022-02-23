@@ -24,9 +24,10 @@
   },
   "sidebar": {
     "profile": "Profile",
-    "analysis": "Analyses",
+    "collocation": "Collocation Analysis",
+    "keyword": "Keyword Analysis",
     "discourseme": "Discoursemes",
-    "constellation": "Discourseme Constellation",
+    "constellation": "Constellations",
     "administration": "Administration",
     "users": "Users",
     "objects": "Objects"
@@ -64,8 +65,7 @@
       "missing data": "Please enter missing data."
     }
   },
-  "analysis": {
-    "newAnalysis": "New Analysis",
+  "collocation": {
     "name": "Name",
     "corpus": "Corpus",
     "associatedDiscoursemes": "Associated Discoursemes",
@@ -76,7 +76,7 @@
     "reloadCoordinates": "Reload Coordinates",
     "delete": "Delete",
     "new": {
-      "helpTitle": "Discourseme Analysis",
+      "helpTitle": "Collocation Analysis",
       "helpText": "Query a corpus for a discourseme and start an interactive collocation analysis.",
       "corpus": "corpus",
       "helpCorpus": "the CWB corpus",
@@ -137,7 +137,13 @@
     },
     "extraction": {
       "helpTitle": "Constellation Analysis",
-      "helpText": "Calculate textual associations betweens discoursemes of a constellation and extract respective concordance lines."
+      "helpText": "Calculate textual associations betweens discoursemes of a constellation and extract respective concordance lines.",
+      "corpus": "corpus",
+      "helpCorpus": "the CWB corpus",
+      "pQuery": "query layer (p-att)",
+      "helpPQuery": "positional attribute to query (e.g. word, lemma)",
+      "sBreak": "context break (s-att)",
+      "helpSBreak": "structural attribute for breaking the context (e.g. sentence (s), paragraph (p), tweet)"
     }
   },
   "admin": {

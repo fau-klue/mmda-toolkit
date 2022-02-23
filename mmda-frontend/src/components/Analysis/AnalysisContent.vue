@@ -83,9 +83,9 @@
         <v-tabs color="blue" dark >
 
           <v-tab :key="1">Frequency Breakdown</v-tab>
-          <v-tab :key="2">Associated Discoursemes</v-tab>
+          <v-tab :key="2">Collocate Table</v-tab>
           <v-tab :key="3">Concordance Lines</v-tab>
-          <v-tab :key="4">Collocate Table</v-tab>
+          <v-tab :key="4">Discoursemes</v-tab>
           <v-tab :key="5">Meta Distribution</v-tab>
 
           <v-tab-item :key="1">
@@ -99,13 +99,13 @@
             </template>
           </v-tab-item>
           <v-tab-item :key="2">
-            <AnalysisDiscoursemeList/>
+            <ItemTable/>
           </v-tab-item>
           <v-tab-item :key="3">
             <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
           </v-tab-item>
           <v-tab-item :key="4">
-            <ItemTable/>
+            <AnalysisDiscoursemeList/>
           </v-tab-item>
           <v-tab-item :key="5">
             <center>

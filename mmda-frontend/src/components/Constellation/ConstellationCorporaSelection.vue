@@ -7,21 +7,21 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                <h1 class="title">{{ $t("constellation.extraction.helpTitle") }}</h1>
+                <H1 class="title">{{ $t("constellation.extraction.helpTitle") }}</h1>
                 <p>
                   {{ $t("constellation.extraction.helpText") }}
                 </p>
-                <h1 class="subheading">{{ $t("analysis.new.corpus") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.extraction.corpus") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpCorpus") }}
+                  {{ $t("constellation.extraction.helpCorpus") }}
                 </p>
-                <h1 class="subheading">{{ $t("analysis.new.pQuery") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.extraction.pQuery") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpPQuery") }}
+                  {{ $t("constellation.extraction.helpPQuery") }}
                 </p>
-                <h1 class="subheading">{{ $t("analysis.new.sBreak") }}</h1>
+                <h1 class="subheading">{{ $t("constellation.extraction.sBreak") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpSBreak") }}
+                  {{ $t("constellation.extraction.helpSBreak") }}
                 </p>
 
               </v-flex>

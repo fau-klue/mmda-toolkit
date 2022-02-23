@@ -53,8 +53,8 @@ export default {
     sidebar: true,
     profile: { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
     items: [
-      { title: 'Analyses', icon: 'dashboard', route: '/analysis' },
-      { title: 'Keyword', icon: 'dashboard', route: '/keyword' },
+      { title: 'Keyword Analysis', icon: 'dashboard', route: '/keyword' },
+      { title: 'Collocation Analysis', icon: 'dashboard', route: '/analysis' },
       { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
       { title: 'Constellations', icon: 'question_answer', route: '/constellation' }
     ],

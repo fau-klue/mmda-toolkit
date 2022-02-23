@@ -57,19 +57,19 @@
 
       <v-container>
         <v-tabs color="blue" dark>
-          <v-tab :key="1">Keywords</v-tab>
-          <v-tab :key="2">Associated Discoursemes</v-tab>
-          <v-tab :key="3">Concordance Lines</v-tab>
+          <v-tab :key="1">Keyword Table</v-tab>
+          <v-tab :key="2">Concordance Lines</v-tab>
+          <v-tab :key="3">Discoursemes</v-tab>
 
           <v-tab-item :key="1">
             <ItemTableKeyword/>
           </v-tab-item>
           <v-tab-item :key="2">
-            <KeywordDiscoursemeList/>
-          </v-tab-item> 
-          <v-tab-item :key="3">
             <ConcordancesKeywordKWICList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
           </v-tab-item>
+          <v-tab-item :key="3">
+            <KeywordDiscoursemeList/>
+          </v-tab-item> 
         </v-tabs>
       </v-container>
     </v-card-text>

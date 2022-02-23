@@ -7,7 +7,7 @@
           <h1 class="display-1">Keyword Analysis</h1>
         </v-flex>
         <v-flex xs6 class="text-xs-right">
-          <v-btn color="success" class="text-lg-right" to="/keyword/new">New Keyword Analysis</v-btn>
+          <v-btn color="success" class="text-lg-right" to="/keyword/new">New</v-btn>
         </v-flex>
       </v-layout>
     </v-card-text>

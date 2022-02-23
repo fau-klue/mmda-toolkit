@@ -7,7 +7,7 @@
           <h1 class="display-1">Discourseme Constellations</h1>
         </v-flex>
         <v-flex xs6 class="text-xs-right">
-          <v-btn color="success" class="text-lg-right" to="/constellation/new">New Constellation</v-btn>
+          <v-btn color="success" class="text-lg-right" to="/constellation/new">New</v-btn>
         </v-flex>
       </v-layout>
     </v-card-text>

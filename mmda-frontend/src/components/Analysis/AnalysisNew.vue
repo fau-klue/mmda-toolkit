@@ -8,7 +8,7 @@
           <v-container>
             <v-layout>
               <v-flex xs12 sm12>
-                <h1 class="display-1"> {{ $t("analysis.newAnalysis") }} </h1>
+                <h1 class="display-1">New Collocation Analysis</h1>
               </v-flex>
             </v-layout>
           </v-container>
@@ -24,46 +24,45 @@
           <v-container>
             <v-layout justify-space-between row>
               <v-flex xs5 sm5>
-                
-                <!-- left box: explanations -->
-                <h1 class="title">{{ $t("analysis.new.helpTitle") }}</h1>
+
+                <h1 class="title">{{ $t("collocation.new.helpTitle") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpText") }}
+                  {{ $t("collocation.new.helpText") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.corpus") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.corpus") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpCorpus") }}
+                  {{ $t("collocation.new.helpCorpus") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.name") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.name") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpName") }}
+                  {{ $t("collocation.new.helpName") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.items") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.items") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpItems") }}
+                  {{ $t("collocation.new.helpItems") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.pQuery") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.pQuery") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpPQuery") }}
+                  {{ $t("collocation.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.pAnalysis") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.pAnalysis") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpPAnalysis") }}
+                  {{ $t("collocation.new.helpPAnalysis") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.sBreak") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.sBreak") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpSBreak") }}
+                  {{ $t("collocation.new.helpSBreak") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("analysis.new.windowSize") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.windowSize") }}</h1>
                 <p>
-                  {{ $t("analysis.new.helpWindowSize") }}
+                  {{ $t("collocation.new.helpWindowSize") }}
                 </p>
 
               </v-flex>
