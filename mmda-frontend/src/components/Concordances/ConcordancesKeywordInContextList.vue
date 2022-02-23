@@ -198,7 +198,7 @@ export default {
     windowSize(){
       this.getConcordances({
         username :this.user.username,
-        analysis_id: this.id,
+        collocation_id: this.id,
         window_size: this.windowSize,
       })
       this.update()
@@ -207,9 +207,9 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       corpus: 'corpus/corpus',
-      collocates: 'analysis/collocates',
+      collocates: 'collocation/collocates',
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
     }),
@@ -256,7 +256,7 @@ export default {
           var el = {
             text:   c.word[i],
             role:   c.role[i]? c.role[i].join(" "): "None",
-            lemma:  c[this.analysis.p_query][i]
+            lemma:  c[this.collocation.p_query][i]
           };
 
           // if(!el.role) el.role = " ";
@@ -341,7 +341,7 @@ export default {
   
   methods: {
     ...mapActions({
-      getConcordances: 'analysis/getConcordances',
+      getConcordances: 'collocation/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
     error_message_for(error, prefix, codes){
@@ -405,11 +405,11 @@ export default {
       this.concordancesRequested = true;
       this.getConcordances({
         username :this.user.username,
-        analysis_id: this.id,
+        collocation_id: this.id,
         window_size: this.windowSize,
         items: item? [item]: []
       }).catch((error)=>{
-        this.error = this.error_message_for(error,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
+        this.error = this.error_message_for(error,"collocation.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
       });
     }
@@ -417,10 +417,10 @@ export default {
   created () {
 
     this.id = this.$route.params.id;
-    if(!this.analysis) return this.$router.push('/analysis'); //fallback
+    if(!this.collocation) return this.$router.push('/collocation'); //fallback
 
-    this.getCorpus(this.analysis.corpus).catch((error)=>{
-      this.error = "Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
+    this.getCorpus(this.collocation.corpus).catch((error)=>{
+      this.error = "Collocation Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
     });
 
     if(!this.loading){

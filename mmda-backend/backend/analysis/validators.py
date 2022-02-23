@@ -49,7 +49,7 @@ USER_UPDATE_SCHEMA = {
     'required': ['last_name', 'first_name', 'email']
 }
 
-ANALYSIS_SCHEMA = {
+COLLOCATION_SCHEMA = {
     'type': 'object',
     'properties': {
         'name': {'type': 'string', 'maxLength': 255},

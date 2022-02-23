@@ -5,7 +5,7 @@ import api from '@/api'
 Vue.use(Vuex)
 
 const state = {
-  // Coordinates of an analysis
+  // Coordinates of a collocation analysis
   coordinates: null,
 }
 
@@ -16,14 +16,14 @@ const getters = {
 }
 
 const actions = {
-  getAnalysisCoordinates ({commit}, data ) {
-    // Get the coordinates of an analysis
+  getCollocationCoordinates ({commit}, data ) {
+    // Get the coordinates of a collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/coordinates/`).then(function (response) {
         commit('setCoordinates', response.data)
         resolve( response.data )
       }).catch(function (error) {
@@ -32,7 +32,7 @@ const actions = {
     })
   },
   getKeywordCoordinates ({commit}, data ) {
-    // Get the coordinates of an analysis
+    // Get the coordinates of an collocation
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
@@ -46,15 +46,15 @@ const actions = {
       })
     })
   },
-  reloadAnalysisCoordinates ({dispatch}, data) {
-    // Reload the coordinates of an analysis
+  reloadCollocationCoordinates ({dispatch}, data) {
+    // Reload the coordinates of a collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/reload/`).then(function () {
-        dispatch('getAnalysisCoordinates', data)
+      api.put(`/user/${data.username}/collocation/${data.collocation_id}/coordinates/reload/`).then(function () {
+        dispatch('getCollocationCoordinates', data)
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -77,14 +77,13 @@ const actions = {
     })
   },
   setUserCoordinatesKeyword (unused, data) {
-      // Reload the coordinates of an analysis
+      // Reload the coordinates of a keyword analysis
       return new Promise((resolve, reject) => {
 
         if (!data.username)    return reject('No user provided')
         if (!data.keyword_id)  return reject('No keyword provided')
 
         api.put(`/user/${data.username}/keyword/${data.keyword_id}/coordinates/`, data.user_coordinates).then(function () {
-          //dispatch('getAnalysisCoordinates', data)
           resolve()
         }).catch(function (error) {
           reject(error)
@@ -92,14 +91,13 @@ const actions = {
       })
   },
   setUserCoordinates (unused, data) {
-      // Reload the coordinates of an analysis
+      // Reload the coordinates of a collocation analysis
       return new Promise((resolve, reject) => {
 
         if (!data.username)    return reject('No user provided')
-        if (!data.analysis_id) return reject('No analysis provided')
+        if (!data.collocation_id) return reject('No collocation provided')
 
-        api.put(`/user/${data.username}/analysis/${data.analysis_id}/coordinates/`, data.user_coordinates).then(function () {
-          //dispatch('getAnalysisCoordinates', data)
+        api.put(`/user/${data.username}/collocation/${data.collocation_id}/coordinates/`, data.user_coordinates).then(function () {
           resolve()
         }).catch(function (error) {
           reject(error)

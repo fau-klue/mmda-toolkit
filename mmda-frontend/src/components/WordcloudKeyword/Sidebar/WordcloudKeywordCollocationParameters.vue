@@ -6,7 +6,7 @@
       <v-layout row wrap>
         <h3 class="body-2">Association Measure</h3>
           <v-flex xs12>
-            <v-select :items="Object.keys(collocates)" v-model="am_value" @change="setAM"></v-select>
+            <v-select :items="Object.keys(keywords)" v-model="am_value" @change="setAM"></v-select>
           </v-flex>
       </v-layout>
     </v-card-text>
@@ -35,8 +35,8 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: 'keyword/keyword',
-      collocates: "keyword/keywords",
+      keyword: 'keyword/keyword',
+      keywords: "keyword/keywords",
       notMini:   'wordcloud/rightSidebar',
       windowSize: 'wordcloud/windowSize',
       AM: 'wordcloud/associationMeasure',

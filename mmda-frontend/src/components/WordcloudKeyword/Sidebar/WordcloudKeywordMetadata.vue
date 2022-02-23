@@ -2,7 +2,7 @@
 <v-expansion-panel-content>
   <div slot="header" v-if="notMini" >Metadata</div>
   <v-card v-if="notMini">
-    <v-card-text>{{ analysis }}</v-card-text>
+    <v-card-text>{{ keyword }}</v-card-text>
   </v-card>
 </v-expansion-panel-content>
 </template>
@@ -16,7 +16,7 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      analysis: 'analysis/analysis',
+      keyword: 'keyword/keyword',
       notMini: "wordcloud/rightSidebar"
     })
   }

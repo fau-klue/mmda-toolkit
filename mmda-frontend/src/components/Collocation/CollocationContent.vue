@@ -3,39 +3,37 @@
   <v-card flat>
     <v-card-text>
       
-      <v-container v-if="analysis">
+      <v-container v-if="collocation">
         <v-layout justify-space-between row>
           
           <v-flex xs8 sm8>
-            <!-- <v-card-title>Analysis</v-card-title> -->
             
-            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Analysis Updated </v-alert>
+            <v-alert v-if="updated" value="true" dismissible color="success" icon="info" outline>Collocation Analysis Updated </v-alert>
             
             <v-alert v-if="nodata" value="true" color="warning" icon="priority_high" outline>Missing Data</v-alert>
             
             <v-form>
               <v-layout row>
                 <v-flex xs3 sm2>
-                  <v-text-field v-model="analysis.id" :value="analysis.id" label="ID" box readonly></v-text-field>
+                  <v-text-field v-model="collocation.id" :value="collocation.id" label="ID" box readonly></v-text-field>
                 </v-flex>
                 <v-flex xs3 sm5>
-                  <v-text-field v-model="analysis.topic_discourseme.name" :value="analysis.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
+                  <v-text-field v-model="collocation.topic_discourseme.name" :value="collocation.topic_discourseme.name" label="discourseme" box readonly></v-text-field>
                 </v-flex>
                 <v-flex xs3 sm5>
-                  <v-text-field :value="analysis.corpus" label="corpus" box readonly></v-text-field>
+                  <v-text-field :value="collocation.corpus" label="corpus" box readonly></v-text-field>
                 </v-flex>
-                <!-- <v-text-field v-model="analysis.name" :value="analysis.name" label="analysis name" box background-color="white"></v-text-field> -->
               </v-layout>
-              <v-text-field :value="analysis.items" label="items" box readonly></v-text-field>
+              <v-text-field :value="collocation.items" label="items" box readonly></v-text-field>
               <v-layout row>
                 <v-flex xs3 sm4>
-                  <v-text-field v-model="analysis.p_query" :value="analysis.p_query" label="query layer (p-att)" box readonly></v-text-field>
+                  <v-text-field v-model="collocation.p_query" :value="collocation.p_query" label="query layer (p-att)" box readonly></v-text-field>
                 </v-flex>
                 <v-flex xs3 sm4>
-                  <v-text-field v-model="analysis.p_analysis" :value="analysis.p_analysis" label="analysis layer (p-att)" box readonly></v-text-field>
+                  <v-text-field v-model="collocation.p_collocation" :value="collocation.p_collocation" label="collocation layer (p-att)" box readonly></v-text-field>
                 </v-flex>
                 <v-flex xs3 sm4>
-                  <v-text-field v-model="analysis.s_break" :value="analysis.s_break" label="context break (s-att)" box readonly></v-text-field>
+                  <v-text-field v-model="collocation.s_break" :value="collocation.s_break" label="context break (s-att)" box readonly></v-text-field>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -43,12 +41,12 @@
             <v-layout row>
               <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
               <v-spacer/>
-              <v-btn color="success" class="text-lg-right" @click="useForNewAnalysis">Duplicate and Modify</v-btn>
+              <v-btn color="success" class="text-lg-right" @click="useForNewCollocation">Duplicate and Modify</v-btn>
               <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
             </v-layout>
 
             <v-layout row>
-              <v-slider :value="windowSize" :max="analysis.context" ticks="always" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
+              <v-slider :value="windowSize" :max="collocation.context" ticks="always" :min="min" thumb-label="always" label="context window" thumb-size="28" @change="setWindowSize"/>
             </v-layout>
             
             <v-dialog v-model="dialogDelete" max-width="290">
@@ -60,7 +58,7 @@
                 <v-card-actions>
                   <v-spacer/>
                   <v-btn outline @click="dialogDelete = false">Close</v-btn>
-                  <v-btn color="error" @click="deleteAnalysis">Delete</v-btn>
+                  <v-btn color="error" @click="deleteCollocation">Delete</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -105,7 +103,7 @@
             <ConcordancesKeywordInContextList ref="kwicView" v-bind:concordances="concordances" v-bind:loading="concordances_loading" showHeader="true"/>
           </v-tab-item>
           <v-tab-item :key="4">
-            <AnalysisDiscoursemeList/>
+            <CollocationDiscoursemeList/>
           </v-tab-item>
           <v-tab-item :key="5">
             <center>
@@ -137,7 +135,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import AnalysisDiscoursemeList from '@/components/Analysis/AnalysisDiscoursemeList.vue'
+import CollocationDiscoursemeList from '@/components/Collocation/CollocationDiscoursemeList.vue'
 import ItemTable from '@/components/ItemTable/ItemTable.vue'
 import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
 import WordcloudMinimap from '@/components/Wordcloud/WordcloudMinimap.vue'
@@ -145,9 +143,9 @@ import WordcloudMinimap from '@/components/Wordcloud/WordcloudMinimap.vue'
 import rules from '@/utils/validation'
 
 export default {
-  name: 'AnalysisContent',
+  name: 'CollocationContent',
   components: {
-    AnalysisDiscoursemeList,
+    CollocationDiscoursemeList,
     ItemTable,
     ConcordancesKeywordInContextList,
     WordcloudMinimap
@@ -173,86 +171,86 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       coordinates: 'coordinates/coordinates',
-      collocates:'analysis/collocates',
-      concordances:'analysis/concordances',
-      concordances_loading:'analysis/concordances_loading',
+      collocates:'collocation/collocates',
+      concordances:'collocation/concordances',
+      concordances_loading:'collocation/concordances_loading',
       windowSize: 'wordcloud/windowSize',
-      breakdown: 'analysis/breakdown',
-      meta: 'analysis/meta',
+      breakdown: 'collocation/breakdown',
+      meta: 'collocation/meta',
     })
   },
   methods: {
     ...mapActions({
       setWindowSize: 'wordcloud/setWindowSize',
-      getUserSingleAnalysis: 'analysis/getUserSingleAnalysis',
-      updateUserAnalysis: 'analysis/updateUserAnalysis',
-      deleteUserAnalysis: 'analysis/deleteUserAnalysis',
-      reloadAnalysisCoordinates: 'coordinates/reloadAnalysisCoordinates',
-      resetConcordances: 'analysis/resetConcordances',
-      resetBreakdown: 'analysis/resetBreakdown',
-      getAnalysisBreakdown: 'analysis/getAnalysisBreakdown',
-      getAnalysisMeta: 'analysis/getAnalysisMeta'
+      getUserSingleCollocation: 'collocation/getUserSingleCollocation',
+      updateUserCollocation: 'collocation/updateUserCollocation',
+      deleteUserCollocation: 'collocation/deleteUserCollocation',
+      reloadCollocationCoordinates: 'coordinates/reloadCollocationCoordinates',
+      resetConcordances: 'collocation/resetConcordances',
+      resetBreakdown: 'collocation/resetBreakdown',
+      getCollocationBreakdown: 'collocation/getCollocationBreakdown',
+      getCollocationMeta: 'collocation/getCollocationMeta'
     }),
-    loadAnalysis () {
+    loadCollocation () {
       const data = {
         username: this.user.username,
-        analysis_id: this.id
+        collocation_id: this.id
       }
-      this.getUserSingleAnalysis(data).then(() => {
+      this.getUserSingleCollocation(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
       })
     },
     gotoWordcloud(){
-      this.$router.push("/analysis/"+this.analysis.id+"/wordcloud/");
+      this.$router.push("/collocation/"+this.collocation.id+"/wordcloud/");
     },
     downloadConcordancesCSV(){
       //console.log(this.$refs.kwicView);
       this.$refs.kwicView.downloadConcordancesCSV();
     },
-    deleteAnalysis () {
+    deleteCollocation () {
       this.dialogDelete = false
 
       const data = {
         username: this.user.username,
-        analysis_id: this.id
+        collocation_id: this.id
       }
-      this.deleteUserAnalysis(data).then(() => {
+      this.deleteUserCollocation(data).then(() => {
         this.error = null
-        this.$router.push('/analysis')
+        this.$router.push('/collocation')
         this.dialogDelete = false
       }).catch((error) => {
         this.error = error
         this.dialogDelete = false
       })
     },
-    useForNewAnalysis () {
-      let A = this.analysis;
+    useForNewCollocation () {
+      let A = this.collocation;
       var q = "?name="+A.name;
       q+="&corpus="+A.corpus;
       q+="&window="+A.context;
       for(var i of A.items) q+="&item="+i;
-      this.$router.push('/analysis/new'+q);
+      this.$router.push('/collocation/new'+q);
     },
-    updateAnalysis () {
+    updateCollocation () {
       this.nodata = false
       this.updated = false
 
-      if (!this.analysis.name) {
+      if (!this.collocation.name) {
         this.nodata = true
         return
       }
 
       const data = {
-        analysis_id: this.id,
+        collocation_id: this.id,
         username: this.user.username,
-        name: this.analysis.name
+        name: this.collocation.name
       }
 
-      this.updateUserAnalysis(data).then(() => {
+      this.updateUserCollocation(data).then(() => {
         this.error = null
         this.updated = true
       }).catch((error) => {
@@ -262,9 +260,9 @@ export default {
     reloadCoordinates () {
       const data = {
         username: this.user.username,
-        analysis_id: this.id
+        collocation_id: this.id
       }
-      this.reloadAnalysisCoordinates(data).then(() => {
+      this.reloadCollocationCoordinates(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -273,16 +271,16 @@ export default {
   },
   created () {
     this.id = this.$route.params.id
-    this.loadAnalysis()
+    this.loadCollocation()
     this.resetBreakdown()
-    this.getAnalysisBreakdown({
+    this.getCollocationBreakdown({
       username: this.user.username,
-      analysis_id: this.id
+      collocation_id: this.id
     })
     this.resetConcordances()
-    this.getAnalysisMeta({
+    this.getCollocationMeta({
       username: this.user.username,
-      analysis_id: this.id
+      collocation_id: this.id
     })
   }
 }

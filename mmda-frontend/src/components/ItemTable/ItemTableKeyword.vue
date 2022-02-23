@@ -28,15 +28,15 @@
               <v-btn @click="gotoConcordanceViewOf(props.item)" icon ripple :title="'show concordances of '+props.item.name">
                 <v-icon class="grey--text text--lighten-1">info</v-icon>
               </v-btn>
-              <div class="analysis-table-name">{{props.item.name}}</div>
+              <div class="keyword-table-name">{{props.item.name}}</div>
             </v-layout>
           </div>
           <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
           <div v-else>
-            <div class="analysis-table-sphere" :style="'width:'+props.item[el.value+'#Norm']*2+'rem;'
+            <div class="keyword-table-sphere" :style="'width:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'height:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'border-radius:'+props.item[el.value+'#Norm']+'rem;'">
-              <div class="analysis-table-number">{{props.item[el.value]}}</div>
+              <div class="keyword-table-number">{{props.item[el.value]}}</div>
             </div>
           </div>
         </td>
@@ -48,15 +48,15 @@
 </template>
 
 <style>
-  .analysis-table-name{
+  .keyword-table-name{
     margin: auto 0;
   }
-  .analysis-table-sphere{
+  .keyword-table-sphere{
     margin:auto;
     background-color:lightgrey;
     position:relative;
   }
-  .analysis-table-number{
+  .keyword-table-number{
     margin:auto;
     position:absolute;
     left:50%;

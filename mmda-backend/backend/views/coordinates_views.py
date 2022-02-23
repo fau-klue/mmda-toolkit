@@ -14,7 +14,7 @@ from backend import db
 from backend import user_required
 from backend.analysis.semspace import generate_semantic_space
 from backend.models.user_models import User
-from backend.models.analysis_models import Analysis, Coordinates
+from backend.models.collocation_models import Collocation, Coordinates
 from backend.models.keyword_models import Keyword
 
 # logging
@@ -30,12 +30,12 @@ log = getLogger('mmda-logger')
 
 # READ
 @coordinates_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    '/api/user/<username>/collocation/<collocation>/coordinates/',
     methods=['GET']
 )
 @user_required
-def get_coordinates(username, analysis):
-    """ Get coordinates for analysis.
+def get_coordinates(username, collocation):
+    """ Get coordinates for collocation analysis.
 
     """
 
@@ -43,13 +43,13 @@ def get_coordinates(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
-        return jsonify({'msg': 'no such analysis'}), 404
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
 
     # load coordinates
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     df = coordinates.data
 
     # Workaround: to_dict and jsonify produce invalid JSON with NaN instead of null
@@ -93,12 +93,12 @@ def get_coordinates_keywords(username, keyword):
 
 # UPDATE
 @coordinates_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/coordinates/reload/',
+    '/api/user/<username>/collocation/<collocation>/coordinates/reload/',
     methods=['PUT']
 )
 @user_required
-def reload_coordinates(username, analysis):
-    """ Re-calculate coordinates for analysis.
+def reload_coordinates(username, collocation):
+    """ Re-calculate coordinates for collocation analysis.
 
     """
 
@@ -106,26 +106,26 @@ def reload_coordinates(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
-        return jsonify({'msg': 'no such analysis'}), 404
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
 
     # get tokens
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     tokens = coordinates.data.index.values
 
     # generate new coordinates
-    log.debug('regenerating semantic space for analysis %s', analysis.id)
+    log.debug('regenerating semantic space for collocation analysis %s', collocation.id)
     semantic_space = generate_semantic_space(
         tokens,
-        current_app.config['CORPORA'][analysis.corpus]['embeddings']
+        current_app.config['CORPORA'][collocation.corpus]['embeddings']
     )
 
     coordinates.data = semantic_space
     db.session.commit()
 
-    log.debug('updated semantic space for analysis %s', analysis)
+    log.debug('updated semantic space for collocation analysis %s', collocation)
     return jsonify({'msg': 'updated'}), 200
 
 
@@ -168,12 +168,12 @@ def reload_coordinates_keywords(username, keyword):
 
 # UPDATE
 @coordinates_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    '/api/user/<username>/collocation/<collocation>/coordinates/',
     methods=['PUT']
 )
 @user_required
-def update_coordinates(username, analysis):
-    """ Update coordinates for an analysis.
+def update_coordinates(username, collocation):
+    """ Update coordinates for an collocation.
 
     Hint: Non numeric values are treated as NaN
     """
@@ -189,14 +189,14 @@ def update_coordinates(username, analysis):
     # get user
     user = User.query.filter_by(username=username).first()
 
-    # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
-        return jsonify({'msg': 'no such analysis'}), 404
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
 
     # get coordinates
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     df = coordinates.data
 
     # update coordinates dataframe, and save
@@ -208,7 +208,7 @@ def update_coordinates(username, analysis):
     coordinates.data = df
     db.session.commit()
 
-    log.debug('updated semantic space for analysis %s', analysis)
+    log.debug('updated semantic space for collocation analysis %s', collocation)
     return jsonify({'msg': 'updated'}), 200
 
 
@@ -259,12 +259,12 @@ def update_coordinates_keyword(username, keyword):
 
 # DELETE
 @coordinates_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/coordinates/',
+    '/api/user/<username>/collocation/<collocation>/coordinates/',
     methods=['DELETE']
 )
 @user_required
-def delete_coordinates(username, analysis):
-    """ Delete coordinates for analysis.
+def delete_coordinates(username, collocation):
+    """ Delete coordinates for collocation analysis.
 
     """
 
@@ -280,13 +280,13 @@ def delete_coordinates(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
-        return jsonify({'msg': 'no such analysis'}), 404
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
 
     # get coordinates
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     df = coordinates.data
 
     for item in items.keys():
@@ -299,5 +299,5 @@ def delete_coordinates(username, analysis):
     coordinates.data = df
     db.session.commit()
 
-    log.debug('deleted semantic space for analysis %s', analysis)
+    log.debug('deleted semantic space for collocation analysis %s', collocation)
     return jsonify({'msg': 'deleted'}), 200

@@ -126,14 +126,6 @@ export default {
       addUserKeyword: 'keyword/addUserKeyword'
     }),
     error_message_for(error, prefix, codes){
-      ///// short for:
-      //if(error.response){
-      //  switch(error.response.status){
-      //    case 400: this.error = this.$t("analysis.new.invalid_input"); break;
-      //    case 404: this.error = this.$t("analysis.new.no_collocates"); break;
-      //    default: this.error = error.message;
-      //  }
-      //}else this.error = error.message
       if( error.response ){
         let value = codes[ error.response.status ];
         if( value ) return this.$t( prefix+value );

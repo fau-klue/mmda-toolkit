@@ -21,10 +21,7 @@ from backend.analysis.ccc import ccc_constellation_concordance
 from backend.analysis.ccc import ccc_constellation_association
 # backend.models
 from backend.models.user_models import User
-from backend.models.analysis_models import (
-    Discourseme,
-    Constellation
-)
+from backend.models.collocation_models import Discourseme, Constellation
 
 # logging
 from logging import getLogger

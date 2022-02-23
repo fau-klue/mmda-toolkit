@@ -2,7 +2,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import admin from './modules/admin'
-import analysis from './modules/analysis'
+import collocation from './modules/collocation'
 import coordinates from './modules/coordinates'
 import corpus from './modules/corpus'
 import discourseme from './modules/discourseme'
@@ -18,7 +18,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
     admin: admin,
-    analysis: analysis,
+    collocation: collocation,
     coordinates: coordinates,
     corpus: corpus,
     discourseme: discourseme,

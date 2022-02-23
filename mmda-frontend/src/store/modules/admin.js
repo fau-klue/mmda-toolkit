@@ -7,8 +7,8 @@ Vue.use(Vuex)
 const state = {
   // List of all users
   users: null,
-  // List of all analysis
-  analysis: null,
+  // List of all collocation analyses
+  collocation: null,
   // List of all discoursemes
   discoursemes: null,
   // List of all constellations
@@ -19,8 +19,8 @@ const getters = {
   users (state) {
     return state.users
   },
-  analysis (state) {
-    return state.analysis
+  collocation (state) {
+    return state.collocation
   },
   discoursemes (state) {
     return state.discoursemes
@@ -69,7 +69,7 @@ const actions = {
     // Delete a single element
     return new Promise((resolve, reject) => {
       api.delete(`/admin/${data.object}/${data.object_id}/`).then(function () {
-        dispatch('getAllAnalysis')
+        dispatch('getAllCollocation')
         dispatch('getAllDiscoursemes')
         dispatch('getAllConstellations')
         resolve()
@@ -78,11 +78,11 @@ const actions = {
       })
     })
   },
-  getAllAnalysis ({commit}) {
-    // Get list of all analysis
+  getAllCollocation ({commit}) {
+    // Get list of all collocation analyses
     return new Promise((resolve, reject) => {
-      api.get(`/admin/analysis/`).then(function (response) {
-        commit('setAnalysis', response.data)
+      api.get(`/admin/collocation/`).then(function (response) {
+        commit('setCollocation', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -117,8 +117,8 @@ const mutations = {
   setUsers (state, users) {
     state.users = users
   },
-  setAnalysis (state, analysis) {
-    state.analysis = analysis
+  setCollocation (state, collocation) {
+    state.collocation = collocation
   },
   setDiscoursemes (state, discoursemes) {
     state.discoursemes = discoursemes

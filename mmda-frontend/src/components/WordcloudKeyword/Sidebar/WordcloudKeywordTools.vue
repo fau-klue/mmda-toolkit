@@ -60,7 +60,7 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      analysis: "analysis/analysis",
+      keyword: "keyword/keyword",
       windowSize: "wordcloud/windowSize",
       notMini: "wordcloud/rightSidebar"
     })

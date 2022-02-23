@@ -1,30 +1,31 @@
 """
-Analysis Models:
+Collocation Models:
+
+- Collocation
 
 - Discourseme
 - Constellation
-- Analysis
 - Coordinates
 
 Relationships:
 
 === one to many ===
-# (topic) discourseme - analysis
+# (topic) discourseme - collocation
 - a discourseme (parent) can have several analyses (children)
-- an analysis has exactly one topic discourseme
+- an collocation has exactly one topic discourseme
 
-# user - [analysis, discourseme, constellation]
+# user - [collocation, discourseme, constellation]
 - a user can have several analyses
-- an analysis belongs to exactly one user
+- an collocation belongs to exactly one user
 
 === one to one ===
-# analysis - coordinates
-- an analysis (parent) has exactly one coordinates table (child)
-- a coordinates table belongs to exactly one analysis
+# collocation - coordinates
+- an collocation (parent) has exactly one coordinates table (child)
+- a coordinates table belongs to exactly one collocation
 
 === many to many ===
-# analysis - discoursemes
-- an analysis has several associated discoursemes
+# collocation - discoursemes
+- an collocation has several associated discoursemes
 - a discourseme can belong to several analyses
 
 # constellation - discoursemes
@@ -38,12 +39,12 @@ from pandas import read_json
 from backend import db
 
 
-analyses_discoursemes = db.Table(
+collocation_discoursemes = db.Table(
     # many to many mapping:
     # - an analysis has several associated discoursemes
-    # - a discourseme can belong to several analyses
-    'AnalysesDiscoursemes',
-    db.Column('analysis_id', db.Integer, db.ForeignKey('analysis.id')),
+    # - a discourseme can belong to several collocation analyses
+    'CollocationDiscoursemes',
+    db.Column('collocation_id', db.Integer, db.ForeignKey('collocation.id')),
     db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
 )
 
@@ -57,12 +58,12 @@ constellation_discoursemes = db.Table(
 )
 
 
-class Analysis(db.Model):
+class Collocation(db.Model):
     """
-    Analysis data model
+    Collocation Analysis data model
     """
 
-    __tablename__ = 'analysis'
+    __tablename__ = 'collocation'
     _separator = ','
 
     id = db.Column(db.Integer, primary_key=True)
@@ -70,7 +71,7 @@ class Analysis(db.Model):
     name = db.Column(db.Unicode(255))
     corpus = db.Column(db.Unicode(255), nullable=False)
     p_query = db.Column(db.Unicode(255), nullable=False)
-    p_analysis = db.Column(db.Unicode(255), nullable=False)
+    p_collocation = db.Column(db.Unicode(255), nullable=False)
     s_break = db.Column(db.Unicode(255), nullable=False)
     context = db.Column(db.Integer, nullable=True)
     # association_measures are stored as <str>, will be returned as <list>
@@ -87,13 +88,13 @@ class Analysis(db.Model):
 
     # RELATIONSHIP DEFINITIONS FOR CHILDREN
     coordinates = db.relationship("Coordinates",
-                                  backref='analysis',
+                                  backref='collocation',
                                   cascade='all, delete',
                                   lazy=True)
     # associated discoursemes
     discoursemes = db.relationship("Discourseme",
-                                   secondary=analyses_discoursemes,
-                                   backref=db.backref('analyses_associated', lazy=True))
+                                   secondary=collocation_discoursemes,
+                                   backref=db.backref('collocation_associated', lazy=True))
 
     @property
     def association_measures(self):
@@ -117,7 +118,7 @@ class Analysis(db.Model):
     def serialize(self):
         """
         Return object data in easily serializeable format
-        :return: Dictionary containing the analysis values
+        :return: Dictionary containing the collocation analysis values
         :rtype: dict
         """
         return {
@@ -127,7 +128,7 @@ class Analysis(db.Model):
             'user_id': self.user_id,
             'topic_id': self.topic_id,
             'p_query': self.p_query,
-            'p_analysis': self.p_analysis,
+            'p_collocation': self.p_collocation,
             's_break': self.s_break,
             'context': self.context,
             'items': self.items,
@@ -167,18 +168,18 @@ class Discourseme(db.Model):
     # items are stored as <str>, will be returned as <list>
     _items = db.Column(db.Unicode(), nullable=True)
 
-    # linked analyses as a topic (discourseme is parent of analysis)
-    analyses = db.relationship('Analysis', backref='topic',
-                               cascade='all, delete')
+    # linked analyses as a topic (discourseme is parent of collocation analysis)
+    collocation_analyses = db.relationship('Collocation', backref='topic',
+                                           cascade='all, delete')
 
     # users
     user_id = db.Column(db.Integer(),
                         db.ForeignKey('users.id', ondelete='CASCADE'))
 
-    # topic = is there an associated analysis?
+    # topic = is there an associated collocation analysis?
     @property
     def topic(self):
-        return len(self.analyses) > 0
+        return len(self.collocation_analyses) > 0
 
     @property
     def items(self):
@@ -212,7 +213,9 @@ class Discourseme(db.Model):
             'is_topic': self.topic,
             'user_id': self.user_id,
             'items': self._items.split(self._separator),
-            'analyses': [analysis.id for analysis in self.analyses]
+            'collocation_analyses': [
+                collocation.id for collocation in self.collocation_analyses
+            ]
         }
 
 
@@ -267,8 +270,8 @@ class Coordinates(db.Model):
     _data = db.Column(db.Unicode(255*255), nullable=True)
 
     # analysis
-    analysis_id = db.Column(db.Integer(),
-                            db.ForeignKey('analysis.id', ondelete='CASCADE'))
+    collocation_id = db.Column(db.Integer(),
+                               db.ForeignKey('collocation.id', ondelete='CASCADE'))
 
     # keyword analysis
     keyword_id = db.Column(db.Integer(),

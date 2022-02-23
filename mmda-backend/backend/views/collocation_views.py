@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Analysis view
+Collocation view
 """
 
 # requirements
@@ -13,40 +13,40 @@ from ccc.utils import cqp_escape
 from backend import db
 from backend import user_required
 # backend.analysis
-from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
+from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
 from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
 from backend.analysis.ccc import ccc_corpus, ccc_meta
 # backend.models
 from backend.models.user_models import User
-from backend.models.analysis_models import (
-    Analysis, Discourseme, Coordinates
+from backend.models.collocation_models import (
+    Collocation, Discourseme, Coordinates
 )
 
 # logging
 from logging import getLogger
 
 
-analysis_blueprint = Blueprint(
-    'analysis', __name__, template_folder='templates'
+collocation_blueprint = Blueprint(
+    'collocation', __name__, template_folder='templates'
 )
 
 log = getLogger('mmda-logger')
 
 
-############
-# ANALYSIS #
-############
+###############
+# COLLOCATION #
+###############
 
 # CREATE
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/',
     methods=['POST']
 )
-@expects_json(ANALYSIS_SCHEMA)
+@expects_json(COLLOCATION_SCHEMA)
 @user_required
-def create_analysis(username):
-    """ Create new analysis for given user.
+def create_collocation(username):
+    """ Create new collocation analysis for given user.
 
     parameters:
       - name: username
@@ -65,9 +65,9 @@ def create_analysis(username):
       - name: p_query
         type: str
         description: p-attribute to query on [lemma]
-      - name: p_analysis
+      - name: p_collocation
         type: str
-        description: p-attribute to use for analysis [lemma]
+        description: p-attribute to use for collocates [lemma]
       - name: s_break
         type: str
         description: s-attribute to break context at [text]
@@ -86,7 +86,7 @@ def create_analysis(username):
 
     responses:
        201:
-         description: analysis.id
+         description: collocation.id
        400:
          description: "wrong request parameters"
        404:
@@ -103,7 +103,7 @@ def create_analysis(username):
 
     # more or less reasonable defaults
     p_query = request.json.get('p_query', 'lemma')
-    p_analysis = request.json.get('p_analysis', 'lemma')
+    p_collocation = request.json.get('p_collocation', 'lemma')
     s_break = request.json.get('s_break', 'text')
     context = request.json.get('context', 10)
 
@@ -115,10 +115,10 @@ def create_analysis(username):
     flags_show = request.json.get('flags_show', '')
     min_freq = request.json.get('min_freq', 2)
     ams = request.json.get('ams', None)
-    analysis_name = request.json.get('name', None)
+    collocation_name = request.json.get('name', None)
 
     # translation
-    p_show = [p_analysis]
+    p_show = [p_collocation]
 
     # VALIDATION
     if corpus_name not in current_app.config['CORPORA']:
@@ -159,7 +159,7 @@ def create_analysis(username):
     for df in collocates.values():
         tokens.extend(df.index)
     tokens = list(set(tokens))
-    log.debug('extracted %d tokens for analysis semantic space' % len(tokens))
+    log.debug('extracted %d tokens for collocation semantic space' % len(tokens))
 
     # error handling: no result?
     if len(tokens) == 0:
@@ -190,40 +190,40 @@ def create_analysis(username):
 
     # SAVE TO DATABASE
     # analysis
-    analysis = Analysis(
-        name=analysis_name,
+    collocation = Collocation(
+        name=collocation_name,
         corpus=corpus_name,
         p_query=p_query,
-        p_analysis=p_analysis,
+        p_collocation=p_collocation,
         s_break=s_break,
         context=context,
         items=items,
         topic_id=topic_discourseme.id,
         user_id=user.id,
     )
-    db.session.add(analysis)
+    db.session.add(collocation)
     db.session.commit()
-    log.debug('added analysis %s to db', analysis.id)
+    log.debug('added analysis %s to db', collocation.id)
 
     # semantic space
     coordinates = Coordinates(
-        analysis_id=analysis.id,
+        collocation_id=collocation.id,
         data=semantic_space
     )
     db.session.add(coordinates)
     db.session.commit()
     log.debug('added coordinates %s to db', coordinates.id)
 
-    return jsonify({'msg': analysis.id}), 201
+    return jsonify({'msg': collocation.id}), 201
 
 
 # READ ALL
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/',
     methods=['GET']
 )
 @user_required
-def get_all_analysis(username):
+def get_all_collocation(username):
     """ List all analyses for given user.
 
     parameters:
@@ -238,31 +238,31 @@ def get_all_analysis(username):
     # get user
     user = User.query.filter_by(username=username).first()
 
-    analyses = Analysis.query.filter_by(user_id=user.id).all()
-    analyses_list = [analysis.serialize for analysis in analyses]
+    collocation_analyses = Collocation.query.filter_by(user_id=user.id).all()
+    collocation_list = [collocation.serialize for collocation in collocation_analyses]
 
-    return jsonify(analyses_list), 200
+    return jsonify(collocation_list), 200
 
 
 # READ
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/',
     methods=['GET']
 )
 @user_required
-def get_analysis(username, analysis):
-    """ Get details of analysis.
+def get_collocation(username, collocation):
+    """ Get details of collocation analysis.
 
     parameters:
       - username: username
         type: str
         description: username, links to user
-      - name: analysis
+      - name: collocation
         type: str
-        description: analysis id
+        description: collocation id
     responses:
        200:
-         description: dict of analysis details
+         description: dict of collocation analysis details
        404:
          description: "no such analysis"
     """
@@ -271,7 +271,7 @@ def get_analysis(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    analysis = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
     if not analysis:
         log.debug('no such analysis %s', analysis)
         return jsonify({'msg': 'no such analysis'}), 404
@@ -280,13 +280,13 @@ def get_analysis(username, analysis):
 
 
 # UPDATE
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/',
     methods=['PUT']
 )
 @expects_json(UPDATE_SCHEMA)
 @user_required
-def update_analysis(username, analysis):
+def update_collocation(username, collocation):
     """ Edit analysis. Only the name can be updated. Deprecated.
 
     parameters:
@@ -310,11 +310,11 @@ def update_analysis(username, analysis):
     # check request
     name = request.json.get('name', None)
     if not name:
-        log.debug('no name provided for analysis %s', analysis)
+        log.debug('no name provided for analysis %s', collocation)
         return jsonify({'msg': 'wrong request parameters'}), 400
 
     # update analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    analysis = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
     analysis.name = name
     db.session.commit()
 
@@ -323,41 +323,41 @@ def update_analysis(username, analysis):
 
 
 # DELETE
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/',
     methods=['DELETE']
 )
 @user_required
-def delete_analysis(username, analysis):
-    """ Delete analysis.
+def delete_collocation(username, collocation):
+    """ Delete collocation.
 
     parameters:
       - username: username
         type: str
         description: username, links to user
-      - name: analysis
+      - name: collocation
         type: str
-        description: analysis id
+        description: collocation id
     responses:
        200:
          description: "deleted"
        404:
-         description: "no such analysis"
+         description: "no such collocation"
     """
 
     # get user
     user = User.query.filter_by(username=username).first()
 
-    # delete analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
-        return jsonify({'msg': 'no such analysis'}), 404
+    # delete collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation %s', collocation)
+        return jsonify({'msg': 'no such collocation'}), 404
 
-    db.session.delete(analysis)
+    db.session.delete(collocation)
     db.session.commit()
 
-    log.debug('deleted analysis with ID %s', analysis)
+    log.debug('deleted collocation with ID %s', collocation)
     return jsonify({'msg': 'deleted'}), 200
 
 
@@ -366,64 +366,64 @@ def delete_analysis(username, analysis):
 ###########################
 
 # READ
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/discourseme/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/discourseme/',
     methods=['GET']
 )
 @user_required
-def get_discoursemes_for_analysis(username, analysis):
-    """ Return list of discoursemes for analysis.
+def get_discoursemes_for_collocation(username, collocation):
+    """ Return list of discoursemes for collocation.
 
     parameters:
       - username: username
         type: str
         description: username, links to user
-      - name: analysis
+      - name: collocation
         type: str
-        description: analysis id
+        description: collocation id
     responses:
        200:
          description: list of associated discoursemes
        404:
-         description: "no such analysis"
+         description: "no such collocation"
     """
 
     # get user
     user = User.query.filter_by(username=username).first()
 
-    # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such analysis %s', collocation)
         return jsonify({'msg': 'no such analysis'}), 404
 
     # get discoursemes as list
-    analysis_discoursemes = [
-        discourseme.serialize for discourseme in analysis.discoursemes
+    collocation_discoursemes = [
+        discourseme.serialize for discourseme in collocation.discoursemes
     ]
-    if not analysis_discoursemes:
+    if not collocation_discoursemes:
         log.debug('no disoursemes associated')
         return jsonify([]), 200
 
-    return jsonify(analysis_discoursemes), 200
+    return jsonify(collocation_discoursemes), 200
 
 
 # UPDATE
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/discourseme/<discourseme>/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/',
     methods=['PUT']
 )
 @user_required
-def put_discourseme_into_analysis(username, analysis, discourseme):
-    """ Associate a discourseme with analysis.
+def put_discourseme_into_collocation(username, collocation, discourseme):
+    """ Associate a discourseme with collocation.
 
     parameters:
       - name: username
         type: str
         description: username, links to user
-      - name: analysis
+      - name: collocation
         type: int
-        description: analysis id
+        description: collocation id
       - name: discourseme
         type: int
         description: discourseme id to associate
@@ -432,19 +432,19 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
          description: "already linked"
          description: "updated"
       404:
-         description: "no such analysis"
+         description: "no such collocation"
          description: "no such discourseme"
       409:
-         description: "discourseme is already topic of analysis"
+         description: "discourseme is already topic of collocation"
     """
 
     # get user
     user = User.query.filter_by(username=username).first()
 
-    # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        msg = 'no such analysis %s' % analysis
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        msg = 'no such collocation %s' % collocation
         log.debug(msg)
         return jsonify({'msg': msg}), 404
 
@@ -456,27 +456,27 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         return jsonify({'msg': msg}), 404
 
     # check if discourseme already associated or already topic of analysis
-    analysis_discourseme = discourseme in analysis.discoursemes
-    is_own_topic_discourseme = discourseme.id == analysis.topic_id
+    collocation_discourseme = discourseme in collocation.discoursemes
+    is_own_topic_discourseme = discourseme.id == collocation.topic_id
     if is_own_topic_discourseme:
-        msg = 'discourseme %s is already topic of the analysis', discourseme
+        msg = 'discourseme %s is already topic of the collocation analysis', discourseme
         log.debug(msg)
         return jsonify({'msg': msg}), 409
-    if analysis_discourseme:
+    if collocation_discourseme:
         msg = 'discourseme %s is already associated', discourseme
         log.debug(msg)
         return jsonify({'msg': msg}), 200
 
     # associate discourseme with analysis
-    analysis.discoursemes.append(discourseme)
-    db.session.add(analysis)
+    collocation.discoursemes.append(discourseme)
+    db.session.add(collocation)
     db.session.commit()
-    msg = 'associated discourseme %s with analysis %s' % (discourseme, analysis)
+    msg = 'associated discourseme %s with collocation analysis %s' % (discourseme, collocation)
     log.debug(msg)
 
     # update semantic space: add discourseme items
     tokens = set(discourseme.items)
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     semantic_space = coordinates.data
     diff = tokens - set(semantic_space.index)
     if len(diff) > 0:
@@ -484,7 +484,7 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
         new_coordinates = generate_items_coordinates(
             diff,
             semantic_space,
-            current_app.config['CORPORA'][analysis.corpus]['embeddings']
+            current_app.config['CORPORA'][collocation.corpus]['embeddings']
         )
         if not new_coordinates.empty:
             log.debug('appending new coordinates to semantic space')
@@ -496,41 +496,41 @@ def put_discourseme_into_analysis(username, analysis, discourseme):
 
 
 # DELETE
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/discourseme/<discourseme>/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/',
     methods=['DELETE']
 )
 @user_required
-def delete_discourseme_from_analysis(username, analysis, discourseme):
-    """ Remove discourseme from analysis.
+def delete_discourseme_from_collocation(username, collocation, discourseme):
+    """ Remove discourseme from collocation.
 
     parameters:
       - name: username
         type: str
         description: username, links to user
-      - name: analysis
+      - name: collocation
         type: int
-        description: analysis id
+        description: collocation id
       - name: discourseme
         type: int
         description: discourseme id to remove
     responses:
       200:
-         description: "deleted discourseme from analysis"
+         description: "deleted discourseme from collocation"
       404:
          description: "no such analysis"
          description: "no such discourseme"
-         description: "discourseme not linked to analysis"
+         description: "discourseme not linked to collocation"
 
     """
 
     # get user
     user = User.query.filter_by(username=username).first()
 
-    # get analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'no such analysis'}), 404
 
     # get discourseme
@@ -540,36 +540,36 @@ def delete_discourseme_from_analysis(username, analysis, discourseme):
         return jsonify({'msg': 'no such discourseme'}), 404
 
     # check link
-    analysis_discourseme = discourseme in analysis.discoursemes
-    if not analysis_discourseme:
-        log.warn('discourseme %s not linked to analysis %s', discourseme, analysis)
+    collocation_discourseme = discourseme in collocation.discoursemes
+    if not collocation_discourseme:
+        log.warn('discourseme %s not linked to collocation analysis %s', discourseme, collocation)
         return jsonify({'msg': 'discourseme not linked to analysis'}), 404
 
     # delete
-    analysis.discoursemes.remove(discourseme)
+    collocation.discoursemes.remove(discourseme)
     db.session.commit()
 
-    log.debug('deleted discourseme %s from analysis %s', discourseme, analysis)
-    return jsonify({'msg': 'deleted discourseme from analysis'}), 200
+    log.debug('deleted discourseme %s from collocation analysis %s', discourseme, collocation)
+    return jsonify({'msg': 'deleted discourseme from collocation analysis'}), 200
 
 
 ##############
 # COLLOCATES #
 ##############
 
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/collocate/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/collocate/',
     methods=['GET']
 )
 @user_required
-def get_collocate_for_analysis(username, analysis):
-    """ Get collocate table for analysis.
+def get_collocate_for_collocation(username, collocation):
+    """ Get collocate table for collocation analysis.
 
     parameters:
       - name: username
         description: username, links to user
-      - name: analysis
-        description: analysis id
+      - name: collocation
+        description: collocation id
 
       - name: window_size
         type: int
@@ -602,7 +602,7 @@ def get_collocate_for_analysis(username, analysis):
     """
 
     user = User.query.filter_by(username=username).first()
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
 
     # PARAMETERS #
     # required
@@ -624,8 +624,8 @@ def get_collocate_for_analysis(username, analysis):
     ams = request.args.get('ams', None)
 
     # VALIDATION
-    if not analysis:
-        msg = 'No such analysis %s' % analysis
+    if not collocation:
+        msg = 'No such collocation %s' % collocation
         log.debug(msg)
         return jsonify({'msg': msg}), 404
 
@@ -645,20 +645,20 @@ def get_collocate_for_analysis(username, analysis):
 
     # get collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
-        corpus_name=analysis.corpus,
+        corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=analysis.items,
-        s_context=analysis.s_break,
+        topic_items=collocation.items,
+        s_context=collocation.s_break,
         windows=[window_size],
-        context=analysis.context,
+        context=collocation.context,
         additional_discoursemes=additional_discoursemes,
-        p_query=analysis.p_query,
+        p_query=collocation.p_query,
         flags_query=flags_query,
-        s_query=analysis.s_break,
-        p_show=[analysis.p_analysis],
+        s_query=collocation.s_break,
+        p_show=[collocation.p_collocation],
         flags_show=flags_show,
         ams=ams,
         cut_off=cut_off,
@@ -673,7 +673,7 @@ def get_collocate_for_analysis(username, analysis):
 
     # MAKE SURE THERE ARE COORDINATES FOR ALL TOKENS
     tokens = set(collocates.index)
-    coordinates = Coordinates.query.filter_by(analysis_id=analysis.id).first()
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     semantic_space = coordinates.data
     diff = tokens - set(semantic_space.index)
     if len(diff) > 0:
@@ -681,7 +681,7 @@ def get_collocate_for_analysis(username, analysis):
         new_coordinates = generate_items_coordinates(
             diff,
             semantic_space,
-            current_app.config['CORPORA'][analysis.corpus]['embeddings']
+            current_app.config['CORPORA'][collocation.corpus]['embeddings']
         )
         if not new_coordinates.empty:
             log.debug('appending new coordinates to semantic space')
@@ -698,19 +698,19 @@ def get_collocate_for_analysis(username, analysis):
 #####################
 # CONCORDANCE LINES #
 #####################
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/concordance/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/concordance/',
     methods=['GET']
 )
 @user_required
-def get_concordance_for_analysis(username, analysis):
-    """ Get concordance lines for analysis.
+def get_concordance_for_collocation(username, collocation):
+    """ Get concordance lines for collocation.
 
     parameters:
       - name: username
         description: username, links to user
-      - name: analysis
-        description: analysis_id
+      - name: collocation
+        description: collocation_id
       - name: window_size
         type: int
         description: window size for context
@@ -730,7 +730,7 @@ def get_concordance_for_analysis(username, analysis):
       - name: s_meta
         type: str
         description: what s-att-annotation to retrieve
-        default: analysis.s_break
+        default: collocation.s_break
     responses:
       200:
         description: concordance
@@ -745,10 +745,10 @@ def get_concordance_for_analysis(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # check request
-    # ... analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
+    # ... collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
     # ... window size
     window_size = request.args.get('window_size', 3)
@@ -766,7 +766,7 @@ def get_concordance_for_analysis(username, analysis):
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    corpus = ccc_corpus(analysis.corpus,
+    corpus = ccc_corpus(collocation.corpus,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
                         registry_path=current_app.config['CCC_REGISTRY_PATH'],
                         data_path=current_app.config['CCC_DATA_PATH'])
@@ -775,14 +775,14 @@ def get_concordance_for_analysis(username, analysis):
 
     # pre-process request
     # ... get associated topic discourseme (no need if not interested in name)
-    # topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
+    # topic_discourseme = Discourseme.query.filter_by(id=collocation.topic_id).first()
     # ... further discoursemes as a dict {name: items}
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
         additional_discoursemes['collocate'] = items
 
-    # for discourseme in analysis.discoursemes:
+    # for discourseme in collocation.discoursemes:
     #     additional_discoursemes[discourseme.name] = discourseme.items
     # get all discoursemes from database and append
     discoursemes = Discourseme.query.filter(
@@ -792,31 +792,31 @@ def get_concordance_for_analysis(username, analysis):
         additional_discoursemes[str(d.id)] = d.items
 
     # pack p-attributes
-    p_show = list(set(['word', analysis.p_query]))
+    p_show = list(set(['word', collocation.p_query]))
 
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
-        corpus_name=analysis.corpus,
+        corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=analysis.items,
+        topic_items=collocation.items,
         topic_name='topic',
-        s_context=analysis.s_break,
+        s_context=collocation.s_break,
         window_size=window_size,
-        context=analysis.context,
+        context=collocation.context,
         additional_discoursemes=additional_discoursemes,
-        p_query=analysis.p_query,
+        p_query=collocation.p_query,
         p_show=p_show,
         s_show=s_show,
-        s_query=analysis.s_break,
+        s_query=collocation.s_break,
         order=order,
         cut_off=cut_off
     )
 
     if concordance is None:
-        log.debug('no concordance available for analysis %s', analysis)
+        log.debug('no concordance available for collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
     conc_json = jsonify(concordance)
@@ -827,19 +827,19 @@ def get_concordance_for_analysis(username, analysis):
 #######################
 # FREQUENCY BREAKDOWN #
 #######################
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/breakdown/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/breakdown/',
     methods=['GET']
 )
 @user_required
-def get_breakdown_for_analysis(username, analysis):
-    """ Get concordance lines for analysis.
+def get_breakdown_for_collocation(username, collocation):
+    """ Get concordance lines for collocation.
 
     parameters:
       - name: username
         description: username, links to user
-      - name: analysis
-        description: analysis_id
+      - name: collocation
+        description: collocation_id
     responses:
       200:
         description: breakdown
@@ -853,27 +853,27 @@ def get_breakdown_for_analysis(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # check request
-    # ... analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
+    # ... collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
     # use cwb-ccc to extract concordance lines
     breakdown = ccc_breakdown(
-        corpus_name=analysis.corpus,
+        corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=analysis.items,
-        p_query=analysis.p_query,
-        p_show=[analysis.p_analysis],
-        s_query=analysis.s_break,
+        topic_items=collocation.items,
+        p_query=collocation.p_query,
+        p_show=[collocation.p_collocation],
+        s_query=collocation.s_break,
     )
 
     if breakdown is None:
-        log.debug('no breakdown available for analysis %s', analysis)
+        log.debug('no breakdown available for collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
     breakdown_json = jsonify(breakdown)
@@ -884,19 +884,19 @@ def get_breakdown_for_analysis(username, analysis):
 #####################
 # META DISTRIBUTION #
 #####################
-@analysis_blueprint.route(
-    '/api/user/<username>/analysis/<analysis>/meta/',
+@collocation_blueprint.route(
+    '/api/user/<username>/collocation/<collocation>/meta/',
     methods=['GET']
 )
 @user_required
-def get_meta_for_analysis(username, analysis):
-    """ Get concordance lines for analysis.
+def get_meta_for_collocation(username, collocation):
+    """ Get concordance lines for collocation.
 
     parameters:
       - name: username
         description: username, links to user
-      - name: analysis
-        description: analysis_id
+      - name: collocation
+        description: collocation_id
     responses:
       200:
         description: breakdown
@@ -910,15 +910,15 @@ def get_meta_for_analysis(username, analysis):
     user = User.query.filter_by(username=username).first()
 
     # check request
-    # ... analysis
-    analysis = Analysis.query.filter_by(id=analysis, user_id=user.id).first()
-    if not analysis:
-        log.debug('no such analysis %s', analysis)
+    # ... collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
     # pack p-attributes
     # ... where's the meta data?
-    corpus = ccc_corpus(analysis.corpus,
+    corpus = ccc_corpus(collocation.corpus,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
                         registry_path=current_app.config['CCC_REGISTRY_PATH'],
                         data_path=current_app.config['CCC_DATA_PATH'])
@@ -927,20 +927,20 @@ def get_meta_for_analysis(username, analysis):
 
     # use cwb-ccc to extract concordance lines
     meta = ccc_meta(
-        corpus_name=analysis.corpus,
+        corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=analysis.items,
-        p_query=analysis.p_query,
-        s_query=analysis.s_break,
+        topic_items=collocation.items,
+        p_query=collocation.p_query,
+        s_query=collocation.s_break,
         flags_query="%cd",
         s_show=s_show
     )
 
     if meta is None:
-        log.debug('no meta data available for analysis %s', analysis)
+        log.debug('no meta data available for collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
     meta_json = jsonify(meta)

@@ -8,7 +8,7 @@
       <p> <v-img src= "mmda-in-action.png"></v-img> </p>
       <p>{{ $t("index.paragraph3") }}</p>
       <!-- <p>{{ $t("index.paragraph4") }}</p> -->
-      <p>See the <a href="/mmda/about">Vignette</a> for further info or start with an <a href="/mmda/analysis/new">Analysis</a>.
+      <p>See the <a href="/mmda/about">Vignette</a> for further info or start with an <a href="/mmda/collocation/new">Collocation Analysis</a>.
 
       <h4>{{ $t("index.headlineAcknowledgements") }}</h4>
       <p>{{ $t("index.Acknowledgements") }}</p>

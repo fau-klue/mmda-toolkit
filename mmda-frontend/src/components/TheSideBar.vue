@@ -54,7 +54,7 @@ export default {
     profile: { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
     items: [
       { title: 'Keyword Analysis', icon: 'dashboard', route: '/keyword' },
-      { title: 'Collocation Analysis', icon: 'dashboard', route: '/analysis' },
+      { title: 'Collocation Analysis', icon: 'dashboard', route: '/collocation' },
       { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
       { title: 'Constellations', icon: 'question_answer', route: '/constellation' }
     ],

@@ -4,7 +4,7 @@
   <v-card v-if="notMini">
     <v-card-text>
       <h3 class="body-2">Window Size</h3>
-      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
+      <v-slider v-model="selectWindow" :max="collocation.context" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
       <v-layout row wrap>
         <h3 class="body-2">Association Measure</h3>
         <v-flex xs12>
@@ -37,8 +37,8 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: 'analysis/analysis',
-      collocates: "analysis/collocates",
+      collocation: 'collocation/collocation',
+      collocates: "collocation/collocates",
       notMini:   'wordcloud/rightSidebar',
       windowSize: 'wordcloud/windowSize',
       AM: 'wordcloud/associationMeasure',

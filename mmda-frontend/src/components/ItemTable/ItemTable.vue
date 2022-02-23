@@ -1,5 +1,5 @@
 <template>
-<v-layout v-if="analysis" row>
+<v-layout v-if="collocation" row>
   <v-flex xs12 sm12>
 
     <v-card-title>
@@ -28,15 +28,15 @@
               <v-btn @click="gotoConcordanceViewOf(props.item)" icon ripple :title="'show concordances of '+props.item.name">
                 <v-icon class="grey--text text--lighten-1">info</v-icon>
               </v-btn>
-              <div class="analysis-table-name">{{props.item.name}}</div>
+              <div class="collocation-table-name">{{props.item.name}}</div>
             </v-layout>
           </div>
           <div v-else-if="props.item[el.value+'#Norm']===undefined"> {{props.item[el.value]}} </div>
           <div v-else>
-            <div class="analysis-table-sphere" :style="'width:'+props.item[el.value+'#Norm']*2+'rem;'
+            <div class="collocation-table-sphere" :style="'width:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'height:'+props.item[el.value+'#Norm']*2+'rem;'
                                                        +'border-radius:'+props.item[el.value+'#Norm']+'rem;'">
-              <div class="analysis-table-number">{{props.item[el.value]}}</div>
+              <div class="collocation-table-number">{{props.item[el.value]}}</div>
             </div>
           </div>
         </td>
@@ -48,15 +48,15 @@
 </template>
 
 <style>
-  .analysis-table-name{
+  .collocation-table-name{
     margin: auto 0;
   }
-  .analysis-table-sphere{
+  .collocation-table-sphere{
     margin:auto;
     background-color:lightgrey;
     position:relative;
   }
-  .analysis-table-number{
+  .collocation-table-number{
     margin:auto;
     position:absolute;
     left:50%;
@@ -90,16 +90,16 @@ export default {
     windowSize(){
       this.getCollocates();
     },
-    analysis(){
+    collocation(){
       this.init();
     }
   },
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       coordinates: 'coordinates/coordinates',
-      collocates: 'analysis/collocates',
+      collocates: 'collocation/collocates',
       windowSize: 'wordcloud/windowSize',
     }),
     minmaxAM () {
@@ -225,10 +225,10 @@ export default {
   },
   methods: {
     ...mapActions({
-      getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
-      getAnalysisCollocates:  'analysis/getAnalysisCollocates',
-      getConcordances:        'analysis/getConcordances',
-      resetConcordances:      'analysis/resetConcordances'
+      getCollocationCoordinates: 'coordinates/getCollocationCoordinates',
+      getCollocationCollocates:  'collocation/getCollocationCollocates',
+      getConcordances:        'collocation/getConcordances',
+      resetConcordances:      'collocation/resetConcordances'
     }),
     error_message_for(error, prefix, codes){
       if( error.response ){
@@ -247,41 +247,41 @@ export default {
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
-      if(!this.analysis) return;
+      if(!this.collocation) return;
       this.loadingConcordances = true;
       this.getConcordances({
         username: this.user.username,
-        analysis_id: this.id,
+        collocation_id: this.id,
         // soc_items: undefined,
         items: [item.name], 
         window_size: this.windowSize
       }).catch((e)=>{
-        this.error = this.error_message_for(e,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
+        this.error = this.error_message_for(e,"collocation.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingConcordances = false;
       });
     },
     getCollocates(){
       this.loadingCollocates = true;
-      this.getAnalysisCollocates({
+      this.getCollocationCollocates({
         username:     this.user.username, 
-        analysis_id:  this.id, 
+        collocation_id:  this.id, 
         window_size:  this.windowSize
       }).catch((error)=>{
-        this.error = this.error_message_for(error,"analysis.collocates.",{400:"invalid_input",404:"not_found"});
+        this.error = this.error_message_for(error,"collocation.collocates.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingCollocates = false;
       })
     },
     init(){
       this.loadingCoordinates = true;
-      if(this.analysis&&this.analysis.id==this.id){
+      if(this.collocation&&this.collocation.id==this.id){
         this.selectWindow = this.windowSize;
-        this.getAnalysisCoordinates({
+        this.getCollocationCoordinates({
           username:     this.user.username, 
-          analysis_id:  this.id
+          collocation_id:  this.id
         }).catch((error)=>{
-          this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
+          this.error = this.error_message_for(error,"collocation.coordinates_request.",{404:"not_found"});
         }).then(()=>{
           this.loadingCoordinates = false;
         });

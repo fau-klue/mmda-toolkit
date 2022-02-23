@@ -46,7 +46,7 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: "analysis/analysis",
+      collocation: "collocation/collocation",
       coordinates: "coordinates/coordinates",
     }),
     aspect(){

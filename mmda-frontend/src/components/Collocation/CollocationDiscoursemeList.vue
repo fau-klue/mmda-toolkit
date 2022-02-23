@@ -6,8 +6,8 @@
         <v-layout>
           <v-flex xs6 sm6>
             <v-card-title>Associated Discoursemes</v-card-title>
-            <v-list two-line subheader v-if="analysisDiscoursemes.length > 0">
-              <v-list-tile v-for="discourseme in analysisDiscoursemes" :key="discourseme.id" avatar>
+            <v-list two-line subheader v-if="collocationDiscoursemes.length > 0">
+              <v-list-tile v-for="discourseme in collocationDiscoursemes" :key="discourseme.id" avatar>
                 <v-icon v-if="discourseme.is_topic" color="orange">grade</v-icon>
                 <v-list-tile-avatar>
                   <v-icon class="grey--text">subject</v-icon>
@@ -27,7 +27,7 @@
                   </v-btn>
                 </v-list-tile-action>
               </v-list-tile>
-              <h2 v-if="analysisDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
+              <h2 v-if="collocationDiscoursemes.length <= 0" class="subheading text-md-center">None</h2>
             </v-list>
           </v-flex>
           <v-flex xs6 sm6>
@@ -66,7 +66,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'AnalysisDiscoursemeList',
+  name: 'CollocationDiscoursemeList',
   data: () => ({
     search: '',
     error: null,
@@ -75,33 +75,33 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysisDiscoursemes: 'analysis/discoursemes',
-      theAnalysis: 'analysis/analysis',
+      collocationDiscoursemes: 'collocation/discoursemes',
+      theCollocation: 'collocation/collocation',
       userDiscoursemes: 'discourseme/userDiscoursemes'
     }),
     discoursemeUnion () {
-      const analysisDiscoursemeIDs = this.analysisDiscoursemes.map(d => d.id)
-      if(this.theAnalysis){
+      const collocationDiscoursemeIDs = this.collocationDiscoursemes.map(d => d.id)
+      if(this.theCollocation){
         // Add own topic discourseme, cause you cant add that
-        analysisDiscoursemeIDs.push(this.theAnalysis.topic_id)
+        collocationDiscoursemeIDs.push(this.theCollocation.topic_id)
       }
-      return this.userDiscoursemes.filter(items => !analysisDiscoursemeIDs.includes(items.id)  )
+      return this.userDiscoursemes.filter(items => !collocationDiscoursemeIDs.includes(items.id)  )
     }
   },
   methods: {
     ...mapActions({
-      getAnalysisDiscoursemes: 'analysis/getAnalysisDiscoursemes',
+      getCollocationDiscoursemes: 'collocation/getCollocationDiscoursemes',
       getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
-      removeDiscoursemeFromAnalysis: 'analysis/removeDiscoursemeFromAnalysis',
-      addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
+      removeDiscoursemeFromCollocation: 'collocation/removeDiscoursemeFromCollocation',
+      addDiscoursemeToCollocation: 'collocation/addDiscoursemeToCollocation',
     }),
-    loadAnalysisDiscoursemes () {
+    loadCollocationDiscoursemes () {
       const data = {
         username: this.user.username,
-        analysis_id: this.id
+        collocation_id: this.id
       }
 
-      this.getAnalysisDiscoursemes(data).then(() => {
+      this.getCollocationDiscoursemes(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -117,12 +117,12 @@ export default {
     addDiscourseme (id) {
       const data = {
         username: this.user.username,
-        analysis_id: this.id,
+        collocation_id: this.id,
         discourseme_id: id
       }
 
       this.loading = true
-      this.addDiscoursemeToAnalysis(data).then(() => {
+      this.addDiscoursemeToCollocation(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -133,12 +133,12 @@ export default {
     removeDiscourseme (id) {
       const data = {
         username: this.user.username,
-        analysis_id: this.id,
+        collocation_id: this.id,
         discourseme_id: id
       }
 
       this.loading = true
-      this.removeDiscoursemeFromAnalysis(data).then(() => {
+      this.removeDiscoursemeFromCollocation(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
@@ -150,7 +150,7 @@ export default {
   created () {
     this.id = this.$route.params.id
     this.loadDiscoursemes()
-    this.loadAnalysisDiscoursemes()
+    this.loadCollocationDiscoursemes()
   }
 }
 

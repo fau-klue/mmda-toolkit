@@ -4,10 +4,10 @@
     <v-card-text>
       <v-layout wrap row>
         <v-flex xs12>
-          <div v-if="analysis">
-          <p class="headline">Analyses ({{ analysis.length }})</p>
+          <div v-if="collocation">
+          <p class="headline">Collocation Analyses ({{ collocation.length }})</p>
           <v-list>
-            <v-list-tile v-for="item in analysis" :key="item.id" avatar>
+            <v-list-tile v-for="item in collocation" :key="item.id" avatar>
               <v-list-tile-avatar>
                 <v-icon class="grey--text">dashboard</v-icon>
               </v-list-tile-avatar>
@@ -16,7 +16,7 @@
                   (ID: {{item.id}}, User: {{item.user_id}})
               </v-list-tile-content>
               <v-list-tile-action>
-                <v-btn icon @click="removeObject('analysis', item)">
+                <v-btn icon @click="removeObject('collocation', item)">
                   <v-icon class="red--text text--lighten-1">delete</v-icon>
                 </v-btn>
               </v-list-tile-action>
@@ -87,14 +87,14 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'admin/analysis',
+      collocation: 'admin/collocation',
       discoursemes: 'admin/discoursemes',
       constellations: 'admin/constellations'
     })
   },
   methods: {
     ...mapActions({
-      getAllAnalysis: 'admin/getAllAnalysis',
+      getAllCollocation: 'admin/getAllCollocation',
       getAllDiscoursemes: 'admin/getAllDiscoursemes',
       getAllConstellations: 'admin/getAllConstellations',
       deleteObject: 'admin/deleteObject'
@@ -106,7 +106,7 @@ export default {
       }
 
       this.loading = true
-      // Analysis
+      // Collocation
       this.deleteObject(data).then(() => {
         this.error = null
       }).catch((error) => {
@@ -116,8 +116,8 @@ export default {
     },
     loadObjects () {
       this.loading = true
-      // Analysis
-      this.getAllAnalysis().then(() => {
+      // Collocation
+      this.getAllCollocation().then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error

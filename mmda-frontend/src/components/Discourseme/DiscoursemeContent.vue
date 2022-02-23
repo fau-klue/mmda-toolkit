@@ -28,7 +28,7 @@
 
             <v-layout row>
               <v-btn color="info" class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
-              <v-btn color="success" class="text-lg-right" @click="createAnalysis">Analyze</v-btn>
+              <v-btn color="success" class="text-lg-right" @click="createCollocation">Analyze</v-btn>
               <v-spacer/>
               <v-btn color="error" class="text-lg-right"  @click.stop="dialogDelete = true">Delete</v-btn>
             </v-layout>
@@ -57,16 +57,11 @@
         <v-text-field label="Search" prepend-inner-icon="search" v-model="search"></v-text-field>
         <v-data-table v-if="filteredAnalyses" :headers="headers" :items="filteredAnalyses" :search="search" :pagination.sync="pagination" class="elevation-1">
           <template v-slot:items="props">
-            <router-link :to="/analysis/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
+            <router-link :to="/collocation/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
               <td class="text-xs-left">{{ props.item.id }}</td>
               <td class="text-xs-left">{{ props.item.corpus }}</td>
               <td class="text-xs-left">{{ props.item.items }}</td>
             </router-link>
-            <!-- <td> -->
-              <!--   <v-btn icon @click="deleteAnalysis(props.item.id)"> -->
-                <!--     <v-icon class="red--text text--lighten-1">delete</v-icon> -->
-                <!--   </v-btn> -->
-              <!-- </td> -->
           </template>
         </v-data-table>
 
@@ -106,7 +101,7 @@ export default {
     ...mapGetters({
       user: 'login/user',
       discourseme: 'discourseme/discourseme',
-      analyses: 'analysis/userAnalysis'
+      analyses: 'collocation/userCollocation'
     }),
     filteredAnalyses() {
       var F = [];
@@ -122,12 +117,12 @@ export default {
       deleteUserDiscourseme: 'discourseme/deleteUserDiscourseme',
       getUserDiscourseme: 'discourseme/getUserDiscourseme'
     }),
-    // CREATE ANALYSIS
-    createAnalysis () {
+    // CREATE
+    createCollocation () {
       if(!this.discourseme) return;
       var q = "?discourseme="+this.discourseme.id;
       for(var i of this.discourseme.items) q+="&item="+i;
-      this.$router.push('/analysis/new'+q);
+      this.$router.push('/collocation/new'+q);
     },
     // LOAD DISCOURSEME
     loadDiscourseme () {

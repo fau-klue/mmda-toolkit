@@ -12,7 +12,7 @@ from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.commands.init_db import find_or_create_user
 from backend import admin_required
 from backend.models.user_models import User, Role
-from backend.models.analysis_models import Analysis, Discourseme, Constellation
+from backend.models.collocation_models import Collocation, Discourseme, Constellation
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -128,14 +128,14 @@ def delete_user(username):
 
 
 # READ
-@admin_blueprint.route('/api/admin/analysis/', methods=['GET'])
+@admin_blueprint.route('/api/admin/collocation/', methods=['GET'])
 @admin_required
-def get_analysis():
+def get_collocation():
     """
-    Admin: List all analysis
+    Admin: List all collocation analyses
     """
 
-    items = Analysis.query.all()
+    items = Collocation.query.all()
     items_serial = [item.serialize for item in items]
 
     return jsonify(items_serial), 200
@@ -170,22 +170,22 @@ def get_constellation():
 
 
 # DELETE
-@admin_blueprint.route('/api/admin/analysis/<analysis>/', methods=['DELETE'])
+@admin_blueprint.route('/api/admin/collocation/<collocation>/', methods=['DELETE'])
 @admin_required
-def delete_analysis(analysis):
+def delete_collocation(collocation):
     """
-    Admin: Remove an Analysis
+    Admin: Remove a Collocation Analysis
     """
 
-    item = Analysis.query.filter_by(id=analysis).first()
+    item = Collocation.query.filter_by(id=collocation).first()
     if not item:
-        log.debug('No such item %s', analysis)
+        log.debug('No such item %s', collocation)
         return jsonify({'msg': 'No such item'}), 404
 
     db.session.delete(item)
     db.session.commit()
 
-    log.debug('Deleted analysis %s', analysis)
+    log.debug('Deleted collocation analysis %s', collocation)
     return jsonify({'msg': 'Deleted'}), 200
 
 

@@ -16,7 +16,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'AnalysisPosTagsSelection',
+  name: 'CollocationPosTagsSelection',
   data: () => ({
     simple_postags:false,
     advanced_postags:false,

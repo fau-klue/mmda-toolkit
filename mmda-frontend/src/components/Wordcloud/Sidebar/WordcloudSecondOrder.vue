@@ -4,7 +4,7 @@
   <v-card v-if="notMini">
     <v-card-text>
       <v-layout v-if="use_second_order_collocation" class="my-4" row wrap>
-        <v-combobox v-model="secondOrderIDs" :items="analysisDiscoursemes" item-text="name" label="discoursemes" multiple chips @change="setSOC" ></v-combobox>
+        <v-combobox v-model="secondOrderIDs" :items="collocationDiscoursemes" item-text="name" label="discoursemes" multiple chips @change="setSOC" ></v-combobox>
       </v-layout>
     </v-card-text>
   </v-card>
@@ -37,35 +37,23 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: 'analysis/analysis',
-      collocates: "analysis/collocates",
+      collocation: 'collocation/collocation',
+      collocates: "collocation/collocates",
       notMini:   'wordcloud/rightSidebar',
       windowSize: 'wordcloud/windowSize',
       AM: 'wordcloud/associationMeasure',
-      analysisDiscoursemes: 'analysis/discoursemes',
+      collocationDiscoursemes: 'collocation/discoursemes',
       SOC: 'wordcloud/secondOrderCollocationDiscoursemeIDs',
       collocatesCompare: 'wordcloud/collocatesToCompare',
     })
-    /*,SOC_items(){
-      var res = new Set();
-      for(var id of this.SOC){
-        var i = this.analysisDiscoursemes.findIndex((d)=>d.id==id);
-        if(i!=-1){
-          for(var it of this.analysisDiscoursemes[i].items ) res.add(it);
-        }
-      }
-      console.log(Array.from(res));
-      return Array.from(res);
-    }*/
   },
   methods: {
     ...mapActions({
       setWindowSize: 'wordcloud/setWindowSize',
       _setAM : 'wordcloud/setAssociationMeasure',
       _setSOC : 'wordcloud/setSecondOrderCollocationDiscoursemeIDs',
-    //  getSOCs: 'analysis/getAnalysisDiscoursemeCollocates',
-      getCollocates: 'analysis/getAnalysisCollocates',
-      setCompare:'wordcloud/setCollocatesToCompare',
+      getCollocates: 'collocation/getCollocationCollocates',
+      setCompare: 'wordcloud/setCollocatesToCompare',
     }),
     setSize () {
       this.setWindowSize(this.selectWindow)
@@ -80,38 +68,12 @@ export default {
     },
     setSOC(){
         this._setSOC(this.secondOrderIDs.map(a=>a.id));
-      //this.requestSecondOrderCollocates();
-      //console.log("Second order collocation with Discourseme ID:"+this.secondOrderIDs);
     },
-    /*requestSecondOrderCollocates(){  //THIS is already done by WCContent
-      let data = {
-        username: this.user.username,
-        analysis_id: this.analysis.id,
-        window_size: this.windowSize,
-        discourseme_items: this.SOC_items
-      };
-      if( this.SOC.length > 0 ){
-        this.getSOCs(data).then((result)=>{
-          this.error = null;
-
-          //TODO:: if there are new collocates without position, 
-          // -  fetch coordinates
-        }).catch((error)=>{
-          this.error = error;
-        });
-      }else{
-        this.getCollocates(data).then((result)=>{
-          this.error = null;
-        }).catch((error)=>{
-          this.error = error;
-        });
-      }
-    },*/
     SOCNames(){
       var result = "";
       var i = 0;
       for(var id of this.SOC){
-        for(var d of this.analysisDiscoursemes){
+        for(var d of this.collocationsDiscoursemes){
           if(d.id == id){
             result += d.name;
             break;

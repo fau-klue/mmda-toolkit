@@ -24,7 +24,7 @@
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
-  name: 'AnalysisDiscoursemeList',
+  name: 'CollocationDiscoursemeList',
   data: () => ({
     search: '',
     error: null,
@@ -45,7 +45,7 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       coordinates: 'coordinates/coordinates'
     }),
     transposedCoordinates () {
@@ -55,14 +55,14 @@ export default {
   },
   methods: {
     ...mapActions({
-      getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates'
+      getCollocationCoordinates: 'coordinates/getCollocationCoordinates'
     }),
     loadCoordinates () {
       const data = {
         username: this.user.username,
-        analysis_id: this.id
+        collocation_id: this.id
       }
-      this.getAnalysisCoordinates(data).then(() => {
+      this.getCollocationCoordinates(data).then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error

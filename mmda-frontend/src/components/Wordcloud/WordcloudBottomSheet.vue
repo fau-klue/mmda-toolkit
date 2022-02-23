@@ -52,8 +52,8 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      concordances: 'analysis/concordances',
-      loading: 'analysis/concordances_loading'
+      concordances: 'collocation/concordances',
+      loading: 'collocation/concordances_loading'
     })
   },
   watch:{

@@ -2,26 +2,26 @@
 <v-container grid-list-md>
   <v-layout wrap row>
     <v-flex xs12>
-      <AnalysisHeader/>
+      <CollocationHeader/>
     </v-flex>
   </v-layout>
   <v-layout wrap row>
     <v-flex xs12>
-      <AnalysisList/>
+      <CollocationList/>
     </v-flex>
   </v-layout>
 </v-container>
 </template>
 
 <script>
-import AnalysisHeader from '@/components/Analysis/AnalysisHeader.vue'
-import AnalysisList from '@/components/Analysis/AnalysisList.vue'
+import CollocationHeader from '@/components/Collocation/CollocationHeader.vue'
+import CollocationList from '@/components/Collocation/CollocationList.vue'
 
 export default {
-  name: 'Analysis',
+  name: 'Collocation',
   components: {
-    AnalysisList,
-    AnalysisHeader
+    CollocationList,
+    CollocationHeader
   },
   data: () => ({
   })

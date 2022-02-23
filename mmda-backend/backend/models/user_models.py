@@ -41,7 +41,8 @@ class User(db.Model, UserMixin):
                             secondary=users_roles,
                             backref=db.backref('users', lazy='dynamic'))
     # analyses
-    analyses = db.relationship('Analysis', backref='users', lazy=True)
+    collocation_analyses = db.relationship('Collocation', backref='users', lazy=True)
+    keyword_analyses = db.relationship('Keyword', backref='users', lazy=True)
     # discoursemes
     discoursemes = db.relationship('Discourseme', backref='users', lazy=True)
     # constellations

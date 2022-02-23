@@ -65,7 +65,7 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: "analysis/analysis",
+      collocation: "collocation/collocation",
       notMini: "wordcloud/rightSidebar"
     })
   },

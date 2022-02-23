@@ -131,7 +131,7 @@ class WordGroup {
       this.id = e;
       this.color = random_color(this.id);
       //console.log("A+");
-      //this.window.component.addToAnalysis(this.id);
+      //this.window.component.addToCollocation(this.id);
       if(this.unfinished_delete){
         this.deleteDatabase();
       }else if(this.unfinished_update){

@@ -50,9 +50,9 @@
                   {{ $t("collocation.new.helpPQuery") }}
                 </p>
 
-                <h1 class="subheading">{{ $t("collocation.new.pAnalysis") }}</h1>
+                <h1 class="subheading">{{ $t("collocation.new.pCollocation") }}</h1>
                 <p>
-                  {{ $t("collocation.new.helpPAnalysis") }}
+                  {{ $t("collocation.new.helpPCollocation") }}
                 </p>
 
                 <h1 class="subheading">{{ $t("collocation.new.sBreak") }}</h1>
@@ -81,7 +81,7 @@
                   <v-combobox v-model="selectItems" :items="items" label="items" :rules="[rules.required, rules.counter]" multiple chips ></v-combobox>
                   <v-layout row>
                     <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
-                    <v-combobox class="col-5" v-model="pAnalysis" :items="pAnalyses" label="analysis layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
+                    <v-combobox class="col-5" v-model="pCollocation" :items="pCollocations" label="collocation layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
                   </v-layout>
                   <v-layout row>
                     <v-flex xs6>
@@ -94,7 +94,7 @@
                   <v-layout row>
                     <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                     <v-spacer/>
-                    <v-btn color="success" class="text-lg-right" @click="addAnalysis">Submit</v-btn>
+                    <v-btn color="success" class="text-lg-right" @click="addCollocation">Submit</v-btn>
                   </v-layout>
                 </v-form>
               </v-flex>
@@ -112,7 +112,7 @@ import { mapActions, mapGetters } from 'vuex'
 import rules from '@/utils/validation'
 
 export default {
-  name: 'AnalysisNewContent',
+  name: 'CollocationNewContent',
   data: () => ({
     error: null,
     items: [],
@@ -121,10 +121,10 @@ export default {
     max: 25,
     name: 'untitled',           // TODO: make configurable
     pQuery: '',
-    pAnalysis: '',
+    pCollocation: '',
     sBreak: '',
     pQueries: [],
-    pAnalyses: [],
+    pCollocations: [],
     sBreaks: [],
     selectCorpus: '',
     selectItems: [],
@@ -136,7 +136,7 @@ export default {
     ...mapGetters({
       user: 'login/user',
       corpora: 'corpus/corpora',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       userDiscoursemes: 'discourseme/userDiscoursemes',
     })
   },
@@ -145,15 +145,15 @@ export default {
       let C = this.corpora.find((o)=>o.name_api == this.selectCorpus);
       if(C){
         this.pQueries = C.pQueries
-        this.pAnalyses = C.pQueries
+        this.pCollocations = C.pQueries
         this.sBreaks = C.sBreaks
         if(C.p_att){
           if(typeof C.p_att ==='string'){
             this.pQueries = [C.p_att];
-            this.pAnalyses = [C.p_att];
+            this.pCollocations = [C.p_att];
           }else if(typeof C.p_att === 'object' && C.p_att[0]){
             this.pQueries = C.p_att;
-            this.pAnalyses = C.p_att;
+            this.pCollocations = C.p_att;
           }
         }
         if(C.s_att){
@@ -165,7 +165,7 @@ export default {
         }
       }
       this.pQuery = this.pQueries[0]
-      this.pAnalysis = this.pQuery
+      this.pCollocation = this.pCollocations[0]
       this.sBreak = this.sBreaks[0]
     },
     selectDiscourseme(){
@@ -176,17 +176,9 @@ export default {
     ...mapActions({
       getCorpora: 'corpus/getCorpora',
       getUserDiscoursemes: 'discourseme/getUserDiscoursemes',
-      addUserAnalysis: 'analysis/addUserAnalysis'
+      addUserCollocation: 'collocation/addUserCollocation'
     }),
     error_message_for(error, prefix, codes){
-      ///// short for:
-      //if(error.response){
-      //  switch(error.response.status){
-      //    case 400: this.error = this.$t("analysis.new.invalid_input"); break;
-      //    case 404: this.error = this.$t("analysis.new.no_collocates"); break;
-      //    default: this.error = error.message;
-      //  }
-      //}else this.error = error.message
       if( error.response ){
         let value = codes[ error.response.status ];
         if( value ) return this.$t( prefix+value );
@@ -198,17 +190,17 @@ export default {
       this.items = []
       this.pQuery = ''
       this.sBreak = ''
-      this.pAnalysis = ''
+      this.pCollocation = ''
       this.selectCorpus = ''
       this.selectItems = []
       this.selectWindow = 10,
       this.selectDiscourseme = ''
     },
-    addAnalysis () {
+    addCollocation () {
       this.error = null;
 
       if ( this.selectItems.length === 0 || !this.selectCorpus) {
-        this.error = this.$t("analysis.new.missing_data")
+        this.error = this.$t("collocation.new.missing_data")
         return
       }
 
@@ -220,16 +212,16 @@ export default {
         context: this.selectWindow,
         p_query: this.pQuery,
         s_break: this.sBreak,
-        p_analysis: this.pAnalysis,
+        p_collocation: this.pCollocation,
         corpus: this.selectCorpus,
         discourseme: this.selectDiscourseme
       }
 
-      this.addUserAnalysis(data).then(() => {
+      this.addUserCollocation(data).then(() => {
         this.error = null
-        this.$router.push('/analysis')
+        this.$router.push('/collocation')
       }).catch((error) => {
-        this.error = this.error_message_for(error,"analysis.new.",{
+        this.error = this.error_message_for(error,"collocation.new.",{
           400:"invalid_input",
           404:"no_collocates",
           "TODO":"no_topic"

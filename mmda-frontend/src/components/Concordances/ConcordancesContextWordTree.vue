@@ -56,7 +56,7 @@ export default {
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       corpus: 'corpus/corpus',
     }),
     output(){
@@ -160,7 +160,7 @@ export default {
   
   methods: {
     ...mapActions({
-      getConcordances: 'analysis/getConcordances',
+      getConcordances: 'collocation/getConcordances',
       getCorpus: 'corpus/getCorpus'
     }),
     update(){
@@ -168,13 +168,13 @@ export default {
       //this.$nextTick(()=>this.$nextTick(()=>this.setupTableSize()));
     },
     clickOnLemma (name) {
-      if(!this.analysis) return;
+      if(!this.collocation) return;
       this.concordancesRequested = true;
       this.getConcordances({
         username :this.user.username,
-        analysis_id: this.id,
-        //        corpus:           this.analysis.corpus,
-        topic_items:      this.analysis.items,
+        collocation_id: this.id,
+        //        corpus:           this.collocation.corpus,
+        topic_items:      this.collocation.items,
         soc_items: undefined, //TODO
         collocate_items:  [name],
         window_size:      this.windowSize
@@ -186,8 +186,8 @@ export default {
   },
   created () {
     this.id = this.$route.params.id;
-    if(!this.analysis) return this.$router.push("/analysis"); //fallback
-    this.getCorpus(this.analysis.corpus).catch((error)=>{
+    if(!this.collocation) return this.$router.push("/collocation"); //fallback
+    this.getCorpus(this.collocation.corpus).catch((error)=>{
       this.error = error;
     });
   }

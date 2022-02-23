@@ -5,29 +5,29 @@ import api from '@/api'
 Vue.use(Vuex)
 
 const state = {
-  // List of all analysis
-  userAnalysis: null,
-  // One single analysis
-  analysis: null,
+  // List of all collocation analyses
+  userCollocation: null,
+  // One single collocation analysis
+  collocation: null,
   // List of discoursemes
   discoursemes: [],
-  // Collocates of analysis
+  // Collocates of collocation analysis
   collocates: null,
-  // Concordances of analysis
+  // Concordances of collocation analysis
   concordances: null,
   concordances_loading : null,
-  // Frequency breakdown of analysis
+  // Frequency breakdown of collocation analysis
   breakdown: null,
-  // Meta data distribution of analysis
+  // Meta data distribution of collocation analysis
   meta: null
 }
 
 const getters = {
-  userAnalysis (state) {
-    return state.userAnalysis
+  userCollocation (state) {
+    return state.userCollocation
   },
-  analysis (state) {
-    return state.analysis
+  collocation (state) {
+    return state.collocation
   },
   discoursemes (state) {
     return state.discoursemes
@@ -50,130 +50,130 @@ const getters = {
 }
 
 const actions = {
-  getUserSingleAnalysis ({commit}, data) {
-    // Get one analysis
+  getUserSingleCollocation ({commit}, data) {
+    // Get one collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username) return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/`).then(function (response) {
-        commit('setAnalysisSingle', response.data)
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/`).then(function (response) {
+        commit('setCollocationSingle', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  getUserAnalysis ({commit}, username) {
-    // Get all analysis of a user
+  getUserCollocation ({commit}, username) {
+    // Get all collocation analyses of a user
     return new Promise((resolve, reject) => {
 
       if (!username) return  reject('No user provided')
 
-      api.get(`/user/${username}/analysis/`).then(function (response) {
-        commit('setAnalysis', response.data)
+      api.get(`/user/${username}/collocation/`).then(function (response) {
+        commit('setCollocation', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  getAnalysisDiscoursemes ({commit}, data) {
-    // Get list of discoursmes of the analysis
+  getCollocationDiscoursemes ({commit}, data) {
+    // Get list of discoursmes of the collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username) return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/`).then(function (response) {
-        commit('setAnalysisDiscoursemes', response.data)
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/discourseme/`).then(function (response) {
+        commit('setCollocationDiscoursemes', response.data)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  addUserAnalysis ({commit}, data) { // eslint-disable-line no-unused-vars
-    // Get all users analysis
+  addUserCollocation ({commit}, data) { // eslint-disable-line no-unused-vars
+    // Get all users collocation analyses
     return new Promise((resolve, reject) => {
 
       if (!data.username) return reject('No user provided')
 
-      api.post(`/user/${data.username}/analysis/`, data).then(function () {
+      api.post(`/user/${data.username}/collocation/`, data).then(function () {
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  updateUserAnalysis ({commit}, data) { // eslint-disable-line no-unused-vars
-    // Update analysis details
+  updateUserCollocation ({commit}, data) { // eslint-disable-line no-unused-vars
+    // Update collocation analysis details
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.put(`/user/${data.username}/analysis/${data.analysis_id}/`, data).then(function () {
+      api.put(`/user/${data.username}/collocation/${data.collocation_id}/`, data).then(function () {
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  deleteUserAnalysis ({commit}, data) {
-    // Delete an analysis
+  deleteUserCollocation ({commit}, data) {
+    // Delete an collocation
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
-      api.delete(`/user/${data.username}/analysis/${data.analysis_id}/`).then(function () {
-        commit('setAnalysisSingle', null)
+      api.delete(`/user/${data.username}/collocation/${data.collocation_id}/`).then(function () {
+        commit('setCollocationSingle', null)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  addDiscoursemeToAnalysis ({commit, dispatch}, data) { // eslint-disable-line no-unused-vars
-    // Add a discourseme to an analysis
+  addDiscoursemeToCollocation ({commit, dispatch}, data) { // eslint-disable-line no-unused-vars
+    // Add a discourseme to a collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
       if (!data.discourseme_id) return reject('No discourseme provided')
 
-      api.put(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/${data.discourseme_id}/`).then(function () {
-        dispatch('getAnalysisDiscoursemes', data)
+      api.put(`/user/${data.username}/collocation/${data.collocation_id}/discourseme/${data.discourseme_id}/`).then(function () {
+        dispatch('getCollocationDiscoursemes', data)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  removeDiscoursemeFromAnalysis ({commit, dispatch}, data) { // eslint-disable-line no-unused-vars
-    // Remove a discourseme from an analysis
+  removeDiscoursemeFromCollocation ({commit, dispatch}, data) { // eslint-disable-line no-unused-vars
+    // Remove a discourseme from a collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
       if (!data.discourseme_id) return reject('No discourseme provided')
 
-      api.delete(`/user/${data.username}/analysis/${data.analysis_id}/discourseme/${data.discourseme_id}/`).then(function () {
-        dispatch('getAnalysisDiscoursemes', data)
+      api.delete(`/user/${data.username}/collocation/${data.collocation_id}/discourseme/${data.discourseme_id}/`).then(function () {
+        dispatch('getCollocationDiscoursemes', data)
         resolve()
       }).catch(function (error) {
         reject(error)
       })
     })
   },
-  getAnalysisCollocates ({commit}, data) {
-    // Get collocates analysis
+  getCollocationCollocates ({commit}, data) {
+    // Get collocates of collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
       if (!data.window_size) return reject('No window size provided')
 
       let params = new URLSearchParams()
@@ -183,7 +183,7 @@ const actions = {
       const request = {
         params: params
       }
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/collocate/`, request).then(function (response) {
         commit('setCollocates', response.data);
         resolve()
       }).catch(function (error) {
@@ -191,12 +191,12 @@ const actions = {
       })
     })
   },
-  getAnalysisDiscoursemeCollocates ({commit}, data) {
-    // Get collocates analysis
+  getCollocationDiscoursemeCollocates ({commit}, data) {
+    // Get collocates of collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
       if (!data.window_size) return reject('No window size provided')
       if (!data.discourseme_items&&!data.discourseme_id&&!data.discourseme_ids) return reject('No discourseme_[items, id or ids]')
 
@@ -212,7 +212,7 @@ const actions = {
         params: params
       }
       //console.log(data);
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/collocate/`, request).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/collocate/`, request).then(function (response) {
         commit('setCollocates', response.data);
         //console.log(response.data.t_score);
         resolve()
@@ -225,12 +225,12 @@ const actions = {
     // Get Concordances
     return new Promise((resolve, reject) => {
       // username
-      // analysis_id
+      // collocation_id
       // (items)
       // (window_size)
 
       if (!data.username) return reject('No username provided')
-      if (data.analysis_id===undefined) return reject('No analysis_id provided')
+      if (data.collocation_id===undefined) return reject('No collocation_id provided')
 
       let params = new URLSearchParams()
 
@@ -256,7 +256,7 @@ const actions = {
       }
 
       commit('setConcordancesLoading', data);
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/concordance/`, request).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/concordance/`, request).then(function (response) {
         // only accept the loading, if data is the latest call
         // otherwise another request has happened and this one is invalid
         // TODO:: cancel prevous requests upon a new one (i.e. notify the server to drop the activity)
@@ -285,12 +285,12 @@ const actions = {
   resetBreakdown({commit}){
     commit('setBreakdown',null);
   },
-  getAnalysisBreakdown ({commit}, data){
-    // Get frequency breakdown for analysis
+  getCollocationBreakdown ({commit}, data){
+    // Get frequency breakdown for collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
       let params = new URLSearchParams()
       if (data.p_show) params.append("p_show", data.p_show)
@@ -298,7 +298,7 @@ const actions = {
         params: params
       }
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/breakdown/`, request).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/breakdown/`, request).then(function (response) {
         commit('setBreakdown', response.data);
         resolve()
       }).catch(function (error) {
@@ -306,12 +306,12 @@ const actions = {
       })
     })
   },
-  getAnalysisMeta ({commit}, data){
-    // Get meta data for analysis
+  getCollocationMeta ({commit}, data){
+    // Get meta data for collocation analysis
     return new Promise((resolve, reject) => {
 
       if (!data.username)    return reject('No user provided')
-      if (!data.analysis_id) return reject('No analysis provided')
+      if (!data.collocation_id) return reject('No collocation provided')
 
       let params = new URLSearchParams()
       if (data.s_show) params.append("s_show", data.s_show)
@@ -319,7 +319,7 @@ const actions = {
         params: params
       }
 
-      api.get(`/user/${data.username}/analysis/${data.analysis_id}/meta/`, request).then(function (response) {
+      api.get(`/user/${data.username}/collocation/${data.collocation_id}/meta/`, request).then(function (response) {
         commit('setMeta', response.data);
         resolve()
       }).catch(function (error) {
@@ -331,20 +331,20 @@ const actions = {
 }
 
 const mutations = {
-  setAnalysis (state, analysis) {
-    // List of analysis
-    state.userAnalysis = analysis
+  setCollocation (state, collocation) {
+    // List of collocation analyses
+    state.userCollocation = collocation
   },
-  setAnalysisDiscoursemes (state, discoursemes) {
+  setCollocationDiscoursemes (state, discoursemes) {
     // List of discoursemes
     state.discoursemes = discoursemes
   },
-  setAnalysisSingle (state, analysis) {
-    // One analysis
-    state.analysis = analysis
+  setCollocationSingle (state, collocation) {
+    // One collocation analysis
+    state.collocation = collocation
   },
   setCollocates (state, collocates) {
-    // One analysis
+    // One collocation analysis
     state.collocates = collocates
   },
   setConcordances (state, concordances) {

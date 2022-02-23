@@ -46,26 +46,26 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "adminobjects" */ '@/views/AdminObjects.vue')
     },
     {
-      path: '/analysis',
-      name: 'analysislist',
-      component: () => import(/* webpackChunkName: "analysislist" */ '@/views/AnalysisList.vue')
+      path: '/collocation',
+      name: 'collocationlist',
+      component: () => import(/* webpackChunkName: "collocationlist" */ '@/views/CollocationList.vue')
     },
     {
-      path: '/analysis/new',
-      name: 'analysisnew',
-      component: () => import(/* webpackChunkName: "analysisnew" */ '@/views/AnalysisNew.vue')
+      path: '/collocation/new',
+      name: 'collocationnew',
+      component: () => import(/* webpackChunkName: "collocationnew" */ '@/views/CollocationNew.vue')
     },
     {
-      path: '/analysis/:id',
+      path: '/collocation/:id',
       props: true,
-      name: 'analysiscontent',
-      component: () => import(/* webpackChunkName: "analysiscontent" */ '@/views/AnalysisContent.vue')
+      name: 'collocationcontent',
+      component: () => import(/* webpackChunkName: "collocationcontent" */ '@/views/CollocationContent.vue')
     },
     {
-      path: '/analysis/:id/wordcloud',
+      path: '/collocation/:id/wordcloud',
       props: true,
-      name: 'analysiswordcloud',
-      component: () => import(/* webpackChunkName: "analysiswordcloud" */ '@/views/Wordcloud.vue')
+      name: 'collocationwordcloud',
+      component: () => import(/* webpackChunkName: "collocationwordcloud" */ '@/views/Wordcloud.vue')
     },
     {
       path: '/keyword',

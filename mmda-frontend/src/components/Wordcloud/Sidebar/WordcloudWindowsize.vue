@@ -3,7 +3,7 @@
   <div slot="header" v-if="notMini" >Window Size</div>
   <v-card v-if="notMini">
     <v-card-text>
-      <v-slider v-model="selectWindow" :max="analysis.context" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
+      <v-slider v-model="selectWindow" :max="collocation.context" :min="min" thumb-label="always" thumb-size="28" @change="setSize"></v-slider>
     </v-card-text>
   </v-card>
 </v-expansion-panel-content>
@@ -20,7 +20,7 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       windowSize: 'wordcloud/windowSize',
       notMini:   'wordcloud/rightSidebar'
     })

@@ -49,7 +49,7 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      analysis: 'analysis/analysis',
+      collocation: 'collocation/collocation',
       notMini:   'wordcloud/rightSidebar',
       coordinates: 'coordinates/coordinates',
     }),

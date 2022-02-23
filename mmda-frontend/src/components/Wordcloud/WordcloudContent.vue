@@ -48,11 +48,11 @@ export default {
   computed: {
     ...mapGetters({
       user: "login/user",
-      analysis: "analysis/analysis",
-      discoursemes: "analysis/discoursemes",
-      collocates: "analysis/collocates",
+      collocation: "collocation/collocation",
+      discoursemes: "collocation/discoursemes",
+      collocates: "collocation/collocates",
       coordinates: "coordinates/coordinates",
-      concordances: "analysis/concordances",
+      concordances: "collocation/concordances",
       notMini:"wordcloud/rightSidebar",
       windowSize: "wordcloud/windowSize",
       AM: "wordcloud/associationMeasure",
@@ -103,17 +103,17 @@ export default {
   },
   methods: {
     ...mapActions({
-      getConcordances: "analysis/getConcordances",
-      AnalysiscancelConcordanceRequest:'analysis/cancelConcordanceRequest',
-      getAnalysisCollocates: "analysis/getAnalysisCollocates",
-      getAnalysisDiscoursemeCollocates: "analysis/getAnalysisDiscoursemeCollocates",
+      getConcordances: "collocation/getConcordances",
+      CollocationcancelConcordanceRequest:'collocation/cancelConcordanceRequest',
+      getCollocationCollocates: "collocation/getCollocationCollocates",
+      getCollocationDiscoursemeCollocates: "collocation/getCollocationDiscoursemeCollocates",
       addUserDiscourseme: "discourseme/addUserDiscourseme",
       updateUserDiscourseme: "discourseme/updateUserDiscourseme",
       deleteUserDiscourseme: "discourseme/deleteUserDiscourseme",
       getUserDiscoursemes: "discourseme/getUserDiscoursemes",
       setUserCoordinates: "coordinates/setUserCoordinates",
-      getAnalysisCoordinates: "coordinates/getAnalysisCoordinates",
-      addDiscoursemeToAnalysis: 'analysis/addDiscoursemeToAnalysis',
+      getCollocationCoordinates: "coordinates/getCollocationCoordinates",
+      addDiscoursemeToCollocation: 'collocation/addDiscoursemeToCollocation',
       setAM: 'wordcloud/setAssociationMeasure',
       setShowMinimap: 'wordcloud/setShowMinimap',
       
@@ -122,24 +122,24 @@ export default {
         this.sheetVisible=x
       },
       cancelConcordanceRequest(){
-          this.AnalysiscancelConcordanceRequest()
+          this.CollocationcancelConcordanceRequest()
           this.getTopicConcordancesFromList([])
       },
     loadCoordinates() {
-      if(!this.analysis) return;
-      return this.getAnalysisCoordinates({
+      if(!this.collocation) return;
+      return this.getCollocationCoordinates({
         username:     this.user.username,
-        analysis_id:  this.analysis.id
+        collocation_id:  this.collocation.id
       }).catch((error)=>{
         this.error = error;
       })
     },
     loadCollocates() {
-      if(!this.analysis) return;
+      if(!this.collocation) return;
       if(this.discourseme_ids && this.discourseme_ids.length){
-        return this.getAnalysisDiscoursemeCollocates({
+        return this.getCollocationDiscoursemeCollocates({
           username:     this.user.username,
-          analysis_id:  this.analysis.id,
+          collocation_id:  this.collocation.id,
           window_size:  this.windowSize,
           //discourseme_items: this.SOC_items,
           discourseme_ids:this.discourseme_ids
@@ -147,9 +147,9 @@ export default {
           this.error = error;
         });
       }else{
-        return this.getAnalysisCollocates({
+        return this.getCollocationCollocates({
           username:     this.user.username,
-          analysis_id:  this.analysis.id,
+          collocation_id:  this.collocation.id,
           window_size:  this.windowSize
         }).catch((error)=>{
           this.error = error;
@@ -166,7 +166,7 @@ export default {
 
     addDiscourseme(name, items) {
       return new Promise((resolve,reject)=>{
-        if(!this.analysis){reject(); return;}
+        if(!this.collocation){reject(); return;}
         this.addUserDiscourseme({
           name: name,
           items: items,
@@ -175,9 +175,9 @@ export default {
           reject(error);
         }).then(result =>{
           var id = result;
-          this.addDiscoursemeToAnalysis({
+          this.addDiscoursemeToCollocation({
             username: this.user.username,
-            analysis_id: this.analysis.id,
+            collocation_id: this.collocation.id,
             discourseme_id: id
           }).then(()=>{
             resolve( id );
@@ -220,12 +220,12 @@ export default {
       this.setCoordinates(obj);
     },
     setCoordinates( obj ) {
-      if(!this.analysis) return;
+      if(!this.collocation) return;
       //console.log("Set User Coordinates");
       //obj: {<item2>:{user_x:<number>,user_y:<number>}, <item2>:{...}, ... }
       return this.setUserCoordinates({
         username: this.user.username,
-        analysis_id: this.analysis.id,
+        collocation_id: this.collocation.id,
         user_coordinates: obj
       }).catch(error => {
         this.error = error;
@@ -241,7 +241,7 @@ export default {
     _getTopicConcordancesFromList () {
       this.sheetVisible=true;
       let names=this.request_names;
-      if(!this.analysis) return;
+      if(!this.collocation) return;
         if( names.length==this.conc_request_cache.length
             && names.map((a,i)=>a==this.conc_request_cache[i] )
             .reduce((a,b)=>a&&b,true) ) return;
@@ -250,7 +250,7 @@ export default {
       this.concordancesRequested = true;
       this.getConcordances({
         username :this.user.username,
-        analysis_id: this.analysis.id,
+        collocation_id: this.collocation.id,
         discourseme_ids: this.discourseme_ids,
         items: names,
         window_size: this.windowSize
@@ -267,7 +267,7 @@ export default {
   },
   mounted() {
     vm = this;
-    if(!this.analysis) return this.$router.push('/analysis');  //fallback
+    if(!this.collocation) return this.$router.push('/collocation');  //fallback
 
     let A = document.getElementsByClassName("structured_wordcloud_container");
     this.wc = new WordcloudWindow(A[0], this);
@@ -283,7 +283,7 @@ export default {
     if(this.discoursemes) this.wc.setupDiscoursemes(this.discoursemes);
 
     //fetch new data
-    //this.loadCoordinates(); // this is already done in the analysis window?!
+    //this.loadCoordinates(); // this is already done in the collocation window?!
     this.loadCollocates().then(()=>{
       if(!this.collocates[this.AM]){
         var oneAM = this.collocates.MI?'MI':Object.keys(this.collocates)[0];

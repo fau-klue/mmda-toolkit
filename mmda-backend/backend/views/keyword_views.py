@@ -19,8 +19,8 @@ from backend.analysis.ccc import ccc_keywords, ccc_concordance
 # backend.models
 from backend.models.user_models import User
 from backend.models.keyword_models import Keyword
-from backend.models.analysis_models import Coordinates
-from backend.models.analysis_models import Discourseme
+from backend.models.collocation_models import Coordinates
+from backend.models.collocation_models import Discourseme
 
 # logging
 from logging import getLogger
@@ -123,7 +123,7 @@ def create_keyword(username):
     # get tokens for coordinate generation
     log.debug('generating semantic space')
     tokens = list(set(keywords.index))
-    log.debug('extracted %d tokens for analysis semantic space' % len(tokens))
+    log.debug('extracted %d tokens for keyword semantic space' % len(tokens))
 
     # error handling: no result?
     if len(tokens) == 0:
