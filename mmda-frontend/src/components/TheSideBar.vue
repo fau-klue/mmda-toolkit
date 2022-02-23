@@ -3,7 +3,7 @@
 
   <v-toolbar flat class="transparent">
     <v-list class="pa-0">
-      <v-list-tile>
+      <v-list-tile :key="profile.title" router :to="profile.route">
         <v-list-tile-content>
           <v-list-tile-title class="title"> {{ user.username }}</v-list-tile-title>
         </v-list-tile-content>
@@ -51,11 +51,12 @@ export default {
   name: 'ProfileSidebar',
   data: () => ({
     sidebar: true,
+    profile: { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
     items: [
       { title: 'Analyses', icon: 'dashboard', route: '/analysis' },
+      { title: 'Keyword', icon: 'dashboard', route: '/keyword' },
       { title: 'Discoursemes', icon: 'subject', route: '/discourseme' },
-      { title: 'Constellations', icon: 'question_answer', route: '/constellation' },
-      { title: 'User Profile', icon: 'perm_identity', route: '/profile' },
+      { title: 'Constellations', icon: 'question_answer', route: '/constellation' }
     ],
     admins: [
       { title: 'Users', icon: 'subject', route: '/admin/users' },

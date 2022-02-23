@@ -1,11 +1,11 @@
 <template>
-<v-layout v-if="analysis" row>
+<v-layout v-if="keyword" row>
   <v-flex xs12 sm12>
-
+    
     <v-card-title>
-      Collocates (window: {{ windowSize }})
+      Keywords
       <v-btn icon ripple>
-        <v-icon class="grey--text text--lighten-1" title="download collocates list (.tsv)" @click="downloadCollocationCSV">file_copy</v-icon>
+        <v-icon class="grey--text text--lighten-1" title="download keywords list (.tsv)" @click="downloadCollocationCSV">file_copy</v-icon>
       </v-btn>
       <v-spacer/>
       <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details ></v-text-field>
@@ -13,10 +13,10 @@
     
     <v-alert v-if="error" value="true" color="error" icon="priority_high" :title="error" outline @click="error=null">{{ error }}</v-alert>
     
-    <div v-else-if="loadingCoordinates || loadingCollocates" class="text-md-center">
+    <div v-else-if="loadingCoordinates || loadingKeywords" class="text-md-center">
       <v-progress-circular indeterminate color="primary"></v-progress-circular>
       <p v-if="loadingCoordinates">Loading Coordinates...</p>
-      <p v-if="loadingCollocates">Loading Collocates...</p>
+      <p v-if="loadingKeywords">Loading Keywords...</p>
     </div>
 
     <v-data-table v-else :headers="headers" :items="transposedCoordinates" :search="search" :pagination.sync="pagination" class="elevation-1">
@@ -71,13 +71,13 @@ import { mapActions, mapGetters } from 'vuex'
 import { downloadText } from '@/wordcloud/util_misc.js'
 
 export default {
-  name: 'ItemTable',
+  name: 'ItemTableKeyword',
   data: () => ({
     search: '',
     error: null,
     loading: false,
     loadingConcordances:false,
-    loadingCollocates:false,
+    loadingKeywords:false,
     loadingCoordinates:false,
     min: 1,
     pagination: {
@@ -87,30 +87,26 @@ export default {
     }
   }),
   watch:{
-    windowSize(){
-      this.getCollocates();
-    },
-    analysis(){
+    keyword(){
       this.init();
     }
   },
   computed: {
     ...mapGetters({
       user: 'login/user',
-      analysis: 'analysis/analysis',
+      keyword: 'keyword/keyword',
       coordinates: 'coordinates/coordinates',
-      collocates: 'analysis/collocates',
-      windowSize: 'wordcloud/windowSize',
+      keywords: 'keyword/keywords'
     }),
     minmaxAM () {
       var R = {};
-      if(this.collocates){
-        for(var am of Object.keys(this.collocates)){
+      if(this.keywords){
+        for(var am of Object.keys(this.keywords)){
           if(!R[am]){
             R[am] = {min:Number.POSITIVE_INFINITY,max:Number.NEGATIVE_INFINITY};
           }
-          for(var w of Object.keys(this.collocates[am])){
-            var val = Number.parseFloat(this.collocates[am][w]);
+          for(var w of Object.keys(this.keywords[am])){
+            var val = Number.parseFloat(this.keywords[am][w]);
             if(val!=val) continue;
             val = this.map_value(val);
             R[am].min = Math.min(R[am].min,val);
@@ -133,11 +129,11 @@ export default {
           }
         }
       }
-      if(this.collocates){
-        for(var am of Object.keys(this.collocates)){
-          for(var w of Object.keys(this.collocates[am])){
+      if(this.keywords){
+        for(var am of Object.keys(this.keywords)){
+          for(var w of Object.keys(this.keywords[am])){
             if(!R[w]) R[w] = { name: w };
-            val = this.collocates[am][w];
+            val = this.keywords[am][w];
             val = Number.parseFloat(val);
             R[w][am] = val;
             R[w][am.replace(/\./g,'_')] = val;
@@ -160,11 +156,11 @@ export default {
           }
         }
       }
-      if(this.collocates){
-        for(var am of Object.keys(this.collocates)){
-          for(var w of Object.keys(this.collocates[am])){
+      if(this.keywords){
+        for(var am of Object.keys(this.keywords)){
+          for(var w of Object.keys(this.keywords[am])){
             if(!R[w]) R[w] = { name: w };
-            val = this.collocates[am][w];
+            val = this.keywords[am][w];
             val = Number.parseFloat(val);
             R[w][am] = val.toPrecision(2);
             R[w][am.replace(/\./g,'_')] = val.toPrecision(2);
@@ -203,8 +199,8 @@ export default {
     },
     headers () {
       var Coll = 
-        this.collocates 
-      ? Object.keys(this.collocates).map(k=>{
+        this.keywords 
+      ? Object.keys(this.keywords).map(k=>{
           return {
             text:k, 
             valueWithDot:k, 
@@ -225,10 +221,10 @@ export default {
   },
   methods: {
     ...mapActions({
-      getAnalysisCoordinates: 'coordinates/getAnalysisCoordinates',
-      getAnalysisCollocates:  'analysis/getAnalysisCollocates',
-      getConcordances:        'analysis/getConcordances',
-      resetConcordances:      'analysis/resetConcordances'
+      getKeywordCoordinates: 'coordinates/getKeywordCoordinates',
+      getKeywordKeywords:  'keyword/getKeywordKeywords',
+      getConcordances:        'keyword/getConcordances',
+      resetConcordances:      'keyword/resetConcordances'
     }),
     error_message_for(error, prefix, codes){
       if( error.response ){
@@ -238,7 +234,7 @@ export default {
       return error.message;
     },
     downloadCollocationCSV(){
-      downloadText("collocates.tsv",this.csvText.replace(/"/g,'&quot;'));
+      downloadText("keywords.tsv",this.csvText.replace(/"/g,'&quot;'));
     },
     map_value(value){
       return Math.log(1 + Math.max(0,value));
@@ -247,51 +243,48 @@ export default {
       return (value-minmax.min)/(minmax.max-minmax.min);
     },
     gotoConcordanceViewOf ( item ) {
-      if(!this.analysis) return;
+      if(!this.keyword) return;
       this.loadingConcordances = true;
       this.getConcordances({
         username: this.user.username,
-        analysis_id: this.id,
+        keyword_id: this.id,
         // soc_items: undefined,
-        items: [item.name], 
-        window_size: this.windowSize
+        items: [item.name]
       }).catch((e)=>{
-        this.error = this.error_message_for(e,"analysis.concordances.",{400:"invalid_input",404:"not_found"});
+        this.error = this.error_message_for(e,"keyword.concordances.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
         this.loadingConcordances = false;
       });
     },
-    getCollocates(){
-      this.loadingCollocates = true;
-      this.getAnalysisCollocates({
+    getKeywords(){
+      this.loadingKeywords = true;
+      this.getKeywordKeywords({
         username:     this.user.username, 
-        analysis_id:  this.id, 
-        window_size:  this.windowSize
+        keyword_id:  this.id
       }).catch((error)=>{
-        this.error = this.error_message_for(error,"analysis.collocates.",{400:"invalid_input",404:"not_found"});
+        this.error = this.error_message_for(error,"keyword.keywords.",{400:"invalid_input",404:"not_found"});
       }).then(()=>{
-        this.loadingCollocates = false;
+        this.loadingKeywords = false;
       })
     },
     init(){
       this.loadingCoordinates = true;
-      if(this.analysis&&this.analysis.id==this.id){
-        this.selectWindow = this.windowSize;
-        this.getAnalysisCoordinates({
+      if(this.keyword&&this.keyword.id==this.id){
+        this.getKeywordCoordinates({
           username:     this.user.username, 
-          analysis_id:  this.id
+          keyword_id:  this.id
         }).catch((error)=>{
-          this.error = this.error_message_for(error,"analysis.coordinates_request.",{404:"not_found"});
+          this.error = this.error_message_for(error,"keyword.coordinates_request.",{404:"not_found"});
         }).then(()=>{
           this.loadingCoordinates = false;
         });
-        this.getCollocates();
+        this.getKeywords();
       }
     }
   },
   created () {
     this.id = this.$route.params.id
-    this.init();
+    // this.init();
   }
 }
 

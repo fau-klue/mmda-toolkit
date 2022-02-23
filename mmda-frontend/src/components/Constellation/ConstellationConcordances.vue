@@ -4,7 +4,8 @@
   <ConstellationSelection/>
 
   <v-container v-if="associations">
-    <v-tabs color="blue" dark >
+    <v-tabs color="blue" dark>
+
       <v-tab :key="1">Discourseme Associations</v-tab>
       <v-tab :key="2">Concordance Lines</v-tab>
 
@@ -27,8 +28,8 @@
           </template>
         </v-data-table>
       </v-tab-item>
-      <v-tab-item :key="2">
 
+      <v-tab-item :key="2">
         <v-container>
           <v-form>
             <v-layout row>
@@ -63,15 +64,12 @@
 
 <script>
 import ConstellationSelection from '@/components/Constellation/ConstellationCorporaSelection.vue'
-// import ConcordancesKeywordInContextList from '@/components/Concordances/ConcordancesKeywordInContextList.vue'
-
 import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'ConstellationConcordances',
   components: {
-    ConstellationSelection,
-    // ConcordancesKeywordInContextList
+    ConstellationSelection
   },
   data: () => ({
     search: '',

@@ -7,6 +7,7 @@ Keywords view
 # requirements
 from flask import Blueprint, request, jsonify, current_app
 # from flask_expects_json import expects_json
+from ccc.utils import cqp_escape
 
 # backend
 from backend import db
@@ -14,13 +15,12 @@ from backend import user_required
 # backend.analysis
 # from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_keywords, ccc_corpus, ccc_concordance
-from ccc.utils import cqp_escape
+from backend.analysis.ccc import ccc_keywords, ccc_concordance
 # backend.models
 from backend.models.user_models import User
 from backend.models.keyword_models import Keyword
 from backend.models.analysis_models import Coordinates
-
+from backend.models.analysis_models import Discourseme
 
 # logging
 from logging import getLogger
@@ -33,32 +33,9 @@ keyword_blueprint = Blueprint(
 log = getLogger('mmda-logger')
 
 
-# READ ALL
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/',
-    methods=['GET']
-)
-@user_required
-def get_all_keywords(username):
-    """ List all keyword analyses for given user.
-
-    parameters:
-      - username: username
-        type: str
-        description: username, links to user
-    responses:
-      200:
-         description: list of serialized analyses
-    """
-
-    # get user
-    user = User.query.filter_by(username=username).first()
-
-    keywords = Keyword.query.filter_by(user_id=user.id).all()
-    keyword_list = [kw.serialize for kw in keywords]
-
-    return jsonify(keyword_list), 200
-
+####################
+# KEYWORD ANALYSES #
+####################
 
 # CREATE
 @keyword_blueprint.route(
@@ -189,6 +166,33 @@ def create_keyword(username):
     return jsonify({'msg': keyword_analysis.id}), 201
 
 
+# READ ALL
+@keyword_blueprint.route(
+    '/api/user/<username>/keyword/',
+    methods=['GET']
+)
+@user_required
+def get_all_keywords(username):
+    """ List all keyword analyses for given user.
+
+    parameters:
+      - username: username
+        type: str
+        description: username, links to user
+    responses:
+      200:
+         description: list of serialized analyses
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    keywords = Keyword.query.filter_by(user_id=user.id).all()
+    keyword_list = [kw.serialize for kw in keywords]
+
+    return jsonify(keyword_list), 200
+
+
 # READ
 @keyword_blueprint.route(
     '/api/user/<username>/keyword/<keyword>/',
@@ -222,6 +226,230 @@ def get_keyword(username, keyword):
         return jsonify({'msg': 'no such keyword analysis'}), 404
 
     return jsonify(keyword.serialize), 200
+
+
+# DELETE
+@keyword_blueprint.route(
+    '/api/user/<username>/keyword/<keyword>/',
+    methods=['DELETE']
+)
+@user_required
+def delete_keyword(username, keyword):
+    """ Delete keyword analysis.
+
+    parameters:
+      - username: username
+        type: str
+        description: username, links to user
+      - name: keyword
+        type: str
+        description: keyword analysis id
+    responses:
+       200:
+         description: "deleted"
+       404:
+         description: "no such keyword analysis"
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # delete analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    db.session.delete(keyword)
+    db.session.commit()
+
+    log.debug('deleted keyword analysis with ID %s', keyword)
+    return jsonify({'msg': 'deleted'}), 200
+
+
+###########################
+# ASSOCIATED DISCOURSEMES #
+###########################
+
+# READ
+@keyword_blueprint.route(
+    '/api/user/<username>/keyword/<keyword>/discourseme/',
+    methods=['GET']
+)
+@user_required
+def get_discoursemes_for_keyword(username, keyword):
+    """ Return list of discoursemes for keyword analysis.
+
+    parameters:
+      - username: username
+        type: str
+        description: username, links to user
+      - name: keyword
+        type: str
+        description: keyword analysis id
+    responses:
+       200:
+         description: list of associated discoursemes
+       404:
+         description: "no such keyword analysis"
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get discoursemes as list
+    keyword_discoursemes = [
+        discourseme.serialize for discourseme in keyword.discoursemes
+    ]
+    if not keyword_discoursemes:
+        log.debug('no disoursemes associated')
+        return jsonify([]), 200
+
+    return jsonify(keyword_discoursemes), 200
+
+
+# UPDATE
+@keyword_blueprint.route(
+    '/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/',
+    methods=['PUT']
+)
+@user_required
+def put_discourseme_into_keyword(username, keyword, discourseme):
+    """ Associate a discourseme with keyword analysis.
+
+    parameters:
+      - name: username
+        type: str
+        description: username, links to user
+      - name: keyword
+        type: int
+        description: keyword analysis id
+      - name: discourseme
+        type: int
+        description: discourseme id to associate
+    responses:
+      200:
+         description: "already linked"
+         description: "updated"
+      404:
+         description: "no such keyword analysis"
+         description: "no such discourseme"
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        msg = 'no such keyword analysis %s' % keyword
+        log.debug(msg)
+        return jsonify({'msg': msg}), 404
+
+    # get discourseme
+    discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
+    if not discourseme:
+        msg = 'no such discourseme %s' % discourseme
+        log.debug(msg)
+        return jsonify({'msg': msg}), 404
+
+    # check if discourseme already associated or already topic of analysis
+    keyword_discourseme = discourseme in keyword.discoursemes
+    if keyword_discourseme:
+        msg = 'discourseme %s is already associated', discourseme
+        log.debug(msg)
+        return jsonify({'msg': msg}), 200
+
+    # associate discourseme with analysis
+    keyword.discoursemes.append(discourseme)
+    db.session.add(keyword)
+    db.session.commit()
+    msg = 'associated discourseme %s with keyword analysis %s' % (discourseme, keyword)
+    log.debug(msg)
+
+    # update semantic space: add discourseme items
+    tokens = set(discourseme.items)
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    semantic_space = coordinates.data
+    diff = tokens - set(semantic_space.index)
+    if len(diff) > 0:
+        log.debug("generating additional coordinates for %d items" % len(diff))
+        new_coordinates = generate_items_coordinates(
+            diff,
+            semantic_space,
+            current_app.config['CORPORA'][keyword.corpus]['embeddings']
+        )
+        if not new_coordinates.empty:
+            log.debug('appending new coordinates to semantic space')
+            semantic_space.append(new_coordinates, sort=True)
+            coordinates.data = semantic_space
+            db.session.commit()
+
+    return jsonify({'msg': msg}), 200
+
+
+# DELETE
+@keyword_blueprint.route(
+    '/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/',
+    methods=['DELETE']
+)
+@user_required
+def delete_discourseme_from_keyword(username, keyword, discourseme):
+    """ Remove discourseme from keyword analysis.
+
+    parameters:
+      - name: username
+        type: str
+        description: username, links to user
+      - name: keyword
+        type: int
+        description: keyword analysis id
+      - name: discourseme
+        type: int
+        description: discourseme id to remove
+    responses:
+      200:
+         description: "deleted discourseme from keyword analysis"
+      404:
+         description: "no such keyword analysis"
+         description: "no such discourseme"
+         description: "discourseme not linked to keyword analysis"
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get discourseme
+    discourseme = Discourseme.query.filter_by(id=discourseme, user_id=user.id).first()
+    if not discourseme:
+        log.debug('no such discourseme %s', discourseme)
+        return jsonify({'msg': 'no such discourseme'}), 404
+
+    # check link
+    keyword_discourseme = discourseme in keyword.discoursemes
+    if not keyword_discourseme:
+        log.warn('discourseme %s not linked to keyword analysis %s', discourseme, keyword)
+        return jsonify({'msg': 'discourseme not linked to keyword analysis'}), 404
+
+    # delete
+    keyword.discoursemes.remove(discourseme)
+    db.session.commit()
+
+    log.debug('deleted discourseme %s from keyword analysis %s', discourseme, keyword)
+    return jsonify({'msg': 'deleted discourseme from keyword analysis'}), 200
 
 
 ############
@@ -356,16 +584,11 @@ def get_concordance_for_keyword(username, keyword):
     parameters:
       - name: username
         description: username, links to user
-      - name: analysis
-        description: analysis_id
-      - name: window_size
-        type: int
-        description: window size for context
-        default: 3
+      - name: keyword
+        description: keyword_analysis_id
       - name: item
-        type: list
-        required: False
-        description: lose item(s) for additional discourseme to include
+        type: str
+        description: item to get lines for
       - name: cut_off
         type: int
         description: how many lines?
@@ -374,10 +597,6 @@ def get_concordance_for_keyword(username, keyword):
         type: str
         description: how to sort them? (column in result table)
         default: random
-      - name: s_meta
-        type: str
-        description: what s-att-annotation to retrieve
-        default: analysis.s_break
     responses:
       200:
         description: concordance
@@ -386,7 +605,6 @@ def get_concordance_for_keyword(username, keyword):
       404:
         description: "empty result"
     """
-    # TODO: rename item ./. items
 
     # get user
     user = User.query.filter_by(username=username).first()
@@ -397,39 +615,16 @@ def get_concordance_for_keyword(username, keyword):
     if not keyword:
         log.debug('no such keyword analysis %s', keyword)
         return jsonify({'msg': 'empty result'}), 404
-    # ... optional discourseme ID list
-    # discourseme_ids = request.args.getlist('discourseme', None)
-    # ... optional additional items
-    items = [cqp_escape(i) for i in request.args.getlist('item', None)]
+    # ... item to get concordance lines for
+    item = request.args.get('item')
+    if not item:
+        return {}, 200
+
+    item = cqp_escape(item)
     # ... how many?
     cut_off = request.args.get('cut_off', 1000)
     # ... how to sort them?
     order = request.args.get('order', 'random')
-    # ... where's the meta data?
-    corpus = ccc_corpus(keyword.corpus,
-                        cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
-    # s_show = [i for i in request.args.getlist('s_meta', None)]
-    # s_show = corpus['s-annotations']
-
-    # pre-process request
-    # ... get associated topic discourseme (no need if not interested in name)
-    # topic_discourseme = Discourseme.query.filter_by(id=analysis.topic_id).first()
-    # ... further discoursemes as a dict {name: items}
-    additional_discoursemes = dict()
-    if items:
-        # create discourseme for additional items on the fly
-        additional_discoursemes['collocate'] = items
-
-    # for discourseme in analysis.discoursemes:
-    #     additional_discoursemes[discourseme.name] = discourseme.items
-    # get all discoursemes from database and append
-    # discoursemes = Discourseme.query.filter(
-    #     Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
-    # ).all()
-    # for d in discoursemes:
-    #     additional_discoursemes[str(d.id)] = d.items
 
     # pack p-attributes
     p_show = list(set(['word', keyword.p]))
@@ -441,12 +636,11 @@ def get_concordance_for_keyword(username, keyword):
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=items,
+        topic_items=[item],
         topic_name='topic',
         s_context='s',
         window_size=20,
         context=None,
-        additional_discoursemes=additional_discoursemes,
         p_query=keyword.p,
         p_show=p_show,
         s_show=[],
@@ -462,46 +656,3 @@ def get_concordance_for_keyword(username, keyword):
     conc_json = jsonify(concordance)
 
     return conc_json, 200
-
-
-# READ
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/discourseme/',
-    methods=['GET']
-)
-@user_required
-def get_discoursemes_for_keyword(username, keyword):
-    """ Return list of discoursemes for keyword.
-
-    parameters:
-      - username: username
-        type: str
-        description: username, links to user
-      - name: keyword
-        type: str
-        description: keyword id
-    responses:
-       200:
-         description: list of associated discoursemes
-       404:
-         description: "no such keyword"
-    """
-
-    # get user
-    user = User.query.filter_by(username=username).first()
-
-    # get keyword
-    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
-    if not keyword:
-        log.debug('no such keyword %s', keyword)
-        return jsonify({'msg': 'no such keyword'}), 404
-
-    # get discoursemes as list
-    keyword_discoursemes = [
-        discourseme.serialize for discourseme in keyword.discoursemes
-    ]
-    if not keyword_discoursemes:
-        log.debug('no disoursemes associated')
-        return jsonify([]), 200
-
-    return jsonify(keyword_discoursemes), 200

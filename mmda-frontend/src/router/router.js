@@ -68,6 +68,28 @@ const router = new Router({
       component: () => import(/* webpackChunkName: "analysiswordcloud" */ '@/views/Wordcloud.vue')
     },
     {
+      path: '/keyword',
+      name: 'keywordlist',
+      component: () => import(/* webpackChunkName: "keywordlist" */ '@/views/KeywordList.vue')
+    },
+    {
+      path: '/keyword/new',
+      name: 'keywordnew',
+      component: () => import(/* webpackChunkName: "keywordnew" */ '@/views/KeywordNew.vue')
+    },
+    {
+      path: '/keyword/:id',
+      props: true,
+      name: 'keywordcontent',
+      component: () => import(/* webpackChunkName: "keywordcontent" */ '@/views/KeywordContent.vue')
+    },
+    {
+      path: '/keyword/:id/wordcloud',
+      props: true,
+      name: 'keywordwordcloud',
+      component: () => import(/* webpackChunkName: "keywordwordcloud" */ '@/views/WordcloudKeyword.vue')
+    },    
+    {
       path: '/discourseme',
       name: 'discoursemelist',
       component: () => import(/* webpackChunkName: "discoursemelist" */ '@/views/DiscoursemeList.vue')

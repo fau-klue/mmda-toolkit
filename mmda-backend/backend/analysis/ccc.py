@@ -208,8 +208,6 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         # 'E12', 'E21', 'E22'
         # 'in_nodes'
         # 'marginal'
-        # 'ipm_reference': 'IPM (obs.)',
-        # 'ipm_reference_expected': 'IPM (exp.)',
         'log_likelihood': 'log likelihood',
         'dice': 'Dice',
         'log_ratio': 'log ratio',
@@ -220,6 +218,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         'local_mutual_information': 'local MI',
         'conservative_log_ratio': 'Conservative LR',
         'ipm': 'IPM (obs.)',
+        'ipm_reference': 'IPM (ref.)',
         'ipm_expected': 'IPM (exp.)',
     }
 

@@ -1,4 +1,4 @@
-// Centrail Entrypoint for the store
+// Central Entrypoint for the store
 import Vue from 'vue'
 import Vuex from 'vuex'
 import admin from './modules/admin'
@@ -10,6 +10,7 @@ import constellation from './modules/constellation'
 import login from './modules/login'
 import profile from './modules/profile'
 import wordcloud from './modules/wordcloud'
+import keyword from './modules/keyword'
 
 Vue.use(Vuex)
 
@@ -25,6 +26,7 @@ const store = new Vuex.Store({
     login: login,
     profile: profile,
     wordcloud: wordcloud,
+    keyword: keyword
   }
 })
 

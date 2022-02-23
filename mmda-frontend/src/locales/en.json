@@ -45,6 +45,25 @@
       "updateProfile": "Profile Updated."
     }
   },
+  "keyword": {
+    "new": {
+      "title": "Keyword Analysis",
+      "helpTitle": "Compare frequencies of positional attributes across two corpora.",
+      "corpus": "target and reference",
+      "helpCorpus": "select target corpus (left) and reference corpus (right)",
+      "p": "query layer (p-att)",
+      "helpP": "positional attributes to query (e.g. word, lemma)",
+      "flags": "",
+      "helpFlags": "",
+      "corpusReference": "reference corpus",
+      "helpCorpusReference": "",
+      "pReference": "",
+      "HelpPReference": "",
+      "flagsReference": "",
+      "helpFlagsReference": "",
+      "missing data": "Please enter missing data."
+    }
+  },
   "analysis": {
     "newAnalysis": "New Analysis",
     "name": "Name",

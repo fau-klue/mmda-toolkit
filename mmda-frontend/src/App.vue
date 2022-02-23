@@ -2,9 +2,9 @@
 <v-app id="app">
   <SideBar v-if="isAuthenticated" />
   <ToolBar/>
-    <v-content>
+  <v-content>
     <router-view/>
-    </v-content>
+  </v-content>
 </v-app>
 </template>
 

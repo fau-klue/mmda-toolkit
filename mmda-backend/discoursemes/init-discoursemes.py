@@ -18,7 +18,7 @@ discoursemes = [
                'Nuklearenergie', 'Nuklearkraft']},
     {'name': 'Klimawandel',
      'items': ["Klimawandel", "Klimaveränderung", "Klimaänderung",
-               "Klimawechsel", "globale Erwärmung", "Klimakrise"]},
+               "Klimawechsel", "global Erwärmung", "Klimakrise"]},
     {'name': 'Kampf',
      'items': ["Bekämpfung", "Kampf", "aufhalten"]},
     {'name': 'Ressourcen',

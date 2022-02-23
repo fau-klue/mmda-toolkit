@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-
 const state = {
   windowSize: 3,
   rightSidebar: false,
