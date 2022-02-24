@@ -12,21 +12,42 @@ import requests
 
 
 discoursemes = [
-    {'name': 'Atomkraft',
-     'items': ['Atomkraft', 'Atomenergie',
-               'Kernkraft', 'Kernenergie',
-               'Nuklearenergie', 'Nuklearkraft']},
-    {'name': 'Klimawandel',
-     'items': ["Klimawandel", "Klimaveränderung", "Klimaänderung",
-               "Klimawechsel", "global Erwärmung", "Klimakrise"]},
-    {'name': 'Kampf',
-     'items': ["Bekämpfung", "Kampf", "aufhalten"]},
-    {'name': 'Ressourcen',
-     'items': ["Armut", "Hunger", "Dürre", "Ressourcenknappheit"]},
-    {'name': 'Wetter',
-     'items': ["Sturm", "Wetterereignis", "Naturkatastrophe"]},
-    {'name': 'Anpassung',
-     'items': ["Anpassungsmaßnahme", "Maßnahme", "bewältigen", "Anpassung"]}
+    {
+        'name': 'Atomkraft',
+        'items': ['Atomkraft', 'Atomenergie',
+                  'Kernkraft', 'Kernenergie',
+                  'Nuklearenergie', 'Nuklearkraft']
+    },
+    {
+        'name': 'erneuerbare Energien',
+        'items': ["erneuerbar Energie", "regenerativ Energie"]
+    },
+    {
+        'name': 'fossile Energie',
+        'items': ["fossil Energie", "fossil Brennstoff", "Braunkohle",
+                  "Steinkohle", "Erdgas", "Erdöl"]
+    },
+    {
+        'name': 'Klimawandel',
+        'items': ["Klimawandel", "Klimaveränderung", "Klimaänderung",
+                  "Klimawechsel", "global Erwärmung", "Klimakrise"]
+    },
+    {
+        'name': 'Kampf',
+        'items': ["Bekämpfung", "Kampf", "aufhalten"]
+    },
+    {
+        'name': 'Ressourcen',
+        'items': ["Armut", "Hunger", "Dürre", "Ressourcenknappheit"]
+    },
+    {
+        'name': 'Wetter',
+        'items': ["Sturm", "Wetterereignis", "Naturkatastrophe"]
+    },
+    {
+        'name': 'Anpassung',
+        'items': ["Anpassungsmaßnahme", "Maßnahme", "bewältigen", "Anpassung"]
+    }
 ]
 
 
