@@ -628,7 +628,7 @@ def get_concordance_for_keyword(username, keyword):
 
     item = cqp_escape(item)
     # ... how many?
-    cut_off = request.args.get('cut_off', 100)
+    cut_off = request.args.get('cut_off', 1000)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?

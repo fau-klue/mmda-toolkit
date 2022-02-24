@@ -5,20 +5,45 @@ Concordance and Collocation Computation
 """
 
 from ccc import Corpora, Corpus
-from ccc.discoursemes import create_constellation, role_formatter
+from ccc.discoursemes import create_constellation
 from ccc.utils import format_cqp_query
-from ccc.concordances import Concordance
 from ccc.counts import score_counts
 
-from pandas import DataFrame, isna
+from pandas import DataFrame
 
-# from anycache import anycache
-# from backend.settings import ANYCACHE_PATH as CACHE_PATH
+from anycache import anycache
+from backend.settings import ANYCACHE_PATH as CACHE_PATH
 
 import logging
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
+
+
+def format_counts(df):
+
+    ams_dict = {
+        'log_likelihood': 'log likelihood',
+        'dice_1000': 'Dice-1000',
+        'log_ratio': 'log ratio',
+        'mutual_information': 'mutual information',
+        'z_score': 'z-score',
+        't_score': 't-score',
+        'simple_ll': 'simple LL',
+        'local_mutual_information': 'local MI',
+        'conservative_log_ratio': 'Conservative LR',
+        'ipm': 'IPM (obs.)',
+        'ipm_expected': 'IPM (exp.)',
+    }
+
+    # scale Dice coefficient
+    df['dice_1000'] = df['dice'] * 10**3
+
+    # select and rename
+    df = df[list(ams_dict.keys())]
+    df = df.rename(ams_dict, axis=1)
+
+    return df
 
 
 def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
@@ -158,7 +183,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
     return output
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, additional_discoursemes={},
@@ -200,22 +225,6 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     """
 
-    # choose and name columns
-    am_dict = {
-        'log_likelihood': 'log likelihood',
-        'dice': 'Dice',
-        'log_ratio': 'log ratio',
-        'mutual_information': 'mutual information',
-        'z_score': 'z-score',
-        't_score': 't-score',
-        'simple_ll': 'simple LL',
-        'local_mutual_information': 'local MI',
-        'conservative_log_ratio': 'Conservative LR',
-        'ipm': 'IPM (obs.)',
-        'ipm_reference': 'IPM (ref.)',
-        'ipm_expected': 'IPM (exp.)',
-    }
-
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
 
@@ -239,16 +248,12 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     )
 
     for window in collocates.keys():
-
-        collocates[window] = collocates[window][list(am_dict.keys())]
-        collocates[window] = collocates[window].rename(am_dict, axis=1)
-        collocates[window]['Dice-1000'] = collocates[window]['Dice'] * 10**3
-        collocates[window] = collocates[window].drop('Dice', axis=1)
+        collocates[window] = format_counts(collocates[window])
 
     return collocates
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                   topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
                   flags_query='%cd', escape=True, flags_show=''):
@@ -293,7 +298,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     return out
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
              topic_items, p_query='lemma', s_query=None,
              flags_query='%cd', s_show=['text_id'], order='first',
@@ -397,13 +402,6 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path,
 
     """
 
-    corpus = Corpus(
-        corpus_name=corpus_name,
-        lib_path=lib_path,
-        cqp_bin=cqp_bin,
-        registry_path=registry_path,
-        data_path=data_path
-    )
     names = list(discoursemes.keys())
     topic = names[0]
     s_context = s_query if not s_context else s_context
@@ -411,54 +409,20 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path,
     topic_name = topic
     topic_items = discoursemes.pop(topic_name)
     additional_discoursemes = discoursemes
+    print(discoursemes.keys())
     flags = flags_query
     escape = escape_query
 
-    df = create_constellation(corpus_name, topic_name, topic_items,
-                              p_query, s_query, flags, escape,
-                              s_context, context,
-                              additional_discoursemes,
-                              lib_path, cqp_bin, registry_path, data_path,
-                              match_strategy='longest',
-                              dataframe=True, drop=False)
+    const = create_constellation(corpus_name, topic_name, topic_items,
+                                 p_query, s_query, flags, escape,
+                                 s_context, context,
+                                 additional_discoursemes,
+                                 lib_path, cqp_bin, registry_path, data_path,
+                                 match_strategy='longest',
+                                 text=True)
 
-    # get relevant columns from constellation dataframe
-    # NB: duplicate context-ids
-    df = df.set_index('contextid')
-    df_reduced = df[~df.index.duplicated(keep='first')][
-        ['context', 'contextend']
-    ]
-    for name in ([topic] + list(discoursemes.keys())):
-        columns = [m + '_' + name for m in ['offset', 'match', 'matchend']]
-        df[name] = df[columns].values.tolist()
-        df[name] = df[name].apply(tuple)
-        df = df.drop(columns, axis=1)
-        df_reduced[name] = df.groupby(['contextid'])[name].apply(
-            lambda x: set([y for y in x if not isna(y[0])])
-        )
-
-    # repair context..contextend and use as match..matchend proxy
-    df_reduced = df_reduced.drop(['context', 'contextend'], axis=1)
-    context_spans = corpus.attributes.attribute(s_context, 's')
-    tmp = DataFrame(df_reduced.index.map(lambda x: context_spans[x]).to_list())
-    df_reduced['match'] = tmp[0].values
-    df_reduced['matchend'] = tmp[1].values
-    df_reduced = df_reduced.set_index(['match', 'matchend'])
-
-    # retrieve concordance lines
-    conc = Concordance(corpus.copy(), df_reduced)
-    lines = conc.lines(form='dict', p_show=p_show, s_show=s_show,
-                       order=order, cut_off=cut_off)
-    names_bool = list()
-    for name in ([topic] + list(discoursemes.keys())):
-        name_bool = '_'.join(['BOOL', name])
-        lines[name_bool] = lines[name].apply(lambda x: len(x) > 0)
-        names_bool.append(name_bool)
-    lines = list(lines.apply(
-        lambda row: role_formatter(
-            row, [topic] + list(discoursemes.keys()), s_show=names_bool+s_show, window=0
-        ), axis=1
-    ))
+    lines = const.concordance(p_show=p_show, s_show=s_show,
+                              order=order, cut_off=cut_off)
 
     # convert to HTML table
     # TODO: speed up!
@@ -479,7 +443,7 @@ def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path,
     return output
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
                                   data_path, lib_path, discoursemes,
                                   p_query='lemma', s_query=None,
@@ -539,6 +503,7 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
     return out
 
 
+@anycache(CACHE_PATH)
 def ccc_keywords(corpus, corpus_reference,
                  cqp_bin, registry_path, data_path, lib_path,
                  p=['lemma'], p_reference=['lemma'],
@@ -548,33 +513,19 @@ def ccc_keywords(corpus, corpus_reference,
     corpus = Corpus(corpus)
     corpus_reference = Corpus(corpus_reference)
 
+    # TODO mv to cwb-ccc
     left = corpus.marginals(p_atts=p)[['freq']]
     right = corpus_reference.marginals(p_atts=p_reference)[['freq']]
+    left.columns = ['f1']
+    right.columns = ['f2']
+    df = left.join(right, how='outer')
+    df['N1'] = corpus.corpus_size
+    df['N2'] = corpus_reference.corpus_size
 
-    # TODO postprocessing
+    keywords = score_counts(df, order=order, cut_off=cut_off,
+                            ams=ams, digits=4)
+    keywords = keywords.head(cut_off)
 
-    keywords = score_counts(left, right,
-                            min_freq=min_freq, order=order, cut_off=cut_off,
-                            ams=ams, freq=True, digits=4)
-
-    # choose and name columns
-    am_dict = {
-        'log_likelihood': 'log likelihood',
-        'dice': 'Dice',
-        'log_ratio': 'log ratio',
-        'mutual_information': 'mutual information',
-        'z_score': 'z-score',
-        't_score': 't-score',
-        'simple_ll': 'simple LL',
-        'local_mutual_information': 'local MI',
-        'conservative_log_ratio': 'Conservative LR',
-        'ipm': 'IPM (obs.)',
-        'ipm_expected': 'IPM (exp.)',
-    }
-
-    keywords = keywords[list(am_dict.keys())]
-    keywords = keywords.rename(am_dict, axis=1)
-    keywords['Dice-1000'] = keywords['Dice'] * 10**3
-    keywords = keywords.drop('Dice', axis=1)
+    keywords = format_counts(keywords)
 
     return keywords
