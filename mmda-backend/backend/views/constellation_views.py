@@ -334,6 +334,7 @@ def get_constellation_concordance(username, constellation):
 
     flags_query = "%cd"
     escape_query = True
+    random_seed = 42
 
     # use cwb-ccc to extract data
     concordance = ccc_concordance(
@@ -355,7 +356,8 @@ def get_constellation_concordance(username, constellation):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=escape_query
+        escape_query=escape_query,
+        random_seed=random_seed
     )
 
     log.debug(

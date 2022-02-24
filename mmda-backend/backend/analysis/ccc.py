@@ -20,7 +20,11 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
 
 
+#############
+# UTILITIES #
+#############
 def format_meta(lines, s_show):
+
     output = dict()
     c = 0                       # random key (for sorting)
     for line in lines:
@@ -86,6 +90,9 @@ def sort_s(s_atts, order=['s', 'p', 'tweet', 'text']):
     return ordered
 
 
+#################
+# CCC INTERFACE #
+#################
 def ccc_corpora(cqp_bin, registry_path):
     """get available corpora
 
@@ -209,6 +216,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         order=order, cut_off=cut_off
     )
 
+    # formatting
     for window in collocates.keys():
         collocates[window] = format_counts(collocates[window])
 
@@ -249,7 +257,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     dump = corpus.query(topic_query, context=None)
     breakdown = dump.breakdown(p_show)
 
-    # convert to dictionary
+    # formatting
     out = list()
     for row in breakdown.iterrows():
         out.append({
@@ -384,6 +392,7 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
 
     tables = const.associations()
 
+    # formatting
     out = list()
     for row in tables.iterrows():
         v = dict(row[1])
@@ -399,10 +408,9 @@ def ccc_keywords(corpus, corpus_reference,
                  flags=None, flags_reference=None,
                  ams=None, cut_off=500, min_freq=2, order='log_likelihood'):
 
+    # TODO mv to CWB
     corpus = Corpus(corpus)
     corpus_reference = Corpus(corpus_reference)
-
-    # TODO mv to cwb-ccc
     left = corpus.marginals(p_atts=p)[['freq']]
     right = corpus_reference.marginals(p_atts=p_reference)[['freq']]
     left.columns = ['f1']
@@ -410,18 +418,15 @@ def ccc_keywords(corpus, corpus_reference,
     df = left.join(right, how='outer')
     df['N1'] = corpus.corpus_size
     df['N2'] = corpus_reference.corpus_size
-
     keywords = score_counts(df, order=order, cut_off=cut_off,
                             ams=ams, digits=4)
-    keywords = keywords.head(cut_off)
 
+    # formatting
     keywords = format_counts(keywords)
 
     return keywords
 
 
-# TODO take care of caching for random order:
-# use random_sede for cachine
 @anycache(CACHE_PATH)
 def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     lib_path, topic_discourseme, filter_discoursemes,
@@ -429,7 +434,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     window_size, context=20, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
                     s_query=None, order='random', cut_off=100,
-                    flags_query='%cd', escape_query=True):
+                    flags_query='%cd', escape_query=True, random_seed=42):
     """get concordance lines for topic (+ additional discoursemes).
 
     :param str corpus_name: name of corpus in CWB registry
@@ -484,14 +489,16 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                                  lib_path,
                                  cqp_bin,
                                  registry_path,
-                                 data_path)
+                                 data_path,
+                                 window=window_size)
 
     # retrieve lines
     lines = const.concordance(window,
                               p_show,
                               s_show,
                               order=order,
-                              cut_off=cut_off)
+                              cut_off=cut_off,
+                              random_seed=random_seed)
 
     # format meta data as HTML tables
     lines = format_meta(lines, s_show)

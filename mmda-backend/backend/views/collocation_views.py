@@ -795,6 +795,7 @@ def get_concordance_for_collocation(username, collocation):
 
     flags_query = "%cd"
     escape_query = True
+    random_seed = 42
 
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
@@ -816,7 +817,8 @@ def get_concordance_for_collocation(username, collocation):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=escape_query
+        escape_query=escape_query,
+        random_seed=random_seed
     )
 
     if concordance is None:
