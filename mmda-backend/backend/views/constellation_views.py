@@ -315,7 +315,7 @@ def get_constellation_concordance(username, constellation):
     order = request.args.get('order', 'random')
 
     # not set yet
-    p_show = ['word']
+    p_show = ['word', 'lemma']
 
     if corpus_name is None:
         return jsonify({'msg': 'no corpus provided'}), 404
@@ -362,12 +362,10 @@ def get_constellation_concordance(username, constellation):
         'extracted %d concordance lines for corpus %s' % (len(concordance), corpus_name)
     )
 
-    # conc_json = jsonify(concordance)
-    # tmp format
+    # repair format
     out = list()
     for key, value in concordance.items():
         out.append({'id': key, **value})
-
     conc_json = jsonify(out)
 
     return conc_json, 200

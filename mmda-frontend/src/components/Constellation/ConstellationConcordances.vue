@@ -39,9 +39,11 @@
             </v-layout>
           </v-form>
         </v-container>
+
         <v-data-table v-if="filteredConcordances" :headers="concordanceHeaders" :items="filteredConcordances" :pagination.sync="concordancePagination" class="elevation-1">
           <template v-slot:items="props">
-             <td class="text-xs-center">
+
+            <td class="text-xs-center">
               <v-menu open-on-hover top offset-y>
                 <span slot="activator">{{ props.item.id }}</span>
                 <v-card>
@@ -52,9 +54,22 @@
                 </v-card>
               </v-menu>
             </td>
-            <td class="text-xs-left">{{ props.item.word }}</td>
+
+            <!-- <td class="text-xs-left">{{ props.item.text }}</td> -->
+            <td class="text-xs-left">
+              <template v-for="(el,idx) in props.item.text">
+                <span :key="'t_'+idx"
+                      @click="selectItem(el)"
+                      :class="'concordance '+ el.role "
+                      :style="el.style"
+                      :title="el.lemma">
+                  {{el.text}}
+                </span>
+              </template>
+            </td> 
           </template>
         </v-data-table>
+
       </v-tab-item>
     </v-tabs>
   </v-container>
@@ -65,6 +80,7 @@
 <script>
 import ConstellationSelection from '@/components/Constellation/ConstellationCorporaSelection.vue'
 import { mapActions, mapGetters } from 'vuex'
+import { random_color, hex_color_from_array } from '@/wordcloud/util_misc.js'
 
 export default {
   name: 'ConstellationConcordances',
@@ -128,17 +144,52 @@ export default {
         return a
       }
       this.filteredConcordances = this.concordances.filter(checkDiscoursemes)
+      this.filteredConcordances = this.formatConcordances()
+    },
+    formatConcordances () {
+      var C = [];
+      if(!this.filteredConcordances) return C;
+      for(var ci of Object.keys(this.filteredConcordances)){
+        var c = this.filteredConcordances[ci]
+        var r = { 
+          match_pos: ci,
+          text: []
+        };
+        Object.assign(r, c);
+        for(var i=0; i<c.word.length; ++i){
+          var el = {
+            text:   c.word[i],
+            role:   c.role[i]? c.role[i].join(" "): "None",
+            lemma:  c.lemma[i]
+          };
+
+          for(var role of c.role[i]){
+
+            if(!role) continue;
+            var nr = Number.parseInt(role);
+            if(nr!==nr) continue;
+            var col = random_color(nr);
+
+            el.style =  'text-decoration:  ' + hex_color_from_array(col) + " underline double;";
+            col[3] = 0.1;
+            el.style += 'background-color: ' + hex_color_from_array(col) + ";";
+          }
+          r.text.push(el);
+        }
+        C.push(r);
+      }
+      return C;
     },
     clear () {
       this.error = null
       this.nodata = false
-      this.requiredDiscoursemes = null
+      this.requiredDiscoursemes = []
     },
   },
   created () {
     this.id = this.$route.params.id;
     this.filteredConcordances = this.concordances
-    // console.log(this.concordances)
+    this.filteredConcordances = this.formatConcordances()
   }
 }
 
