@@ -14,39 +14,76 @@ import requests
 discoursemes = [
     {
         'name': 'Atomkraft',
-        'items': ['Atomkraft', 'Atomenergie',
-                  'Kernkraft', 'Kernenergie',
-                  'Nuklearenergie', 'Nuklearkraft']
+        'items': ['Atomkraft',
+                  'Atomenergie',
+                  'Kernkraft',
+                  'Kernenergie',
+                  'Nuklearenergie',
+                  'Nuklearkraft']
+    },
+    {
+        'name': 'Ausbau',
+        'items': ['Ausbau',
+                  'ausbauen',
+                  'Förderung',
+                  'Steigerung die Anteil']
+    },
+    {
+        'name': 'Ausstieg',
+        'items': ['Ausstieg',
+                  'aussteigen']
     },
     {
         'name': 'erneuerbare Energien',
-        'items': ["erneuerbar Energie", "regenerativ Energie"]
+        'items': ["erneuerbar Energie",
+                  "regenerativ Energie",
+                  "Windenergie",
+                  "Sonnenenergie"]
     },
     {
         'name': 'fossile Energie',
-        'items': ["fossil Energie", "fossil Brennstoff", "Braunkohle",
-                  "Steinkohle", "Erdgas", "Erdöl"]
+        'items': ["fossil Energie",
+                  "fossil Brennstoff",
+                  "Braunkohle",
+                  "Steinkohle",
+                  "Erdgas",
+                  "Erdöl",
+                  "Mineralöl"]
     },
     {
         'name': 'Klimawandel',
-        'items': ["Klimawandel", "Klimaveränderung", "Klimaänderung",
-                  "Klimawechsel", "global Erwärmung", "Klimakrise"]
+        'items': ["Klimawandel",
+                  "Klimaveränderung",
+                  "Klimaänderung",
+                  "Klimawechsel",
+                  "global Erwärmung",
+                  "Klimakrise"]
     },
     {
         'name': 'Kampf',
-        'items': ["Bekämpfung", "Kampf", "aufhalten"]
+        'items': ["Bekämpfung",
+                  "Kampf",
+                  "aufhalten"]
     },
     {
-        'name': 'Ressourcen',
-        'items': ["Armut", "Hunger", "Dürre", "Ressourcenknappheit"]
+        'name': 'Mangel',
+        'items': ["Armut",
+                  "Hunger",
+                  "Dürre",
+                  "Ressourcenknappheit"]
     },
     {
         'name': 'Wetter',
-        'items': ["Sturm", "Wetterereignis", "Naturkatastrophe"]
+        'items': ["Sturm",
+                  "Wetterereignis",
+                  "Naturkatastrophe"]
     },
     {
         'name': 'Anpassung',
-        'items': ["Anpassungsmaßnahme", "Maßnahme", "bewältigen", "Anpassung"]
+        'items': ["Anpassungsmaßnahme",
+                  "Maßnahme",
+                  "bewältigen",
+                  "Anpassung"]
     }
 ]
 
