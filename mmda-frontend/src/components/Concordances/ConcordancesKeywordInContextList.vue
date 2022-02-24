@@ -78,11 +78,11 @@
               </template>
             </td>
 
-            <td v-if="useSentiment" class="text-xs-center kwic-sentiment"
-                :value="props.item.sentiment"
-                :style="'color:'+sentimentColor[ props.item.sentiment ]">
-              {{ sentimentEmotion[ props.item.sentiment ] }}
-            </td>
+            <!-- <td v-if="useSentiment" class="text-xs-center kwic-sentiment" -->
+            <!--     :value="props.item.sentiment" -->
+            <!--     :style="'color:'+sentimentColor[ props.item.sentiment ]"> -->
+            <!--   {{ sentimentEmotion[ props.item.sentiment ] }} -->
+            <!-- </td> -->
 
           </template>
 
@@ -169,17 +169,16 @@ export default {
   props: ['showHeader', 'concordances', 'loading', 'onclickitem'],
   data: () => ({
     item: null,
-    implementedSOC_conc: false, //TODO:
     id: null,
     error: null,
     keywordRole: 'node',
-    useSentiment: false,
+    // useSentiment: false,
     concordancesRequested: false,
     loadingConcordances: false,
-    sentimentColor: ['green','yellow','red'],
-    sentimentEmotion: ['😃','😐','😠'],
+    // sentimentColor: ['green','yellow','red'],
+    // sentimentEmotion: ['😃','😐','😠'],
     pagination: {
-      sortBy: 'log likelihood',
+      // sortBy: 'log likelihood',
       descending: true,
       rowsPerPage: 10
     }
@@ -193,7 +192,6 @@ export default {
     },
     loading(){
       if(this.loading) this.concordancesRequested = true;
-      // console.log("load "+this.loading);
     },
     windowSize(){
       this.getConcordances({
@@ -219,26 +217,25 @@ export default {
         { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
         { class:'kwic-keyword-head',align:'center', text:'keyword', value:'keyword.text'},
         { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
-        ...this.useSentiment?[{text:"sentiment",value:'sentiment'}]:[]
+        // ...this.useSentiment?[{text:"sentiment",value:'sentiment'}]:[]
       ];
     },
     tableContent () {
+      // concordance formatting
       var C = [];
+
       if(!this.corpus) return C;
-      // var p_att = 'p_query';//this.corpus.p_att;
-      
-      // console.log(p_att);
-      // console.debug(this.concordances)
       if(!this.concordances) return C;
+
       for(var ci of Object.keys(this.concordances)){
         var c = this.concordances[ci]
         var r = { 
           head: [],
           match_pos: ci,
-          keyword: {text:'',role:'',lemma:''},
+          keyword: {text: '', role: '', lemma: ''},
           tail: [],
           meta: [],
-          sentiment: 0,
+          // sentiment: 0,
           // these are for sorting context -purposes
           reverse_head_text: '',
           head_text: '',
@@ -248,7 +245,7 @@ export default {
         var beforeKeyword = true;
 
         // TODO:: assign correct sentiment
-        r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
+        // r.sentiment = Math.floor( Math.random() * this.sentimentEmotion.length);
         // r.meta = 's'
 
         for(var i=0; i<c.word.length; ++i){  
@@ -258,24 +255,20 @@ export default {
             role:   c.role[i]? c.role[i].join(" "): "None",
             lemma:  c[this.collocation.p_query][i]
           };
-
           // if(!el.role) el.role = " ";
           // console.log("hello "+c.role);
           // if(!el.role) {console.log("hello "+el.role+"    "+c.role+"    "+i); console.log(c);}
           for(var role of c.role[i]){
-              var nr = Number.parseInt(role);
-              if(!role){
-                //console.log("Role: '"+role + "' for '"+c.word[i]+"'");
-                //continue;
-                // nr = -1;
-                continue;
-              }
-              if(nr!==nr) continue;
-              var col = random_color(nr);
-              el.style = 'text-decoration: ' + hex_color_from_array(col) + " underline double;";
-              col[3] = 0.1;
-              el.style += 'background-color: ' + hex_color_from_array(col) + ";";
-              //console.log(el.style);
+
+            if(!role) continue;
+            var nr = Number.parseInt(role);
+            if(nr!==nr) continue;
+
+            var col = random_color(nr);
+            el.style =  'text-decoration:  ' + hex_color_from_array(col) + " underline double;";
+            col[3] = 0.1;
+            el.style += 'background-color: ' + hex_color_from_array(col) + ";";
+            // console.log(el.style);
           }
 
           if(beforeKeyword && el.role.includes(this.keywordRole)){
@@ -288,25 +281,20 @@ export default {
             r . head_text += ' '+el.text;
           }
           else{
-              if(el.role.includes(this.keywordRole)){
-                  r . keyword.text += ' '+el.text;
-                  r . keyword.lemma += ' '+el.lemma
-              }
-              else{
-                  r . tail.push(el);
-                  r . tail_text += ' '+el.text;
-              }
+            if(el.role.includes(this.keywordRole)){
+              r . keyword.text += ' '+el.text;
+              r . keyword.lemma += ' '+el.lemma
+            }
+            else{
+              r . tail.push(el);
+              r . tail_text += ' '+el.text;
+            }
           }
         }
 
         r.reverse_head_text = r.head_text.split("").reverse().join("");
         C.push(r);
-        // console.log(r)
-	// console.log(c)
-	// return C
-
       }
-      //console.log(this.csvFileText);
       return C;
     },
     csvFileText(){
@@ -420,7 +408,7 @@ export default {
     if(!this.collocation) return this.$router.push('/collocation'); //fallback
 
     this.getCorpus(this.collocation.corpus).catch((error)=>{
-      this.error = "Collocation Analysis or Corpus not Found: "+error.message;//this.error_message_for(error,"corpus.");
+      this.error = "Collocation Analysis or Corpus not Found: "+error.message;
     });
 
     if(!this.loading){
@@ -428,7 +416,6 @@ export default {
       this.update();
       this.clickOnLemma();
     }
-    // console.log("we are here");
   }
 }
 

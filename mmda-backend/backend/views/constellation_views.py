@@ -17,7 +17,7 @@ from backend.analysis.validators import (
     CONSTELLATION_UPDATE_SCHEMA
 )
 from backend.analysis.ccc import ccc_corpus
-from backend.analysis.ccc import ccc_constellation_concordance
+from backend.analysis.ccc import ccc_concordance
 from backend.analysis.ccc import ccc_constellation_association
 # backend.models
 from backend.models.user_models import User
@@ -332,29 +332,45 @@ def get_constellation_concordance(username, constellation):
     for disc in constellation.discoursemes:
         discoursemes[str(disc.id)] = disc.items
 
+    flags_query = "%cd"
+    escape_query = True
+
     # use cwb-ccc to extract data
-    concordance = ccc_constellation_concordance(
+    concordance = ccc_concordance(
         corpus_name=corpus_name,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        discoursemes=discoursemes,
-        p_query=p_query,
-        s_query=s_break,
+        topic_discourseme={},
+        filter_discoursemes={},
+        additional_discoursemes=discoursemes,
         s_context=s_break,
+        window_size=0,
         context=None,
+        p_query=p_query,
         p_show=p_show,
         s_show=s_show,
+        s_query=s_break,
         order=order,
-        cut_off=cut_off
+        cut_off=cut_off,
+        flags_query=flags_query,
+        escape_query=escape_query
     )
 
     log.debug(
         'extracted %d concordance lines for corpus %s' % (len(concordance), corpus_name)
     )
 
-    return jsonify(concordance), 200
+    # conc_json = jsonify(concordance)
+    # tmp format
+    out = list()
+    for key, value in concordance.items():
+        out.append({'id': key, **value})
+
+    conc_json = jsonify(out)
+
+    return conc_json, 200
 
 
 # ASSOCIATIONS

@@ -62,11 +62,8 @@ export default {
     output(){
       var result = "";
 
-      // TODO: Didn't know what C supposed to be
-      // if(!this.corpus) return C;
       if(!this.corpus) return '';
       var p_att = this.corpus.p_att;
-
 
       var pre_context = new Map();
       var keyword = new Map();

@@ -20,18 +20,38 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
 
 
+def format_meta(lines, s_show):
+    output = dict()
+    c = 0                       # random key (for sorting)
+    for line in lines:
+        c += 1
+        output[c] = line
+        meta = dict()
+        for s in ['match'] + s_show:
+            meta[s] = output[c].pop(s)
+        output[c]['meta'] = DataFrame.from_dict(
+            meta, orient='index'
+        ).to_html(bold_rows=False, header=False)
+    return output
+
+
 def format_counts(df):
 
     ams_dict = {
+        # asymptotic hypothesis tests
         'log_likelihood': 'log likelihood',
-        'dice_1000': 'Dice-1000',
-        'log_ratio': 'log ratio',
-        'mutual_information': 'mutual information',
         'z_score': 'z-score',
         't_score': 't-score',
         'simple_ll': 'simple LL',
+        # point estimates of association strength
+        'dice_1000': 'Dice-1000',
+        'log_ratio': 'log ratio',
+        # information theory
+        'mutual_information': 'mutual information',
         'local_mutual_information': 'local MI',
+        # conservative estimates
         'conservative_log_ratio': 'Conservative LR',
+        # frequencies
         'ipm': 'IPM (obs.)',
         'ipm_expected': 'IPM (exp.)',
     }
@@ -110,79 +130,6 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-# @anycache(CACHE_PATH)
-# TODO take care of caching for random order
-def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
-                    lib_path, topic_items, topic_name, s_context,
-                    window_size, context=20,
-                    additional_discoursemes={}, p_query='lemma',
-                    p_show=['word', 'lemma'], s_show=['text_id'],
-                    s_query=None, order='random', cut_off=100,
-                    flags_query='%cd', escape_query=True):
-    """get concordance lines for topic (+ additional discoursemes).
-
-    :param str corpus_name: name of corpus in CWB registry
-    :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
-    :param str lib_path: path to library (with macros and wordlists)
-
-    :param list topic_items: list of lexical items
-    :param str topic_name: name of the topic ('node') discourseme
-    :param str s_context: s-att to use for delimiting contexts
-    :param int window_size: mark tokens further away from topic as 'out_of_window'
-    :param int context: context around the nodes used to identify relevant matches
-
-    :param dict additional_discoursemes: {name: items}
-
-    :param str p_query: p-att layer to query
-    :param list p_show: p-attributes to show
-    :param list s_show: s-attributes to show
-    :param str s_query: s-att to use for delimiting queries
-    :param str order: concordance order (first / last / random)
-    :param int cut_off: number of lines to retrieve
-    :param str flags_query: flags to use for querying
-    :param bool escape_query: whether to cqp-escape the query items
-
-    :return: dict of concordance lines (each one a dict, keys=1:N)
-    :rtype: dict
-
-    """
-
-    # preprocess parameters
-    s_query = s_context if s_query is None else s_query
-    window = context if window_size is None else window_size
-
-    # create constellation
-    const = create_constellation(corpus_name,
-                                 topic_name, topic_items,
-                                 p_query, s_query, flags_query, escape_query,
-                                 s_context, context,
-                                 additional_discoursemes,
-                                 lib_path, cqp_bin, registry_path, data_path)
-
-    # retrieve lines
-    lines = const.concordance(window=window,
-                              p_show=p_show, s_show=s_show,
-                              order=order, cut_off=cut_off)
-
-    # convert meta data to HTML tables
-    # TODO: speed up!
-    output = dict()
-    c = 0                       # random key (for sorting)
-    for line in lines:
-        c += 1
-        output[c] = line
-        meta = dict()
-        for s in ['match'] + s_show:
-            meta[s] = output[c].pop(s)
-        output[c]['meta'] = DataFrame.from_dict(
-            meta, orient='index'
-        ).to_html(bold_rows=False, header=False)
-
-    return output
-
-
 @anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
@@ -227,17 +174,32 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
+    match_strategy = 'longest'
+    escape_query = True
+    topic_discourseme = {'topic': topic_items}
+    filter_discoursemes = additional_discoursemes
 
     # create constellation
     try:
-        const = create_constellation(
-            corpus_name,
-            topic_name, topic_items,
-            p_query, s_query, flags_query, escape,
-            s_context, context,
-            additional_discoursemes,
-            lib_path, cqp_bin, registry_path, data_path
-        )
+        const = create_constellation(corpus_name,
+                                     # discoursemes
+                                     topic_discourseme,
+                                     filter_discoursemes,
+                                     {},
+                                     # context settings
+                                     s_context,
+                                     context,
+                                     # query settings
+                                     p_query,
+                                     s_query,
+                                     flags_query,
+                                     escape_query,
+                                     match_strategy,
+                                     # CWB settings
+                                     lib_path,
+                                     cqp_bin,
+                                     registry_path,
+                                     data_path)
     except KeyError:            # no matches
         return
     collocates = const.collocates(
@@ -366,83 +328,6 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     return output
 
 
-# @anycache(CACHE_PATH)
-# TODO take care of caching for random order
-def ccc_constellation_concordance(corpus_name, cqp_bin, registry_path,
-                                  data_path, lib_path, discoursemes,
-                                  p_query='lemma', s_query=None,
-                                  flags_query='%cd', escape_query=True,
-                                  s_context=None, context=None,
-                                  p_show=['word', 'lemma'], s_show=['text_id'],
-                                  order='random', cut_off=100):
-    """get concordance lines for constellation.
-
-    :param str corpus_name: name of corpus in CWB registry
-    :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
-    :param str lib_path: path to library (with macros and wordlists)
-
-    :param dict discoursemes: {name: items}
-    :param str p_query: p-att layer to query
-    :param str s_query: s-att to use for delimiting queries
-    :param str flags_query: flags to use for querying
-    :param bool escape_query: whether to cqp-escape the query items
-
-    :param str s_context: s-att to use for delimiting contexts
-    :param int context: context around the nodes used to identify relevant matches
-
-    :param list p_show: p-attributes to show
-    :param list s_show: s-attributes to show
-    :param str order: concordance order (first / last / random)
-    :param int cut_off: number of lines to retrieve
-
-    :return: dict of concordance lines (each one a dict, keys=1:N)
-    :rtype: dict
-
-    """
-
-    names = list(discoursemes.keys())
-    topic = names[0]
-    s_context = s_query if not s_context else s_context
-
-    topic_name = topic
-    topic_items = discoursemes.pop(topic_name)
-    additional_discoursemes = discoursemes
-    print(discoursemes.keys())
-    flags = flags_query
-    escape = escape_query
-
-    const = create_constellation(corpus_name, topic_name, topic_items,
-                                 p_query, s_query, flags, escape,
-                                 s_context, context,
-                                 additional_discoursemes,
-                                 lib_path, cqp_bin, registry_path, data_path,
-                                 match_strategy='longest',
-                                 text=True)
-
-    lines = const.concordance(p_show=p_show, s_show=s_show,
-                              order=order, cut_off=cut_off)
-
-    # convert to HTML table
-    # TODO: speed up!
-    output = list()
-    c = 0                       # random key (for sorting)
-    for line in lines:
-        c += 1
-        meta = dict()
-        for s in ['match'] + s_show:
-            meta[s] = line.pop(s)
-        line['word'] = ' '.join(line['word'])
-        line['meta'] = DataFrame.from_dict(
-            meta, orient='index'
-        ).to_html(bold_rows=False, header=False)
-        line['id'] = c
-        output.append(line)
-
-    return output
-
-
 @anycache(CACHE_PATH)
 def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
                                   data_path, lib_path, discoursemes,
@@ -474,26 +359,30 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
 
     # pre-process parameters
     s_context = s_query if not s_context else s_context
+    match_strategy = 'longest'
 
-    # get names of topic and further discoursemes
-    names = list(discoursemes.keys())
-    topic = names[0]
+    # create constellation
+    const = create_constellation(corpus_name,
+                                 # discoursemes
+                                 {},
+                                 discoursemes,
+                                 {},
+                                 # context settings
+                                 s_context,
+                                 context,
+                                 # query settings
+                                 p_query,
+                                 s_query,
+                                 flags_query,
+                                 escape_query,
+                                 match_strategy,
+                                 # CWB settings
+                                 lib_path,
+                                 cqp_bin,
+                                 registry_path,
+                                 data_path)
 
-    topic_name = topic
-    topic_items = discoursemes.pop(topic_name)
-    additional_discoursemes = discoursemes
-    flags = flags_query
-    escape = escape_query
-
-    constellation = create_constellation(corpus_name, topic_name, topic_items,
-                                         p_query, s_query, flags, escape,
-                                         s_context, context,
-                                         additional_discoursemes,
-                                         lib_path, cqp_bin, registry_path, data_path,
-                                         match_strategy='longest',
-                                         text=True)
-
-    tables = constellation.associations()
+    tables = const.associations()
 
     out = list()
     for row in tables.iterrows():
@@ -529,3 +418,82 @@ def ccc_keywords(corpus, corpus_reference,
     keywords = format_counts(keywords)
 
     return keywords
+
+
+# TODO take care of caching for random order:
+# use random_sede for cachine
+@anycache(CACHE_PATH)
+def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
+                    lib_path, topic_discourseme, filter_discoursemes,
+                    additional_discoursemes, s_context,
+                    window_size, context=20, p_query='lemma',
+                    p_show=['word', 'lemma'], s_show=['text_id'],
+                    s_query=None, order='random', cut_off=100,
+                    flags_query='%cd', escape_query=True):
+    """get concordance lines for topic (+ additional discoursemes).
+
+    :param str corpus_name: name of corpus in CWB registry
+    :param str cqp_bin: path to CQP binary
+    :param str registry_path: path to CWB registry
+    :param str data_path: path to data directory
+    :param str lib_path: path to library (with macros and wordlists)
+
+    :param list topic_items: list of lexical items
+    :param str topic_name: name of the topic ('node') discourseme
+    :param str s_context: s-att to use for delimiting contexts
+    :param int window_size: mark tokens further away from topic as 'out_of_window'
+    :param int context: context around the nodes used to identify relevant matches
+
+    :param dict additional_discoursemes: {name: items}
+
+    :param str p_query: p-att layer to query
+    :param list p_show: p-attributes to show
+    :param list s_show: s-attributes to show
+    :param str s_query: s-att to use for delimiting queries
+    :param str order: concordance order (first / last / random)
+    :param int cut_off: number of lines to retrieve
+    :param str flags_query: flags to use for querying
+    :param bool escape_query: whether to cqp-escape the query items
+
+    :return: dict of concordance lines (each one a dict, keys=1:N)
+    :rtype: dict
+
+    """
+
+    # preprocess parameters
+    s_query = s_context if s_query is None else s_query
+    window = context if window_size is None else window_size
+    match_strategy = 'longest'
+
+    # create constellation
+    const = create_constellation(corpus_name,
+                                 # discoursemes
+                                 topic_discourseme,
+                                 filter_discoursemes,
+                                 additional_discoursemes,
+                                 # context settings
+                                 s_context,
+                                 context,
+                                 # query settings
+                                 p_query,
+                                 s_query,
+                                 flags_query,
+                                 escape_query,
+                                 match_strategy,
+                                 # CWB settings
+                                 lib_path,
+                                 cqp_bin,
+                                 registry_path,
+                                 data_path)
+
+    # retrieve lines
+    lines = const.concordance(window,
+                              p_show,
+                              s_show,
+                              order=order,
+                              cut_off=cut_off)
+
+    # format meta data as HTML tables
+    lines = format_meta(lines, s_show)
+
+    return lines

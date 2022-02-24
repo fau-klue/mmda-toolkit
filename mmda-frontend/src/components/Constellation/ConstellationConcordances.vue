@@ -41,7 +41,7 @@
         </v-container>
         <v-data-table v-if="filteredConcordances" :headers="concordanceHeaders" :items="filteredConcordances" :pagination.sync="concordancePagination" class="elevation-1">
           <template v-slot:items="props">
-            <td class="text-xs-center">
+             <td class="text-xs-center">
               <v-menu open-on-hover top offset-y>
                 <span slot="activator">{{ props.item.id }}</span>
                 <v-card>
@@ -119,7 +119,6 @@ export default {
     }),
     filterConcordances () {
       var required = this.requiredDiscoursemes;
-
       function checkDiscoursemes(disc) {
         var a = true;
         for (var i = 0; i < required.length; ++i) {
@@ -137,7 +136,9 @@ export default {
     },
   },
   created () {
+    this.id = this.$route.params.id;
     this.filteredConcordances = this.concordances
+    // console.log(this.concordances)
   }
 }
 

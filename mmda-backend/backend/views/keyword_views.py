@@ -644,6 +644,11 @@ def get_concordance_for_keyword(username, keyword):
 
     window_size = request.args.get('window_size', 50)
     s_break = keyword.s_break
+    topic_discourseme = {'topic': [item]}
+    filter_discoursemes = {}
+    additional_discoursemes = {}
+    flags_query = "%cd"
+    escape_query = True
 
     # use cwb-ccc to extract concordance lines
     concordance = ccc_concordance(
@@ -652,8 +657,9 @@ def get_concordance_for_keyword(username, keyword):
         registry_path=current_app.config['CCC_REGISTRY_PATH'],
         data_path=current_app.config['CCC_DATA_PATH'],
         lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=[item],
-        topic_name='topic',
+        topic_discourseme=topic_discourseme,
+        filter_discoursemes=filter_discoursemes,
+        additional_discoursemes=additional_discoursemes,
         s_context=s_break,
         window_size=window_size,
         context=None,
@@ -662,7 +668,9 @@ def get_concordance_for_keyword(username, keyword):
         s_show=s_show,
         s_query=s_break,
         order=order,
-        cut_off=cut_off
+        cut_off=cut_off,
+        flags_query=flags_query,
+        escape_query=escape_query
     )
 
     if concordance is None:
