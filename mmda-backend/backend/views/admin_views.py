@@ -13,6 +13,7 @@ from backend.commands.init_db import find_or_create_user
 from backend import admin_required
 from backend.models.user_models import User, Role
 from backend.models.collocation_models import Collocation, Discourseme, Constellation
+from backend.models.keyword_models import Keyword
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -142,6 +143,20 @@ def get_collocation():
 
 
 # READ
+@admin_blueprint.route('/api/admin/keyword/', methods=['GET'])
+@admin_required
+def get_keyword():
+    """
+    Admin: List all keyword analyses
+    """
+
+    items = Keyword.query.all()
+    items_serial = [item.serialize for item in items]
+
+    return jsonify(items_serial), 200
+
+
+# READ
 @admin_blueprint.route('/api/admin/discourseme/', methods=['GET'])
 @admin_required
 def get_discourseme():
@@ -186,6 +201,26 @@ def delete_collocation(collocation):
     db.session.commit()
 
     log.debug('Deleted collocation analysis %s', collocation)
+    return jsonify({'msg': 'Deleted'}), 200
+
+
+# DELETE
+@admin_blueprint.route('/api/admin/keyword/<keyword>/', methods=['DELETE'])
+@admin_required
+def delete_keyword(keyword):
+    """
+    Admin: Remove a Keyword Analysis
+    """
+
+    item = Keyword.query.filter_by(id=keyword).first()
+    if not item:
+        log.debug('No such item %s', keyword)
+        return jsonify({'msg': 'No such item'}), 404
+
+    db.session.delete(item)
+    db.session.commit()
+
+    log.debug('Deleted keyword analysis %s', keyword)
     return jsonify({'msg': 'Deleted'}), 200
 
 

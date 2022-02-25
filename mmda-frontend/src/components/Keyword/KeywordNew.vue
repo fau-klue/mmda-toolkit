@@ -166,6 +166,7 @@ export default {
       this.loading = true
       const data = {
         username: this.user.username,
+        name: this.name,
         p: this.p,
         p_reference: this.pReference,
         corpus: this.selectCorpus,

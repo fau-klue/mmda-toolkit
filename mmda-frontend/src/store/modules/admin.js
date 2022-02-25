@@ -9,6 +9,8 @@ const state = {
   users: null,
   // List of all collocation analyses
   collocation: null,
+  // List of all keyword analyses
+  keyword: null,
   // List of all discoursemes
   discoursemes: null,
   // List of all constellations
@@ -21,6 +23,9 @@ const getters = {
   },
   collocation (state) {
     return state.collocation
+  },
+  keyword (state) {
+    return state.keyword
   },
   discoursemes (state) {
     return state.discoursemes
@@ -89,6 +94,17 @@ const actions = {
       })
     })
   },
+  getAllKeyword ({commit}) {
+    // Get list of all keyword analyses
+    return new Promise((resolve, reject) => {
+      api.get(`/admin/keyword/`).then(function (response) {
+        commit('setKeyword', response.data)
+        resolve()
+      }).catch(function (error) {
+        reject(error)
+      })
+    })
+  },
   getAllDiscoursemes ({commit}) {
     // Get list of all discoursemes
     return new Promise((resolve, reject) => {
@@ -119,6 +135,9 @@ const mutations = {
   },
   setCollocation (state, collocation) {
     state.collocation = collocation
+  },
+  setKeyword (state, keyword) {
+    state.keyword = keyword
   },
   setDiscoursemes (state, discoursemes) {
     state.discoursemes = discoursemes

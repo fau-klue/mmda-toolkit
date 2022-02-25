@@ -24,6 +24,25 @@
           </v-list>
           </div>
 
+          <div v-if="keyword">
+          <p class="headline">Keyword Analyses ({{ keyword.length }})</p>
+          <v-list>
+            <v-list-tile v-for="item in keyword" :key="item.id" avatar>
+              <v-list-tile-avatar>
+                <v-icon class="grey--text">dashboard</v-icon>
+              </v-list-tile-avatar>
+              <v-list-tile-content>
+                  {{item.name}} (ID: {{item.id}}, User: {{item.user_id}})
+              </v-list-tile-content>
+              <v-list-tile-action>
+                <v-btn icon @click="removeObject('keyword', item)">
+                  <v-icon class="red--text text--lighten-1">delete</v-icon>
+                </v-btn>
+              </v-list-tile-action>
+            </v-list-tile>
+          </v-list>
+          </div>
+
           <div v-if="discoursemes">
           <p class="headline">Discoursemes ({{ discoursemes.length }})</p>
           <v-list>
@@ -33,8 +52,7 @@
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>
-                  {{item.name}}
-                  (ID: {{item.id}}, User: {{item.user_id}})
+                  {{item.name}} (ID: {{item.id}}, User: {{item.user_id}})
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -55,8 +73,7 @@
               </v-list-tile-avatar>
               <v-list-tile-content>
                 <v-list-tile-title>
-                  {{item.name}}
-                  (ID: {{item.id}}, User: {{item.user_id}})
+                  {{item.name}} (ID: {{item.id}}, User: {{item.user_id}})
                 </v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
@@ -88,6 +105,7 @@ export default {
     ...mapGetters({
       user: 'login/user',
       collocation: 'admin/collocation',
+      keyword: 'admin/keyword',
       discoursemes: 'admin/discoursemes',
       constellations: 'admin/constellations'
     })
@@ -95,6 +113,7 @@ export default {
   methods: {
     ...mapActions({
       getAllCollocation: 'admin/getAllCollocation',
+      getAllKeyword: 'admin/getAllKeyword',
       getAllDiscoursemes: 'admin/getAllDiscoursemes',
       getAllConstellations: 'admin/getAllConstellations',
       deleteObject: 'admin/deleteObject'
@@ -104,9 +123,7 @@ export default {
         object: type,
         object_id: object.id
       }
-
       this.loading = true
-      // Collocation
       this.deleteObject(data).then(() => {
         this.error = null
       }).catch((error) => {
@@ -118,6 +135,12 @@ export default {
       this.loading = true
       // Collocation
       this.getAllCollocation().then(() => {
+        this.error = null
+      }).catch((error) => {
+        this.error = error
+      })
+      // Keyword
+      this.getAllKeyword().then(() => {
         this.error = null
       }).catch((error) => {
         this.error = error
