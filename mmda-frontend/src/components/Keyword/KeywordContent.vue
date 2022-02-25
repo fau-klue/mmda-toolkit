@@ -23,9 +23,9 @@
                 <v-text-field v-model="keyword.p_reference" :value="keyword.p_reference" label="query layer (p-att)" box readonly></v-text-field>
               </v-layout>
               <v-layout row>
-                <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
-                <v-spacer/>
                 <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
+                <v-spacer/>
+                <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
               </v-layout>
             </v-form>
             <v-dialog v-model="dialogDelete" max-width="290">

@@ -48,18 +48,13 @@
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>Error during Constellation creation</v-alert>
 
                   <v-text-field v-model="name" label="Constellation Name" :rules="[rules.required, rules.counter]"></v-text-field>
+                  <v-combobox v-model="selectDiscoursemes" :items="userDiscoursemes" item-text="name" label="Discoursemes" multiple chips ></v-combobox>
 
-                  <v-combobox
-                    v-model="selectDiscoursemes"
-                    :items="userDiscoursemes"
-                    item-text="name"
-                    label="Discoursemes"
-                    multiple
-                    chips
-                    ></v-combobox>
-
-                  <v-btn color="success" class="text-lg-right" @click="addConstellation">Submit</v-btn>
-                  <v-btn color="info" outline class="text-lg-right" @click="clear">Clear</v-btn>
+                  <v-layout row>
+                    <v-spacer/>
+                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                    <v-btn color="success" class="text-lg-right" @click="addConstellation">Submit</v-btn>
+                  </v-layout>
                 </v-form>
               </v-flex>
             </v-layout>

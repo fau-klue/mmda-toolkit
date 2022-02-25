@@ -37,13 +37,17 @@
                   
                   <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus"></v-autocomplete>
                   <v-layout row>
-                    <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
-                    <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    <v-flex xs6>
+                      <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>
                   </v-layout>
                   <v-layout row>
-                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                     <v-spacer/>
-                    <v-btn color="success" class="text-lg-right" @click="loadAssociations">Analyze</v-btn>
+                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                    <v-btn color="success" class="text-lg-right" @click="loadAssociations">Submit</v-btn>
                   </v-layout>
                 </v-form>
               </v-flex>

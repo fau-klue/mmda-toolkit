@@ -39,10 +39,10 @@
             </v-form>
             
             <v-layout row>
-              <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
-              <v-spacer/>
-              <v-btn color="success" class="text-lg-right" @click="useForNewCollocation">Duplicate and Modify</v-btn>
               <v-btn color="error" class="text-lg-right" @click.stop="dialogDelete = true">Delete</v-btn>
+              <v-spacer/>
+              <v-btn color="info" class="text-lg-right" @click="reloadCoordinates">Regenerate Semantic Map</v-btn>
+              <v-btn color="success" class="text-lg-right" @click="useForNewCollocation">Duplicate and Modify</v-btn>
             </v-layout>
 
             <v-layout row>

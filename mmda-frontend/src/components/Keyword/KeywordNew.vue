@@ -60,19 +60,24 @@
                   <v-layout row>
                     <v-flex xs6>
                       <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="target" :rules="[rules.required]"></v-autocomplete>
-                      <v-combobox class="col-5" v-model="p" :items="pList" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
+                      <v-combobox class="col-5" v-model="p" :items="pList" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox>
                     </v-flex>
                     <v-flex xs6>
                       <v-autocomplete v-model="selectCorpusReference" clearable :items="corpora" item-value="name_api" item-text="name" label="reference" :rules="[rules.required]"></v-autocomplete>
-                      <v-combobox class="col-5" v-model="pReference" :items="pListReference" label="query layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
+                      <v-combobox class="col-5" v-model="pReference" :items="pListReference" label="query layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
                     </v-flex>
                   </v-layout>
                   <v-layout row>
-                    <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
-                    <v-spacer/>
-                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
-                    <v-spacer/>
-                    <v-btn color="success" class="text-lg-right" @click="addKeyword">Submit</v-btn>
+                    <v-flex xs6>
+                      <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-layout row>
+                        <v-spacer/>                        
+                        <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
+                        <v-btn color="success" class="text-lg-right" @click="addKeyword">Submit</v-btn>
+                      </v-layout>
+                    </v-flex>
                   </v-layout>
                 </v-form>
               </v-flex>

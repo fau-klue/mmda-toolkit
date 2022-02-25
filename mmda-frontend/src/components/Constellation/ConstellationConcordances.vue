@@ -55,14 +55,9 @@
               </v-menu>
             </td>
 
-            <!-- <td class="text-xs-left">{{ props.item.text }}</td> -->
             <td class="text-xs-left">
               <template v-for="(el,idx) in props.item.text">
-                <span :key="'t_'+idx"
-                      @click="selectItem(el)"
-                      :class="'concordance '+ el.role "
-                      :style="el.style"
-                      :title="el.lemma">
+                <span :key="'t_'+idx" @click="selectItem(el)" :class="'concordance '+ el.role " :style="el.style" :title="el.lemma">
                   {{el.text}}
                 </span>
               </template>

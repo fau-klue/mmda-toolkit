@@ -22,10 +22,10 @@
               </v-layout>
 
               <v-layout row>
-                <v-btn color="info" class="text-lg-right" @click="updateConstellation">Update</v-btn>
-                <v-spacer/>
-                <v-btn color="success" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Analyze</v-btn>
                 <v-btn color="error" class="text-lg-right" @click="deleteConstellation">Delete</v-btn>
+                <v-spacer/>
+                <v-btn color="info" class="text-lg-right" @click="updateConstellation">Update</v-btn>
+                <v-btn color="success" :to="/constellation/ + theConstellation.id + /concordances/" class="text-lg-right">Analyze</v-btn>
               </v-layout>
 
             </v-form>

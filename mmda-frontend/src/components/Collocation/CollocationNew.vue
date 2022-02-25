@@ -77,25 +77,35 @@
                   <v-alert v-if="error" value="true" color="error" icon="priority_high" outline>{{ error }}</v-alert>
 
                   <v-autocomplete v-model="selectCorpus" clearable :items="corpora" item-value="name_api" item-text="name" label="corpus" :rules="[rules.required]"></v-autocomplete>
+
                   <v-combobox class="col-5" v-model="selectDiscourseme" :items="userDiscoursemes" label="discourseme" item-text="name" :rules="[rules.required]"></v-combobox>
+
                   <v-combobox v-model="selectItems" :items="items" label="items" :rules="[rules.required, rules.counter]" multiple chips ></v-combobox>
-                  <v-layout row>
-                    <v-combobox class="col-5" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
-                    <v-combobox class="col-5" v-model="pCollocation" :items="pCollocations" label="collocation layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox><v-spacer/>
-                  </v-layout>
+
                   <v-layout row>
                     <v-flex xs6>
-                      <v-combobox class="col-5" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                      <v-combobox class="col-6" v-model="pQuery" :items="pQueries" label="query layer (p-att)" :rules="[rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>
+                    <v-flex xs6>
+                      <v-combobox class="col-6" v-model="pCollocation" :items="pCollocations" label="collocation layer (p-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
+                    </v-flex>                      
+                  </v-layout>
+
+                  <v-layout row>
+                    <v-flex xs6>
+                      <v-combobox class="col-6" v-model="sBreak" :items="sBreaks" label="context break (s-att)" :rules="[rules.required, rules.alphanum, rules.counter]" ></v-combobox>
                     </v-flex>
                     <v-flex xs6>
                       <v-slider v-model="selectWindow" inverse-label ticks="always" :min="min" :max="max" thumb-label="always" label="context" ></v-slider>
                     </v-flex>
                   </v-layout>
+
                   <v-layout row>
-                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                     <v-spacer/>
+                    <v-btn color="info" class="text-lg-right" @click="clear">Clear</v-btn>
                     <v-btn color="success" class="text-lg-right" @click="addCollocation">Submit</v-btn>
                   </v-layout>
+
                 </v-form>
               </v-flex>
             </v-layout>

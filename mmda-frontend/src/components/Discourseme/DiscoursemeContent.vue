@@ -27,10 +27,11 @@
             </v-form>
 
             <v-layout row>
+              <v-btn color="error" class="text-lg-right"  @click.stop="dialogDelete = true">Delete</v-btn>
+              <v-spacer/>
               <v-btn color="info" class="text-lg-right" @click="updateDiscourseme">Update</v-btn>
               <v-btn color="success" class="text-lg-right" @click="createCollocation">Analyze</v-btn>
-              <v-spacer/>
-              <v-btn color="error" class="text-lg-right"  @click.stop="dialogDelete = true">Delete</v-btn>
+
             </v-layout>
 
             <v-dialog v-model="dialogDelete" max-width="290">
