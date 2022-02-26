@@ -332,7 +332,7 @@ def get_constellation_concordance(username, constellation):
     for disc in constellation.discoursemes:
         discoursemes[str(disc.id)] = disc.items
 
-    flags_query = "%cd"
+    flags_query = "%c"
     escape_query = True
     random_seed = 42
 

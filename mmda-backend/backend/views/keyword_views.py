@@ -96,8 +96,8 @@ def create_keyword(username):
     # more or less reasonable defaults
     p = request.json.get('p', ['lemma'])
     p_reference = request.json.get('p_reference', ['lemma'])
-    flags = request.json.get('flags', '%cd')
-    flags_reference = request.json.get('flags_reference', '%cd')
+    flags = request.json.get('flags', '%c')
+    flags_reference = request.json.get('flags_reference', '%c')
     s_break = request.json.get('s_break', 's')
 
     keyword_analysis_name = request.json.get('name', None)
@@ -647,7 +647,7 @@ def get_concordance_for_keyword(username, keyword):
     topic_discourseme = {'topic': [item]}
     filter_discoursemes = {}
     additional_discoursemes = {}
-    flags_query = "%cd"
+    flags_query = "%c"
     escape_query = True
     random_seed = 42
 
