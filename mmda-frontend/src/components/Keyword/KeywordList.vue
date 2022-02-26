@@ -6,7 +6,9 @@
       <router-link :to="/keyword/ + props.item.id" tag="tr" :style="{ cursor: 'pointer'}">
         <td class="text-xs-left">{{ props.item.id }}</td>
         <td class="text-xs-left">{{ props.item.corpus }}</td>
+        <td class="text-xs-left">{{ props.item.p }}</td>
         <td class="text-xs-left">{{ props.item.corpus_reference }}</td>
+        <td class="text-xs-left">{{ props.item.p_reference }}</td>
       </router-link>
     </template>
   </v-data-table>
@@ -23,7 +25,9 @@ export default {
     headers: [
       {text: 'ID', value: 'id', align: 'left'},
       {text: 'corpus', value: 'corpus', align: 'left'},
+      {text: 'p-att', value: 'p', align: 'left'},
       {text: 'reference corpus', value: 'name', align: 'left'},
+      {text: 'p-att', value: 'p_reference', align: 'left'},
     ],
     pagination: {
       sortBy: 'id',
