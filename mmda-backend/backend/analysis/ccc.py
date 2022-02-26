@@ -9,7 +9,7 @@ from ccc.discoursemes import create_constellation
 from ccc.utils import format_cqp_query
 from ccc.counts import score_counts
 
-from pandas import DataFrame
+from pandas import DataFrame, concat
 
 from anycache import anycache
 from backend.settings import ANYCACHE_PATH as CACHE_PATH
@@ -39,7 +39,7 @@ def format_meta(lines, s_show):
     return output
 
 
-def format_counts(df):
+def format_counts(df, add=None):
 
     ams_dict = {
         # asymptotic hypothesis tests
@@ -66,6 +66,14 @@ def format_counts(df):
     # select and rename
     df = df[list(ams_dict.keys())]
     df = df.rename(ams_dict, axis=1)
+
+    # add additional items
+    if add is not None and len(add) > 0:
+        add = add[['freq']].copy()
+        for c in df.columns:
+            add[[c]] = add[['freq']]
+        print('A')
+        df = concat([df, add])
 
     return df
 
@@ -137,14 +145,15 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
-                   context=20, additional_discoursemes={},
-                   p_query='lemma', flags_query='%cd', s_query=None,
-                   p_show=['lemma'], flags_show='', ams=None,
-                   cut_off=500, min_freq=2, order='log_likelihood',
-                   escape=True, frequencies=True, topic_name='topic'):
+                   context=20, filter_discoursemes={},
+                   additional_discoursemes={}, p_query='lemma',
+                   flags_query='%c', s_query=None, p_show=['lemma'],
+                   flags_show='', ams=None, cut_off=500, min_freq=2,
+                   order='log_likelihood', escape=True,
+                   frequencies=True, topic_name='topic'):
     """get collocates for topic (+ additional discoursemes).
 
     :param str corpus_name: name of corpus in CWB registry
@@ -184,7 +193,6 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     match_strategy = 'longest'
     escape_query = True
     topic_discourseme = {'topic': topic_items}
-    filter_discoursemes = additional_discoursemes
 
     # create constellation
     try:
@@ -192,7 +200,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                                      # discoursemes
                                      topic_discourseme,
                                      filter_discoursemes,
-                                     {},
+                                     additional_discoursemes,
                                      # context settings
                                      s_context,
                                      context,
@@ -216,9 +224,18 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         order=order, cut_off=cut_off
     )
 
+    # append items in freq breakdown p_att = p_query with high size
+    breakdowns = list()
+    breakdown = None
+    for idx, dump in const.discoursemes.items():
+        if idx != 'topic':
+            breakdowns.append(dump.breakdown(p_atts=[p_query]))
+    if len(breakdowns) > 0:
+        breakdown = concat(breakdowns)
+
     # formatting
     for window in collocates.keys():
-        collocates[window] = format_counts(collocates[window])
+        collocates[window] = format_counts(collocates[window], breakdown)
 
     return collocates
 
@@ -226,7 +243,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 @anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                   topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
-                  flags_query='%cd', escape=True, flags_show=''):
+                  flags_query='%c', escape=True, flags_show=''):
     """get breakdown of topic.
     :param str corpus_name: name of corpus in CWB registry
     :param str lib_path:
@@ -271,7 +288,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 @anycache(CACHE_PATH)
 def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
              topic_items, p_query='lemma', s_query=None,
-             flags_query='%cd', s_show=['text_id'], order='first',
+             flags_query='%c', s_show=['text_id'], order='first',
              cut_off=None, escape=True):
     """get meta data of topic.
 
@@ -340,7 +357,7 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
                                   data_path, lib_path, discoursemes,
                                   p_query='lemma', s_query=None,
-                                  flags_query='%cd',
+                                  flags_query='%c',
                                   escape_query=True, s_context=None,
                                   context=None):
     """Pairwise association scores for discoursemes.
@@ -434,7 +451,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     window_size, context=20, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
                     s_query=None, order='random', cut_off=100,
-                    flags_query='%cd', escape_query=True, random_seed=42):
+                    flags_query='%c', escape_query=True, random_seed=42):
     """get concordance lines for topic (+ additional discoursemes).
 
     :param str corpus_name: name of corpus in CWB registry

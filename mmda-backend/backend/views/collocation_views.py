@@ -110,7 +110,7 @@ def create_collocation(username):
     # not set yet
     cut_off = request.json.get('cut_off', 500)
     order = request.json.get('order', 'log_likelihood')
-    flags_query = request.json.get('flags_query', '%cd')
+    flags_query = request.json.get('flags_query', '%c')
     escape = request.json.get('escape', False)
     flags_show = request.json.get('flags_show', '')
     min_freq = request.json.get('min_freq', 2)
@@ -474,6 +474,9 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
     # associate discourseme with analysis
     collocation.discoursemes.append(discourseme)
     db.session.add(collocation)
+    # TODO update collocation analysis:
+    # remove items (incl. MWUs) in discoursemes from collocate table and wordcloud
+    # regenerate new coordinates
     db.session.commit()
     msg = 'associated discourseme %s with collocation analysis %s' % (discourseme, collocation)
     log.debug(msg)
@@ -621,7 +624,7 @@ def get_collocate_for_collocation(username, collocation):
     # not set yet
     cut_off = request.args.get('cut_off', 500)
     order = request.args.get('order', 'log_likelihood')
-    flags_query = request.args.get('flags_query', '%cd')
+    flags_query = request.args.get('flags_query', '%c')
     escape = request.args.get('escape', False)
     flags_show = request.args.get('flags_show', '')
     min_freq = request.args.get('min_freq', 2)
@@ -634,18 +637,24 @@ def get_collocate_for_collocation(username, collocation):
         return jsonify({'msg': msg}), 404
 
     # pre-process request
+    # ... filter for SOC
+    filter_discoursemes = dict()
+    if discourseme_ids:
+        discoursemes = Discourseme.query.filter(
+            Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
+        ).all()
+        for d in discoursemes:
+            filter_discoursemes[str(d.id)] = d.items
+
     # ... floating discoursemes
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
         additional_discoursemes['collocate'] = [cqp_escape(i) for i in items]
-    if discourseme_ids:
-        # get all associated discoursemes from database and append
-        discoursemes = Discourseme.query.filter(
-            Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
-        ).all()
-        for d in discoursemes:
-            additional_discoursemes[str(d.id)] = d.items
+
+    # ... highlight associated discoursemes
+    for d in collocation.discoursemes:
+        additional_discoursemes[str(d.id)] = d.items
 
     # get collocates: dict of dataframes with key == window_size
     collocates = ccc_collocates(
@@ -659,6 +668,7 @@ def get_collocate_for_collocation(username, collocation):
         windows=[window_size],
         context=collocation.context,
         additional_discoursemes=additional_discoursemes,
+        filter_discoursemes=filter_discoursemes,
         p_query=collocation.p_query,
         flags_query=flags_query,
         s_query=collocation.s_break,
@@ -679,6 +689,7 @@ def get_collocate_for_collocation(username, collocation):
     tokens = set(collocates.index)
     coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     semantic_space = coordinates.data
+
     diff = tokens - set(semantic_space.index)
     if len(diff) > 0:
         log.debug("generating additional coordinates for %d items" % len(diff))
@@ -762,7 +773,7 @@ def get_concordance_for_collocation(username, collocation):
         log.debug('wrong type of window size')
         return jsonify({'msg': 'wrong request parameters'}), 400
     # ... optional discourseme ID list
-    # discourseme_ids = request.args.getlist('discourseme', None)
+    discourseme_ids = request.args.getlist('discourseme', None)
     # ... optional additional items
     items = [cqp_escape(i) for i in request.args.getlist('item', None)]
     # ... how many?
@@ -786,6 +797,14 @@ def get_concordance_for_collocation(username, collocation):
         # create discourseme for additional items on the fly
         filter_discoursemes['collocate'] = items
 
+    # SOC
+    if discourseme_ids:
+        discoursemes = Discourseme.query.filter(
+            Discourseme.id.in_(discourseme_ids), Discourseme.user_id == user.id
+        ).all()
+        for d in discoursemes:
+            filter_discoursemes[str(d.id)] = d.items
+
     additional_discoursemes = dict()
     for d in collocation.discoursemes:
         additional_discoursemes[str(d.id)] = d.items
@@ -793,7 +812,7 @@ def get_concordance_for_collocation(username, collocation):
     # pack p-attributes
     p_show = list(set(['word', collocation.p_query]))
 
-    flags_query = "%cd"
+    flags_query = "%c"
     escape_query = True
     random_seed = 42
 
@@ -809,7 +828,7 @@ def get_concordance_for_collocation(username, collocation):
         additional_discoursemes=additional_discoursemes,
         s_context=collocation.s_break,
         window_size=window_size,
-        context=collocation.context,
+        context=None,
         p_query=collocation.p_query,
         p_show=p_show,
         s_show=s_show,
@@ -931,6 +950,8 @@ def get_meta_for_collocation(username, collocation):
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     s_show = corpus['s-annotations']
 
+    flags_query = "%c"
+
     # use cwb-ccc to extract concordance lines
     meta = ccc_meta(
         corpus_name=collocation.corpus,
@@ -941,7 +962,7 @@ def get_meta_for_collocation(username, collocation):
         topic_items=collocation.items,
         p_query=collocation.p_query,
         s_query=collocation.s_break,
-        flags_query="%cd",
+        flags_query=flags_query,
         s_show=s_show
     )
 
