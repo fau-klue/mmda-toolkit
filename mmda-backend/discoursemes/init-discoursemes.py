@@ -1,4 +1,5 @@
 import requests
+from pprint import pprint
 # import gzip
 # import json
 
@@ -11,7 +12,7 @@ import requests
 #         break
 
 
-discoursemes = [
+DISCOURSEMES = [
     {
         'name': 'Atomkraft',
         'items': ['Atomkraft',
@@ -89,25 +90,37 @@ discoursemes = [
 
 
 # login and save token
-response = requests.post(
-    "http://localhost:5000/api/login/",
-    json={"username": "admin", "password": "Squanchy1"},
-)
-access_token = response.json()['access_token']
+def login(username='admin', password='Squanchy1'):
+    response = requests.post(
+        "http://localhost:5000/api/login/",
+        json={"username": username, "password": password},
+    )
+    access_token = response.json()['access_token']
+    return access_token
+
 
 # create discoursemes
-for discourseme in discoursemes:
-    response = requests.post(
-        "http://localhost:5000/api/user/admin/discourseme/",
-        json={'name': discourseme['name'],
-              'items': discourseme['items']},
-        headers={'Authorization': 'Bearer {}'.format(access_token)}
-    )
+def create_discoursemes(access_token, discoursemes):
+    for discourseme in discoursemes:
+        requests.post(
+            "http://localhost:5000/api/user/admin/discourseme/",
+            json={'name': discourseme['name'],
+                  'items': discourseme['items']},
+            headers={'Authorization': 'Bearer {}'.format(access_token)}
+        )
+
 
 # check stored discoursemes
-response = requests.get(
-    "http://localhost:5000/api/user/admin/discourseme/",
-    headers={'Authorization': 'Bearer {}'.format(access_token)}
-)
-stored_discoursemes = response.json()
-print(stored_discoursemes)
+def list_discoursemes(access_token):
+    response = requests.get(
+        "http://localhost:5000/api/user/admin/discourseme/",
+        headers={'Authorization': 'Bearer {}'.format(access_token)}
+    )
+    return response.json()
+
+
+if __name__ == '__main__':
+
+    token = login()
+    create_discoursemes(token, DISCOURSEMES)
+    pprint(list_discoursemes(token))
