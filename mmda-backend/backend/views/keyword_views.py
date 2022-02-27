@@ -625,8 +625,13 @@ def get_concordance_for_keyword(username, keyword):
     item = request.args.get('item')
     if not item:
         return {}, 200
-
     item = cqp_escape(item)
+
+    # ... highlight associated discoursemes
+    additional_discoursemes = dict()
+    for d in keyword.discoursemes:
+        additional_discoursemes[str(d.id)] = d.items
+
     # ... how many?
     cut_off = request.args.get('cut_off', 1000)
     # ... how to sort them?
@@ -646,7 +651,6 @@ def get_concordance_for_keyword(username, keyword):
     s_break = keyword.s_break
     topic_discourseme = {'topic': [item]}
     filter_discoursemes = {}
-    additional_discoursemes = {}
     flags_query = "%c"
     escape_query = True
     random_seed = 42

@@ -72,7 +72,6 @@ def format_counts(df, add=None):
         add = add[['freq']].copy()
         for c in df.columns:
             add[[c]] = add[['freq']]
-        print('A')
         df = concat([df, add])
 
     return df
@@ -145,7 +144,7 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, filter_discoursemes={},
