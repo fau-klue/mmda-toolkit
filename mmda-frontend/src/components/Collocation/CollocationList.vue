@@ -7,7 +7,7 @@
         <td class="text-xs-left">{{ props.item.id }}</td>
         <td class="text-xs-left">{{ props.item.corpus }}</td>
         <td class="text-xs-left">{{ props.item.topic_discourseme.name }} (ID: {{ props.item.topic_discourseme.id }})</td>
-        <td class="text-xs-left">{{ props.item.items }}</td>
+        <!-- <td class="text-xs-left">{{ props.item.items }}</td> -->
       </router-link>
     </template>
   </v-data-table>
@@ -26,7 +26,7 @@ export default {
       {text: 'ID', value: 'id', align: 'left'},
       {text: 'corpus', value: 'corpus', align: 'left'},
       {text: 'discourseme', value: 'topic_discourseme.name', align: 'left'},
-      {text: 'items', value: 'items', align: 'left'},
+      // {text: 'items', value: 'items', align: 'left'},
       // {text: '', value: 'delete', align: 'center'}
     ],
     pagination: {
