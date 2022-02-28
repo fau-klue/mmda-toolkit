@@ -111,8 +111,8 @@ def create_collocation(username):
     cut_off = request.json.get('cut_off', 500)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '%c')
-    escape = request.json.get('escape', False)
-    flags_show = request.json.get('flags_show', '')
+    escape_query = request.json.get('escape', False)
+    flags_show = request.args.get('flags_show', flags_query)
     min_freq = request.json.get('min_freq', 2)
     ams = request.json.get('ams', None)
     collocation_name = request.json.get('name', None)
@@ -139,7 +139,7 @@ def create_collocation(username):
         lib_path=current_app.config['CCC_LIB_PATH'],
         topic_items=items,
         s_context=s_break,
-        windows=range(1, context),
+        windows=range(1, context + 1),
         context=context,
         p_query=p_query,
         flags_query=flags_query,
@@ -150,7 +150,7 @@ def create_collocation(username):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=escape
+        escape=escape_query
     )
 
     if collocates is None:
@@ -198,6 +198,8 @@ def create_collocation(username):
         name=collocation_name,
         corpus=corpus_name,
         p_query=p_query,
+        flags_query=flags_query,
+        escape_query=escape_query,
         p_collocation=p_collocation,
         s_break=s_break,
         context=context,
@@ -624,9 +626,7 @@ def get_collocate_for_collocation(username, collocation):
     # not set yet
     cut_off = request.args.get('cut_off', 500)
     order = request.args.get('order', 'log_likelihood')
-    flags_query = request.args.get('flags_query', '%c')
-    escape = request.args.get('escape', False)
-    flags_show = request.args.get('flags_show', '')
+    flags_show = request.args.get('flags_show', collocation.flags_query)
     min_freq = request.args.get('min_freq', 2)
     ams = request.args.get('ams', None)
 
@@ -670,7 +670,7 @@ def get_collocate_for_collocation(username, collocation):
         additional_discoursemes=additional_discoursemes,
         filter_discoursemes=filter_discoursemes,
         p_query=collocation.p_query,
-        flags_query=flags_query,
+        flags_query=collocation.flags_query,
         s_query=collocation.s_break,
         p_show=[collocation.p_collocation],
         flags_show=flags_show,
@@ -678,7 +678,7 @@ def get_collocate_for_collocation(username, collocation):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=escape
+        escape=collocation.escape_query
     )[window_size]
 
     if collocates.empty:
@@ -788,6 +788,9 @@ def get_concordance_for_collocation(username, collocation):
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     s_show = corpus['s-annotations']
 
+    # pack p-attributes
+    p_show = list(set(['word', collocation.p_query]))
+
     # pre-process request
     # ... get associated topic discourseme (no need if not interested in name)
     # topic_discourseme = Discourseme.query.filter_by(id=collocation.topic_id).first()
@@ -809,11 +812,6 @@ def get_concordance_for_collocation(username, collocation):
     for d in collocation.discoursemes:
         additional_discoursemes[str(d.id)] = d.items
 
-    # pack p-attributes
-    p_show = list(set(['word', collocation.p_query]))
-
-    flags_query = "%c"
-    escape_query = True
     random_seed = 42
 
     # use cwb-ccc to extract concordance lines
@@ -835,8 +833,8 @@ def get_concordance_for_collocation(username, collocation):
         s_query=collocation.s_break,
         order=order,
         cut_off=cut_off,
-        flags_query=flags_query,
-        escape_query=escape_query,
+        flags_query=collocation.flags_query,
+        escape_query=collocation.escape_query,
         random_seed=random_seed
     )
 
@@ -884,6 +882,8 @@ def get_breakdown_for_collocation(username, collocation):
         log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
+    flags_show = request.args.get('flags_show', collocation.flags_query)
+
     # use cwb-ccc to extract concordance lines
     breakdown = ccc_breakdown(
         corpus_name=collocation.corpus,
@@ -895,6 +895,9 @@ def get_breakdown_for_collocation(username, collocation):
         p_query=collocation.p_query,
         p_show=[collocation.p_collocation],
         s_query=collocation.s_break,
+        flags_query=collocation.flags_query,
+        escape=collocation.escape_query,
+        flags_show=flags_show
     )
 
     if breakdown is None:
@@ -950,8 +953,6 @@ def get_meta_for_collocation(username, collocation):
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     s_show = corpus['s-annotations']
 
-    flags_query = "%c"
-
     # use cwb-ccc to extract concordance lines
     meta = ccc_meta(
         corpus_name=collocation.corpus,
@@ -962,8 +963,9 @@ def get_meta_for_collocation(username, collocation):
         topic_items=collocation.items,
         p_query=collocation.p_query,
         s_query=collocation.s_break,
-        flags_query=flags_query,
-        s_show=s_show
+        flags_query=collocation.flags_query,
+        s_show=s_show,
+        escape=collocation.escape_query
     )
 
     if meta is None:

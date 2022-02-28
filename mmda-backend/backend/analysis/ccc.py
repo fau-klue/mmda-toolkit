@@ -87,7 +87,7 @@ def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
     return ordered
 
 
-def sort_s(s_atts, order=['s', 'p', 'tweet', 'text']):
+def sort_s(s_atts, order=['tweet', 's', 'p', 'text']):
     """sort s-attributes
 
     :param list s_atts: s-attributes
@@ -239,10 +239,10 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     return collocates
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                   topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
-                  flags_query='%c', escape=True, flags_show=''):
+                  flags_query='%c', escape=True, flags_show='%c'):
     """get breakdown of topic.
     :param str corpus_name: name of corpus in CWB registry
     :param str lib_path:
@@ -271,7 +271,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                                    p_query=p_query, s_query=s_query,
                                    flags=flags_query, escape=escape)
     dump = corpus.query(topic_query, context=None)
-    breakdown = dump.breakdown(p_show)
+    breakdown = dump.breakdown(p_show, flags_show)
 
     # formatting
     out = list()

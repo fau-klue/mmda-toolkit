@@ -56,6 +56,8 @@ class Collocation(db.Model):
     name = db.Column(db.Unicode(255))
     corpus = db.Column(db.Unicode(255), nullable=False)
     p_query = db.Column(db.Unicode(255), nullable=False)
+    flags_query = db.Column(db.Unicode(255), nullable=False)
+    escape_query = db.Column(db.Unicode(255), nullable=False)
     p_collocation = db.Column(db.Unicode(255), nullable=False)
     s_break = db.Column(db.Unicode(255), nullable=False)
     context = db.Column(db.Integer, nullable=True)
@@ -113,6 +115,8 @@ class Collocation(db.Model):
             'user_id': self.user_id,
             'topic_id': self.topic_id,
             'p_query': self.p_query,
+            'flags_query': self.flags_query,
+            'escape_query': self.escape_query,
             'p_collocation': self.p_collocation,
             's_break': self.s_break,
             'context': self.context,
