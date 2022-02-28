@@ -19,8 +19,8 @@ from backend.analysis.ccc import ccc_keywords, ccc_concordance, ccc_corpus
 # backend.models
 from backend.models.user_models import User
 from backend.models.keyword_models import Keyword
-from backend.models.collocation_models import Coordinates
-from backend.models.collocation_models import Discourseme
+from backend.models.discourseme_models import Discourseme
+from backend.models.coordinates_models import Coordinates
 
 # logging
 from logging import getLogger

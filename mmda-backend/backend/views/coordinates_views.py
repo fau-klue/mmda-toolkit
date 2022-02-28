@@ -14,8 +14,9 @@ from backend import db
 from backend import user_required
 from backend.analysis.semspace import generate_semantic_space
 from backend.models.user_models import User
-from backend.models.collocation_models import Collocation, Coordinates
+from backend.models.collocation_models import Collocation
 from backend.models.keyword_models import Keyword
+from backend.models.coordinates_models import Coordinates
 
 # logging
 from logging import getLogger

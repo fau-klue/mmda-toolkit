@@ -11,7 +11,7 @@ from backend import db
 from backend import user_required
 from backend.analysis.validators import DISCOURSEME_SCHEMA
 from backend.models.user_models import User
-from backend.models.collocation_models import Discourseme
+from backend.models.discourseme_models import Discourseme
 
 discourseme_blueprint = Blueprint('discourseme', __name__, template_folder='templates')
 log = getLogger('mmda-logger')

@@ -12,8 +12,9 @@ from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.commands.init_db import find_or_create_user
 from backend import admin_required
 from backend.models.user_models import User, Role
-from backend.models.collocation_models import Collocation, Discourseme, Constellation
+from backend.models.collocation_models import Collocation
 from backend.models.keyword_models import Keyword
+from backend.models.discourseme_models import Discourseme, Constellation
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')

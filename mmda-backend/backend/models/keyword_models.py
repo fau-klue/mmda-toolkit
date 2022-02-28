@@ -4,14 +4,13 @@ Keyword Models:
 """
 
 
-# from pandas import read_json
 from backend import db
 
 
 keyword_discoursemes = db.Table(
     # many to many mapping:
     # - a keyword analysis has several associated discoursemes
-    # - a discourseme can belong to several analyses
+    # - a discourseme can belong to several keyword analyses
     'KeywordDiscoursemes',
     db.Column('keyword_id', db.Integer, db.ForeignKey('keyword.id')),
     db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))

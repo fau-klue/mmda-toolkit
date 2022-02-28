@@ -19,9 +19,9 @@ from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
 from backend.analysis.ccc import ccc_corpus, ccc_meta
 # backend.models
 from backend.models.user_models import User
-from backend.models.collocation_models import (
-    Collocation, Discourseme, Coordinates
-)
+from backend.models.collocation_models import Collocation
+from backend.models.discourseme_models import Discourseme
+from backend.models.coordinates_models import Coordinates
 
 # logging
 from logging import getLogger
