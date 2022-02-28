@@ -1,18 +1,46 @@
 import requests
 from pprint import pprint
-# import gzip
-# import json
-
-# with gzip.open("mmda-backend/discoursemes/dornseiff.ldjson.gz", "rt") as f:
-#     for line in f:
-#         disc = dict()
-#         sachgruppe = json.loads(line)
-#         disc['items'] = [val for sublist in sachgruppe['items'] for val in sublist]
-#         disc['name'] = sachgruppe['meta']['name']
-#         break
+import gzip
+import json
 
 
-DISCOURSEMES = [
+DORNSEIFF_DISCOURSEMES = list()
+with gzip.open("discoursemes/dornseiff.ldjson.gz", "rt") as f:
+    for line in f:
+        disc = dict()
+        sachgruppe = json.loads(line)
+        disc['items'] = [val for sublist in sachgruppe['items'] for val in sublist]
+        disc['name'] = sachgruppe['meta']['name']
+        DORNSEIFF_DISCOURSEMES.append(disc)
+
+
+INFODEMIC_DISCOURSEMES = [
+    {
+        'name': 'Corona',
+        'items': ['Corona',
+                  'Coronavirus',
+                  'Covid',
+                  'Covid19',
+                  'Covid-19',
+                  '#Corona',
+                  '#Coronavirus',
+                  '#Covid',
+                  '#Covid19',
+                  '#Covid-19']
+    },
+    {
+        'name': 'Grippe',
+        'items': ['#Grippe',
+                  'normal Grippe',
+                  'leicht Grippe',
+                  '#Erkältung',
+                  'normal Erkältung',
+                  'leicht Erkältung']
+    },
+]
+
+
+KLIMAWANDEL_DISCOURSEMES = [
     {
         'name': 'Atomkraft',
         'items': ['Atomkraft',
@@ -122,5 +150,6 @@ def list_discoursemes(access_token):
 if __name__ == '__main__':
 
     token = login()
-    create_discoursemes(token, DISCOURSEMES)
+    create_discoursemes(token, INFODEMIC_DISCOURSEMES)
+    # create_discoursemes(token, DORNSEIFF_DISCOURSEMES)
     pprint(list_discoursemes(token))

@@ -76,11 +76,11 @@ docker_stop:
 clear_all: clear_cache clear_db clear_lock
 
 clear_cache:
-	rm /tmp/mmda-ccc/ -r
-	rm /tmp/mmda-anycache/ -r
+	rm instance/ccc-cache -r
+	rm instance/mmda-anycache -r
 
 clear_db:
-	rm /tmp/mmda.sqlite
+	rm instance/mmda.sqlite
 
 clear_lock:
 	rm Pipfile.lock
