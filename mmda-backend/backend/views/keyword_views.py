@@ -26,9 +26,7 @@ from backend.models.coordinates_models import Coordinates
 from logging import getLogger
 
 
-keyword_blueprint = Blueprint(
-    'keyword', __name__, template_folder='templates'
-)
+keyword_blueprint = Blueprint('keyword', __name__, template_folder='templates')
 
 log = getLogger('mmda-logger')
 
@@ -38,10 +36,7 @@ log = getLogger('mmda-logger')
 ####################
 
 # CREATE
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/',
-    methods=['POST']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/', methods=['POST'])
 # TODO @expects_json(ANALYSIS_SCHEMA)
 @user_required
 def create_keyword(username):
@@ -173,10 +168,7 @@ def create_keyword(username):
 
 
 # READ ALL
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/',
-    methods=['GET']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/', methods=['GET'])
 @user_required
 def get_all_keywords(username):
     """ List all keyword analyses for given user.
@@ -200,10 +192,7 @@ def get_all_keywords(username):
 
 
 # READ
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/',
-    methods=['GET']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/', methods=['GET'])
 @user_required
 def get_keyword(username, keyword):
     """ Get details of keyword analysis.
@@ -235,10 +224,7 @@ def get_keyword(username, keyword):
 
 
 # DELETE
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/',
-    methods=['DELETE']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/', methods=['DELETE'])
 @user_required
 def delete_keyword(username, keyword):
     """ Delete keyword analysis.
@@ -278,10 +264,7 @@ def delete_keyword(username, keyword):
 ###########################
 
 # READ
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/discourseme/',
-    methods=['GET']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/discourseme/', methods=['GET'])
 @user_required
 def get_discoursemes_for_keyword(username, keyword):
     """ Return list of discoursemes for keyword analysis.
@@ -321,10 +304,7 @@ def get_discoursemes_for_keyword(username, keyword):
 
 
 # UPDATE
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/',
-    methods=['PUT']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/', methods=['PUT'])
 @user_required
 def put_discourseme_into_keyword(username, keyword, discourseme):
     """ Associate a discourseme with keyword analysis.
@@ -401,10 +381,7 @@ def put_discourseme_into_keyword(username, keyword, discourseme):
 
 
 # DELETE
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/',
-    methods=['DELETE']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/discourseme/<discourseme>/', methods=['DELETE'])
 @user_required
 def delete_discourseme_from_keyword(username, keyword, discourseme):
     """ Remove discourseme from keyword analysis.
@@ -462,10 +439,7 @@ def delete_discourseme_from_keyword(username, keyword, discourseme):
 # KEYWORDS #
 ############
 
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/keywords/',
-    methods=['GET']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/keywords/', methods=['GET'])
 @user_required
 def get_keywords_for_keyword(username, keyword):
     """ Get keywords table for keyword analysis.
@@ -580,10 +554,7 @@ def get_keywords_for_keyword(username, keyword):
 #####################
 # CONCORDANCE LINES #
 #####################
-@keyword_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/concordance/',
-    methods=['GET']
-)
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/concordance/', methods=['GET'])
 @user_required
 def get_concordance_for_keyword(username, keyword):
     """ Get concordance lines for analysis.

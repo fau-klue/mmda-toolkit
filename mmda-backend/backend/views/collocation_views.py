@@ -27,9 +27,7 @@ from backend.models.coordinates_models import Coordinates
 from logging import getLogger
 
 
-collocation_blueprint = Blueprint(
-    'collocation', __name__, template_folder='templates'
-)
+collocation_blueprint = Blueprint('collocation', __name__, template_folder='templates')
 
 log = getLogger('mmda-logger')
 
@@ -39,10 +37,7 @@ log = getLogger('mmda-logger')
 ###############
 
 # CREATE
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/',
-    methods=['POST']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/', methods=['POST'])
 @expects_json(COLLOCATION_SCHEMA)
 @user_required
 def create_collocation(username):
@@ -224,10 +219,7 @@ def create_collocation(username):
 
 
 # READ ALL
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/', methods=['GET'])
 @user_required
 def get_all_collocation(username):
     """ List all analyses for given user.
@@ -251,10 +243,7 @@ def get_all_collocation(username):
 
 
 # READ
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/', methods=['GET'])
 @user_required
 def get_collocation(username, collocation):
     """ Get details of collocation analysis.
@@ -286,10 +275,7 @@ def get_collocation(username, collocation):
 
 
 # UPDATE
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/',
-    methods=['PUT']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/', methods=['PUT'])
 @expects_json(UPDATE_SCHEMA)
 @user_required
 def update_collocation(username, collocation):
@@ -329,10 +315,7 @@ def update_collocation(username, collocation):
 
 
 # DELETE
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/',
-    methods=['DELETE']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/', methods=['DELETE'])
 @user_required
 def delete_collocation(username, collocation):
     """ Delete collocation.
@@ -372,10 +355,7 @@ def delete_collocation(username, collocation):
 ###########################
 
 # READ
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/discourseme/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/discourseme/', methods=['GET'])
 @user_required
 def get_discoursemes_for_collocation(username, collocation):
     """ Return list of discoursemes for collocation.
@@ -415,10 +395,7 @@ def get_discoursemes_for_collocation(username, collocation):
 
 
 # UPDATE
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/',
-    methods=['PUT']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/', methods=['PUT'])
 @user_required
 def put_discourseme_into_collocation(username, collocation, discourseme):
     """ Associate a discourseme with collocation.
@@ -505,10 +482,7 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
 
 
 # DELETE
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/',
-    methods=['DELETE']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/discourseme/<discourseme>/', methods=['DELETE'])
 @user_required
 def delete_discourseme_from_collocation(username, collocation, discourseme):
     """ Remove discourseme from collocation.
@@ -566,10 +540,7 @@ def delete_discourseme_from_collocation(username, collocation, discourseme):
 # COLLOCATES #
 ##############
 
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/collocate/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/collocate/', methods=['GET'])
 @user_required
 def get_collocate_for_collocation(username, collocation):
     """ Get collocate table for collocation analysis.
@@ -713,10 +684,7 @@ def get_collocate_for_collocation(username, collocation):
 #####################
 # CONCORDANCE LINES #
 #####################
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/concordance/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/concordance/', methods=['GET'])
 @user_required
 def get_concordance_for_collocation(username, collocation):
     """ Get concordance lines for collocation.
@@ -850,10 +818,7 @@ def get_concordance_for_collocation(username, collocation):
 #######################
 # FREQUENCY BREAKDOWN #
 #######################
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/breakdown/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/breakdown/', methods=['GET'])
 @user_required
 def get_breakdown_for_collocation(username, collocation):
     """ Get concordance lines for collocation.
@@ -912,10 +877,7 @@ def get_breakdown_for_collocation(username, collocation):
 #####################
 # META DISTRIBUTION #
 #####################
-@collocation_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/meta/',
-    methods=['GET']
-)
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/meta/', methods=['GET'])
 @user_required
 def get_meta_for_collocation(username, collocation):
     """ Get concordance lines for collocation.

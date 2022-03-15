@@ -22,18 +22,13 @@ from backend.models.coordinates_models import Coordinates
 from logging import getLogger
 
 
-coordinates_blueprint = Blueprint(
-    'coordinates', __name__, template_folder='templates'
-)
+coordinates_blueprint = Blueprint('coordinates', __name__, template_folder='templates')
 
 log = getLogger('mmda-logger')
 
 
 # READ
-@coordinates_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/coordinates/',
-    methods=['GET']
-)
+@coordinates_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['GET'])
 @user_required
 def get_coordinates(username, collocation):
     """ Get coordinates for collocation analysis.
@@ -62,10 +57,7 @@ def get_coordinates(username, collocation):
 
 
 # READ
-@coordinates_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/coordinates/',
-    methods=['GET']
-)
+@coordinates_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['GET'])
 @user_required
 def get_coordinates_keywords(username, keyword):
     """ Get coordinates for keyword analysis.
@@ -93,10 +85,7 @@ def get_coordinates_keywords(username, keyword):
 
 
 # UPDATE
-@coordinates_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/coordinates/reload/',
-    methods=['PUT']
-)
+@coordinates_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/reload/', methods=['PUT'])
 @user_required
 def reload_coordinates(username, collocation):
     """ Re-calculate coordinates for collocation analysis.
@@ -130,10 +119,7 @@ def reload_coordinates(username, collocation):
     return jsonify({'msg': 'updated'}), 200
 
 
-@coordinates_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/coordinates/reload/',
-    methods=['PUT']
-)
+@coordinates_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/reload/', methods=['PUT'])
 @user_required
 def reload_coordinates_keywords(username, keyword):
     """ Re-calculate coordinates for keyword analysis.
@@ -168,10 +154,7 @@ def reload_coordinates_keywords(username, keyword):
 
 
 # UPDATE
-@coordinates_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/coordinates/',
-    methods=['PUT']
-)
+@coordinates_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['PUT'])
 @user_required
 def update_coordinates(username, collocation):
     """ Update coordinates for an collocation.
@@ -213,10 +196,7 @@ def update_coordinates(username, collocation):
     return jsonify({'msg': 'updated'}), 200
 
 
-@coordinates_blueprint.route(
-    '/api/user/<username>/keyword/<keyword>/coordinates/',
-    methods=['PUT']
-)
+@coordinates_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['PUT'])
 @user_required
 def update_coordinates_keyword(username, keyword):
     """ Update coordinates for an analysis.
@@ -259,10 +239,7 @@ def update_coordinates_keyword(username, keyword):
 
 
 # DELETE
-@coordinates_blueprint.route(
-    '/api/user/<username>/collocation/<collocation>/coordinates/',
-    methods=['DELETE']
-)
+@coordinates_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['DELETE'])
 @user_required
 def delete_coordinates(username, collocation):
     """ Delete coordinates for collocation analysis.
