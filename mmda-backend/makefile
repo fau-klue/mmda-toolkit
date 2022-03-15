@@ -77,7 +77,7 @@ clear_all: clear_cache clear_db clear_lock
 
 clear_cache:
 	rm instance/ccc-cache -r
-	rm instance/mmda-anycache -r
+	rm /tmp/mmda-anycache -r
 
 clear_db:
 	rm instance/mmda.sqlite

@@ -518,7 +518,7 @@ def get_keywords_for_keyword(username, keyword):
     min_freq = 2
     cut_off = 500
     order = 'log_likelihood'
-    flags = flags_reference = ''
+    flags_show = keyword.flags
     # min_freq = request.json.get('min_freq', 2)
     # cut_off = request.args.get('cut_off', 500)
     # order = request.args.get('order', 'log_likelihood')
@@ -541,11 +541,12 @@ def get_keywords_for_keyword(username, keyword):
         lib_path=current_app.config['CCC_LIB_PATH'],
         p=p,
         p_reference=p_reference,
-        flags=flags,
-        flags_reference=flags_reference,
+        flags=keyword.flags,
+        flags_reference=keyword.flags_reference,
         order=order,
         cut_off=cut_off,
-        min_freq=min_freq
+        min_freq=min_freq,
+        flags_show=flags_show
     )
 
     if keywords.empty:

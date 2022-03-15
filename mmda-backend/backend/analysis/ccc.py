@@ -150,7 +150,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    context=20, filter_discoursemes={},
                    additional_discoursemes={}, p_query='lemma',
                    flags_query='%c', s_query=None, p_show=['lemma'],
-                   flags_show='', ams=None, cut_off=500, min_freq=2,
+                   flags_show='%c', ams=None, cut_off=500, min_freq=2,
                    order='log_likelihood', escape=True,
                    frequencies=True, topic_name='topic'):
     """get collocates for topic (+ additional discoursemes).
@@ -228,7 +228,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     breakdown = None
     for idx, dump in const.discoursemes.items():
         if idx != 'topic':
-            breakdowns.append(dump.breakdown(p_atts=[p_query]))
+            breakdowns.append(dump.breakdown(p_atts=[p_query], flags=flags_show))
     if len(breakdowns) > 0:
         breakdown = concat(breakdowns)
 
@@ -239,7 +239,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     return collocates
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
                   topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
                   flags_query='%c', escape=True, flags_show='%c'):
@@ -422,7 +422,8 @@ def ccc_keywords(corpus, corpus_reference,
                  cqp_bin, registry_path, data_path, lib_path,
                  p=['lemma'], p_reference=['lemma'],
                  flags=None, flags_reference=None,
-                 ams=None, cut_off=500, min_freq=2, order='log_likelihood'):
+                 ams=None, cut_off=500, min_freq=2, order='log_likelihood',
+                 flags_show="%c", additional_discoursemes={}):
 
     # TODO mv to CWB
     corpus = Corpus(corpus)
@@ -434,8 +435,18 @@ def ccc_keywords(corpus, corpus_reference,
     df = left.join(right, how='outer')
     df['N1'] = corpus.corpus_size
     df['N2'] = corpus_reference.corpus_size
+
     keywords = score_counts(df, order=order, cut_off=cut_off,
-                            ams=ams, digits=4)
+                            flags=flags_show, ams=ams, digits=4)
+
+    # # append items in freq breakdown p_att = p_query with high size
+    # breakdowns = list()
+    # breakdown = None
+    # for idx, dump in const.discoursemes.items():
+    #     if idx != 'topic':
+    #         breakdowns.append(dump.breakdown(p_atts=[p_query]))
+    # if len(breakdowns) > 0:
+    #     breakdown = concat(breakdowns)
 
     # formatting
     keywords = format_counts(keywords)
