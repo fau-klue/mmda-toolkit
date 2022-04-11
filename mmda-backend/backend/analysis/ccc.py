@@ -144,7 +144,7 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-@anycache(CACHE_PATH)
+# @anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, filter_discoursemes={},
@@ -223,20 +223,20 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         order=order, cut_off=cut_off
     )
 
-    # append items in freq breakdown p_att = p_query with high size
+    # freq breakdown of associated discoursemes
+    # breakdown table: items, freq, discourseme
     breakdowns = list()
-    breakdown = None
     for idx, dump in const.discoursemes.items():
-        if idx != 'topic':
-            breakdowns.append(dump.breakdown(p_atts=[p_query], flags=flags_show))
-    if len(breakdowns) > 0:
-        breakdown = concat(breakdowns)
+        d = dump.breakdown(p_atts=[p_query], flags=flags_show)
+        d['discourseme'] = idx
+        breakdowns.append(d)
+    breakdown = concat(breakdowns)
 
     # formatting
     for window in collocates.keys():
-        collocates[window] = format_counts(collocates[window], breakdown)
+        collocates[window] = format_counts(collocates[window])
 
-    return collocates
+    return breakdown, collocates
 
 
 @anycache(CACHE_PATH)
