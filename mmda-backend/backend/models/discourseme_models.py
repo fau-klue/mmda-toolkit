@@ -29,19 +29,18 @@ class Discourseme(db.Model):
     __tablename__ = 'discourseme'
     _separator = ','
 
-    id = db.Column(db.Integer(), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)
+    description = db.Column(db.Unicode, nullable=True)
 
     # items are stored as <str>, will be returned as <list>
-    _items = db.Column(db.Unicode(), nullable=True)
+    _items = db.Column(db.Unicode, nullable=True)
 
     # linked analyses as a topic (discourseme is parent of collocation analysis)
-    collocation_analyses = db.relationship('Collocation', backref='topic',
-                                           cascade='all, delete')
+    collocation_analyses = db.relationship('Collocation', backref='topic', cascade='all, delete')
 
     # users
-    user_id = db.Column(db.Integer(),
-                        db.ForeignKey('users.id', ondelete='CASCADE'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'))
 
     # topic = is there an associated collocation analysis?
     @property

@@ -29,13 +29,14 @@ def create_discourseme(username):
     # Check request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
+    description = request.json.get('description', None)
 
     # Get User
     user = User.query.filter_by(username=username).first()
 
     # Add Discourseme to DB
     log.debug('Creating discourseme with %s', items)
-    discourseme = Discourseme(name=name, items=items, user_id=user.id)
+    discourseme = Discourseme(name=name, description=description, items=items, user_id=user.id)
     db.session.add(discourseme)
     db.session.commit()
 
