@@ -14,6 +14,37 @@ with gzip.open("discoursemes/dornseiff.ldjson.gz", "rt") as f:
         DORNSEIFF_DISCOURSEMES.append(disc)
 
 
+# TODO
+# rename show in surface
+
+# disentangle
+# cqp_query = items_query + p_query + flags_query + escape_query (+ s_query)
+# and
+# items_show = context + (p_show + flags_show + escape_show)
+
+# allow cqp expressions to be passed
+
+# disentangle
+# matches = discourseme + corpus
+# and
+# collocation = query + context and collocation parameters
+
+
+# query
+
+# no linguistic analysis
+# ...
+# - meta distribution (words don't play a role)
+# - breakdown (summary of surface realization of the matches) → linked to kwic
+# - kwic (surface realization of the matches in context) → read 1 by 1
+# - collocation analysis (summary of the surface realization of the context) → linked to kwic
+# - generalized usage fluctuation analysi, → linked to kwic
+# ...
+# very linguistic analysis
+
+
+# keyword analysis
+
 INFODEMIC_DISCOURSEMES = [
     {
         'name': 'Corona',
@@ -30,13 +61,84 @@ INFODEMIC_DISCOURSEMES = [
     },
     {
         'name': 'Grippe',
-        'items': ['#Grippe',
+        'items': ['Grippe',
+                  '#Grippe',
                   'normal Grippe',
                   'leicht Grippe',
                   '#Erkältung',
                   'normal Erkältung',
                   'leicht Erkältung']
     },
+    {
+        'name': 'Handelnde',
+        'items': []
+        # dahinter steck*,
+        # kontrolliert [von,durch],
+        # unter {ART} Kontrolle,
+    },
+    {
+        'name': 'AktionProzess',
+        'items': []
+        # gegen {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
+        # heimlich*,
+        # versteckt*,
+        # Krieg,
+        # Kriegszustand,
+        # dritte* Weltkrieg,
+        # ist in [Wahrheit,Wirklichkeit],
+        # soll eigentlich,
+        # lüg*,
+        # zuf?ll*,
+        # Menschenverstand
+    },
+    {
+        'name': 'Medium',
+        'items': []
+        # Notwehr,
+        # Diktatur,
+        # Befreiungskampf,
+        # Widerstand,
+        # Bürgerpflicht,
+        # ist in [Wahrheit,Wirklichkeit],
+        # soll eigentlich,
+        # lüg*,
+        # zuf?ll*,
+        # Recht
+    },
+    {
+        'name': 'Intention',
+        'items': []
+        # um * Kontrolle,
+        # Massenkontrolle,
+        # Massenvernichtung,
+        # Vernichtung,
+        # Auslöschung
+    },
+    {
+        'name': 'Betroffene',
+        'items': []
+        # Kontrolle über uns*,
+        # Kontrolle über {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
+        # um uns* (_{N})? zu,
+    },
+    {
+        'name': 'AmbivalenterDritter',
+        'items': []
+        # Verrat,
+        # Verräter*,
+        # Puppe*,
+        # Marionette*,
+        # unterwander*,
+        # Sumpf,
+        # lüg*,
+        # zuf?ll*,
+        # zens**r*,
+        # Einheitspresse,
+        # Mainstream,
+        # Systemmedien,
+        # Einheitsbrei,
+        # gleichgeschaltet*
+    }
 ]
 
 

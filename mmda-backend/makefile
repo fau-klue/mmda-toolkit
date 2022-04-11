@@ -18,10 +18,10 @@ coverage:
 
 
 # DATABASE
+new_database: clear_db database discoursemes
+
 database:
 	pipenv run python3 manage.py init_db
-
-new_database: clear_db database discoursemes
 
 discoursemes:
 	pipenv run python3 discoursemes/init-discoursemes.py
