@@ -190,7 +190,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
     match_strategy = 'longest'
-    escape_query = True
+    # escape_query = True
     topic_discourseme = {'topic': topic_items}
 
     # create constellation
@@ -207,13 +207,14 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                                      p_query,
                                      s_query,
                                      flags_query,
-                                     escape_query,
+                                     escape,
                                      match_strategy,
                                      # CWB settings
                                      lib_path,
                                      cqp_bin,
                                      registry_path,
-                                     data_path)
+                                     data_path,
+                                     approximate=True)
     except KeyError:            # no matches
         return
     collocates = const.collocates(
@@ -404,7 +405,8 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
                                  lib_path,
                                  cqp_bin,
                                  registry_path,
-                                 data_path)
+                                 data_path,
+                                 approximate=True)
 
     tables = const.associations()
 
@@ -517,7 +519,8 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                                  cqp_bin,
                                  registry_path,
                                  data_path,
-                                 window=window_size)
+                                 window=window_size,
+                                 approximate=True)
 
     # retrieve lines
     lines = const.concordance(window,
