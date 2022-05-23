@@ -16,7 +16,7 @@ from backend import user_required
 from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
 from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
-from backend.analysis.ccc import ccc_corpus, ccc_meta
+# from backend.analysis.ccc import ccc_corpus, ccc_meta
 # backend.models
 from backend.models.user_models import User
 from backend.models.collocation_models import Collocation
@@ -103,11 +103,11 @@ def create_collocation(username):
     context = request.json.get('context', 10)
 
     # not set yet
-    cut_off = request.json.get('cut_off', 500)
+    cut_off = request.json.get('cut_off', 50)  # 500)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '%c')
     escape_query = request.json.get('escape', False)
-    flags_show = request.args.get('flags_show', flags_query)
+    flags_show = request.args.get('flags_show', "")  # flags_query)
     min_freq = request.json.get('min_freq', 2)
     ams = request.json.get('ams', None)
     collocation_name = request.json.get('name', None)
@@ -454,7 +454,7 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
     context = collocation.context
     ams = None
 
-    flags_show = collocation.flags_query
+    flags_show = ""  # collocation.flags_query
     p_show = [collocation.p_query]
     cut_off = 200
     order = 'log_likelihood'
@@ -634,7 +634,7 @@ def get_collocate_for_collocation(username, collocation):
     # not set yet
     cut_off = request.args.get('cut_off', 500)
     order = request.args.get('order', 'log_likelihood')
-    flags_show = request.args.get('flags_show', collocation.flags_query)
+    flags_show = request.args.get('flags_show', "")  # collocation.flags_query)
     min_freq = request.args.get('min_freq', 2)
     ams = request.args.get('ams', None)
 
@@ -793,12 +793,13 @@ def get_concordance_for_collocation(username, collocation):
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    corpus = ccc_corpus(collocation.corpus,
-                        cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
+    # corpus = ccc_corpus(collocation.corpus,
+    #                     cqp_bin=current_app.config['CCC_CQP_BIN'],
+    #                     registry_path=current_app.config['CCC_REGISTRY_PATH'],
+    #                     data_path=current_app.config['CCC_DATA_PATH'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
-    s_show = corpus['s-annotations']
+    # s_show = corpus['s-annotations']
+    s_show = []
 
     # pack p-attributes
     p_show = list(set(['word', collocation.p_query]))
@@ -891,7 +892,7 @@ def get_breakdown_for_collocation(username, collocation):
         log.debug('no such collocation %s', collocation)
         return jsonify({'msg': 'empty result'}), 404
 
-    flags_show = request.args.get('flags_show', collocation.flags_query)
+    flags_show = request.args.get('flags_show', "")  # , collocation.flags_query)
 
     # use cwb-ccc to extract concordance lines
     breakdown = ccc_breakdown(
@@ -952,27 +953,28 @@ def get_meta_for_collocation(username, collocation):
 
     # pack p-attributes
     # ... where's the meta data?
-    corpus = ccc_corpus(collocation.corpus,
-                        cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
+    # corpus = ccc_corpus(collocation.corpus,
+    #                     cqp_bin=current_app.config['CCC_CQP_BIN'],
+    #                     registry_path=current_app.config['CCC_REGISTRY_PATH'],
+    #                     data_path=current_app.config['CCC_DATA_PATH'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
-    s_show = corpus['s-annotations']
+    # s_show = corpus['s-annotations']
 
     # use cwb-ccc to extract concordance lines
-    meta = ccc_meta(
-        corpus_name=collocation.corpus,
-        cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=collocation.items,
-        p_query=collocation.p_query,
-        s_query=collocation.s_break,
-        flags_query=collocation.flags_query,
-        s_show=s_show,
-        escape=collocation.escape_query
-    )
+    # meta = ccc_meta(
+    #     corpus_name=collocation.corpus,
+    #     cqp_bin=current_app.config['CCC_CQP_BIN'],
+    #     registry_path=current_app.config['CCC_REGISTRY_PATH'],
+    #     data_path=current_app.config['CCC_DATA_PATH'],
+    #     lib_path=current_app.config['CCC_LIB_PATH'],
+    #     topic_items=collocation.items,
+    #     p_query=collocation.p_query,
+    #     s_query=collocation.s_break,
+    #     flags_query=collocation.flags_query,
+    #     s_show=s_show,
+    #     escape=collocation.escape_query
+    # )
+    meta = []
 
     if meta is None:
         log.debug('no meta data available for collocation %s', collocation)
