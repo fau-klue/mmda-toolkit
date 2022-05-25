@@ -91,8 +91,8 @@ def create_keyword(username):
     # more or less reasonable defaults
     p = request.json.get('p', ['lemma'])
     p_reference = request.json.get('p_reference', ['lemma'])
-    flags = request.json.get('flags', '%c')
-    flags_reference = request.json.get('flags_reference', '%c')
+    flags = request.json.get('flags', '')
+    flags_reference = request.json.get('flags_reference', '')
     s_break = request.json.get('s_break', 's')
 
     keyword_analysis_name = request.json.get('name', None)
@@ -489,7 +489,7 @@ def get_keywords_for_keyword(username, keyword):
     p_reference = keyword.p_reference
 
     # not set yet
-    min_freq = 2
+    min_freq = 5
     cut_off = 500
     order = 'log_likelihood'
     flags_show = keyword.flags
