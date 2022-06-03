@@ -12,6 +12,7 @@ from backend import user_required
 from backend.analysis.validators import DISCOURSEME_SCHEMA
 from backend.models.user_models import User
 from backend.models.discourseme_models import Discourseme
+from ccc.utils import cqp_escape
 
 discourseme_blueprint = Blueprint('discourseme', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -94,6 +95,7 @@ def update_discourseme(username, discourseme):
     # Check Request
     name = request.json.get('name', None)
     items = request.json.get('items', [])
+    items = [cqp_escape(item) for item in items]
 
     # Get User
     user = User.query.filter_by(username=username).first()

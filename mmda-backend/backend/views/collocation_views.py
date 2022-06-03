@@ -105,8 +105,7 @@ def create_collocation(username):
     # not set yet
     cut_off = request.json.get('cut_off', 50)  # 500)
     order = request.json.get('order', 'log_likelihood')
-    flags_query = request.json.get('flags_query', '%c')
-    escape_query = request.json.get('escape', False)
+    flags_query = request.json.get('flags_query', '')
     flags_show = request.args.get('flags_show', "")  # flags_query)
     min_freq = request.json.get('min_freq', 2)
     ams = request.json.get('ams', None)
@@ -145,7 +144,7 @@ def create_collocation(username):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=escape_query
+        escape=False
     )
 
     # no query matches?
@@ -180,6 +179,16 @@ def create_collocation(username):
     elif isinstance(discourseme, dict):
         # retrieve chosen discourseme
         topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
+        # update settings
+        topic_discourseme.items = items
+        db.session.commit()
+        # delete old collocation analysis in this corpus if it exists
+        collocation = Collocation.query.filter_by(user_id=user.id,
+                                                  corpus=corpus_name,
+                                                  topic_id=topic_discourseme.id).first()
+        db.session.delete(collocation)
+        db.session.commit()
+
     else:
         msg = "discourseme of type %s" % str(type(discourseme))
         log.debug(msg)
@@ -192,7 +201,7 @@ def create_collocation(username):
         corpus=corpus_name,
         p_query=p_query,
         flags_query=flags_query,
-        escape_query=escape_query,
+        escape_query=False,
         p_collocation=p_collocation,
         s_break=s_break,
         context=context,
@@ -435,6 +444,8 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
 
     # check if discourseme already associated or already topic of collocation analysis
     collocation_discourseme = discourseme in collocation.discoursemes
+    print(discourseme.id)
+    print(collocation.topic_id)
     is_own_topic_discourseme = discourseme.id == collocation.topic_id
     if is_own_topic_discourseme:
         msg = 'discourseme %s is already topic of the collocation analysis', discourseme
@@ -449,8 +460,7 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
     items = collocation.items
     s_break = collocation.s_break
     p_query = collocation.p_query
-    flags_query = collocation.flags_query
-    escape_query = collocation.escape_query
+    flags_query = ""  # collocation.flags_query
     context = collocation.context
     ams = None
 
@@ -480,7 +490,7 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=escape_query
+        escape=False
     )
 
     # ALTERNATIVE POST-HOC UPDATE
@@ -687,7 +697,7 @@ def get_collocate_for_collocation(username, collocation):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=collocation.escape_query
+        escape=False
     )
     collocates = collocates[window_size]
 
@@ -786,7 +796,7 @@ def get_concordance_for_collocation(username, collocation):
         return jsonify({'msg': 'wrong request parameters'}), 400
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
-    # ... optional additional items
+    # ... optional additional items (have to be escaped)
     items = [cqp_escape(i) for i in request.args.getlist('item', None)]
     # ... how many?
     cut_off = request.args.get('cut_off', 1000)
@@ -847,7 +857,7 @@ def get_concordance_for_collocation(username, collocation):
         order=order,
         cut_off=cut_off,
         flags_query=collocation.flags_query,
-        escape_query=collocation.escape_query,
+        escape_query=False,
         random_seed=random_seed
     )
 
@@ -906,7 +916,7 @@ def get_breakdown_for_collocation(username, collocation):
         p_show=[collocation.p_collocation],
         s_query=collocation.s_break,
         flags_query=collocation.flags_query,
-        escape=collocation.escape_query,
+        escape=False,
         flags_show=flags_show
     )
 

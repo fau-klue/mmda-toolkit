@@ -597,6 +597,8 @@ def get_concordance_for_keyword(username, keyword):
     item = request.args.get('item')
     if not item:
         return {}, 200
+
+    # ad-hoc item has to be escaped
     item = cqp_escape(item)
 
     # ... highlight associated discoursemes
@@ -624,7 +626,6 @@ def get_concordance_for_keyword(username, keyword):
     topic_discourseme = {'topic': [item]}
     filter_discoursemes = {}
     flags_query = "%c"
-    escape_query = True
     random_seed = 42
 
     # use cwb-ccc to extract concordance lines
@@ -647,7 +648,7 @@ def get_concordance_for_keyword(username, keyword):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=escape_query,
+        escape_query=False,
         random_seed=random_seed
     )
 
