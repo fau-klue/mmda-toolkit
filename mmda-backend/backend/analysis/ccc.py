@@ -9,7 +9,7 @@ from ccc.discoursemes import create_constellation
 from ccc.utils import format_cqp_query
 from ccc.counts import score_counts
 
-from pandas import DataFrame, concat
+from pandas import concat
 
 from anycache import anycache
 from backend.settings import ANYCACHE_PATH as CACHE_PATH
@@ -23,33 +23,17 @@ log = logging.getLogger('mmda-logger')
 #############
 # UTILITIES #
 #############
-def format_meta(lines, s_show):
-
-    output = dict()
-    c = 0                       # random key (for sorting)
-    for line in lines:
-        c += 1
-        output[c] = line
-        meta = dict()
-        for s in ['match'] + s_show:
-            meta[s] = output[c].pop(s)
-        output[c]['meta'] = DataFrame.from_dict(
-            meta, orient='index'
-        ).to_html(bold_rows=False, header=False)
-    return output
-
-
 def format_counts(df, add=None):
 
     ams_dict = {
         # asymptotic hypothesis tests
-        'log_likelihood': 'log likelihood',
+        'log_likelihood': 'LLR',
         'z_score': 'z-score',
         't_score': 't-score',
         'simple_ll': 'simple LL',
         # point estimates of association strength
         'dice_1000': 'Dice-1000',
-        'log_ratio': 'log ratio',
+        'log_ratio': 'log-ratio',
         # information theory
         'mutual_information': 'mutual information',
         'local_mutual_information': 'local MI',
@@ -528,9 +512,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                               s_show,
                               order=order,
                               cut_off=cut_off,
-                              random_seed=random_seed)
-
-    # format meta data as HTML tables
-    lines = format_meta(lines, s_show)
+                              random_seed=random_seed,
+                              htmlify_meta=True)
 
     return lines
