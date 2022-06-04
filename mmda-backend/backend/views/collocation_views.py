@@ -15,8 +15,8 @@ from backend import user_required
 # backend.analysis
 from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
 from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown
-# from backend.analysis.ccc import ccc_corpus, ccc_meta
+from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown, ccc_corpus
+# from backend.analysis.ccc import ccc_meta
 # backend.models
 from backend.models.user_models import User
 from backend.models.collocation_models import Collocation
@@ -803,13 +803,12 @@ def get_concordance_for_collocation(username, collocation):
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
-    # corpus = ccc_corpus(collocation.corpus,
-    #                     cqp_bin=current_app.config['CCC_CQP_BIN'],
-    #                     registry_path=current_app.config['CCC_REGISTRY_PATH'],
-    #                     data_path=current_app.config['CCC_DATA_PATH'])
+    corpus = ccc_corpus(collocation.corpus,
+                        cqp_bin=current_app.config['CCC_CQP_BIN'],
+                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
+                        data_path=current_app.config['CCC_DATA_PATH'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
-    # s_show = corpus['s-annotations']
-    s_show = []
+    s_show = corpus['s-annotations']
 
     # pack p-attributes
     p_show = list(set(['word', collocation.p_query]))
