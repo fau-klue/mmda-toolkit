@@ -6,8 +6,9 @@ ENVIRONMENT=${ENVIRONMENT:-'production'}
 
 
 # Initialize database (runs idempotently) and run migrations.
-echo "Running Database Migrations"
+# echo "Running Database Migrations"
 # python3 manage.py migrate_db upgrade
+echo "Creating Database"
 python3 manage.py init_db
 
 # Start the WSGI production server

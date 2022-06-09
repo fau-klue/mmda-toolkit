@@ -20,14 +20,25 @@ Flask-JWT-Extended = "==4.1.0"
 Flask-Caching = "==1.10.1"
 Flask-Cors = "==3.0.7"
 flask-expects-json = "==1.5.0"
+jsonschema = "==3.2.0"
+
 email_validator = "==1.1.1"
-Jinja2 = "==3.0.3"
+
+jinja2 = "==3.0.1"
 itsdangerous = "==2.0.1"
 werkzeug = "==0.16.1"
 gevent = "==21.1.2"
+pathlib2 = "==2.3.5"
+
 pandas = "==1.2.0"
+
 pymagnitude-lite = "==0.1.143"
 scikit-learn = "==0.23.1"
 umap-learn = "==0.5.1"
+
 anycache = "==2.0.7"
-cwb-ccc = {git = "https://github.com/ausgerechnet/cwb-ccc.git", editable = true, ref = "v0.10.3"}
+
+cwb-ccc = {git = "https://github.com/ausgerechnet/cwb-ccc.git", ref = "v0.10.3"}
+
+[requires]
+python_version = "3.8"

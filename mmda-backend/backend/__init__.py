@@ -13,7 +13,7 @@ from flask_caching import Cache
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-from flask_migrate import Migrate
+# from flask_migrate import Migrate
 from flask_user import UserManager
 from flask_wtf.csrf import CSRFProtect
 from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
@@ -25,7 +25,7 @@ cache = Cache(config={'CACHE_TYPE': 'simple'})
 csrf_protect = CSRFProtect()
 db = SQLAlchemy()
 mail = Mail()
-migrate = Migrate()
+# migrate = Migrate()
 jwt = JWTManager()
 
 
@@ -211,7 +211,7 @@ def create_app(extra_config_settings={}):
     db.init_app(app)
 
     # Setup Flask-Migrate
-    migrate.init_app(app, db)
+    # migrate.init_app(app, db)
 
     # Setup Flask JWT
     jwt.init_app(app)
