@@ -170,7 +170,8 @@ export default {
         p: this.p,
         p_reference: this.pReference,
         corpus: this.selectCorpus,
-        corpus_reference: this.selectCorpusReference
+        corpus_reference: this.selectCorpusReference,
+        s_break: this.sBreak
       }
 
       this.addUserKeyword(data).then(() => {
