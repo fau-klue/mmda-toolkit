@@ -38,7 +38,8 @@ RUN apt-get update && \
 RUN svn co http://svn.code.sf.net/p/cwb/code/cwb/trunk /cwb
 WORKDIR /cwb
 RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk && \
-    ./install-scripts/install-linux
+    ./install-scripts/install-linux && \
+    ldconfig
 
 
 ########################
