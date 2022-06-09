@@ -412,8 +412,8 @@ def ccc_keywords(corpus, corpus_reference,
                  flags_show="%c", additional_discoursemes={}):
 
     # TODO mv to CWB
-    corpus = Corpus(corpus)
-    corpus_reference = Corpus(corpus_reference)
+    corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
+    corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
     left = corpus.marginals(p_atts=p)[['freq']]
     right = corpus_reference.marginals(p_atts=p_reference)[['freq']]
     left.columns = ['f1']
