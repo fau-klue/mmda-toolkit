@@ -305,7 +305,7 @@ def get_constellation_concordance(username, constellation):
 
     flags_query = "%c"
     escape_query = True
-    random_seed = 42
+    random_seed = 43
 
     # use cwb-ccc to extract data
     concordance = ccc_concordance(
@@ -335,10 +335,15 @@ def get_constellation_concordance(username, constellation):
         'extracted %d concordance lines for corpus %s' % (len(concordance), corpus_name)
     )
 
+    if concordance is None:
+        log.debug('no concordance available for constellation %s', constellation)
+        return jsonify({'msg': 'empty result'}), 404
+
     # repair format
     out = list()
-    for key, value in concordance.items():
+    for key, value in enumerate(concordance):
         out.append({'id': key, **value})
+
     conc_json = jsonify(out)
 
     return conc_json, 200
