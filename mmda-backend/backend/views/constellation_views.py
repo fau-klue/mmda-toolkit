@@ -304,7 +304,6 @@ def get_constellation_concordance(username, constellation):
         discoursemes[str(disc.id)] = disc.items
 
     flags_query = "%c"
-    escape_query = True
     random_seed = 43
 
     # use cwb-ccc to extract data
@@ -327,7 +326,7 @@ def get_constellation_concordance(username, constellation):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=escape_query,
+        escape_query=False,
         random_seed=random_seed
     )
 
