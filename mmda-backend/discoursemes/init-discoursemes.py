@@ -69,76 +69,76 @@ INFODEMIC_DISCOURSEMES = [
                   'normal Erkältung',
                   'leicht Erkältung']
     },
-    {
-        'name': 'Handelnde',
-        'items': []
-        # dahinter steck*,
-        # kontrolliert [von,durch],
-        # unter {ART} Kontrolle,
-    },
-    {
-        'name': 'AktionProzess',
-        'items': []
-        # gegen {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
-        # heimlich*,
-        # versteckt*,
-        # Krieg,
-        # Kriegszustand,
-        # dritte* Weltkrieg,
-        # ist in [Wahrheit,Wirklichkeit],
-        # soll eigentlich,
-        # lüg*,
-        # zuf?ll*,
-        # Menschenverstand
-    },
-    {
-        'name': 'Medium',
-        'items': []
-        # Notwehr,
-        # Diktatur,
-        # Befreiungskampf,
-        # Widerstand,
-        # Bürgerpflicht,
-        # ist in [Wahrheit,Wirklichkeit],
-        # soll eigentlich,
-        # lüg*,
-        # zuf?ll*,
-        # Recht
-    },
-    {
-        'name': 'Intention',
-        'items': []
-        # um * Kontrolle,
-        # Massenkontrolle,
-        # Massenvernichtung,
-        # Vernichtung,
-        # Auslöschung
-    },
-    {
-        'name': 'Betroffene',
-        'items': []
-        # Kontrolle über uns*,
-        # Kontrolle über {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
-        # um uns* (_{N})? zu,
-    },
-    {
-        'name': 'AmbivalenterDritter',
-        'items': []
-        # Verrat,
-        # Verräter*,
-        # Puppe*,
-        # Marionette*,
-        # unterwander*,
-        # Sumpf,
-        # lüg*,
-        # zuf?ll*,
-        # zens**r*,
-        # Einheitspresse,
-        # Mainstream,
-        # Systemmedien,
-        # Einheitsbrei,
-        # gleichgeschaltet*
-    }
+    # {
+    #     'name': 'Handelnde',
+    #     'items': []
+    #     # dahinter steck*,
+    #     # kontrolliert [von,durch],
+    #     # unter {ART} Kontrolle,
+    # },
+    # {
+    #     'name': 'AktionProzess',
+    #     'items': []
+    #     # gegen {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
+    #     # heimlich*,
+    #     # versteckt*,
+    #     # Krieg,
+    #     # Kriegszustand,
+    #     # dritte* Weltkrieg,
+    #     # ist in [Wahrheit,Wirklichkeit],
+    #     # soll eigentlich,
+    #     # lüg*,
+    #     # zuf?ll*,
+    #     # Menschenverstand
+    # },
+    # {
+    #     'name': 'Medium',
+    #     'items': []
+    #     # Notwehr,
+    #     # Diktatur,
+    #     # Befreiungskampf,
+    #     # Widerstand,
+    #     # Bürgerpflicht,
+    #     # ist in [Wahrheit,Wirklichkeit],
+    #     # soll eigentlich,
+    #     # lüg*,
+    #     # zuf?ll*,
+    #     # Recht
+    # },
+    # {
+    #     'name': 'Intention',
+    #     'items': []
+    #     # um * Kontrolle,
+    #     # Massenkontrolle,
+    #     # Massenvernichtung,
+    #     # Vernichtung,
+    #     # Auslöschung
+    # },
+    # {
+    #     'name': 'Betroffene',
+    #     'items': []
+    #     # Kontrolle über uns*,
+    #     # Kontrolle über {ART} (_{A})? [Bevölkerung,Volk,Menschen,Deutschen,Leute,Weltbevölkerung],
+    #     # um uns* (_{N})? zu,
+    # },
+    # {
+    #     'name': 'AmbivalenterDritter',
+    #     'items': []
+    #     # Verrat,
+    #     # Verräter*,
+    #     # Puppe*,
+    #     # Marionette*,
+    #     # unterwander*,
+    #     # Sumpf,
+    #     # lüg*,
+    #     # zuf?ll*,
+    #     # zens**r*,
+    #     # Einheitspresse,
+    #     # Mainstream,
+    #     # Systemmedien,
+    #     # Einheitsbrei,
+    #     # gleichgeschaltet*
+    # }
 ]
 
 
