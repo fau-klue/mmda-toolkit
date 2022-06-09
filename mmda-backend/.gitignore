@@ -60,6 +60,7 @@ local_settings.py
 
 # Flask stuff:
 instance/
+discoursemes/legacy
 .webassets-cache
 
 # Scrapy stuff:
