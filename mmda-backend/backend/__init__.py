@@ -107,15 +107,12 @@ def preflight_check_config_passed(app):
     Preflight: Check if config files are available to start the application.
     """
 
-    local_settings_file = 'backend/local_settings_{ENV}.py'.format(
-        ENV=app.config['APP_ENV']
-    )
-    corpora_settings_file = 'backend/corpora_settings_{ENV}.py'.format(
+    settings_file = 'backend/settings_{ENV}.py'.format(
         ENV=app.config['APP_ENV']
     )
 
     config_available = False
-    if os.path.exists(local_settings_file) and os.path.exists(corpora_settings_file):
+    if os.path.exists(settings_file):
         config_available = True
 
     return config_available
@@ -186,10 +183,7 @@ def create_app(extra_config_settings={}):
 
     # Load environment settings
     print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
-    app.config.from_object('backend.local_settings_{ENV}'.format(
-        ENV=app.config['APP_ENV']
-    ))
-    app.config.from_object('backend.corpora_settings_{ENV}'.format(
+    app.config.from_object('backend.settings_{ENV}'.format(
         ENV=app.config['APP_ENV']
     ))
     app.config.update(ENV=app.config['APP_ENV'])

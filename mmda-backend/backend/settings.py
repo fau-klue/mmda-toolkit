@@ -7,21 +7,23 @@ An example file (env_settings_example.py) can be used as a starting point
 
 from os import getenv
 
-################################
-# SET VIA ENVIRONMENT VARIABLES
-################################
-# CWB-CCC PATHS
-CCC_REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='/usr/local/share/cwb/registry')
-CCC_DATA_PATH = getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc/')
-CCC_CQP_BIN = getenv('CQP_BIN', default='cqp')
-CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
+APP_NAME = "MMDA Backend"
+
+# Flask-User settings
+USER_APP_NAME = 'MMDA Backend'
+USER_EMAIL_SENDER_NAME = 'FAU'
+USER_EMAIL_SENDER_EMAIL = 'mmda@fau.de'
+
+ADMINS = [
+    '"Admin" <admin@fau.de>',
+]
 
 # SEPARATE MMDA CACHE
 ANYCACHE_PATH = getenv('ANYCACHE_PATH', '/tmp/mmda-anycache/')
 
-# DATABASE URI
-SQLALCHEMY_DATABASE_URI = getenv('SQL_DATABASE_URI', 'sqlite:////tmp/mmda.sqlite')
-
+################################
+# SET VIA ENVIRONMENT VARIABLES
+################################
 # SECRECT KEY (MO: change in production!)
 SECRET_KEY = str(getenv('SECRET_KEY', default='Please Change me in production. Stay Save!'))
 
@@ -37,12 +39,25 @@ APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
 APP_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='key.pem'))
 APP_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='certificate.pem'))
 
+# Flask-Mail settings
+MAIL_SERVER = 'localhost'
+MAIL_PORT = 1025
+MAIL_USE_SSL = False
+MAIL_USE_TLS = False
+MAIL_USERNAME = 'mmda@fau.de'
+MAIL_PASSWORD = 'password'
+
+# DO NOT use "DEBUG = True" in production environments
+DEBUG = True if APP_ENV == 'development' else False
+
+# JWT Settings (seconds)
+JWT_ACCESS_TOKEN_EXPIRES = 60*60*12 if APP_ENV == 'production' else False
+JWT_REFRESH_TOKEN_EXPIRES = 60*60*12 if APP_ENV == 'production' else False
 
 #####################
 # CONSTANT VARIABLES
 #####################
 # Application settings
-APP_NAME = "MMDA Backend"
 APP_SYSTEM_ERROR_SUBJECT_LINE = APP_NAME + " system error"
 APP_LOG_FILE = None
 
