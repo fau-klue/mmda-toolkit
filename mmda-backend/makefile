@@ -41,6 +41,10 @@ windowed:
 rerun_force: clear_all install database run
 
 
+# RUN PRODUCTION SERVER
+run_production:
+	pipenv run gunicorn -w 4 --timeout 500 --bind localhost:5000 wsgi:app
+
 # DOCKER (CONTAINERED PRODUCTION SERVER)
 docker: docker_clean docker_run
 

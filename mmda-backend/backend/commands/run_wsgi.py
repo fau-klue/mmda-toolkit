@@ -5,7 +5,6 @@ Run Flask in production environment
 
 from backend import create_app
 from flask_script import Command
-from os import getenv
 from gevent.pywsgi import WSGIServer
 
 
