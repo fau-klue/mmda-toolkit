@@ -17,5 +17,5 @@ echo "Starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
     python3 manage.py runserver
 else
-    python3 manage.py run_wsgi
+    gunicorn -w 4 --timeout 600 --bind localhost:5000 backend.commands.wsgi:app
 fi

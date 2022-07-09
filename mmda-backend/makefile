@@ -43,14 +43,17 @@ rerun_force: clear_all install database run
 
 # RUN PRODUCTION SERVER
 run_production:
-	pipenv run gunicorn -w 4 --timeout 500 --bind localhost:5000 wsgi:app
+	pipenv run gunicorn -w 4 --timeout 500 --bind localhost:5000 backend.commands.wsgi:app
 
 # DOCKER (CONTAINERED PRODUCTION SERVER)
 docker: docker_clean docker_run
 
+docker_home: docker_clean docker_run_home
+
 docker_build:
 	docker build -t mmda-backend .
 
+# on obelix:
 docker_run:
 	docker run -ti \
 	-v /data/Philipp/mmda/:/opt/database/ \
@@ -65,6 +68,20 @@ docker_run:
 	-e CWB_REGISTRY_PATH=/opt/cwb/registry/ \
 	-e SQL_DATABASE_URI=sqlite:////opt/database/mmda.sqlite \
 	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
+	-p 5000:5000 \
+	--name mmda-backend \
+	mmda-backend
+
+# on abacist:
+docker_run_home:
+	docker run -ti \
+	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/:/opt/database/ \
+	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/:ro \
+	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
+	-v /home/ausgerechnet/corpora/cwb/data/:/data/corpora/cqpweb/corpora/:ro \
+	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/backend/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
+	-e CWB_REGISTRY_PATH=/opt/cwb/registry/ \
+	-e SQL_DATABASE_URI=sqlite:////opt/database/mmda.sqlite \
 	-p 5000:5000 \
 	--name mmda-backend \
 	mmda-backend
