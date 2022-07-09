@@ -37,11 +37,11 @@ def app():
 
 @pytest.fixture
 def test_corpus():
-    """ settings for GERMAPARL1318 """
+    """ settings for GERMAPARL1386 """
 
-    corpus_name = "GERMAPARL1318"
+    corpus_name = "GERMAPARL1386"
 
-    query = '[lemma="Atomkraft"]'
+    query = '[lemma="Seehofer"]'
 
     parameters = {
         'context': 20,
@@ -53,9 +53,9 @@ def test_corpus():
     }
 
     discoursemes = {
-        'topic': ['Atomkraft', 'Atomenergie', 'Kernkraft'],
-        'disc1': ["CDU", "CSU"],
-        'disc2': ["Ausstieg", "Laufzeit"],
+        'topic': ["CDU", "CSU"],
+        'disc1': ["und"],
+        'disc2': ["Bundesregierung"],
         # 'disc3': ['Klimawandel'],
         # 'disc4': ['Wirtschaftskrise']
     }

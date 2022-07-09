@@ -9,21 +9,22 @@ def test_discourseme_create(client, header):
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
     response = client.post(url_for('discourseme.create_discourseme', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
-                          json=data)
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
+                           json=data)
 
-    assert response.status_code==201
+    assert response.status_code == 201
 
     data = {'name': 'foobar', 'items': ['foobar', 'barfoo']}
     response = client.post(url_for('discourseme.create_discourseme', username='student1'),
-                          follow_redirects=True,
-                          content_type='application/json',
-                          headers=header,
+                           follow_redirects=True,
+                           content_type='application/json',
+                           headers=header,
                            json={})
 
-    assert response.status_code==400
+    assert response.status_code == 400
+
 
 @pytest.mark.api
 def test_discourseme_read_all(client, header):
@@ -33,7 +34,7 @@ def test_discourseme_read_all(client, header):
                           content_type='application/json',
                           headers=header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
@@ -42,11 +43,11 @@ def test_discourseme_read(client, header):
     response = client.get(url_for('discourseme.get_discourseme',
                                   username='student1',
                                   discourseme=1),
-                                  follow_redirects=True,
-                                  content_type='application/json',
-                                  headers=header)
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
@@ -54,18 +55,18 @@ def test_discourseme_update(client, header):
 
     data = {'name': 'newname', 'items': ['something']}
     response = client.put(url_for('discourseme.update_discourseme',
-                                     username='student1',
-                                     discourseme=1),
-                             follow_redirects=True,
-                             content_type='application/json',
-                             headers=header,
-                             json=data)
+                                  username='student1',
+                                  discourseme=1),
+                          follow_redirects=True,
+                          content_type='application/json',
+                          headers=header,
+                          json=data)
 
-    assert response.status_code==200
+    assert response.status_code == 200
 
 
 @pytest.mark.api
-@mock.patch('backend.views.analysis_views.generate_semantic_space')
+@mock.patch('backend.views.collocation_views.generate_semantic_space')
 def test_discourseme_update_topic(mock_coords, client, header):
     # old behaviour: You cannot edit a topic discourseme
     # new behaviour: You can! Why not? (many-to-many mapping)
@@ -78,22 +79,22 @@ def test_discourseme_update_topic(mock_coords, client, header):
 
     data = {'discourseme': 'foobar',
             'name': 'foobar',
-            'corpus': 'GERMAPARL1318',
-            'items': ['Merkel'],
+            'corpus': 'GERMAPARL1386',
+            'items': ['Seehofer'],
             'p_query': 'word',
             's_break': 's'}
 
-    response = client.post(url_for('analysis.create_analysis', username='student1'),
+    response = client.post(url_for('collocation.create_collocation', username='student1'),
                            follow_redirects=True,
                            content_type='application/json',
                            headers=header,
                            json=data)
 
-    analysis_id = response.json['msg']
+    collocation_id = response.json['msg']
 
-    response = client.get(url_for('analysis.get_analysis',
+    response = client.get(url_for('collocation.get_collocation',
                                   username='student1',
-                                  analysis=analysis_id),
+                                  collocation=collocation_id),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)
@@ -133,4 +134,4 @@ def test_discourseme_delete(client, header):
                              content_type='application/json',
                              headers=header)
 
-    assert response.status_code==200
+    assert response.status_code == 200

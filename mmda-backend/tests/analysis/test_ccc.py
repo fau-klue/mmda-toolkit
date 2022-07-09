@@ -15,8 +15,9 @@ def test_ccc_simple_concordance(app, test_corpus):
         registry_path=app.config['CCC_REGISTRY_PATH'],
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
-        topic_items=test_corpus['discoursemes']['topic'],
-        topic_name='topic',
+        topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
+        filter_discoursemes={},
+        additional_discoursemes={},
         s_context=test_corpus['parameters']['s_context'],
         window_size=test_corpus['parameters']['context'],
         s_show=test_corpus['parameters']['s_show']
@@ -25,6 +26,7 @@ def test_ccc_simple_concordance(app, test_corpus):
 
 
 @pytest.mark.conc
+@pytest.mark.now
 def test_ccc_constellation_concordance(app, test_corpus):
 
     conc = ccc_concordance(
@@ -33,12 +35,12 @@ def test_ccc_constellation_concordance(app, test_corpus):
         registry_path=app.config['CCC_REGISTRY_PATH'],
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
-        topic_items=test_corpus['discoursemes'].pop('topic'),
-        topic_name='topic',
+        topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
+        filter_discoursemes={},
+        additional_discoursemes={},
         s_context=test_corpus['parameters']['s_context'],
         window_size=10,
         context=test_corpus['parameters']['context'],
-        additional_discoursemes=test_corpus['discoursemes'],
         s_show=test_corpus['parameters']['s_show']
     )
     print(conc)
@@ -53,12 +55,12 @@ def test_ccc_constellation_concordance_2(app, test_corpus):
         registry_path=app.config['CCC_REGISTRY_PATH'],
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
-        topic_items=test_corpus['discoursemes']['topic'],
-        topic_name='topic',
+        topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
+        filter_discoursemes={},
+        additional_discoursemes={},
         s_context=test_corpus['parameters']['s_context'],
         window_size=5,
         context=test_corpus['parameters']['context'],
-        additional_discoursemes={'disc1': test_corpus['discoursemes']['disc1']},
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )
@@ -74,11 +76,11 @@ def test_ccc_constellation_concordance_3(app, test_corpus):
         registry_path=app.config['CCC_REGISTRY_PATH'],
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH'],
-        topic_items=['Merkel'],
-        topic_name='topic',
+        topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
+        filter_discoursemes={},
+        additional_discoursemes={},
         s_context=test_corpus['parameters']['s_context'],
         window_size=7,
-        additional_discoursemes={'disc1': test_corpus['discoursemes']['disc1']},
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )

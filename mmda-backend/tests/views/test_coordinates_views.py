@@ -6,7 +6,7 @@ import pytest
 
 @pytest.mark.api
 @pytest.mark.coord
-@mock.patch('backend.views.analysis_views.generate_semantic_space')
+@mock.patch('backend.views.collocation_views.generate_semantic_space')
 def test_get_coordinates(mock_coords, client, header):
 
     mock_coords.return_value = pandas.DataFrame(
@@ -17,12 +17,12 @@ def test_get_coordinates(mock_coords, client, header):
 
     data = {'name': 'foobar',
             'discourseme': 'foobar',
-            'corpus': 'GERMAPARL1318',
-            'items': ['Merkel'],
+            'corpus': 'GERMAPARL1386',
+            'items': ['Seehofer'],
             'p_query': 'word',
             's_break': 's'}
 
-    response = client.post(url_for('analysis.create_analysis', username='student1'),
+    response = client.post(url_for('collocation.create_collocation', username='student1'),
                            follow_redirects=True,
                            content_type='application/json',
                            headers=header,
@@ -30,7 +30,7 @@ def test_get_coordinates(mock_coords, client, header):
 
     response = client.get(url_for('coordinates.get_coordinates',
                                   username='student1',
-                                  analysis=1),
+                                  collocation=response.json['msg']),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)
@@ -51,7 +51,7 @@ def test_reload_coordinates(mock_coords, client, header):
 
     response = client.put(url_for('coordinates.reload_coordinates',
                                   username='student1',
-                                  analysis=1),
+                                  collocation=1),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header)
@@ -67,7 +67,7 @@ def test_update_coordinates(client, header):
 
     response = client.put(url_for('coordinates.update_coordinates',
                                   username='student1',
-                                  analysis=1),
+                                  collocation=1),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=header,
@@ -83,7 +83,7 @@ def test_delete_coordinates(client, header):
 
     response = client.delete(url_for('coordinates.delete_coordinates',
                                      username='student1',
-                                     analysis=1),
+                                     collocation=1),
                              follow_redirects=True,
                              content_type='application/json',
                              headers=header,

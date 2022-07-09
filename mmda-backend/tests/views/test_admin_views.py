@@ -156,7 +156,7 @@ def test_delete_admin_user(client, admin_header):
 @pytest.mark.api
 def test_get_items(client, admin_header):
 
-    response = client.get(url_for('admin.get_analysis'),
+    response = client.get(url_for('admin.get_collocation'),
                           follow_redirects=True,
                           content_type='application/json',
                           headers=admin_header)
@@ -217,7 +217,7 @@ def test_delete_position(client, header, admin_header):
 @pytest.mark.api
 def test_delete_analysis_noanalysis(client, header, admin_header):
 
-    response = client.delete(url_for('admin.delete_analysis', analysis=2),
+    response = client.delete(url_for('admin.delete_collocation', collocation=2),
                              follow_redirects=True,
                              content_type='application/json',
                              headers=admin_header)
