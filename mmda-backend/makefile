@@ -30,61 +30,21 @@ migrate:
 	pipenv run python3 manage.py migrate_db upgrade
 
 
-# RUN DEVELOPMENT SERVER
+# DEVELOPMENT SERVER
 run:
 	pipenv run python3 manage.py runserver
 
-windowed:
-	database
-	gnome-terminal -- pipenv run python3 manage.py runserver
 
-rerun_force: clear_all install database run
-
-
-# RUN PRODUCTION SERVER
+# PRODUCTION SERVER
 run_production:
-	pipenv run gunicorn -w 4 --timeout 500 --bind localhost:5000 backend.commands.wsgi:app
+	pipenv run gunicorn -w 2 --timeout 600 --bind localhost:5000 backend.commands.wsgi:app
 
-# DOCKER (CONTAINERED PRODUCTION SERVER)
-docker: docker_clean docker_run
 
-docker_home: docker_clean docker_run_home
+# PRODUCTION SERVER VIA DOCKER (on abacist)
+docker: docker_clean docker_run_abacist
 
 docker_build:
 	docker build -t mmda-backend .
-
-# on obelix:
-docker_run:
-	docker run -ti \
-	-v /data/Philipp/mmda/:/opt/database/ \
-	-v /data/Philipp/mmda/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
-	-v /cip/corpora/projects/EFE/embeddings/:/opt/embeddings/:ro \
-	-v /data/corpora/cqpweb/registry/:/opt/cwb/registry/:ro \
-	-v /data/corpora/cqpweb/corpora/:/data/corpora/cqpweb/corpora/:ro \
-	-v /etc/letsencrypt/:/certs/letsencrypt/:ro \
-	-e TLS_ENABLE=true \
-	-e TLS_CERTFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/fullchain.pem \
-	-e TLS_KEYFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/privkey.pem \
-	-e CWB_REGISTRY_PATH=/opt/cwb/registry/ \
-	-e SQL_DATABASE_URI=sqlite:////opt/database/mmda.sqlite \
-	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
-	-p 5000:5000 \
-	--name mmda-backend \
-	mmda-backend
-
-# on abacist:
-docker_run_home:
-	docker run -ti \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/:/opt/database/ \
-	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/:ro \
-	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
-	-v /home/ausgerechnet/corpora/cwb/data/:/data/corpora/cqpweb/corpora/:ro \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/backend/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
-	-e CWB_REGISTRY_PATH=/opt/cwb/registry/ \
-	-e SQL_DATABASE_URI=sqlite:////opt/database/mmda.sqlite \
-	-p 5000:5000 \
-	--name mmda-backend \
-	mmda-backend
 
 docker_clean:
 	docker container rm mmda-backend
@@ -92,16 +52,29 @@ docker_clean:
 docker_stop:
 	docker container stop mmda-backend
 
+docker_run_abacist:
+	docker run -ti \
+	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/:/opt/database/ \
+	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/backend/settings_production.py:/app/backend/settings_production.py:ro \
+	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/:ro \
+	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
+	-v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
+	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
+	-e WORKERS=2 \
+	-p 5000:5000 \
+	--name mmda-backend \
+	mmda-backend
+
 
 # CLEAN LOCAL STUFF
-clear_all: clear_cache clear_db clear_lock
+clean: clean_cache clean_db clean_lock
 
-clear_cache:
-	rm instance/ccc-cache -r
-	rm /tmp/mmda-anycache -r
+clean_cache:
+	rm -r instance/ccc-data*
+	rm -r /tmp/mmda-anycache
 
-clear_db:
-	rm instance/mmda.sqlite
+clean_db:
+	rm instance/mmda*.sqlite
 
-clear_lock:
+clean_lock:
 	rm Pipfile.lock

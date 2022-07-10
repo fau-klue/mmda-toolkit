@@ -1,0 +1,40 @@
+# I'm a systemd service file that lives in /etc/systemd/system/
+[Unit]
+Description=Daemon for MMDA Backend
+After=docker.service
+Wants=
+Requires=docker.service
+
+[Service]
+Restart=on-failure
+StartLimitInterval=20
+StartLimitBurst=5
+TimeoutStartSec=0
+RestartSec=5
+Environment="HOME=/root"
+SyslogIdentifier=docker-mmda-backend
+ExecStartPre=-/usr/bin/docker kill mmda-backend
+ExecStartPre=-/usr/bin/docker rm  mmda-backend
+
+ExecStart=/usr/bin/docker run \
+ -v /data/Philipp/mmda/:/opt/database/ \
+ -v /data/Philipp/mmda/corpora_settings_production.py:/app/backend/corpora_settings_production.py:ro \
+ -v /cip/corpora/projects/EFE/embeddings/:/opt/embeddings/:ro \
+ -v /data/corpora/cqpweb/registry/:/opt/cwb/registry/:ro \
+ -v /data/corpora/cqpweb/corpora/:/data/corpora/cqpweb/corpora/:ro \
+ -v /etc/letsencrypt/:/certs/letsencrypt/:ro \
+ -e TLS_ENABLE=true \
+ -e TLS_CERTFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/fullchain.pem \
+ -e TLS_KEYFILE=/certs/letsencrypt/live/corpora.linguistik.uni-erlangen.de/privkey.pem \
+ -e SECRET_KEY=fLVmrrpwjjHfdshvsrewqlbpuvcsewhrsacjvh \
+ -e WORKERS=12 \
+ -p 5000:5000 \
+ --name mmda-backend \
+ mmda-backend:latest
+
+ExecStop=-/usr/bin/docker stop --time=0 mmda-backend
+ExecStop=-/usr/bin/docker rm  mmda-backend
+
+[Install]
+WantedBy=multi-user.target
+

@@ -48,7 +48,7 @@ RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk && \
 ENV SECRET_KEY 'changemewhenstartingthecontainer'
 
 ENV ENVIRONMENT 'production'
-ENV SQL_DATABASE_URI 'sqlite:////opt/database/mmda.sqlite'
+ENV SQL_DATABASE_URI 'sqlite:////opt/database/mmda-docker.sqlite'
 ENV CWB_REGISTRY_PATH '/opt/cwb/registry/'
 
 ENV HOST 0.0.0.0

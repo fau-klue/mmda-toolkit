@@ -3,6 +3,7 @@
 
 
 ENVIRONMENT=${ENVIRONMENT:-'production'}
+WORKERS=${WORKERS:-4}
 
 
 # Initialize database (runs idempotently) and run migrations.
@@ -17,5 +18,5 @@ echo "Starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
     python3 manage.py runserver
 else
-    gunicorn -w 4 --timeout 600 --bind localhost:5000 backend.commands.wsgi:app
+    gunicorn -w $WORKERS --timeout 600 --bind :5000 backend.commands.wsgi:app
 fi

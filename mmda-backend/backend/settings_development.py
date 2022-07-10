@@ -2,14 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Corpus specific settings
-Contains the available corpora on the system
-
-name: Human-readable name
-name_api: CWB handle
-embeddings: Path to pymagnitude word vectors
-language: Language of corpus
-register: Register of the corpus
+Development settings
 """
 
 from os import getenv
@@ -29,6 +22,7 @@ SQLALCHEMY_DATABASE_URI = getenv(
     'sqlite:////home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/mmda-development.sqlite'
 )
 
+# CORPORA
 CORPORA = {
     'COV_PRESSE_DE': {
         'name': 'Infodemic: Presseartikel (DE)',

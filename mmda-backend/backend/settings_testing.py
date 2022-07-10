@@ -1,5 +1,8 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
-Test settings
+Testing settings
 """
 
 from os import getenv
