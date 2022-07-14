@@ -54,7 +54,6 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/data/mmda/cert.
 
 ```bash
 cp deployment/docker-mmda-backend.service /etc/systemd/system/
-cp deployment/docker-mmda-frontend.service /etc/systemd/system/
 systemctl reload-daemon
 ```
 
@@ -80,8 +79,6 @@ vi /etc/systemd/system/docker-mmda-fronend.service
 ```bash
 systemctl enable docker-mmda-backend
 systemctl start docker-mmda-backend
-systemctl enable docker-mmda-frontend
-systemctl start docker-mmda-frontend
 ```
 
 ## frontend
