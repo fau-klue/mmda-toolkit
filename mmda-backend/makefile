@@ -1,5 +1,3 @@
-.PHONY: discoursemes
-
 # INSTALL
 install:
 	pip3 install -r requirements.txt
@@ -24,7 +22,7 @@ database:
 	pipenv run python3 manage.py init_db
 
 discoursemes:
-	pipenv run python3 discoursemes/init-discoursemes.py
+	pipenv run python3 /home/ausgerechnet/repositories/discoursemes/init-discoursemes.py
 
 migrate:
 	pipenv run python3 manage.py migrate_db upgrade

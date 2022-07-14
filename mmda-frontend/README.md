@@ -12,14 +12,14 @@
     # Run development server with hot-reload
     npm run serve || yarn run serve
 
-Point your web browser to http://localhost:8080/
+Point your web browser to http://localhost:8080/.
 
 #  Running in production
 
     # Compile code for production
     npm run build || yarn run build
 
-Hint: You need a webserver to serve the page
+You will need a webserver to serve the page.
 
 # Development
 
