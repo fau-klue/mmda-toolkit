@@ -46,8 +46,8 @@ def get_coordinates(username, collocation):
     coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
     df = coordinates.data
 
-    # Workaround: to_dict and jsonify produce invalid JSON with NaN instead of null
-    # orient=index means: {"token1":{"user_x":1,"user_y":2,"tsne_x":3,"tsne_y":4}
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
     df = df.where(notnull(df), None)
     ret = df.to_dict(orient='index')
 
@@ -74,9 +74,9 @@ def get_coordinates_keywords(username, keyword):
     coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
     df = coordinates.data
 
-    # Workaround: to_dict and jsonify produce invalid JSON with NaN instead of null
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
     df = df.where(notnull(df), None)
-    # orient=index means: {"token1":{"user_x":1,"user_y":2,"tsne_x":3,"tsne_y":4}
     ret = df.to_dict(orient='index')
 
     return jsonify(ret), 200
