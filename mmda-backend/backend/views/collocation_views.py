@@ -11,8 +11,8 @@ from ccc.utils import cqp_escape
 # requirements
 from flask import Blueprint, current_app, jsonify, request
 from flask_expects_json import expects_json
-from pandas import notnull, DataFrame
 from numpy import nan
+from pandas import DataFrame, notnull
 
 # backend
 from backend import db, user_required
