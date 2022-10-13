@@ -1,6 +1,7 @@
-from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_keywords
-from backend.analysis.ccc import ccc_constellation_association
 import pytest
+
+from backend.analysis.ccc import (ccc_collocates, ccc_concordance,
+                                  ccc_constellation_association, ccc_keywords)
 
 
 ###############

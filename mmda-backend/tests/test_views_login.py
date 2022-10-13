@@ -1,7 +1,8 @@
-from flask import url_for
-from flask_jwt_extended import create_refresh_token, create_access_token
 from json import loads
+
 import pytest
+from flask import url_for
+from flask_jwt_extended import create_access_token, create_refresh_token
 
 
 @pytest.mark.api
