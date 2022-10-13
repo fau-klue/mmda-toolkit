@@ -11,7 +11,7 @@ from os import getenv
 CCC_REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='/usr/local/share/cwb/registry')
 CCC_DATA_PATH = getenv(
     'CCC_DATA_PATH',
-    default='/home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/ccc-data-development/'
+    default='/home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/ccc-data-development/'
 )
 CCC_CQP_BIN = getenv('CQP_BIN', default='cqp')
 CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
@@ -19,7 +19,7 @@ CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
 # DATABASE URI
 SQLALCHEMY_DATABASE_URI = getenv(
     'SQL_DATABASE_URI',
-    'sqlite:////home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/mmda-development.sqlite'
+    'sqlite:////home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/mmda-development.sqlite'
 )
 
 # CORPORA

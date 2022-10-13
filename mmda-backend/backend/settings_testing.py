@@ -10,11 +10,11 @@ from os import getenv
 # CWB-CCC PATHS
 CCC_REGISTRY_PATH = getenv(
     'CWB_REGISTRY_PATH',
-    default='/home/ausgerechnet/implementation/cwb-ccc/tests/corpora/registry/'
+    default='tests/corpora/registry/'
 )
 CCC_DATA_PATH = getenv(
     'CCC_DATA_PATH',
-    default='/home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/ccc-data-testing/'
+    default='instance/ccc-data-testing/'
 )
 CCC_CQP_BIN = getenv('CQP_BIN', default='cqp')
 CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
