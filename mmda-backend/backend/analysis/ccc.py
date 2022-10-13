@@ -414,7 +414,7 @@ def ccc_keywords(corpus, corpus_reference,
     corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
     corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
 
-    kw = keywords(corpus, corpus_reference, p, p_reference, order, cut_off, flags_show, ams)
+    kw = keywords(corpus, corpus_reference, p, p_reference, order, cut_off, ams, min_freq, True, flags_show)
 
     return format_counts(kw)
 
