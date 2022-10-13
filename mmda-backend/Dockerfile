@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 
 ##########################
@@ -77,11 +77,15 @@ COPY Pipfile Pipfile.lock /app/
 RUN pipenv install --dev --system --ignore-pipfile --deploy
 
 
-###################
-# COPY AND RUN APP
-###################
+###########
+# COPY APP
+###########
 # We copy the application here, so that the previous layers can be cached
 COPY . /app
 
-# Start the Application
-CMD ["/app/entrypoint.sh"]
+
+#############################
+# SET UP AND START THE SEVER
+#############################
+RUN pipenv run flask --app backend database init
+CMD pipenv run gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
