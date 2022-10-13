@@ -3,9 +3,9 @@ User Models
 """
 
 
-from flask_user import UserMixin
-from backend import db
+from flask_login import UserMixin
 
+from backend import db
 
 users_roles = db.Table(
     # many to many mapping:

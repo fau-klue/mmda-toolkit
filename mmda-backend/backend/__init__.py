@@ -1,31 +1,30 @@
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
 """
 Central entrypoint for Flask
 """
 
 
-import os
 import logging
+import os
 from functools import wraps
 from logging.handlers import SMTPHandler
 from sys import stdout
+
 from flask import Flask, jsonify, request
-from flask_caching import Cache
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import (JWTManager, get_jwt_identity,
+                                verify_jwt_in_request)
 from flask_mail import Mail
-# from flask_migrate import Migrate
-from flask_user import UserManager
+from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
-from flask_jwt_extended import JWTManager, get_jwt_identity, verify_jwt_in_request
 from wtforms.fields import HiddenField
 
-
 # Instantiate Flask extensions
-cache = Cache(config={'CACHE_TYPE': 'simple'})
 csrf_protect = CSRFProtect()
-db = SQLAlchemy()
 mail = Mail()
-# migrate = Migrate()
+db = SQLAlchemy()
 jwt = JWTManager()
 
 
@@ -46,33 +45,6 @@ def create_logger(name,
 
     logger = logging.getLogger(name)
     formatter = logging.Formatter(log_format)
-
-    # # automatic HTTPS logging by Werkzeug
-    # log = logging.getLogger('werkzeug')
-    # log.disabled = True
-
-    # # display current loggers:
-    # from pprint import pprint
-    # pprint(logging.Logger.manager.loggerDict)
-
-    # # remove superfluous ones
-    # log_names = [
-    #     'ccc',
-    #     'ccc.cache',
-    #     'ccc.collocates',
-    #     'ccc.concordances',
-    #     'ccc.counts',
-    #     'ccc.cqp',
-    #     'ccc.cwb',
-    #     'ccc.discoursemes',
-    #     'ccc.dumps',
-    #     'ccc.keywords',
-    #     'ccc.utils'
-    # ]
-    # app_logs = map(lambda logname: logging.getLogger(logname), log_names)
-    # for app_log in app_logs:
-    #     for hdlr in app_log.handlers[:]:
-    #         app_log.removeHandler(hdlr)
 
     # add stdout handler
     stdout_handler = logging.StreamHandler(stdout)
@@ -171,9 +143,7 @@ def create_app(extra_config_settings={}):
 
     # Instantiate Flask
     app = Flask(__name__)
-
-    # Setup CORS
-    cors = CORS(app, supports_credentials=True)
+    CORS(app, supports_credentials=True)
 
     # Load common settings
     app.config.from_object('backend.settings')
@@ -193,28 +163,24 @@ def create_app(extra_config_settings={}):
         print('Error: Config files not initialized')
         exit(1)
 
+    # Preflight: Check if wordvectors are available
+    preflight_check_vectors_passed(app)
+
     # Create central logging instance
     app.logger = create_logger('mmda-logger',
                                log_file=app.config['APP_LOG_FILE'],
                                is_debug=app.config['DEBUG'])
 
-    # Preflight: Check if wordvectors are available
-    preflight_check_vectors_passed(app)
-
-    # Setup Flask-SQLAlchemy
+    # initialise database
+    from .models import database
+    app.register_blueprint(database.bp)
     db.init_app(app)
-
-    # Setup Flask-Migrate
-    # migrate.init_app(app, db)
 
     # Setup Flask JWT
     jwt.init_app(app)
 
     # Setup Flask-Mail
     mail.init_app(app)
-
-    # Setup Flask Caching
-    cache.init_app(app)
 
     # Setup WTForms CSRFProtect
     csrf_protect.init_app(app)
@@ -231,14 +197,6 @@ def create_app(extra_config_settings={}):
 
     # Setup an error-logger to send emails to app.config.ADMINS
     init_email_error_handler(app)
-
-    # Setup Flask-User to handle user account related forms
-    from .models.user_models import User
-    user_manager = UserManager(app, db, User)
-
-    @app.context_processor
-    def context_processor():
-        return dict(user_manager=user_manager)
 
     return app
 

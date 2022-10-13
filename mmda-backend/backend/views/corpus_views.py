@@ -3,11 +3,12 @@ Corpus view
 """
 
 
-from flask import Blueprint, jsonify, current_app
-from flask_jwt_extended import jwt_required
 from logging import getLogger
-from backend.analysis.ccc import ccc_corpus
 
+from flask import Blueprint, current_app, jsonify
+from flask_jwt_extended import jwt_required
+
+from backend.analysis.ccc import ccc_corpus
 
 corpus_blueprint = Blueprint('corpus', __name__, template_folder='templates')
 log = getLogger('mmda-logger')

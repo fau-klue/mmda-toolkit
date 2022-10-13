@@ -4,23 +4,21 @@
 Coordinates view
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-from pandas import DataFrame, notnull
-from numpy import nan
-
-# backend
-from backend import db
-from backend import user_required
-from backend.analysis.semspace import generate_semantic_space
-from backend.models.user_models import User
-from backend.models.collocation_models import Collocation
-from backend.models.keyword_models import Keyword
-from backend.models.coordinates_models import Coordinates
-
 # logging
 from logging import getLogger
 
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+from numpy import nan
+from pandas import DataFrame, notnull
+
+# backend
+from backend import db, user_required
+from backend.analysis.semspace import generate_semantic_space
+from backend.models.collocation_models import Collocation
+from backend.models.coordinates_models import Coordinates
+from backend.models.keyword_models import Keyword
+from backend.models.user_models import User
 
 coordinates_blueprint = Blueprint('coordinates', __name__, template_folder='templates')
 

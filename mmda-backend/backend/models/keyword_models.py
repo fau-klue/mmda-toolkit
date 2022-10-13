@@ -6,7 +6,6 @@ Keyword Models:
 
 from backend import db
 
-
 keyword_discoursemes = db.Table(
     # many to many mapping:
     # - a keyword analysis has several associated discoursemes

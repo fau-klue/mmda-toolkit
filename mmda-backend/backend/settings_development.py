@@ -19,7 +19,7 @@ CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
 # DATABASE URI
 SQLALCHEMY_DATABASE_URI = getenv(
     'SQL_DATABASE_URI',
-    'sqlite:////home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/mmda-development.sqlite'
+    default='sqlite:////home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/mmda-development.sqlite'
 )
 
 # CORPORA

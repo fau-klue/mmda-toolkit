@@ -4,28 +4,23 @@
 Constellation views
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-from flask_expects_json import expects_json
-
-# backend
-from backend import db
-from backend import user_required
-# backend.analysis
-from backend.analysis.validators import (
-    CONSTELLATION_SCHEMA,
-    CONSTELLATION_UPDATE_SCHEMA
-)
-from backend.analysis.ccc import ccc_corpus
-from backend.analysis.ccc import ccc_concordance
-from backend.analysis.ccc import ccc_constellation_association
-# backend.models
-from backend.models.user_models import User
-from backend.models.discourseme_models import Discourseme, Constellation
-
 # logging
 from logging import getLogger
 
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+from flask_expects_json import expects_json
+
+# backend
+from backend import db, user_required
+from backend.analysis.ccc import (ccc_concordance,
+                                  ccc_constellation_association, ccc_corpus)
+# backend.analysis
+from backend.analysis.validators import (CONSTELLATION_SCHEMA,
+                                         CONSTELLATION_UPDATE_SCHEMA)
+from backend.models.discourseme_models import Constellation, Discourseme
+# backend.models
+from backend.models.user_models import User
 
 constellation_blueprint = Blueprint('constellation', __name__, template_folder='templates')
 

@@ -4,14 +4,14 @@ Import the blueprints here
 
 
 from .admin_views import admin_blueprint
-from .user_views import user_blueprint
-from .login_views import login_blueprint
-from .corpus_views import corpus_blueprint
-from .coordinates_views import coordinates_blueprint
 from .collocation_views import collocation_blueprint
-from .keyword_views import keyword_blueprint
-from .discourseme_views import discourseme_blueprint
 from .constellation_views import constellation_blueprint
+from .coordinates_views import coordinates_blueprint
+from .corpus_views import corpus_blueprint
+from .discourseme_views import discourseme_blueprint
+from .keyword_views import keyword_blueprint
+from .login_views import login_blueprint
+from .user_views import user_blueprint
 
 
 def register_blueprints(app):

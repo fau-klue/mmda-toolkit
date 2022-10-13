@@ -4,27 +4,26 @@
 Keywords view
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-# from flask_expects_json import expects_json
-from ccc.utils import cqp_escape
-
-# backend
-from backend import db
-from backend import user_required
-# backend.analysis
-# from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_keywords, ccc_concordance, ccc_corpus
-# backend.models
-from backend.models.user_models import User
-from backend.models.keyword_models import Keyword
-from backend.models.discourseme_models import Discourseme
-from backend.models.coordinates_models import Coordinates
-
 # logging
 from logging import getLogger
 
+# from flask_expects_json import expects_json
+from ccc.utils import cqp_escape
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+
+# backend
+from backend import db, user_required
+from backend.analysis.ccc import ccc_concordance, ccc_corpus, ccc_keywords
+# backend.analysis
+# from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
+from backend.analysis.semspace import (generate_items_coordinates,
+                                       generate_semantic_space)
+from backend.models.coordinates_models import Coordinates
+from backend.models.discourseme_models import Discourseme
+from backend.models.keyword_models import Keyword
+# backend.models
+from backend.models.user_models import User
 
 keyword_blueprint = Blueprint('keyword', __name__, template_folder='templates')
 

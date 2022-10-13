@@ -4,17 +4,16 @@
 Concordance and Collocation Computation
 """
 
-from ccc import Corpora, Corpus
-from ccc.discoursemes import create_constellation
-from ccc.utils import format_cqp_query
-from ccc.keywords import keywords
-
-from pandas import concat
+import logging
 
 from anycache import anycache
-from backend.settings import ANYCACHE_PATH as CACHE_PATH
+from ccc import Corpora, Corpus
+from ccc.discoursemes import create_constellation
+from ccc.keywords import keywords
+from ccc.utils import format_cqp_query
+from pandas import concat
 
-import logging
+from backend.settings import ANYCACHE_PATH as CACHE_PATH
 
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 log = logging.getLogger('mmda-logger')
@@ -200,7 +199,8 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                                      data_path,
                                      approximate=True)
     except KeyError:            # no matches
-        return
+        return None  # , None
+
     collocates = const.collocates(
         windows=windows,
         p_show=p_show, flags=flags_show,
@@ -395,10 +395,7 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
     tables = const.associations()
 
     # formatting
-    out = list()
-    for row in tables.iterrows():
-        v = dict(row[1])
-        out.append(v)
+    out = [dict(row[1]) for row in tables.iterrows()]
 
     return out
 
@@ -413,10 +410,19 @@ def ccc_keywords(corpus, corpus_reference,
 
     corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
     corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
-
-    kw = keywords(corpus, corpus_reference, p, p_reference, order, cut_off, flags_show, ams)
-
-    return format_counts(kw)
+    min_freq = 10
+    kw = keywords(corpus,
+                  corpus_reference,
+                  p,
+                  p_reference,
+                  order,
+                  cut_off,
+                  ams,
+                  min_freq,
+                  True,
+                  flags)
+    kw = format_counts(kw)
+    return kw
 
 
 @anycache(CACHE_PATH)

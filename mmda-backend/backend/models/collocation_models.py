@@ -32,7 +32,6 @@ Relationships:
 from backend import db
 from backend.models.discourseme_models import Discourseme
 
-
 collocation_discoursemes = db.Table(
     # many to many mapping:
     # - a collocation analysis has several associated discoursemes

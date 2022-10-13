@@ -10,7 +10,6 @@ Discourseme Models:
 
 from backend import db
 
-
 constellation_discoursemes = db.Table(
     # many to many mapping:
     # - a constellation has several associated discoursemes

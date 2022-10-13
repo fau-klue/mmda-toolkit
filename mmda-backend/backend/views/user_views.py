@@ -3,13 +3,14 @@ Users view
 """
 
 
-from flask import Blueprint, request, jsonify, current_app
-from flask_expects_json import expects_json
 from logging import getLogger
 
-from backend import db
+from flask import Blueprint, jsonify, request
+from flask_expects_json import expects_json
+from werkzeug.security import generate_password_hash
+
+from backend import db, user_required
 from backend.analysis.validators import PASSWORD_SCHEMA, USER_UPDATE_SCHEMA
-from backend import user_required
 from backend.models.user_models import User
 
 user_blueprint = Blueprint('user', __name__, template_folder='templates')
@@ -52,7 +53,7 @@ def put_user_password(username):
         return jsonify({'msg': 'No such user'}), 404
 
     # Generate salted password hash
-    hashed_password = current_app.user_manager.password_manager.hash_password(new_password)
+    hashed_password = generate_password_hash(new_password)
 
     if not hashed_password:
         log.debug('Password could not be changed. No hash generated')

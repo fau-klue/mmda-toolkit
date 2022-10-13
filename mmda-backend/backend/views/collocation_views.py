@@ -4,28 +4,28 @@
 Collocation view
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-from flask_expects_json import expects_json
-from ccc.utils import cqp_escape
-
-# backend
-from backend import db
-from backend import user_required
-# backend.analysis
-from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown, ccc_corpus
-# from backend.analysis.ccc import ccc_meta
-# backend.models
-from backend.models.user_models import User
-from backend.models.collocation_models import Collocation
-from backend.models.discourseme_models import Discourseme
-from backend.models.coordinates_models import Coordinates
-
 # logging
 from logging import getLogger
 
+from ccc.utils import cqp_escape
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+from flask_expects_json import expects_json
+
+# backend
+from backend import db, user_required
+from backend.analysis.ccc import (ccc_breakdown, ccc_collocates,
+                                  ccc_concordance, ccc_corpus)
+from backend.analysis.semspace import (generate_items_coordinates,
+                                       generate_semantic_space)
+# backend.analysis
+from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
+from backend.models.collocation_models import Collocation
+from backend.models.coordinates_models import Coordinates
+from backend.models.discourseme_models import Discourseme
+# from backend.analysis.ccc import ccc_meta
+# backend.models
+from backend.models.user_models import User
 
 collocation_blueprint = Blueprint('collocation', __name__, template_folder='templates')
 
@@ -700,7 +700,6 @@ def get_collocate_for_collocation(username, collocation):
         escape=False
     )
     collocates = collocates[window_size]
-
     # TODO:
     # all items of associated discoursemes
     # breakdown.loc[breakdown['discourseme'] != 'topic']
@@ -728,7 +727,6 @@ def get_collocate_for_collocation(username, collocation):
             semantic_space = semantic_space.append(new_coordinates, sort=True)
             coordinates.data = semantic_space
             db.session.commit()
-
     # post-process result
     df_json = collocates.to_json()
 

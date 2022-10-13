@@ -3,11 +3,11 @@ Module to manage the semantic space and its two-dimensional coordinates.
 """
 
 from logging import getLogger
+
+from numpy import matmul, where
 from pandas import DataFrame
-from numpy import where, matmul
 from pymagnitude import Magnitude
 from sklearn.metrics.pairwise import cosine_similarity
-
 
 log = getLogger('mmda-logger')
 
