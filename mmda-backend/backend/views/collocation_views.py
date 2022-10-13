@@ -11,6 +11,8 @@ from ccc.utils import cqp_escape
 # requirements
 from flask import Blueprint, current_app, jsonify, request
 from flask_expects_json import expects_json
+from pandas import notnull, DataFrame
+from numpy import nan
 
 # backend
 from backend import db, user_required
@@ -990,3 +992,157 @@ def get_meta_for_collocation(username, collocation):
     meta_json = jsonify(meta)
 
     return meta_json, 200
+
+
+###############
+# COORDINATES #
+###############
+
+# READ
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['GET'])
+@user_required
+def get_coordinates(username, collocation):
+    """ Get coordinates for collocation analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # load coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
+    df = df.where(notnull(df), None)
+    ret = df.to_dict(orient='index')
+
+    return jsonify(ret), 200
+
+
+# UPDATE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/reload/', methods=['PUT'])
+@user_required
+def reload_coordinates(username, collocation):
+    """ Re-calculate coordinates for collocation analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get tokens
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    tokens = coordinates.data.index.values
+
+    # generate new coordinates
+    log.debug('regenerating semantic space for collocation analysis %s', collocation.id)
+    semantic_space = generate_semantic_space(
+        tokens,
+        current_app.config['CORPORA'][collocation.corpus]['embeddings']
+    )
+
+    coordinates.data = semantic_space
+    db.session.commit()
+
+    log.debug('updated semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'updated'}), 200
+
+
+# UPDATE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['PUT'])
+@user_required
+def update_coordinates(username, collocation):
+    """ Update coordinates for an collocation.
+
+    Hint: Non numeric values are treated as NaN
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    # update coordinates dataframe, and save
+    df.update(DataFrame.from_dict(items, orient='index'))
+
+    # sanity checks, non-numeric get treated as NaN
+    df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
+
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('updated semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'updated'}), 200
+
+
+# DELETE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['DELETE'])
+@user_required
+def delete_coordinates(username, collocation):
+    """ Delete coordinates for collocation analysis.
+
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    for item in items.keys():
+        if item in df.index:
+            log.debug('removing user coordinates for %s', item)
+            df.loc[item]['x_user'] = None
+            df.loc[item]['y_user'] = None
+
+    # update coordinates dataframe, and save
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('deleted semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'deleted'}), 200

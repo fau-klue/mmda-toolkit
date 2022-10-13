@@ -11,6 +11,8 @@ from logging import getLogger
 from ccc.utils import cqp_escape
 # requirements
 from flask import Blueprint, current_app, jsonify, request
+from pandas import notnull, DataFrame
+from numpy import nan
 
 # backend
 from backend import db, user_required
@@ -658,3 +660,110 @@ def get_concordance_for_keyword(username, keyword):
     conc_json = jsonify(concordance)
 
     return conc_json, 200
+
+
+###############
+# COORDINATES #
+###############
+# READ
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['GET'])
+@user_required
+def get_coordinates_keywords(username, keyword):
+    """ Get coordinates for keyword analysis.
+
+    """
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword %s', keyword)
+        return jsonify({'msg': 'no such keyword'}), 404
+
+    # load coordinates
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    df = coordinates.data
+
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
+    df = df.where(notnull(df), None)
+    ret = df.to_dict(orient='index')
+
+    return jsonify(ret), 200
+
+
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/reload/', methods=['PUT'])
+@user_required
+def reload_coordinates_keywords(username, keyword):
+    """ Re-calculate coordinates for keyword analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get tokens
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    tokens = coordinates.data.index.values
+
+    # generate new coordinates
+    log.debug('regenerating semantic space for analysis %s', keyword.id)
+    semantic_space = generate_semantic_space(
+        tokens,
+        current_app.config['CORPORA'][keyword.corpus]['embeddings']
+    )
+
+    coordinates.data = semantic_space
+    db.session.commit()
+
+    log.debug('updated semantic space for analysis %s', keyword)
+    return jsonify({'msg': 'updated'}), 200
+
+
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['PUT'])
+@user_required
+def update_coordinates_keyword(username, keyword):
+    """ Update coordinates for an analysis.
+
+    Hint: Non numeric values are treated as NaN
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    df = coordinates.data
+
+    # update coordinates dataframe, and save
+    df.update(DataFrame.from_dict(items, orient='index'))
+
+    # sanity checks, non-numeric get treated as NaN
+    df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
+
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('updated semantic space for keyword analysis %s', keyword)
+    return jsonify({'msg': 'updated'}), 200
