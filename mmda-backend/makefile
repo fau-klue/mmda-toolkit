@@ -3,7 +3,6 @@ install:
 	pip3 install -r requirements.txt
 	pipenv install --dev
 
-
 # TEST
 lint:
 	pipenv run pylint --rcfile=.pylintrc backend/*/*.py
@@ -16,26 +15,18 @@ coverage:
 
 
 # DATABASE
-new_database: clear_db database discoursemes
-
 database:
-	pipenv run python3 manage.py init_db
-
-discoursemes:
-	pipenv run python3 /home/ausgerechnet/repositories/thesis/discoursemes/mmda-import-discoursemes.py
-
-migrate:
-	pipenv run python3 manage.py migrate_db upgrade
+	pipenv run flask --app backend database init
 
 
 # DEVELOPMENT SERVER
 run:
-	pipenv run python3 manage.py runserver
+	pipenv run flask --app backend --debug run
 
 
 # PRODUCTION SERVER
-run_production:
-	pipenv run gunicorn -w 2 --timeout 600 --bind localhost:5000 backend.commands.wsgi:app
+production:
+	pipenv run gunicorn -w 4 --timeout 600 --bind localhost:5000 wsgi:app
 
 
 # PRODUCTION SERVER VIA DOCKER (on abacist)
