@@ -7,7 +7,7 @@ Concordance and Collocation Computation
 from ccc import Corpora, Corpus
 from ccc.discoursemes import create_constellation
 from ccc.utils import format_cqp_query
-from ccc.counts import score_counts
+from ccc.keywords import keywords
 
 from pandas import concat
 
@@ -411,33 +411,12 @@ def ccc_keywords(corpus, corpus_reference,
                  ams=None, cut_off=500, min_freq=2, order='log_likelihood',
                  flags_show="%c", additional_discoursemes={}):
 
-    # TODO mv to CWB
     corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
     corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
-    left = corpus.marginals(p_atts=p)[['freq']]
-    right = corpus_reference.marginals(p_atts=p_reference)[['freq']]
-    left.columns = ['f1']
-    right.columns = ['f2']
-    df = left.join(right, how='outer')
-    df['N1'] = corpus.corpus_size
-    df['N2'] = corpus_reference.corpus_size
 
-    keywords = score_counts(df, order=order, cut_off=cut_off,
-                            flags=flags_show, ams=ams, digits=4)
+    kw = keywords(corpus, corpus_reference, p, p_reference, order, cut_off, flags_show, ams)
 
-    # # append items in freq breakdown p_att = p_query with high size
-    # breakdowns = list()
-    # breakdown = None
-    # for idx, dump in const.discoursemes.items():
-    #     if idx != 'topic':
-    #         breakdowns.append(dump.breakdown(p_atts=[p_query]))
-    # if len(breakdowns) > 0:
-    #     breakdown = concat(breakdowns)
-
-    # formatting
-    keywords = format_counts(keywords)
-
-    return keywords
+    return format_counts(kw)
 
 
 @anycache(CACHE_PATH)

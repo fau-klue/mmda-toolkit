@@ -26,7 +26,6 @@ def test_ccc_simple_concordance(app, test_corpus):
 
 
 @pytest.mark.conc
-@pytest.mark.now
 def test_ccc_constellation_concordance(app, test_corpus):
 
     conc = ccc_concordance(
