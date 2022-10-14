@@ -12,7 +12,7 @@ from flask_jwt_extended import (create_access_token, create_refresh_token,
 from werkzeug.security import check_password_hash
 
 from backend import admin_required, user_required
-from backend.analysis.validators import PASSWORD_SCHEMA
+from backend.views.validators import PASSWORD_SCHEMA
 from backend.models.user_models import User
 
 login_blueprint = Blueprint('login', __name__, template_folder='templates')

@@ -10,7 +10,7 @@ from flask_expects_json import expects_json
 from werkzeug.security import generate_password_hash
 
 from backend import db, user_required
-from backend.analysis.validators import PASSWORD_SCHEMA, USER_UPDATE_SCHEMA
+from backend.views.validators import PASSWORD_SCHEMA, USER_UPDATE_SCHEMA
 from backend.models.user_models import User
 
 user_blueprint = Blueprint('user', __name__, template_folder='templates')

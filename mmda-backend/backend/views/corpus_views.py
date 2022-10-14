@@ -8,9 +8,10 @@ from logging import getLogger
 from flask import Blueprint, current_app, jsonify
 from flask_jwt_extended import jwt_required
 
-from backend.analysis.ccc import ccc_corpus
+from backend.ccc import ccc_corpus
 
 corpus_blueprint = Blueprint('corpus', __name__, template_folder='templates')
+
 log = getLogger('mmda-logger')
 
 

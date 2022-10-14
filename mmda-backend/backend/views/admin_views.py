@@ -10,7 +10,7 @@ from flask_expects_json import expects_json
 from werkzeug.security import generate_password_hash
 
 from backend import admin_required, db
-from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
+from backend.views.validators import PASSWORD_SCHEMA, USER_SCHEMA
 from backend.models.collocation_models import Collocation
 from backend.models.database import find_or_create_user
 from backend.models.discourseme_models import Constellation, Discourseme

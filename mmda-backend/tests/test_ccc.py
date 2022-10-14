@@ -1,7 +1,7 @@
 import pytest
 
-from backend.analysis.ccc import (ccc_collocates, ccc_concordance,
-                                  ccc_constellation_association, ccc_keywords)
+from backend.ccc import (ccc_collocates, ccc_concordance,
+                         ccc_constellation_association, ccc_keywords)
 
 
 ###############

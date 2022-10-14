@@ -1,10 +1,15 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Concordance and Collocation Computation
+Interface to CWB/CQP
+
+- basically calls to cwb-ccc with appropriate parameters
+- calls are cached using anycache
+- some post-processing
+
 """
 
-import logging
+from logging import getLogger
 
 from anycache import anycache
 from ccc import Corpora, Corpus
@@ -15,8 +20,7 @@ from pandas import concat
 
 from backend.settings import ANYCACHE_PATH as CACHE_PATH
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-log = logging.getLogger('mmda-logger')
+log = getLogger('mmda-logger')
 
 
 #############
@@ -127,7 +131,7 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, filter_discoursemes={},

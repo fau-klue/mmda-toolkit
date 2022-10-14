@@ -10,11 +10,12 @@ from flask import Blueprint, jsonify, request
 from flask_expects_json import expects_json
 
 from backend import db, user_required
-from backend.analysis.validators import DISCOURSEME_SCHEMA
+from backend.views.validators import DISCOURSEME_SCHEMA
 from backend.models.discourseme_models import Discourseme
 from backend.models.user_models import User
 
 discourseme_blueprint = Blueprint('discourseme', __name__, template_folder='templates')
+
 log = getLogger('mmda-logger')
 
 

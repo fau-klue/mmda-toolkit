@@ -1,5 +1,7 @@
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
 """
-Module to manage the semantic space and its two-dimensional coordinates.
+Handling word embeddings and their two-dimensional coordinates.
 """
 
 from logging import getLogger

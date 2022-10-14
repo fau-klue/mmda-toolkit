@@ -13,13 +13,12 @@ from flask_expects_json import expects_json
 
 # backend
 from backend import db, user_required
-from backend.analysis.ccc import (ccc_concordance,
-                                  ccc_constellation_association, ccc_corpus)
-# backend.analysis
-from backend.analysis.validators import (CONSTELLATION_SCHEMA,
-                                         CONSTELLATION_UPDATE_SCHEMA)
+from backend.ccc import (ccc_concordance,
+                         ccc_constellation_association,
+                         ccc_corpus)
+from backend.views.validators import (CONSTELLATION_SCHEMA,
+                                      CONSTELLATION_UPDATE_SCHEMA)
 from backend.models.discourseme_models import Constellation, Discourseme
-# backend.models
 from backend.models.user_models import User
 
 constellation_blueprint = Blueprint('constellation', __name__, template_folder='templates')
