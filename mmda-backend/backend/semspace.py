@@ -7,7 +7,7 @@ Handling word embeddings and their two-dimensional coordinates.
 from logging import getLogger
 
 from numpy import matmul, where
-from pandas import DataFrame
+from pandas import DataFrame, concat
 from pymagnitude import Magnitude
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -70,16 +70,16 @@ class SemanticSpace:
             transformer = TSNE(n_components=2,
                                metric='euclidean',
                                perplexity=10.,
-                               verbose=0)
+                               verbose=0,
+                               init='pca',
+                               learning_rate='auto')
 
         elif method == 'umap':
             from umap import UMAP
             transformer = UMAP()
 
         else:
-            raise NotImplementedError(
-                'transformation "%s" not supported' % method
-            )
+            raise NotImplementedError(f'transformation "{method}" not supported')
 
         # generate 2d coordinates and save as DataFrame
         coordinates = DataFrame(
@@ -118,8 +118,8 @@ class SemanticSpace:
         sim = where(sim < cutoff, 0, sim)
 
         # norm rows to use as convex combination
-        # TODO catch global 0 error
-        sim = (sim.T/sim.sum(axis=1)).T
+        simsum = sim.sum(axis=1)
+        sim = (sim.T/simsum).T          # TODO catch global 0 warning
 
         # matrix multiplication takes care of linear combination
         new_coordinates = matmul(sim, base_coordinates)
@@ -128,8 +128,10 @@ class SemanticSpace:
         new_coordinates = DataFrame(new_coordinates)
         new_coordinates.index = items
 
+        print(new_coordinates)
+
         # append
-        self.coordinates = self.coordinates.append(new_coordinates)
+        self.coordinates = concat([self.coordinates, new_coordinates])
 
         return new_coordinates
 
