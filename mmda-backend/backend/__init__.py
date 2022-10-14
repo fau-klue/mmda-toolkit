@@ -172,7 +172,7 @@ def create_app(extra_config_settings={}):
                                is_debug=app.config['DEBUG'])
 
     # initialise database
-    from .models import database
+    from . import database
     app.register_blueprint(database.bp)
     db.init_app(app)
 
