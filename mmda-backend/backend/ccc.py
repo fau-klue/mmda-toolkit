@@ -26,40 +26,32 @@ log = getLogger('mmda-logger')
 #############
 # UTILITIES #
 #############
-def format_counts(df, add=None):
+def format_ams(df):
 
     ams_dict = {
+        # conservative estimates
+        'conservative_log_ratio': 'Conservative LR',
+        # frequencies
+        'ipm': 'IPM (obs.)',
+        'ipm_expected': 'IPM (exp.)',
         # asymptotic hypothesis tests
         'log_likelihood': 'LLR',
         'z_score': 'z-score',
         't_score': 't-score',
         'simple_ll': 'simple LL',
         # point estimates of association strength
-        'dice_1000': 'Dice-1000',
+        'dice': 'Dice',
         'log_ratio': 'log-ratio',
+        'min_sensitivity': 'min. sensitivity',
+        'liddell': 'Liddell',
         # information theory
-        'mutual_information': 'mutual information',
+        'mutual_information': 'MI',
         'local_mutual_information': 'local MI',
-        # conservative estimates
-        'conservative_log_ratio': 'Conservative LR',
-        # frequencies
-        'ipm': 'IPM (obs.)',
-        'ipm_expected': 'IPM (exp.)',
     }
-
-    # scale Dice coefficient
-    df['dice_1000'] = df['dice'] * 10**3
 
     # select and rename
     df = df[list(ams_dict.keys())]
     df = df.rename(ams_dict, axis=1)
-
-    # add additional items
-    if add is not None and len(add) > 0:
-        add = add[['freq']].copy()
-        for c in df.columns:
-            add[[c]] = add[['freq']]
-        df = concat([df, add])
 
     return df
 
@@ -223,7 +215,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     # formatting
     for window in collocates.keys():
-        collocates[window] = format_counts(collocates[window])
+        collocates[window] = format_ams(collocates[window])
 
     return breakdown, collocates
 
@@ -425,7 +417,7 @@ def ccc_keywords(corpus, corpus_reference,
                   min_freq,
                   True,
                   flags)
-    kw = format_counts(kw)
+    kw = format_ams(kw)
     return kw
 
 
