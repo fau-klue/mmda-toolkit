@@ -1,30 +1,16 @@
-"""
-Collocation Models:
+"""Collocation Models
 
 Relationships:
 
 === one to many ===
-# (topic) discourseme - collocation
-- a discourseme (parent) can have several analyses (children)
-- an collocation has exactly one topic discourseme
-
-# user - [collocation, discourseme, constellation]
-- a user can have several analyses
-- an collocation belongs to exactly one user
-
-=== one to one ===
-# collocation - coordinates
-- an collocation (parent) has exactly one coordinates table (child)
-- a coordinates table belongs to exactly one collocation
+# topic (discourseme) - collocation
+- a discourseme (parent) can have several analyses (children) [but only one in any given corpus]
+- a collocation analysis has exactly one topic discourseme
 
 === many to many ===
 # collocation - discoursemes
-- an collocation has several associated discoursemes
-- a discourseme can belong to several analyses
-
-# constellation - discoursemes
-- a constellation has several associated discoursemes
-- a discourseme can belong to several constellations
+- a collocation analysis can have several associated discoursemes
+- a discourseme can belong to several collocation analyses
 
 """
 
@@ -33,9 +19,6 @@ from backend import db
 from backend.models.discourseme_models import Discourseme
 
 collocation_discoursemes = db.Table(
-    # many to many mapping:
-    # - a collocation analysis has several associated discoursemes
-    # - a discourseme can belong to several collocation analyses
     'CollocationDiscoursemes',
     db.Column('collocation_id', db.Integer, db.ForeignKey('collocation.id')),
     db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
@@ -43,8 +26,8 @@ collocation_discoursemes = db.Table(
 
 
 class Collocation(db.Model):
-    """
-    Collocation Analysis data model
+    """Collocation Analysis
+
     """
 
     __tablename__ = 'collocation'
@@ -84,28 +67,31 @@ class Collocation(db.Model):
 
     @property
     def association_measures(self):
-        """
-        Read string and turn into list
+        """Read string and turn into list
+
         :return: Association_Measures as list
         :rtype: list
+
         """
         return self._association_measures.split(self._separator)
 
     @association_measures.setter
     def association_measures(self, association_measures):
-        """
-        Turn list into String
+        """Turn list into String
+
         :return: Association_Measures as str
         :rtype: str
+
         """
         self._association_measures = self._separator.join(association_measures)
 
     @property
     def serialize(self):
-        """
-        Return object data in easily serializeable format
+        """Return object data in easily serializeable format
+
         :return: Dictionary containing the collocation analysis values
         :rtype: dict
+
         """
         return {
             'id': self.id,
@@ -125,18 +111,20 @@ class Collocation(db.Model):
 
     @property
     def items(self):
-        """
-        Read string and turn into list
+        """Read string and turn into list
+
         :return: Items as list
         :rtype: list
+
         """
         return self._items.split(self._separator)
 
     @items.setter
     def items(self, items):
-        """
-        Turn list into String
+        """Turn list into String
+
         :return: Items as str
         :rtype: str
+
         """
         self._items = self._separator.join(items)

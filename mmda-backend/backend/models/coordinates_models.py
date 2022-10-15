@@ -1,12 +1,23 @@
+"""Coordinates Models
+
+Relationships:
+
+=== one to one ===
+# collocation/keyword - coordinates
+- a collocation/keyword analysis (parent) has exactly one coordinates table (child)
+- a coordinates table belongs to exactly one collocation/keyword analysis
+
+"""
+
+
 from pandas import read_json
 
 from backend import db
 
 
 class Coordinates(db.Model):
-    """
-    Coordinates data model
-    - 1:1-relationship with Collocation and Keyword Analyses
+    """Coordinates
+
     """
 
     __tablename__ = 'coordinates'
@@ -27,20 +38,22 @@ class Coordinates(db.Model):
 
     @property
     def data(self):
-        """
-        Read JSON String and create DataFrame
+        """Read JSON String and create DataFrame
+
         :return: Pandas DataFrame from JSON
         :rtype: DataFrame
+
         """
 
         return read_json(self._data)
 
     @data.setter
     def data(self, dataframe):
-        """
-        Turn DataFrame into JSON String
+        """Turn DataFrame into JSON String
+
         :return: JSON from DataFrame
         :rtype: str
+
         """
 
         self._data = dataframe.to_json()

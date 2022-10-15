@@ -1,5 +1,11 @@
-"""
-Keyword Models:
+"""Keyword Models
+
+Relationships:
+
+== many to many ==
+# keyword - discoursemes
+- a keyword analysis has several associated discoursemes
+- a discourseme can belong to several keyword analyses
 
 """
 
@@ -7,9 +13,6 @@ Keyword Models:
 from backend import db
 
 keyword_discoursemes = db.Table(
-    # many to many mapping:
-    # - a keyword analysis has several associated discoursemes
-    # - a discourseme can belong to several keyword analyses
     'KeywordDiscoursemes',
     db.Column('keyword_id', db.Integer, db.ForeignKey('keyword.id')),
     db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
@@ -17,8 +20,8 @@ keyword_discoursemes = db.Table(
 
 
 class Keyword(db.Model):
-    """
-    Keyword Analysis data model
+    """Keyword Analysis
+
     """
 
     __tablename__ = 'keyword'
@@ -53,28 +56,31 @@ class Keyword(db.Model):
 
     @property
     def association_measures(self):
-        """
-        Read string and turn into list
+        """Read string and turn into list
+
         :return: Association_Measures as list
         :rtype: list
+
         """
         return self._association_measures.split(self._separator)
 
     @association_measures.setter
     def association_measures(self, association_measures):
-        """
-        Turn list into String
+        """Turn list into String
+
         :return: Association_Measures as str
         :rtype: str
+
         """
         self._association_measures = self._separator.join(association_measures)
 
     @property
     def serialize(self):
-        """
-        Return object data in easily serializeable format
+        """Return object data in easily serializeable format
+
         :return: Dictionary containing the analysis values
         :rtype: dict
+
         """
         return {
             'id': self.id,
