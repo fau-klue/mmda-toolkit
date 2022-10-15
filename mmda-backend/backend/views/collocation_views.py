@@ -448,66 +448,6 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
         log.debug(msg)
         return jsonify({'msg': msg}), 200
 
-    corpus_name = collocation.corpus
-    items = collocation.items
-    s_break = collocation.s_break
-    p_query = collocation.p_query
-    flags_query = ""  # collocation.flags_query
-    context = collocation.context
-    ams = None
-
-    flags_show = ""  # collocation.flags_query
-    p_show = [collocation.p_query]
-    cut_off = 200
-    order = 'log_likelihood'
-    min_freq = 1
-
-    # create new analysis (see below for alternative)
-    breakdown, collocates = ccc_collocates(
-        corpus_name=corpus_name,
-        cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=items,
-        s_context=s_break,
-        windows=[context],
-        context=context,
-        p_query=p_query,
-        flags_query=flags_query,
-        s_query=s_break,
-        p_show=p_show,
-        flags_show=flags_show,
-        ams=ams,
-        cut_off=cut_off,
-        min_freq=min_freq,
-        order=order,
-        escape=True
-    )
-
-    # ALTERNATIVE POST-HOC UPDATE
-    # check if discourseme already associated with corpus
-    # i.e. there is at least one collocation analysis of this discourseme in this corpus
-    # new_items = breakdown.loc[breakdown['discourseme'] != 'topic'].index
-    # 1) generate new coordinates for new_items
-    # 2) remove items (incl. MWUs) in discoursemes from collocate table / semcloud
-    # tokens = set(discourseme.items)
-    # coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
-    # semantic_space = coordinates.data
-    # diff = tokens - set(semantic_space.index)
-    # if len(diff) > 0:
-    #     log.debug("generating additional coordinates for %d items" % len(diff))
-    #     new_coordinates = generate_items_coordinates(
-    #         diff,
-    #         semantic_space,
-    #         current_app.config['CORPORA'][collocation.corpus]['embeddings']
-    #     )
-    #     if not new_coordinates.empty:
-    #         log.debug('appending new coordinates to semantic space')
-    #         semantic_space.append(new_coordinates, sort=True)
-    #         coordinates.data = semantic_space
-    #         db.session.commit()
-
     # update database
     collocation.discoursemes.append(discourseme)
     db.session.add(collocation)
@@ -564,8 +504,6 @@ def delete_discourseme_from_collocation(username, collocation, discourseme):
     if not collocation_discourseme:
         log.warn('discourseme %s not linked to collocation analysis %s', discourseme, collocation)
         return jsonify({'msg': 'discourseme not linked to analysis'}), 404
-
-    # TODO re-do collocation analysis
 
     # delete
     collocation.discoursemes.remove(discourseme)
@@ -666,8 +604,7 @@ def get_collocate_for_collocation(username, collocation):
     for d in collocation.discoursemes:
         additional_discoursemes[str(d.id)] = d.items
 
-    # get collocates: dict of dataframes with key == window_size
-    # collocates, topic_breakdown, discoursemes_breakdown =
+    # get breakdown and collocates: dict of dataframes with key == window_size
     breakdown, collocates = ccc_collocates(
         corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
@@ -692,10 +629,6 @@ def get_collocate_for_collocation(username, collocation):
         escape=True
     )
     collocates = collocates[window_size]
-    # TODO:
-    # all items of associated discoursemes
-    # breakdown.loc[breakdown['discourseme'] != 'topic']
-    # have to be included in the map
 
     if collocates.empty:
         log.debug('no collocates available for window size %s', window_size)
@@ -719,6 +652,7 @@ def get_collocate_for_collocation(username, collocation):
             semantic_space = concat([semantic_space, new_coordinates])
             coordinates.data = semantic_space
             db.session.commit()
+
     # post-process result
     df_json = collocates.to_json()
 

@@ -87,7 +87,6 @@ def get_constellation(username, constellation):
         log.debug('No such Constellation %s', constellation)
         return jsonify({'msg': 'No such constellation'}), 404
 
-    # TODO: Add Discoursemes here as well?
     return jsonify(constellation.serialize), 200
 
 
