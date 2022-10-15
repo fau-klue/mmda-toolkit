@@ -73,7 +73,7 @@ def create_collocation(username):
       - name: cut_off
         type: int
         description: how many collocates?
-        default: 500
+        default: 200
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -102,7 +102,7 @@ def create_collocation(username):
     context = request.json.get('context', 10)
 
     # not set yet
-    cut_off = request.json.get('cut_off', 500)
+    cut_off = request.json.get('cut_off', 200)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '')
     flags_show = request.args.get('flags_show', "")  # flags_query)
@@ -606,7 +606,7 @@ def get_collocate_for_collocation(username, collocation):
       - name: cut_off
         type: int
         description: how many collocates?
-        default: 500
+        default: 200
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -634,7 +634,7 @@ def get_collocate_for_collocation(username, collocation):
     items = request.args.getlist('collocate', None)
 
     # not set yet
-    cut_off = request.args.get('cut_off', 500)
+    cut_off = request.args.get('cut_off', 200)
     order = request.args.get('order', 'log_likelihood')
     flags_show = request.args.get('flags_show', "")  # collocation.flags_query)
     min_freq = request.args.get('min_freq', 2)
@@ -789,7 +789,7 @@ def get_concordance_for_collocation(username, collocation):
     # ... optional additional items
     items = request.args.getlist('item', None)
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 500)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?

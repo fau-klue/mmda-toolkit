@@ -128,8 +128,6 @@ class SemanticSpace:
         new_coordinates = DataFrame(new_coordinates)
         new_coordinates.index = items
 
-        print(new_coordinates)
-
         # append
         self.coordinates = concat([self.coordinates, new_coordinates])
 

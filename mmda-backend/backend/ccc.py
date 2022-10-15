@@ -127,7 +127,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    context=20, filter_discoursemes={},
                    additional_discoursemes={}, p_query='lemma',
                    flags_query='%c', s_query=None, p_show=['lemma'],
-                   flags_show='%c', ams=None, cut_off=500, min_freq=2,
+                   flags_show='%c', ams=None, cut_off=200, min_freq=2,
                    order='log_likelihood', escape=True,
                    frequencies=True, topic_name='topic'):
     """get collocates for topic (+ additional discoursemes).
@@ -427,7 +427,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     additional_discoursemes, s_context,
                     window_size, context=20, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
-                    s_query=None, order='random', cut_off=100,
+                    s_query=None, order='random', cut_off=500,
                     flags_query='%c', escape_query=True, random_seed=42):
     """get concordance lines for topic (+ additional discoursemes).
 

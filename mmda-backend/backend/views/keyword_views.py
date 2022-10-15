@@ -566,7 +566,7 @@ def get_concordance_for_keyword(username, keyword):
       - name: cut_off
         type: int
         description: how many lines?
-        default: 1000
+        default: 500
       - name: order
         type: str
         description: how to sort them? (column in result table)
@@ -600,7 +600,7 @@ def get_concordance_for_keyword(username, keyword):
         additional_discoursemes[str(d.id)] = d.items
 
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 500)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
