@@ -56,7 +56,7 @@ docker_run_abacist:
 
 
 # CLEAN LOCAL STUFF
-clean: clean_cache clean_db clean_lock
+clean: clean_cache clean_db
 
 clean_cache:
 	rm -r instance/ccc-data*
@@ -64,6 +64,3 @@ clean_cache:
 
 clean_db:
 	rm instance/mmda*.sqlite
-
-clean_lock:
-	rm Pipfile.lock
