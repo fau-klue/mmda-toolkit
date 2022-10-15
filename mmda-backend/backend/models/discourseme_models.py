@@ -27,7 +27,7 @@ class Discourseme(db.Model):
     """
 
     __tablename__ = 'discourseme'
-    _separator = ','
+    _separator = '\t'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)

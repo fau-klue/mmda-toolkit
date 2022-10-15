@@ -31,7 +31,7 @@ class Collocation(db.Model):
     """
 
     __tablename__ = 'collocation'
-    _separator = ','
+    _separator = '\t'
 
     id = db.Column(db.Integer, primary_key=True)
 
