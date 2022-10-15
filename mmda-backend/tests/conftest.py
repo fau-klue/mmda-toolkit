@@ -4,8 +4,8 @@ import pytest
 from flask_jwt_extended import create_access_token
 
 from backend import create_app
-from backend.models.database import db as the_db
-from backend.models.database import init_db
+from backend.database import db as the_db
+from backend.database import init_db
 
 here = os.path.dirname(os.path.realpath(__file__))
 

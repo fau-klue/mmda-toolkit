@@ -23,7 +23,7 @@ def test_ccc_simple_concordance(app, test_corpus):
         window_size=test_corpus['parameters']['context'],
         s_show=test_corpus['parameters']['s_show']
     )
-    assert len(conc) == 100
+    assert len(conc) == 500
     assert 'cpos' in conc[0]
 
 
@@ -44,7 +44,7 @@ def test_ccc_constellation_concordance(app, test_corpus):
         context=test_corpus['parameters']['context'],
         s_show=test_corpus['parameters']['s_show']
     )
-    assert len(conc) == 100
+    assert len(conc) == 500
     assert 'cpos' in conc[0]
 
 
