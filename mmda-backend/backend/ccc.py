@@ -16,7 +16,6 @@ from ccc import Corpora, Corpus
 from ccc.discoursemes import create_constellation
 from ccc.keywords import keywords
 from ccc.utils import format_cqp_query
-from pandas import concat
 
 from backend.settings import ANYCACHE_PATH as CACHE_PATH
 
@@ -32,6 +31,7 @@ def format_ams(df):
         # conservative estimates
         'conservative_log_ratio': 'Conservative LR',
         # frequencies
+        'O11': 'cooc.',
         'ipm': 'IPM (obs.)',
         'ipm_expected': 'IPM (exp.)',
         # asymptotic hypothesis tests
@@ -168,8 +168,8 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
     match_strategy = 'longest'
-    # escape_query = True
     topic_discourseme = {'topic': topic_items}
+    additional_discoursemes = {}  # avoids removal from sem-map
 
     # create constellation
     try:
@@ -196,6 +196,11 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     except KeyError:            # no matches
         return None  # , None
 
+    breakdown = const.breakdown(
+        p_atts=[p_query],
+        flags=flags_show
+    )
+
     collocates = const.collocates(
         windows=windows,
         p_show=p_show, flags=flags_show,
@@ -203,16 +208,6 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         order=order, cut_off=cut_off
     )
 
-    # freq breakdown of associated discoursemes
-    # breakdown table: items, freq, discourseme
-    breakdowns = list()
-    for idx, dump in const.discoursemes.items():
-        d = dump.breakdown(p_atts=[p_query], flags=flags_show)
-        d['discourseme'] = idx
-        breakdowns.append(d)
-    breakdown = concat(breakdowns)
-
-    # formatting
     for window in collocates.keys():
         collocates[window] = format_ams(collocates[window])
 
