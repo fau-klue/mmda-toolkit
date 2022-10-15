@@ -3,7 +3,7 @@
 """
 Interface to CWB/CQP
 
-- basically calls to cwb-ccc with appropriate parameters
+- calls to cwb-ccc with appropriate parameters
 - calls are cached using anycache
 - some post-processing
 
@@ -57,7 +57,7 @@ def format_ams(df):
 
 
 def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
-    """sort p-attributes
+    """sort p-attributes in default order
 
     :param list p_atts: p-attributes
 
@@ -67,7 +67,7 @@ def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
 
 
 def sort_s(s_atts, order=['tweet', 's', 'p', 'text']):
-    """sort s-attributes
+    """sort s-attributes in default order
 
     :param list s_atts: s-attributes
 
@@ -107,9 +107,7 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
                     registry_path=registry_path,
                     data_path=data_path)
     attributes = corpus.attributes_available
-    p_atts = list(
-        attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
-    )
+    p_atts = list(attributes.loc[attributes['type'] == 'p-Att']['attribute'].values)
     s_atts = attributes[attributes['type'] == 's-Att']
     s_annotations = list(s_atts[s_atts['annotation']]['attribute'].values)
     s_atts = list(s_atts[~s_atts['annotation']]['attribute'].values)
@@ -145,6 +143,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     :param list windows: windows (int) to use for collocation analyses around nodes
     :param int context: context around the nodes used to identify relevant matches
 
+    :param dict filter_discoursemes: {name: items}
     :param dict additional_discoursemes: {name: items}
 
     :param str p_query: p-att layer to query
@@ -406,7 +405,7 @@ def ccc_keywords(corpus, corpus_reference,
 
     corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
     corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
-    min_freq = 10
+
     kw = keywords(corpus,
                   corpus_reference,
                   p,
@@ -418,6 +417,7 @@ def ccc_keywords(corpus, corpus_reference,
                   True,
                   flags)
     kw = format_ams(kw)
+
     return kw
 
 
