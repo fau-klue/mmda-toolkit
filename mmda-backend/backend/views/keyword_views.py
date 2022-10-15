@@ -8,7 +8,6 @@ Keywords view
 from logging import getLogger
 
 # requirements
-from ccc.utils import cqp_escape
 from flask import Blueprint, current_app, jsonify, request
 from numpy import nan
 from pandas import DataFrame, notnull
@@ -595,9 +594,6 @@ def get_concordance_for_keyword(username, keyword):
     if not item:
         return {}, 200
 
-    # ad-hoc item has to be escaped
-    item = cqp_escape(item)
-
     # ... highlight associated discoursemes
     additional_discoursemes = dict()
     for d in keyword.discoursemes:
@@ -645,7 +641,7 @@ def get_concordance_for_keyword(username, keyword):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=False,
+        escape_query=True,
         random_seed=random_seed
     )
 

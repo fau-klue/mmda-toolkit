@@ -8,7 +8,6 @@ Collocation view
 from logging import getLogger
 
 # requirements
-from ccc.utils import cqp_escape
 from flask import Blueprint, current_app, jsonify, request
 from flask_expects_json import expects_json
 from numpy import nan
@@ -169,7 +168,7 @@ def create_collocation(username):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=False
+        escape=True
     )
 
     # no query matches?
@@ -483,7 +482,7 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=False
+        escape=True
     )
 
     # ALTERNATIVE POST-HOC UPDATE
@@ -661,7 +660,7 @@ def get_collocate_for_collocation(username, collocation):
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['collocate'] = [cqp_escape(i) for i in items]
+        additional_discoursemes['collocate'] = items
 
     # ... highlight associated discoursemes
     for d in collocation.discoursemes:
@@ -690,7 +689,7 @@ def get_collocate_for_collocation(username, collocation):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=False
+        escape=True
     )
     collocates = collocates[window_size]
     # TODO:
@@ -787,8 +786,8 @@ def get_concordance_for_collocation(username, collocation):
         return jsonify({'msg': 'wrong request parameters'}), 400
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
-    # ... optional additional items (have to be escaped)
-    items = [cqp_escape(i) for i in request.args.getlist('item', None)]
+    # ... optional additional items
+    items = request.args.getlist('item', None)
     # ... how many?
     cut_off = request.args.get('cut_off', 1000)
     # ... how to sort them?
@@ -847,7 +846,7 @@ def get_concordance_for_collocation(username, collocation):
         order=order,
         cut_off=cut_off,
         flags_query=collocation.flags_query,
-        escape_query=False,
+        escape_query=True,
         random_seed=random_seed
     )
 
@@ -906,7 +905,7 @@ def get_breakdown_for_collocation(username, collocation):
         p_show=[collocation.p_collocation],
         s_query=collocation.s_break,
         flags_query=collocation.flags_query,
-        escape=False,
+        escape=True,
         flags_show=flags_show
     )
 

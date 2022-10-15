@@ -320,7 +320,7 @@ def get_constellation_concordance(username, constellation):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=False,
+        escape_query=True,
         random_seed=random_seed
     )
 
@@ -373,7 +373,11 @@ def get_constellation_associations(username, constellation):
         lib_path=current_app.config['CCC_LIB_PATH'],
         discoursemes=discoursemes,
         p_query=p_query,
-        s_query=s_break
+        s_query=s_break,
+        flags_query="%c",
+        escape_query=True,
+        s_context=None,
+        context=None
     )
 
     return jsonify(assoc), 200
