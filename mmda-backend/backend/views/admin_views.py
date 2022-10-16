@@ -10,12 +10,12 @@ from flask_expects_json import expects_json
 from werkzeug.security import generate_password_hash
 
 from backend import admin_required, db
-from backend.views.validators import PASSWORD_SCHEMA, USER_SCHEMA
-from backend.models.collocation_models import Collocation
 from backend.database import find_or_create_user
+from backend.models.collocation_models import Collocation
 from backend.models.discourseme_models import Constellation, Discourseme
 from backend.models.keyword_models import Keyword
 from backend.models.user_models import Role, User
+from backend.views.validators import PASSWORD_SCHEMA, USER_SCHEMA
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')

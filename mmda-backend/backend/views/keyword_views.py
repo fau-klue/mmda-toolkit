@@ -10,17 +10,17 @@ from logging import getLogger
 # requirements
 from flask import Blueprint, current_app, jsonify, request
 from numpy import nan
-from pandas import concat, DataFrame, notnull
+from pandas import DataFrame, concat, notnull
 
 # backend
 from backend import db, user_required
 from backend.ccc import ccc_concordance, ccc_corpus, ccc_keywords
-from backend.semspace import (generate_items_coordinates,
-                              generate_semantic_space)
 from backend.models.coordinates_models import Coordinates
 from backend.models.discourseme_models import Discourseme
 from backend.models.keyword_models import Keyword
 from backend.models.user_models import User
+from backend.semspace import (generate_items_coordinates,
+                              generate_semantic_space)
 
 keyword_blueprint = Blueprint('keyword', __name__, template_folder='templates')
 

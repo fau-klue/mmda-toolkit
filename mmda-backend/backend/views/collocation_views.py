@@ -11,20 +11,20 @@ from logging import getLogger
 from flask import Blueprint, current_app, jsonify, request
 from flask_expects_json import expects_json
 from numpy import nan
-from pandas import DataFrame, notnull, concat
+from pandas import DataFrame, concat, notnull
 
 # backend
 from backend import db, user_required
-from backend.ccc import (ccc_breakdown, ccc_collocates,
-                         ccc_concordance, ccc_corpus)
+from backend.ccc import (ccc_breakdown, ccc_collocates, ccc_concordance,
+                         ccc_corpus)
+from backend.models.collocation_models import Collocation
+from backend.models.coordinates_models import Coordinates
+from backend.models.discourseme_models import Discourseme
+# from backend.analysis.ccc import ccc_meta
+from backend.models.user_models import User
 from backend.semspace import (generate_items_coordinates,
                               generate_semantic_space)
 from backend.views.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
-from backend.models.collocation_models import Collocation
-from backend.models.discourseme_models import Discourseme
-from backend.models.coordinates_models import Coordinates
-# from backend.analysis.ccc import ccc_meta
-from backend.models.user_models import User
 
 collocation_blueprint = Blueprint('collocation', __name__, template_folder='templates')
 
