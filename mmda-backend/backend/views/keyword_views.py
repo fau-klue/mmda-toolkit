@@ -10,7 +10,7 @@ from logging import getLogger
 # requirements
 from flask import Blueprint, current_app, jsonify, request
 from numpy import nan
-from pandas import DataFrame, notnull
+from pandas import concat, DataFrame, notnull
 
 # backend
 from backend import db, user_required
@@ -537,7 +537,7 @@ def get_keywords_for_keyword(username, keyword):
         )
         if not new_coordinates.empty:
             log.debug('appending new coordinates to semantic space')
-            semantic_space = semantic_space.append(new_coordinates, sort=True)
+            semantic_space = concat([semantic_space, new_coordinates])
             coordinates.data = semantic_space
             db.session.commit()
 
