@@ -66,7 +66,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ENV CORPORA_SETTINGS /opt/mmda-corpora.py
 ENV CWB_REGISTRY_PATH /opt/cwb/registry/
-ENV SQLALCHEMY_DATABASE_URI /opt/mmda.sqlite
+ENV SQL_DATABASE_URI sqlite:////opt/mmda/mmda.sqlite
 
 
 ###########
