@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:20.04
 
 
 ##########################
@@ -73,7 +73,6 @@ RUN python3 -m pip install --upgrade pip && \
 
 COPY Pipfile Pipfile.lock /app/
 
-# Pipenv
 RUN pipenv install --dev --system --ignore-pipfile --deploy
 
 
@@ -87,5 +86,4 @@ COPY . /app
 #############################
 # SET UP AND START THE SEVER
 #############################
-RUN pipenv run flask --app backend database init
-CMD pipenv run gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
+CMD /app/entrypoint.sh

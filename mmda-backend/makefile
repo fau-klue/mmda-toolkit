@@ -43,13 +43,13 @@ docker_stop:
 
 docker_run_abacist:
 	docker run -ti \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/:/opt/database/ \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/backend/settings_production.py:/app/backend/settings_production.py:ro \
+	-v /home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/:/opt/database/ \
+	-v /home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/backend/settings_production.py:/app/backend/settings_production.py:ro \
 	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/:ro \
 	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
 	-v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
 	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
-	-e WORKERS=2 \
+	-e WORKERS=8 \
 	-p 5000:5000 \
 	--name mmda-backend \
 	mmda-backend
