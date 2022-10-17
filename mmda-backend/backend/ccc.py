@@ -17,7 +17,7 @@ from ccc.discoursemes import create_constellation
 from ccc.keywords import keywords
 from ccc.utils import format_cqp_query
 
-from backend.settings import ANYCACHE_PATH as CACHE_PATH
+from settings import ANYCACHE_PATH as CACHE_PATH
 
 log = getLogger('mmda-logger')
 

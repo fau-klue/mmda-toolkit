@@ -17,14 +17,14 @@ test_vectors.close()
 
 
 the_app = create_app(dict(
-    TESTING=True,  # Propagate exceptions
-    DEBUG=False,
     APP_ENV='testing',
-    LOGIN_DISABLED=False,  # Enable @register_required
-    MAIL_SUPPRESS_SEND=True,  # Disable Flask-Mail send
-    SERVER_NAME='localhost',  # Enable url_for() without request context
-    SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',  # In-memory SQLite DB
-    WTF_CSRF_ENABLED=False,  # Disable CSRF form validation
+    TESTING=True,
+    CORPORA_SETTINGS='../tests/corpora/corpora.py',
+    SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',
+    CCC_REGISTRY_PATH='tests/corpora/registry/',
+    CCC_DATA_PATH='instance/ccc-data-testing/',
+    ANYCACHE_PATH='instance/mmda-anycache-testing/',
+    SERVER_NAME='localhost'
 ))
 
 
@@ -117,8 +117,6 @@ def test_corpus():
         'topic': ["CDU", "CSU"],
         'disc1': ["und"],
         'disc2': ["Bundesregierung"],
-        # 'disc3': ['Klimawandel'],
-        # 'disc4': ['Wirtschaftskrise']
     }
 
     discoursemes2 = {

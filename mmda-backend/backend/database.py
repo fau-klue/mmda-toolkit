@@ -42,7 +42,7 @@ def create_users():
     admin_role = find_or_create_role('admin', u'Admin')
 
     # Add users
-    find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'CCL-Erlangen$2022', admin_role)
+    find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'mmda-admin', admin_role)
     find_or_create_user(u'student1', u'Student', u'Example', u'student@fau.de', 'Erlangen1')
 
     # Save to DB

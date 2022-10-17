@@ -2,38 +2,39 @@
 
 ## Installation
 
-    # install pipenv
-    pip3 install -r requirements.txt
+We use [pipenv](https://github.com/pypa/pipenv) for dependency management.
 
-    # dependency management via pipenv
+    pip3 install -r requirements.txt
     pipenv install --dev
-    
-    # if you run into problems, try installing
-    apt-get install python3-dev gcc
-    
-See also the Dockerfile for a working system environment.
+
+See also the [Dockerfile](Dockerfile) for a working system environment.
 
 
 ## Settings
 
-Set system parameters in
+Default settings are defined in
 
-    backend/settings.py
+    settings.py
     
-and environment-specific settings (development, testing, production) in
+Overwrite your local settings via environment variables:
 
-    backend/settings_{ENVIRONMENT}.py
+    - ENVIRONMENT
+    - SECRET_KEY
+    - SQL_DATABASE_URI
+    - CORPORA_SETTINGS
+    - CWB_REGISTRY_PATH
+    - TLS_ENABLE
+    - TLS_CERTFLE
+    - TLS_KEYFILE
 
 
 ## Database initialisation
 
-    # Create DB tables and populate the roles and users tables
     pipenv run flask --app backend database init
 
 
 ## Running in development
 
-    # Start the Flask development web server
     pipenv run flask --app backend --debug run
 
 You can access the API at http://localhost:5000/.
@@ -43,7 +44,7 @@ You can access the API at http://localhost:5000/.
 
 We use gunicorn 
 
-    # Start the WGSI production web server
+    export ENVIRONMENT='production' &&\
     pipenv run gunicorn -w 8 --timeout 600 --bind localhost:5000 wsgi:app
 
 See https://flask.palletsprojects.com/en/2.2.x/deploying/ for further options.
@@ -54,7 +55,7 @@ See https://flask.palletsprojects.com/en/2.2.x/deploying/ for further options.
 To consume the Flask API you'll first need to login and acquire an [JSON Web Token](https://jwt.io/).
 
     # Get a JWT Token and export it as TOKEN
-    export TOKEN=$(curl -H 'Content-Type: application/json' -X POST http://localhost:5000/api/login/ -d '{"username": "admin", "password": "0000"}' |  python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
+    export TOKEN=$(curl -H 'Content-Type: application/json' -X POST http://localhost:5000/api/login/ -d '{"username": "admin", "password": "mmda-admin"}' |  python3 -c "import sys, json; print(json.load(sys.stdin)['access_token'])")
 
     # Use the Token
     curl -H "Authorization: Bearer $TOKEN" http://localhost:5000/api/test-login/

@@ -9,21 +9,18 @@ Central entrypoint for Flask
 import logging
 import os
 from functools import wraps
-from logging.handlers import SMTPHandler
 from sys import stdout
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import (JWTManager, get_jwt_identity,
                                 verify_jwt_in_request)
-from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from wtforms.fields import HiddenField
 
 # Instantiate Flask extensions
 csrf_protect = CSRFProtect()
-mail = Mail()
 db = SQLAlchemy()
 jwt = JWTManager()
 
@@ -72,22 +69,6 @@ def preflight_check_vectors_passed(app):
             print('INFO: Wordvectors {path} not available'.format(
                 path=corpus_settings['embeddings'])
             )
-
-
-def preflight_check_config_passed(app):
-    """
-    Preflight: Check if config files are available to start the application.
-    """
-
-    settings_file = 'backend/settings_{ENV}.py'.format(
-        ENV=app.config['APP_ENV']
-    )
-
-    config_available = False
-    if os.path.exists(settings_file):
-        config_available = True
-
-    return config_available
 
 
 def admin_required(fn):
@@ -146,22 +127,14 @@ def create_app(extra_config_settings={}):
     CORS(app, supports_credentials=True)
 
     # Load common settings
-    app.config.from_object('backend.settings')
+    app.config.from_object('settings')
 
     # Load extra settings from extra_config_settings param
     app.config.update(extra_config_settings)
 
-    # Load environment settings
-    print('Loading Environment: {ENV}'.format(ENV=app.config['APP_ENV']))
-    app.config.from_object('backend.settings_{ENV}'.format(
-        ENV=app.config['APP_ENV']
-    ))
-    app.config.update(ENV=app.config['APP_ENV'])
-
-    # Preflight: Check if config is available
-    if not preflight_check_config_passed(app):
-        print('Error: Config files not initialized')
-        exit(1)
+    # Load corpora settings
+    print('Loading Corpora: {PATH}'.format(PATH=app.config['CORPORA_SETTINGS']))
+    app.config.from_pyfile(app.config['CORPORA_SETTINGS'])
 
     # Preflight: Check if wordvectors are available
     preflight_check_vectors_passed(app)
@@ -179,9 +152,6 @@ def create_app(extra_config_settings={}):
     # Setup Flask JWT
     jwt.init_app(app)
 
-    # Setup Flask-Mail
-    mail.init_app(app)
-
     # Setup WTForms CSRFProtect
     csrf_protect.init_app(app)
 
@@ -195,43 +165,4 @@ def create_app(extra_config_settings={}):
 
     app.jinja_env.globals['bootstrap_is_hidden_field'] = is_hidden_field_filter
 
-    # Setup an error-logger to send emails to app.config.ADMINS
-    init_email_error_handler(app)
-
     return app
-
-
-def init_email_error_handler(app):
-    """
-    Initialize a logger to send emails on error-level messages.
-    Unhandled exceptions will now send an email message to app.config.ADMINS.
-    """
-
-    # Do not send error emails while developing
-    if app.debug:
-        return
-
-    # Retrieve email settings from app.config
-    host = app.config['MAIL_SERVER']
-    port = app.config['MAIL_PORT']
-    from_addr = app.config['USER_EMAIL_SENDER_NAME']
-    username = app.config['MAIL_USERNAME']
-    password = app.config['MAIL_PASSWORD']
-    secure = () if app.config.get('MAIL_USE_TLS') else None
-
-    # Retrieve app settings from app.config
-    to_addr_list = app.config['ADMINS']
-    subject = app.config.get('APP_SYSTEM_ERROR_SUBJECT_LINE', 'System Error')
-
-    # Setup an SMTP mail handler for error-level messages
-    mail_handler = SMTPHandler(
-        mailhost=(host, port),            # Mail host and port
-        fromaddr=from_addr,               # From address
-        toaddrs=to_addr_list,             # To address
-        subject=subject,                  # Subject line
-        credentials=(username, password),  # Credentials
-        secure=secure,
-    )
-    # Log errors using: app.logger.error('Some error message')
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
