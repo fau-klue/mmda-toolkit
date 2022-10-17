@@ -19,7 +19,8 @@ Flask-Mail = "==0.9.1"
 Flask-Cors = "==3.0.10"
 flask-expects-json = "==1.7.0"
 
-pandas = "==1.5.0"
+importlib_resources = "*"
+
 pymagnitude-lite = "==0.1.143"
 scikit-learn = "==1.1.2"
 umap-learn = "==0.5.3"
@@ -28,9 +29,7 @@ anycache = "==2.0.7"
 gevent = "==22.8.0"
 gunicorn = "==20.1.0"
 
-# cwb-ccc = "==0.10.3"
-cwb-ccc = {editable = true, path = "./../../cwb-ccc"}
-association-measures = "==0.2.5"
+cwb-ccc = "==0.11.0"
 
 [requires]
-python_version = "3.9"
+python_version = "3.8"
