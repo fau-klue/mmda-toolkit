@@ -1,7 +1,8 @@
 import unittest.mock as mock
+
 import pandas
-from flask import url_for
 import pytest
+from flask import url_for
 
 
 @pytest.mark.api

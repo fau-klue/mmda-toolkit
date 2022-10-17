@@ -1,6 +1,6 @@
 import pytest
-from backend.analysis.semspace import generate_items_coordinates
-from backend.analysis.semspace import generate_semantic_space
+
+from backend.semspace import generate_items_coordinates, generate_semantic_space
 
 
 def vector_path(app, corpus):

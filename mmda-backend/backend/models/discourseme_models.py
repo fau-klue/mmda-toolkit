@@ -1,20 +1,20 @@
-"""
-Discourseme Models:
+"""Discourseme Models
 
+Relationships:
 
 - Discourseme
 - Constellation
+
+# constellation - discoursemes
+- a constellation has several associated discoursemes
+- a discourseme can belong to several constellations
 
 """
 
 
 from backend import db
 
-
 constellation_discoursemes = db.Table(
-    # many to many mapping:
-    # - a constellation has several associated discoursemes
-    # - a discourseme can belong to several constellations
     'ConstellationDiscoursemes',
     db.Column('constellation_id', db.Integer, db.ForeignKey('constellation.id')),
     db.Column('discourseme_id', db.Integer, db.ForeignKey('discourseme.id'))
@@ -22,12 +22,12 @@ constellation_discoursemes = db.Table(
 
 
 class Discourseme(db.Model):
-    """
-    Discourseme data model
+    """Discourseme
+
     """
 
     __tablename__ = 'discourseme'
-    _separator = ','
+    _separator = '\t'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode(255), nullable=True)
@@ -49,28 +49,31 @@ class Discourseme(db.Model):
 
     @property
     def items(self):
-        """
-        Read string and turn into list
+        """Read string and turn into list
+
         :return: Items as list
         :rtype: list
+
         """
         return self._items.split(self._separator)
 
     @items.setter
     def items(self, items):
-        """
-        Turn list into String
+        """Turn list into String
+
         :return: Items as str
         :rtype: str
+
         """
         self._items = self._separator.join(items)
 
     @property
     def serialize(self):
-        """
-        Return object data in easily serializeable format
+        """Return object data in easily serializeable format
+
         :return: Dictionary containing the discourseme values
         :rtype: dict
+
         """
 
         return {
@@ -86,8 +89,8 @@ class Discourseme(db.Model):
 
 
 class Constellation(db.Model):
-    """
-    Constellation data model
+    """Constellation
+
     """
 
     __tablename__ = 'constellation'
@@ -106,10 +109,11 @@ class Constellation(db.Model):
 
     @property
     def serialize(self):
-        """
-        Return object data in easily serializeable format
+        """Return object data in easily serializeable format
+
         :return: Dictionary containing the constellation values
         :rtype: dict
+
         """
 
         return {

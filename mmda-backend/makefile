@@ -16,63 +16,32 @@ coverage:
 
 
 # DATABASE
-new_database: clear_db database discoursemes
-
 database:
-	pipenv run python3 manage.py init_db
-
-discoursemes:
-	pipenv run python3 /home/ausgerechnet/repositories/thesis/discoursemes/mmda-import-discoursemes.py
-
-migrate:
-	pipenv run python3 manage.py migrate_db upgrade
+	pipenv run flask --app backend database init
 
 
 # DEVELOPMENT SERVER
 run:
-	pipenv run python3 manage.py runserver
+	pipenv run flask --app backend --debug run
 
 
 # PRODUCTION SERVER
 run_production:
-	pipenv run gunicorn -w 2 --timeout 600 --bind localhost:5000 backend.commands.wsgi:app
+	export ENVIRONMENT='production' &&\
+	pipenv run gunicorn -w 8 --timeout 600 --bind localhost:5000 wsgi:app
 
 
-# PRODUCTION SERVER VIA DOCKER (on abacist)
-docker: docker_clean docker_run_abacist
-
+# DOCKER
 docker_build:
 	docker build -t mmda-backend .
 
-docker_clean:
-	docker container rm mmda-backend
-
-docker_stop:
-	docker container stop mmda-backend
-
-docker_run_abacist:
+docker_run:
 	docker run -ti \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/instance/:/opt/database/ \
-	-v /home/ausgerechnet/implementation/mmda-refactor/mmda-backend/backend/settings_production.py:/app/backend/settings_production.py:ro \
-	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/opt/embeddings/:ro \
+	-v /home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/:/opt/mmda/ \
+	-v /home/ausgerechnet/corpora/cwb/mmda-corpora.py:/opt/mmda-corpora.py:ro \
 	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
 	-v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
-	-e SECRET_KEY=SFDVwejisadxslkhewq!$sadvxdflfw23$!Rwcd9§ \
-	-e WORKERS=2 \
+	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/home/ausgerechnet/corpora/embeddings/magnitude/:ro \
+	-e WORKERS=8 \
 	-p 5000:5000 \
-	--name mmda-backend \
 	mmda-backend
-
-
-# CLEAN LOCAL STUFF
-clean: clean_cache clean_db clean_lock
-
-clean_cache:
-	rm -r instance/ccc-data*
-	rm -r /tmp/mmda-anycache
-
-clean_db:
-	rm instance/mmda*.sqlite
-
-clean_lock:
-	rm Pipfile.lock

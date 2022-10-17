@@ -4,28 +4,27 @@
 Collocation view
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-from flask_expects_json import expects_json
-from ccc.utils import cqp_escape
-
-# backend
-from backend import db
-from backend import user_required
-# backend.analysis
-from backend.analysis.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_breakdown, ccc_corpus
-# from backend.analysis.ccc import ccc_meta
-# backend.models
-from backend.models.user_models import User
-from backend.models.collocation_models import Collocation
-from backend.models.discourseme_models import Discourseme
-from backend.models.coordinates_models import Coordinates
-
 # logging
 from logging import getLogger
 
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+from flask_expects_json import expects_json
+from numpy import nan
+from pandas import DataFrame, concat, notnull
+
+# backend
+from backend import db, user_required
+from backend.ccc import (ccc_breakdown, ccc_collocates, ccc_concordance,
+                         ccc_corpus)
+from backend.models.collocation_models import Collocation
+from backend.models.coordinates_models import Coordinates
+from backend.models.discourseme_models import Discourseme
+# from backend.analysis.ccc import ccc_meta
+from backend.models.user_models import User
+from backend.semspace import (generate_items_coordinates,
+                              generate_semantic_space)
+from backend.views.validators import COLLOCATION_SCHEMA, UPDATE_SCHEMA
 
 collocation_blueprint = Blueprint('collocation', __name__, template_folder='templates')
 
@@ -74,7 +73,7 @@ def create_collocation(username):
       - name: cut_off
         type: int
         description: how many collocates?
-        default: 500
+        default: 200
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -103,7 +102,7 @@ def create_collocation(username):
     context = request.json.get('context', 10)
 
     # not set yet
-    cut_off = request.json.get('cut_off', 50)  # 500)
+    cut_off = request.json.get('cut_off', 200)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '')
     flags_show = request.args.get('flags_show', "")  # flags_query)
@@ -117,14 +116,39 @@ def create_collocation(username):
     # VALIDATION
     # TODO check at least discourseme and items
     if corpus_name not in current_app.config['CORPORA']:
-        msg = 'no corpus "%s"', corpus_name
+        msg = f'no corpus {corpus_name}'
+        log.debug(msg)
+        return jsonify({'msg': msg}), 400
+
+    # DISCOURSEME
+    if isinstance(discourseme, str):
+        # create new discourseme
+        topic_discourseme = Discourseme(name=discourseme, items=items, user_id=user.id)
+        db.session.add(topic_discourseme)
+        db.session.commit()
+        log.debug('.. created discourseme %s', topic_discourseme.id)
+    elif isinstance(discourseme, dict):
+        # retrieve chosen discourseme
+        topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
+        # update items
+        topic_discourseme.items = items
+        db.session.commit()
+        # delete old collocation analysis in this corpus if it exists
+        collocation = Collocation.query.filter_by(user_id=user.id,
+                                                  corpus=corpus_name,
+                                                  topic_id=topic_discourseme.id).first()
+        if collocation is not None:
+            db.session.delete(collocation)
+            db.session.commit()
+    else:
+        msg = f"don't know what to do with discourseme of type {type(discourseme)}"
         log.debug(msg)
         return jsonify({'msg': msg}), 400
 
     # PROCESS
     # generate collocate tables: dict of dataframes with key == window_size
     # == [item] O11 .. E22 AMs .. ==
-    log.debug('starting collocation analysis')
+    log.debug('.. calculating collocates')
     breakdown, collocates = ccc_collocates(
         corpus_name=corpus_name,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
@@ -144,58 +168,28 @@ def create_collocation(username):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=False
+        escape=True
     )
 
     # no query matches?
     if collocates is None:
         return jsonify({'msg': "no query matches"}), 404
 
-    # get tokens for coordinate generation
-    # TODO: re-implement in backend
-    log.debug('generating semantic space')
-    tokens = []
+    # collect types
+    types = set()
     for df in collocates.values():
-        tokens.extend(df.index)
-    tokens = list(set(tokens))
-    log.debug('extracted %d tokens for collocation semantic space' % len(tokens))
+        types = types.union(set(df.index))
+    log.debug(f'.. extracted {len(types)} collocate types')
 
     # no collocates?
-    if len(tokens) == 0:
-        log.debug('no collocates found for %s', items)
+    if len(types) == 0:
+        log.debug(f'no collocates found for {items}')
         return jsonify({'msg': 'empty result'}), 404
 
-    # generate coordinates
-    # dataframe == [token] x y x_user y_user ==
-    semantic_space = generate_semantic_space(tokens, current_app.config['CORPORA'][corpus_name]['embeddings'])
+    log.debug('.. creating coordinates')
+    semantic_space = generate_semantic_space(types, current_app.config['CORPORA'][corpus_name]['embeddings'])
 
-    # DISCOURSEME MANAGEMENT
-    if isinstance(discourseme, str):
-        # create new discourseme
-        topic_discourseme = Discourseme(name=discourseme, items=items, user_id=user.id)
-        db.session.add(topic_discourseme)
-        db.session.commit()
-        log.debug('created discourseme %s', topic_discourseme.id)
-    elif isinstance(discourseme, dict):
-        # retrieve chosen discourseme
-        topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
-        # update settings
-        topic_discourseme.items = items
-        db.session.commit()
-        # delete old collocation analysis in this corpus if it exists
-        collocation = Collocation.query.filter_by(user_id=user.id,
-                                                  corpus=corpus_name,
-                                                  topic_id=topic_discourseme.id).first()
-        db.session.delete(collocation)
-        db.session.commit()
-
-    else:
-        msg = "discourseme of type %s" % str(type(discourseme))
-        log.debug(msg)
-        return jsonify({'msg': msg}), 400
-
-    # SAVE TO DATABASE
-    # analysis
+    # COLLOCATION
     collocation = Collocation(
         name=collocation_name,
         corpus=corpus_name,
@@ -211,13 +205,13 @@ def create_collocation(username):
     )
     db.session.add(collocation)
     db.session.commit()
-    log.debug('added collocation %s to db', collocation.id)
+    log.debug(f'.. added collocation {collocation.id} to db')
 
-    # semantic space
+    # COORDINATES
     coordinates = Coordinates(collocation_id=collocation.id, data=semantic_space)
     db.session.add(coordinates)
     db.session.commit()
-    log.debug('added coordinates %s to db', coordinates.id)
+    log.debug(f'.. added coordinates {coordinates.id} to db')
 
     return jsonify({'msg': collocation.id}), 201
 
@@ -444,8 +438,6 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
 
     # check if discourseme already associated or already topic of collocation analysis
     collocation_discourseme = discourseme in collocation.discoursemes
-    print(discourseme.id)
-    print(collocation.topic_id)
     is_own_topic_discourseme = discourseme.id == collocation.topic_id
     if is_own_topic_discourseme:
         msg = 'discourseme %s is already topic of the collocation analysis', discourseme
@@ -455,66 +447,6 @@ def put_discourseme_into_collocation(username, collocation, discourseme):
         msg = 'discourseme %s is already associated', discourseme
         log.debug(msg)
         return jsonify({'msg': msg}), 200
-
-    corpus_name = collocation.corpus
-    items = collocation.items
-    s_break = collocation.s_break
-    p_query = collocation.p_query
-    flags_query = ""  # collocation.flags_query
-    context = collocation.context
-    ams = None
-
-    flags_show = ""  # collocation.flags_query
-    p_show = [collocation.p_query]
-    cut_off = 200
-    order = 'log_likelihood'
-    min_freq = 1
-
-    # create new analysis (see below for alternative)
-    breakdown, collocates = ccc_collocates(
-        corpus_name=corpus_name,
-        cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
-        topic_items=items,
-        s_context=s_break,
-        windows=[context],
-        context=context,
-        p_query=p_query,
-        flags_query=flags_query,
-        s_query=s_break,
-        p_show=p_show,
-        flags_show=flags_show,
-        ams=ams,
-        cut_off=cut_off,
-        min_freq=min_freq,
-        order=order,
-        escape=False
-    )
-
-    # ALTERNATIVE POST-HOC UPDATE
-    # check if discourseme already associated with corpus
-    # i.e. there is at least one collocation analysis of this discourseme in this corpus
-    # new_items = breakdown.loc[breakdown['discourseme'] != 'topic'].index
-    # 1) generate new coordinates for new_items
-    # 2) remove items (incl. MWUs) in discoursemes from collocate table / semcloud
-    # tokens = set(discourseme.items)
-    # coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
-    # semantic_space = coordinates.data
-    # diff = tokens - set(semantic_space.index)
-    # if len(diff) > 0:
-    #     log.debug("generating additional coordinates for %d items" % len(diff))
-    #     new_coordinates = generate_items_coordinates(
-    #         diff,
-    #         semantic_space,
-    #         current_app.config['CORPORA'][collocation.corpus]['embeddings']
-    #     )
-    #     if not new_coordinates.empty:
-    #         log.debug('appending new coordinates to semantic space')
-    #         semantic_space.append(new_coordinates, sort=True)
-    #         coordinates.data = semantic_space
-    #         db.session.commit()
 
     # update database
     collocation.discoursemes.append(discourseme)
@@ -573,8 +505,6 @@ def delete_discourseme_from_collocation(username, collocation, discourseme):
         log.warn('discourseme %s not linked to collocation analysis %s', discourseme, collocation)
         return jsonify({'msg': 'discourseme not linked to analysis'}), 404
 
-    # TODO re-do collocation analysis
-
     # delete
     collocation.discoursemes.remove(discourseme)
     db.session.commit()
@@ -614,7 +544,7 @@ def get_collocate_for_collocation(username, collocation):
       - name: cut_off
         type: int
         description: how many collocates?
-        default: 500
+        default: 200
       - name: order
         type: str
         description: how to sort them? (column in result table) [log_likelihood]
@@ -642,7 +572,7 @@ def get_collocate_for_collocation(username, collocation):
     items = request.args.getlist('collocate', None)
 
     # not set yet
-    cut_off = request.args.get('cut_off', 500)
+    cut_off = request.args.get('cut_off', 200)
     order = request.args.get('order', 'log_likelihood')
     flags_show = request.args.get('flags_show', "")  # collocation.flags_query)
     min_freq = request.args.get('min_freq', 2)
@@ -668,14 +598,13 @@ def get_collocate_for_collocation(username, collocation):
     additional_discoursemes = dict()
     if items:
         # create discourseme for additional items on the fly
-        additional_discoursemes['collocate'] = [cqp_escape(i) for i in items]
+        additional_discoursemes['collocate'] = items
 
     # ... highlight associated discoursemes
     for d in collocation.discoursemes:
         additional_discoursemes[str(d.id)] = d.items
 
-    # get collocates: dict of dataframes with key == window_size
-    # collocates, topic_breakdown, discoursemes_breakdown =
+    # get breakdown and collocates: dict of dataframes with key == window_size
     breakdown, collocates = ccc_collocates(
         corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
@@ -697,14 +626,9 @@ def get_collocate_for_collocation(username, collocation):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=False
+        escape=True
     )
     collocates = collocates[window_size]
-
-    # TODO:
-    # all items of associated discoursemes
-    # breakdown.loc[breakdown['discourseme'] != 'topic']
-    # have to be included in the map
 
     if collocates.empty:
         log.debug('no collocates available for window size %s', window_size)
@@ -725,7 +649,7 @@ def get_collocate_for_collocation(username, collocation):
         )
         if not new_coordinates.empty:
             log.debug('appending new coordinates to semantic space')
-            semantic_space = semantic_space.append(new_coordinates, sort=True)
+            semantic_space = concat([semantic_space, new_coordinates])
             coordinates.data = semantic_space
             db.session.commit()
 
@@ -796,10 +720,10 @@ def get_concordance_for_collocation(username, collocation):
         return jsonify({'msg': 'wrong request parameters'}), 400
     # ... optional discourseme ID list
     discourseme_ids = request.args.getlist('discourseme', None)
-    # ... optional additional items (have to be escaped)
-    items = [cqp_escape(i) for i in request.args.getlist('item', None)]
+    # ... optional additional items
+    items = request.args.getlist('item', None)
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 500)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
@@ -856,7 +780,7 @@ def get_concordance_for_collocation(username, collocation):
         order=order,
         cut_off=cut_off,
         flags_query=collocation.flags_query,
-        escape_query=False,
+        escape_query=True,
         random_seed=random_seed
     )
 
@@ -915,7 +839,7 @@ def get_breakdown_for_collocation(username, collocation):
         p_show=[collocation.p_collocation],
         s_query=collocation.s_break,
         flags_query=collocation.flags_query,
-        escape=False,
+        escape=True,
         flags_show=flags_show
     )
 
@@ -992,3 +916,157 @@ def get_meta_for_collocation(username, collocation):
     meta_json = jsonify(meta)
 
     return meta_json, 200
+
+
+###############
+# COORDINATES #
+###############
+
+# READ
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['GET'])
+@user_required
+def get_coordinates(username, collocation):
+    """ Get coordinates for collocation analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # load coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
+    df = df.where(notnull(df), None)
+    ret = df.to_dict(orient='index')
+
+    return jsonify(ret), 200
+
+
+# UPDATE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/reload/', methods=['PUT'])
+@user_required
+def reload_coordinates(username, collocation):
+    """ Re-calculate coordinates for collocation analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get tokens
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    tokens = coordinates.data.index.values
+
+    # generate new coordinates
+    log.debug('regenerating semantic space for collocation analysis %s', collocation.id)
+    semantic_space = generate_semantic_space(
+        tokens,
+        current_app.config['CORPORA'][collocation.corpus]['embeddings']
+    )
+
+    coordinates.data = semantic_space
+    db.session.commit()
+
+    log.debug('updated semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'updated'}), 200
+
+
+# UPDATE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['PUT'])
+@user_required
+def update_coordinates(username, collocation):
+    """ Update coordinates for an collocation.
+
+    Hint: Non numeric values are treated as NaN
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get collocation
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    # update coordinates dataframe, and save
+    df.update(DataFrame.from_dict(items, orient='index'))
+
+    # sanity checks, non-numeric get treated as NaN
+    df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
+
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('updated semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'updated'}), 200
+
+
+# DELETE
+@collocation_blueprint.route('/api/user/<username>/collocation/<collocation>/coordinates/', methods=['DELETE'])
+@user_required
+def delete_coordinates(username, collocation):
+    """ Delete coordinates for collocation analysis.
+
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    collocation = Collocation.query.filter_by(id=collocation, user_id=user.id).first()
+    if not collocation:
+        log.debug('no such collocation analysis %s', collocation)
+        return jsonify({'msg': 'no such collocation analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(collocation_id=collocation.id).first()
+    df = coordinates.data
+
+    for item in items.keys():
+        if item in df.index:
+            log.debug('removing user coordinates for %s', item)
+            df.loc[item]['x_user'] = None
+            df.loc[item]['y_user'] = None
+
+    # update coordinates dataframe, and save
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('deleted semantic space for collocation analysis %s', collocation)
+    return jsonify({'msg': 'deleted'}), 200

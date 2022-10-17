@@ -81,7 +81,7 @@ export default {
     loadingCoordinates:false,
     min: 1,
     pagination: {
-      sortBy: 'log likelihood',
+      sortBy: 'Conservative LR',
       descending: true,
       rowsPerPage: 10
     }
@@ -151,15 +151,6 @@ export default {
       // TODO: does this know, that it needs both this.coordinates and this.collocates?
       // and does it update, if any of them changes?
       var R={},val;
-      if(this.coordinates){
-        for(var c of Object.keys(this.coordinates)){
-          R[c] = {name:c};
-          for(var x of Object.keys(this.coordinates[c])){
-            val = this.coordinates[c][x];
-            R[c][x] = typeof val ==="number" ? val.toPrecision(3): val;
-          }
-        }
-      }
       if(this.collocates){
         for(var am of Object.keys(this.collocates)){
           for(var w of Object.keys(this.collocates[am])){
@@ -169,6 +160,16 @@ export default {
             R[w][am] = val.toPrecision(2);
             R[w][am.replace(/\./g,'_')] = val.toPrecision(2);
             R[w][am.replace(/\./g,'_')+'#Norm'] = this.map_range(this.map_value(val),this.minmaxAM[am]);
+          }
+        }
+      }
+      if(this.coordinates){
+        for(var c of Object.keys(this.coordinates)){
+          if(R[c]){ 
+            for(var x of Object.keys(this.coordinates[c])){
+              val = this.coordinates[c][x];
+              R[c][x] = typeof val ==="number" ? val.toPrecision(3): val;
+            }
           }
         }
       }

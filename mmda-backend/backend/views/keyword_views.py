@@ -4,27 +4,23 @@
 Keywords view
 """
 
-# requirements
-from flask import Blueprint, request, jsonify, current_app
-# from flask_expects_json import expects_json
-from ccc.utils import cqp_escape
-
-# backend
-from backend import db
-from backend import user_required
-# backend.analysis
-# from backend.analysis.validators import ANALYSIS_SCHEMA, UPDATE_SCHEMA
-from backend.analysis.semspace import generate_semantic_space, generate_items_coordinates
-from backend.analysis.ccc import ccc_keywords, ccc_concordance, ccc_corpus
-# backend.models
-from backend.models.user_models import User
-from backend.models.keyword_models import Keyword
-from backend.models.discourseme_models import Discourseme
-from backend.models.coordinates_models import Coordinates
-
 # logging
 from logging import getLogger
 
+# requirements
+from flask import Blueprint, current_app, jsonify, request
+from numpy import nan
+from pandas import DataFrame, concat, notnull
+
+# backend
+from backend import db, user_required
+from backend.ccc import ccc_concordance, ccc_corpus, ccc_keywords
+from backend.models.coordinates_models import Coordinates
+from backend.models.discourseme_models import Discourseme
+from backend.models.keyword_models import Keyword
+from backend.models.user_models import User
+from backend.semspace import (generate_items_coordinates,
+                              generate_semantic_space)
 
 keyword_blueprint = Blueprint('keyword', __name__, template_folder='templates')
 
@@ -541,7 +537,7 @@ def get_keywords_for_keyword(username, keyword):
         )
         if not new_coordinates.empty:
             log.debug('appending new coordinates to semantic space')
-            semantic_space = semantic_space.append(new_coordinates, sort=True)
+            semantic_space = concat([semantic_space, new_coordinates])
             coordinates.data = semantic_space
             db.session.commit()
 
@@ -570,7 +566,7 @@ def get_concordance_for_keyword(username, keyword):
       - name: cut_off
         type: int
         description: how many lines?
-        default: 1000
+        default: 500
       - name: order
         type: str
         description: how to sort them? (column in result table)
@@ -598,16 +594,13 @@ def get_concordance_for_keyword(username, keyword):
     if not item:
         return {}, 200
 
-    # ad-hoc item has to be escaped
-    item = cqp_escape(item)
-
     # ... highlight associated discoursemes
     additional_discoursemes = dict()
     for d in keyword.discoursemes:
         additional_discoursemes[str(d.id)] = d.items
 
     # ... how many?
-    cut_off = request.args.get('cut_off', 1000)
+    cut_off = request.args.get('cut_off', 500)
     # ... how to sort them?
     order = request.args.get('order', 'random')
     # ... where's the meta data?
@@ -648,7 +641,7 @@ def get_concordance_for_keyword(username, keyword):
         order=order,
         cut_off=cut_off,
         flags_query=flags_query,
-        escape_query=False,
+        escape_query=True,
         random_seed=random_seed
     )
 
@@ -659,3 +652,110 @@ def get_concordance_for_keyword(username, keyword):
     conc_json = jsonify(concordance)
 
     return conc_json, 200
+
+
+###############
+# COORDINATES #
+###############
+# READ
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['GET'])
+@user_required
+def get_coordinates_keywords(username, keyword):
+    """ Get coordinates for keyword analysis.
+
+    """
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword %s', keyword)
+        return jsonify({'msg': 'no such keyword'}), 404
+
+    # load coordinates
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    df = coordinates.data
+
+    # converting NaNs to None got even more complicated in pandas 1.3.x
+    df = df.astype(object)
+    df = df.where(notnull(df), None)
+    ret = df.to_dict(orient='index')
+
+    return jsonify(ret), 200
+
+
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/reload/', methods=['PUT'])
+@user_required
+def reload_coordinates_keywords(username, keyword):
+    """ Re-calculate coordinates for keyword analysis.
+
+    """
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get tokens
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    tokens = coordinates.data.index.values
+
+    # generate new coordinates
+    log.debug('regenerating semantic space for analysis %s', keyword.id)
+    semantic_space = generate_semantic_space(
+        tokens,
+        current_app.config['CORPORA'][keyword.corpus]['embeddings']
+    )
+
+    coordinates.data = semantic_space
+    db.session.commit()
+
+    log.debug('updated semantic space for analysis %s', keyword)
+    return jsonify({'msg': 'updated'}), 200
+
+
+@keyword_blueprint.route('/api/user/<username>/keyword/<keyword>/coordinates/', methods=['PUT'])
+@user_required
+def update_coordinates_keyword(username, keyword):
+    """ Update coordinates for an analysis.
+
+    Hint: Non numeric values are treated as NaN
+    """
+
+    if not request.is_json:
+        log.debug('no coordinate data provided')
+        return jsonify({'msg': 'no request data provided'}), 400
+
+    # TODO Validate request. Should be:
+    # {foo: {user_x: 1, user_y: 2}, bar: {user_x: 1, user_y: 2}}
+    items = request.get_json()
+
+    # get user
+    user = User.query.filter_by(username=username).first()
+
+    # get analysis
+    keyword = Keyword.query.filter_by(id=keyword, user_id=user.id).first()
+    if not keyword:
+        log.debug('no such keyword analysis %s', keyword)
+        return jsonify({'msg': 'no such keyword analysis'}), 404
+
+    # get coordinates
+    coordinates = Coordinates.query.filter_by(keyword_id=keyword.id).first()
+    df = coordinates.data
+
+    # update coordinates dataframe, and save
+    df.update(DataFrame.from_dict(items, orient='index'))
+
+    # sanity checks, non-numeric get treated as NaN
+    df.replace(to_replace=r'[^0-9]+', value=nan, inplace=True, regex=True)
+
+    coordinates.data = df
+    db.session.commit()
+
+    log.debug('updated semantic space for keyword analysis %s', keyword)
+    return jsonify({'msg': 'updated'}), 200

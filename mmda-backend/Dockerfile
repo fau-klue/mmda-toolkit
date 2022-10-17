@@ -42,27 +42,6 @@ RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk && \
     ldconfig
 
 
-########################
-# ENVIRONMENT VARIABLES
-########################
-ENV SECRET_KEY 'changemewhenstartingthecontainer'
-
-ENV ENVIRONMENT 'production'
-ENV SQL_DATABASE_URI 'sqlite:////opt/database/mmda-docker.sqlite'
-ENV CWB_REGISTRY_PATH '/opt/cwb/registry/'
-
-ENV HOST 0.0.0.0
-ENV PORT 5000
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV PYTHONIOENCODING utf-8
-ENV DEBIAN_FRONTEND noninteractive
-
-ENV TLS_ENABLE ''
-ENV TLS_CERTFILE '/var/local/cert.pem'
-ENV TLS_KEYFILE '/var/local/key.pem'
-
-
 ############################
 # SET UP PYTHON ENVIRONMENT
 ############################
@@ -73,15 +52,31 @@ RUN python3 -m pip install --upgrade pip && \
 
 COPY Pipfile Pipfile.lock /app/
 
-# Pipenv
 RUN pipenv install --dev --system --ignore-pipfile --deploy
 
 
-###################
-# COPY AND RUN APP
-###################
+########################
+# ENVIRONMENT VARIABLES
+########################
+
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONIOENCODING utf-8
+ENV DEBIAN_FRONTEND noninteractive
+
+ENV CORPORA_SETTINGS /opt/mmda-corpora.py
+ENV CWB_REGISTRY_PATH /opt/cwb/registry/
+ENV SQLALCHEMY_DATABASE_URI /opt/mmda.sqlite
+
+
+###########
+# COPY APP
+###########
 # We copy the application here, so that the previous layers can be cached
 COPY . /app
 
-# Start the Application
-CMD ["/app/entrypoint.sh"]
+
+#############################
+# SET UP AND START THE SEVER
+#############################
+CMD /app/entrypoint.sh

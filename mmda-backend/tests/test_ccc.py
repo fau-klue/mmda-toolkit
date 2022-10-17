@@ -1,12 +1,13 @@
-from backend.analysis.ccc import ccc_concordance, ccc_collocates, ccc_keywords
-from backend.analysis.ccc import ccc_constellation_association
 import pytest
+
+from backend.ccc import (ccc_collocates, ccc_concordance,
+                         ccc_constellation_association, ccc_keywords)
 
 
 ###############
 # CONCORDANCE #
 ###############
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_ccc_simple_concordance(app, test_corpus):
 
     conc = ccc_concordance(
@@ -22,10 +23,11 @@ def test_ccc_simple_concordance(app, test_corpus):
         window_size=test_corpus['parameters']['context'],
         s_show=test_corpus['parameters']['s_show']
     )
-    print(conc)
+    assert len(conc) == 500
+    assert 'cpos' in conc[0]
 
 
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_ccc_constellation_concordance(app, test_corpus):
 
     conc = ccc_concordance(
@@ -42,10 +44,11 @@ def test_ccc_constellation_concordance(app, test_corpus):
         context=test_corpus['parameters']['context'],
         s_show=test_corpus['parameters']['s_show']
     )
-    print(conc)
+    assert len(conc) == 500
+    assert 'cpos' in conc[0]
 
 
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_ccc_constellation_concordance_2(app, test_corpus):
 
     conc = ccc_concordance(
@@ -63,10 +66,11 @@ def test_ccc_constellation_concordance_2(app, test_corpus):
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )
-    print(conc)
+    assert len(conc) == 1285
+    assert 'cpos' in conc[0]
 
 
-@pytest.mark.conc
+@pytest.mark.concordance
 def test_ccc_constellation_concordance_3(app, test_corpus):
 
     conc = ccc_concordance(
@@ -83,16 +87,17 @@ def test_ccc_constellation_concordance_3(app, test_corpus):
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )
-    print(conc)
+    assert len(conc) == 1285
+    assert 'cpos' in conc[0]
 
 
 ###############
 # COLLLOCATES #
 ###############
-@pytest.mark.coll
+@pytest.mark.collocation
 def test_ccc_simple_collocates(app, test_corpus):
 
-    coll = ccc_collocates(
+    breakdown, coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
         registry_path=app.config['CCC_REGISTRY_PATH'],
@@ -102,13 +107,15 @@ def test_ccc_simple_collocates(app, test_corpus):
         s_context=test_corpus['parameters']['s_context'],
         windows=[3, 5, 7]
     )
-    print(coll)
+    assert len(coll) == 3
+    assert 3 in coll
+    assert len(coll[3] == 58)
 
 
-@pytest.mark.coll
+@pytest.mark.collocation
 def test_ccc_constellation_collocates(app, test_corpus):
 
-    coll = ccc_collocates(
+    breakdown, coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
         registry_path=app.config['CCC_REGISTRY_PATH'],
@@ -120,7 +127,9 @@ def test_ccc_constellation_collocates(app, test_corpus):
         context=test_corpus['parameters']['context'],
         additional_discoursemes={'disc1': test_corpus['discoursemes']['disc1']},
     )
-    print(coll)
+    assert len(coll) == 3
+    assert 3 in coll
+    assert len(coll[3] == 58)
 
 
 ############
@@ -137,7 +146,7 @@ def test_ccc_keywords(app, test_corpus):
         data_path=app.config['CCC_DATA_PATH'],
         lib_path=app.config['CCC_LIB_PATH']
     )
-    print(kw)
+    assert len(kw) == 500
 
 
 ###############
@@ -157,4 +166,4 @@ def test_ccc_constellation_association(app, test_corpus):
         s_query=test_corpus['parameters']['s_query'],
         s_context=test_corpus['parameters']['s_context']
     )
-    print(assoc)
+    assert len(assoc) == 6

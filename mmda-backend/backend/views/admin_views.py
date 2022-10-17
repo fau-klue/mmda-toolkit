@@ -3,18 +3,19 @@ Admin view
 """
 
 
-from flask import Blueprint, request, jsonify, current_app
-from flask_expects_json import expects_json
 from logging import getLogger
 
-from backend import db
-from backend.analysis.validators import PASSWORD_SCHEMA, USER_SCHEMA
-from backend.commands.init_db import find_or_create_user
-from backend import admin_required
-from backend.models.user_models import User, Role
+from flask import Blueprint, jsonify, request
+from flask_expects_json import expects_json
+from werkzeug.security import generate_password_hash
+
+from backend import admin_required, db
+from backend.database import find_or_create_user
 from backend.models.collocation_models import Collocation
+from backend.models.discourseme_models import Constellation, Discourseme
 from backend.models.keyword_models import Keyword
-from backend.models.discourseme_models import Discourseme, Constellation
+from backend.models.user_models import Role, User
+from backend.views.validators import PASSWORD_SCHEMA, USER_SCHEMA
 
 admin_blueprint = Blueprint('admin', __name__, template_folder='templates')
 log = getLogger('mmda-logger')
@@ -90,7 +91,7 @@ def put_user_password(username):
         return jsonify({'msg': 'No such user'}), 404
 
     # Generate salted password hash
-    hashed_password = current_app.user_manager.password_manager.hash_password(new_password)
+    hashed_password = generate_password_hash(new_password)
 
     if not hashed_password:
         log.debug('Password could not be changed. No hash generated')

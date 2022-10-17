@@ -1,22 +1,16 @@
 #!/usr/bin/env sh
-# Entrypoint for Docker
-
 
 ENVIRONMENT=${ENVIRONMENT:-'production'}
-WORKERS=${WORKERS:-4}
+WORKERS=${WORKERS:-8}
 
-
-# Initialize database (runs idempotently) and run migrations.
-# echo "Running Database Migrations"
-# python3 manage.py migrate_db upgrade
+# initialise database (runs idempotently)
 echo "Creating Database"
-python3 manage.py init_db
+flask --app backend database init
 
-# Start the WSGI production server
-echo "Starting Application ($ENVIRONMENT)"
-
+# start server
+echo "starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
-    python3 manage.py runserver
+    flask --app backend database init
 else
-    gunicorn -w $WORKERS --timeout 600 --bind :5000 backend.commands.wsgi:app
+    gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
 fi

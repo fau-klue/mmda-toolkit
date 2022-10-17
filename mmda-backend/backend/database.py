@@ -1,30 +1,29 @@
-"""
-Initialize Database via Flask Script
-"""
-
+#! /usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import datetime
-from flask import current_app
-from flask_script import Command
+
+from flask import Blueprint, current_app
+from werkzeug.security import generate_password_hash
 
 from backend import db
-from backend.models.user_models import User, Role
+from backend.models.user_models import Role, User
+
+bp = Blueprint('database', __name__, url_prefix='/database')
 
 
-class InitDbCommand(Command):
+def db_exists():
     """
-    Initialize the database. Flask Command Interface
+    Check if database is already initialised.
     """
 
-    def run(self):
-        print("Database path:", current_app.config['SQLALCHEMY_DATABASE_URI'])
-        init_db()
-        print('Database has been initialized.')
+    tables = db.inspect(db.get_engine()).get_table_names()
+    return True if 'users' in tables else False
 
 
 def init_db():
     """
-    Initialize the database.
+    Initialise the database.
     """
 
     if not db_exists():
@@ -34,31 +33,16 @@ def init_db():
     create_users()
 
 
-def db_exists():
-    """
-    Check if database is already initialized.
-    """
-
-    tables = db.inspect(db.get_engine()).get_table_names()
-    if 'users' in tables:
-        return True
-
-    return False
-
-
 def create_users():
     """
     Create users
     """
 
-    # Create all tables
-    db.create_all()
-
     # Adding roles
     admin_role = find_or_create_role('admin', u'Admin')
 
     # Add users
-    find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'Squanchy1', admin_role)
+    find_or_create_user(u'admin', u'Admin', u'MMDA', u'admin@fau.de', 'mmda-admin', admin_role)
     find_or_create_user(u'student1', u'Student', u'Example', u'student@fau.de', 'Erlangen1')
 
     # Save to DB
@@ -106,7 +90,7 @@ def find_or_create_user(username, first_name, last_name, email, password, role=N
                     email=email,
                     first_name=first_name,
                     last_name=last_name,
-                    password=current_app.user_manager.password_manager.hash_password(password),
+                    password=generate_password_hash(password),
                     active=True,
                     email_confirmed_at=datetime.datetime.utcnow())
         if role:
@@ -114,3 +98,12 @@ def find_or_create_user(username, first_name, last_name, email, password, role=N
         db.session.add(user)
 
     return user
+
+
+@bp.cli.command('init')
+def init_db_command():
+    """Clear the existing data and create new tables."""
+
+    current_app.logger.info(f"Database path: {current_app.config['SQLALCHEMY_DATABASE_URI']}")
+    init_db()
+    current_app.logger.info("Database has been initialised.")

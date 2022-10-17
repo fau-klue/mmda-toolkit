@@ -1,16 +1,25 @@
-"""
-User Models
+"""User Models
+
+Relationships:
+
+=== many to many ===
+# users - roles
+- a user can have several roles
+- a role can be token by several users
+
+=== one to many ===
+# user - [collocation, discourseme, constellation]
+- a user can have several analyses
+- a collocation/keyword analysis or discourseme belongs to exactly one user
+
 """
 
 
-from flask_user import UserMixin
+from flask_login import UserMixin
+
 from backend import db
 
-
 users_roles = db.Table(
-    # many to many mapping:
-    # - a user can have several roles
-    # - a role can be token by several users
     'UsersRoles',
     db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
     db.Column('role_id', db.Integer, db.ForeignKey('roles.id'))
@@ -18,8 +27,8 @@ users_roles = db.Table(
 
 
 class User(db.Model, UserMixin):
-    """
-    User data model
+    """User
+
     """
 
     __tablename__ = 'users'
@@ -30,7 +39,6 @@ class User(db.Model, UserMixin):
     email_confirmed_at = db.Column(db.DateTime())
     password = db.Column(db.String(255), nullable=False, server_default='')
     reset_password_token = db.Column(db.Unicode(255), nullable=False, server_default=u'')
-    # active = db.Column(db.Boolean(), nullable=False, server_default='0')
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='0')
     first_name = db.Column(db.Unicode(255), nullable=False, server_default=u'')
     last_name = db.Column(db.Unicode(255), nullable=False, server_default=u'')
@@ -50,10 +58,11 @@ class User(db.Model, UserMixin):
 
     @property
     def serialize(self):
-        """
-        Return object data in easily serializeable format
+        """Return object data in easily serializeable format
+
         :return: Dictionary containing the user values
         :rtype: dict
+
         """
 
         return {
@@ -68,8 +77,8 @@ class User(db.Model, UserMixin):
 
 
 class Role(db.Model):
-    """
-    Role data model
+    """Role
+
     """
 
     __tablename__ = 'roles'

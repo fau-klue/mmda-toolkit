@@ -1,68 +1,63 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
-Concordance and Collocation Computation
+Interface to CWB/CQP
+
+- calls to cwb-ccc with appropriate parameters
+- calls are cached using anycache
+- some post-processing
+
 """
 
-from ccc import Corpora, Corpus
-from ccc.discoursemes import create_constellation
-from ccc.utils import format_cqp_query
-from ccc.keywords import keywords
-
-from pandas import concat
+from logging import getLogger
 
 from anycache import anycache
-from backend.settings import ANYCACHE_PATH as CACHE_PATH
+from ccc import Corpora, Corpus
+from ccc.discoursemes import create_constellation
+from ccc.keywords import keywords
+from ccc.utils import format_cqp_query
 
-import logging
+from settings import ANYCACHE_PATH as CACHE_PATH
 
-logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
-log = logging.getLogger('mmda-logger')
+log = getLogger('mmda-logger')
 
 
 #############
 # UTILITIES #
 #############
-def format_counts(df, add=None):
+def format_ams(df):
 
     ams_dict = {
+        # conservative estimates
+        'conservative_log_ratio': 'Conservative LR',
+        # frequencies
+        'O11': 'cooc.',
+        'ipm': 'IPM (obs.)',
+        'ipm_expected': 'IPM (exp.)',
         # asymptotic hypothesis tests
         'log_likelihood': 'LLR',
         'z_score': 'z-score',
         't_score': 't-score',
         'simple_ll': 'simple LL',
         # point estimates of association strength
-        'dice_1000': 'Dice-1000',
+        'dice': 'Dice',
         'log_ratio': 'log-ratio',
+        'min_sensitivity': 'min. sensitivity',
+        'liddell': 'Liddell',
         # information theory
-        'mutual_information': 'mutual information',
+        'mutual_information': 'MI',
         'local_mutual_information': 'local MI',
-        # conservative estimates
-        'conservative_log_ratio': 'Conservative LR',
-        # frequencies
-        'ipm': 'IPM (obs.)',
-        'ipm_expected': 'IPM (exp.)',
     }
-
-    # scale Dice coefficient
-    df['dice_1000'] = df['dice'] * 10**3
 
     # select and rename
     df = df[list(ams_dict.keys())]
     df = df.rename(ams_dict, axis=1)
 
-    # add additional items
-    if add is not None and len(add) > 0:
-        add = add[['freq']].copy()
-        for c in df.columns:
-            add[[c]] = add[['freq']]
-        df = concat([df, add])
-
     return df
 
 
 def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
-    """sort p-attributes
+    """sort p-attributes in default order
 
     :param list p_atts: p-attributes
 
@@ -72,7 +67,7 @@ def sort_p(p_atts, order=['lemma_pos', 'lemma', 'word']):
 
 
 def sort_s(s_atts, order=['tweet', 's', 'p', 'text']):
-    """sort s-attributes
+    """sort s-attributes in default order
 
     :param list s_atts: s-attributes
 
@@ -112,9 +107,7 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
                     registry_path=registry_path,
                     data_path=data_path)
     attributes = corpus.attributes_available
-    p_atts = list(
-        attributes.loc[attributes['type'] == 'p-Att']['attribute'].values
-    )
+    p_atts = list(attributes.loc[attributes['type'] == 'p-Att']['attribute'].values)
     s_atts = attributes[attributes['type'] == 's-Att']
     s_annotations = list(s_atts[s_atts['annotation']]['attribute'].values)
     s_atts = list(s_atts[~s_atts['annotation']]['attribute'].values)
@@ -128,13 +121,13 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     return crps
 
 
-# @anycache(CACHE_PATH)
+@anycache(CACHE_PATH)
 def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                    lib_path, topic_items, s_context, windows,
                    context=20, filter_discoursemes={},
                    additional_discoursemes={}, p_query='lemma',
                    flags_query='%c', s_query=None, p_show=['lemma'],
-                   flags_show='%c', ams=None, cut_off=500, min_freq=2,
+                   flags_show='%c', ams=None, cut_off=200, min_freq=2,
                    order='log_likelihood', escape=True,
                    frequencies=True, topic_name='topic'):
     """get collocates for topic (+ additional discoursemes).
@@ -150,6 +143,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     :param list windows: windows (int) to use for collocation analyses around nodes
     :param int context: context around the nodes used to identify relevant matches
 
+    :param dict filter_discoursemes: {name: items}
     :param dict additional_discoursemes: {name: items}
 
     :param str p_query: p-att layer to query
@@ -174,8 +168,8 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
     # preprocess parameters
     s_query = s_context if s_query is None else s_query
     match_strategy = 'longest'
-    # escape_query = True
     topic_discourseme = {'topic': topic_items}
+    additional_discoursemes = {}  # avoids removal from sem-map
 
     # create constellation
     try:
@@ -200,7 +194,13 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
                                      data_path,
                                      approximate=True)
     except KeyError:            # no matches
-        return
+        return None  # , None
+
+    breakdown = const.breakdown(
+        p_atts=[p_query],
+        flags=flags_show
+    )
+
     collocates = const.collocates(
         windows=windows,
         p_show=p_show, flags=flags_show,
@@ -208,18 +208,8 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
         order=order, cut_off=cut_off
     )
 
-    # freq breakdown of associated discoursemes
-    # breakdown table: items, freq, discourseme
-    breakdowns = list()
-    for idx, dump in const.discoursemes.items():
-        d = dump.breakdown(p_atts=[p_query], flags=flags_show)
-        d['discourseme'] = idx
-        breakdowns.append(d)
-    breakdown = concat(breakdowns)
-
-    # formatting
     for window in collocates.keys():
-        collocates[window] = format_counts(collocates[window])
+        collocates[window] = format_ams(collocates[window])
 
     return breakdown, collocates
 
@@ -395,10 +385,7 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
     tables = const.associations()
 
     # formatting
-    out = list()
-    for row in tables.iterrows():
-        v = dict(row[1])
-        out.append(v)
+    out = [dict(row[1]) for row in tables.iterrows()]
 
     return out
 
@@ -414,9 +401,19 @@ def ccc_keywords(corpus, corpus_reference,
     corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
     corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
 
-    kw = keywords(corpus, corpus_reference, p, p_reference, order, cut_off, ams, min_freq, True, flags_show)
+    kw = keywords(corpus,
+                  corpus_reference,
+                  p,
+                  p_reference,
+                  order,
+                  cut_off,
+                  ams,
+                  min_freq,
+                  True,
+                  flags)
+    kw = format_ams(kw)
 
-    return format_counts(kw)
+    return kw
 
 
 @anycache(CACHE_PATH)
@@ -425,7 +422,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     additional_discoursemes, s_context,
                     window_size, context=20, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
-                    s_query=None, order='random', cut_off=100,
+                    s_query=None, order='random', cut_off=500,
                     flags_query='%c', escape_query=True, random_seed=42):
     """get concordance lines for topic (+ additional discoursemes).
 
