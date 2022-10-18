@@ -2,12 +2,12 @@
 
 ## Installation
 
-We use [pipenv](https://github.com/pypa/pipenv) for dependency management.
+See the [Dockerfile](Dockerfile) for a working system environment ready for production.
+
+During development, we use [pipenv](https://github.com/pypa/pipenv) for dependency management.
 
     pip3 install -r requirements.txt
     pipenv install --dev
-
-See also the [Dockerfile](Dockerfile) for a working system environment.
 
 
 ## Settings

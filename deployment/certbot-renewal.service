@@ -1,8 +1,0 @@
-# I'm a systemd service file that lives in /etc/systemd/system/
-[Unit]
-Description=Certbot Renewal
-
-[Service]
-Type=oneshot
-ExecStart=/usr/bin/docker run --rm -v /etc/letsencrypt:/etc/letsencrypt certbot/certbot renew --webroot -w /etc/letsencrypt
-ExecStop=/bin/systemctl restart docker-mmda-frontend.service

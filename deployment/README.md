@@ -1,96 +1,54 @@
 # Production Installation
 
-## build 
+## Backend
 
-- backend
+The backend is deployed using a Docker container.
+
+### build
 
 ```bash
 cd mmda-backend
-docker build --pull --force-rm -t fau.de/mmda-backend:latest .
+docker build -t mmda-backend:latest .
 ```
 
-- frontend
+### resources
+
+You'll need
+
+- corpora accessible in a CWB registry,
+- embeddings in pymagnitude format,
+- a Python file with corpus settings,
+- a place to store an sqlite database, and
+- TLS certificates / key files.
+
+### systemd files
+
+Adjust the [example systemd file](obelix-mmda-backend.service) to your system linking above resources.
+
+Copy the file to /etc/systemd/system/ and start the daemon:
 
 ```bash
-cd mmda-frontend
-yarn run build || npm run build
+sudo cp mmda-backend.service /etc/systemd/system/mmda-backend.service
+sudo systemctl enable mmda-backend
+sudo systemctl reload-daemon
+sudo systemctl start mmda-backend.service
 ```
 
-## resources
+## Frontend
 
-- create data directories on the server:
+The backend is a static build:
 
-```bash
-# Example:
-mkdir /opt/data/mmda/database
-mkdir /opt/data/mmda/embeddings
-```
+    cd mmda-frontend
+    yarn run build || npm run build
 
-- import embeddings:
+Copy dist to appropriate place:
 
-```bash
-# Examples:
-cp wordvectors.magnitude /opt/data/mmda/embeddings
-```
+    cd /data/corpora/htdocs/
+    sudo mkdir mmda
+    sudo chgrp www-data mmda
+    cp -r dist/* /data/corpora/htdocs/mmda/.
 
-- import settings:
-
-```bash
-# Examples:
-cp mmda-backend/backend/settings_production.py /opt/data/mmda/
-# Add your corpora
-vi /opt/data/mmda/settings_production.py
-```
-
-## Dockerized backend managed by systemd
-
-- (optional) create self-signed TLS certificat if Let's Encrypt is not used:
-
-```bash
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /opt/data/mmda/cert.key -out /opt/data/mmda/cert.crt
-```
-
-- copy systemd unit files
-
-```bash
-cp deployment/docker-mmda-backend.service /etc/systemd/system/
-systemctl reload-daemon
-```
-
-- adjust to your system:
-
-```bash
-vi /etc/systemd/system/docker-mmda-backend.service
- # Change key to random 32 char string
- -e SECRET_KEY=CHANGEME! \
- # Change path to TLS cert and key
- -e TLS_CERTFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/fullchain.pem \
- -e TLS_KEYFILE=/certs/letsencrypt/live/geuselambix.phil.uni-erlangen.de/privkey.pem \
- # Change path to CWB registry
- -v /opt/data/mmda/cwb:/opt/cwb:ro \
-
-vi /etc/systemd/system/docker-mmda-fronend.service
- # Change path to TLS cert and key
- -v /etc/letsencrypt:/certs/letsencrypt:ro \
-```
-
-- enable and start
-
-```bash
-systemctl enable docker-mmda-backend
-systemctl start docker-mmda-backend
-```
-
-## frontend
-
-- copy dist
-
-        cd /data/corpora/htdocs/
-        mkdir mmda
-        chgrp www-data mmda
-        cp -r dist/* /data/corpora/htdocs/mmda/.
-
-- set up Apache
+Set up Apache:
 
         ## MMDA
         <Directory /data/corpora/htdocs/mmda/>
@@ -98,5 +56,3 @@ systemctl start docker-mmda-backend
                 AllowOverride None
                 Require all granted
         </Directory>
-  
-  

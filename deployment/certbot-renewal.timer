@@ -1,9 +1,0 @@
-# I'm a systemd timer file that lives in /etc/systemd/system/
-[Unit]
-Description=Timer for Certbot Renewal
-
-[Timer]
-OnCalendar=weekly
-
-[Install]
-WantedBy=timers.target
