@@ -12,6 +12,5 @@ echo "starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
     flask --app backend --debug run
 else
-    python3 wsgi_gevent.py
-    # gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
+    gunicorn -w $WORKERS --certfile=$TLS_CERTFILE --keyfile=$TLS_KEYFILE --timeout 600 --bind :5000 wsgi:app
 fi
