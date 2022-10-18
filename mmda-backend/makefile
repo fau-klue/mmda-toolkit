@@ -26,6 +26,10 @@ run:
 
 
 # PRODUCTION SERVER
+run_production_gevent:
+	export ENVIRONMENT='production' &&\
+	pipenv run python wsgi_gevent.py
+
 run_production:
 	export ENVIRONMENT='production' &&\
 	pipenv run gunicorn -w 8 --timeout 600 --bind localhost:5000 wsgi:app

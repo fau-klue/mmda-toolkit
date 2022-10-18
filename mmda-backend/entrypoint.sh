@@ -10,7 +10,8 @@ flask --app backend database init
 # start server
 echo "starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
-    flask --app backend database init
+    flask --app backend --debug run
 else
-    gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
+    python3 wsgi_gevent.py
+    # gunicorn -w $WORKERS --timeout 600 --bind :5000 wsgi:app
 fi
