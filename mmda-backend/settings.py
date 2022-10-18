@@ -30,8 +30,8 @@ CCC_DATA_PATH = getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc-cache/')
 ANYCACHE_PATH = str(getenv('ANYCACHE_PATH', '/tmp/mmda-anycache/'))
 
 # HOST AND PORT
-MMDA_APP_HOST = str(getenv('HOST', default='0.0.0.0'))
-MMDA_APP_PORT = int(getenv('PORT', default='5000'))
+APP_HOST = str(getenv('HOST', default='0.0.0.0'))
+APP_PORT = int(getenv('PORT', default='5000'))
 
 # TLS SETTINGS
 APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
