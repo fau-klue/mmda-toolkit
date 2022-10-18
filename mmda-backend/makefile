@@ -54,6 +54,7 @@ docker_obelix:
 	-e SECRET_KEY=fLVmrrpwjjHfdshvsrewqlbpuvcsewhrsdfweh \
 	-e WORKERS=16 \
 	-p 5000:5000 \
+	--name mmda-backend \
 	mmda-backend
 
 docker_abacist:
@@ -65,4 +66,5 @@ docker_abacist:
 	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/home/ausgerechnet/corpora/embeddings/magnitude/:ro \
 	-e WORKERS=8 \
 	-p 5000:5000 \
+	--name mmda-backend \
 	mmda-backend
