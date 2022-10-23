@@ -43,16 +43,15 @@ The backend is a static build:
 
 Copy dist to appropriate place:
 
-    cd /data/corpora/htdocs/
-    sudo mkdir mmda
-    sudo chgrp www-data mmda
+    sudo mkdir /data/corpora/htdocs/mmda
+    sudo chgrp /data/corpora/htdocs/www-data mmda
     cp -r dist/* /data/corpora/htdocs/mmda/.
 
 Set up Apache:
 
-        ## MMDA
-        <Directory /data/corpora/htdocs/mmda/>
-                Options Indexes FollowSymLinks MultiViews
-                AllowOverride None
-                Require all granted
-        </Directory>
+    ## MMDA
+    <Directory /data/corpora/htdocs/mmda/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Require all granted
+    </Directory>
