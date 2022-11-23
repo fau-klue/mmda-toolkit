@@ -1,8 +1,10 @@
 # The MMDA toolkit
 
-# Implementation Overview
+See our [instance](https://corpora.linguistik.uni-erlangen.de/mmda) @FAU for a demo.
 
-## Backend
+## Implementation Overview
+
+### Backend
 
 The backend is implemented in Python/Flask.
 
@@ -10,12 +12,12 @@ It builds upon the [IMS Open Corpus Workbench](http://cwb.sourceforge.net/), whi
 
 See the [README](mmda-backend/README.md) there for details on the setup.
 
-## Frontend
+### Frontend
 
 The frontend is implemented in Vue.js.
 
 See the [README](mmda-frontend/README.md) there for details on the setup.
 
-# Deployment
+## Deployment
 
 For details on the productive deployment, see the [deployment documentation](deployment/README.md).
