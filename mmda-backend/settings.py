@@ -15,18 +15,18 @@ APP_ENV = str(getenv('ENVIRONMENT', default='development'))
 SECRET_KEY = str(getenv('SECRET_KEY', default='Please Change me in production. Stay Save!'))
 
 # DATABASE
-SQLALCHEMY_DATABASE_URI = getenv('SQL_DATABASE_URI', default='sqlite:///mmda.sqlite')
+SQLALCHEMY_DATABASE_URI = str(getenv('SQL_DATABASE_URI', default='sqlite:///mmda.sqlite'))
 
 # CORPORA
-CORPORA_SETTINGS = getenv('CORPORA_SETTINGS', default='../tests/corpora/corpora.py')
+CORPORA_SETTINGS = str(getenv('CORPORA_SETTINGS', default='../tests/corpora/corpora.py'))
 
 # CWB-CCC
-CCC_REGISTRY_PATH = getenv('CWB_REGISTRY_PATH', default='tests/corpora/registry/')
+CCC_REGISTRY_PATH = str(getenv('CWB_REGISTRY_PATH', default='tests/corpora/registry/'))
+CCC_CQP_BIN = str(getenv('CQP_BIN', default='cqp'))
 CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
-CCC_CQP_BIN = getenv('CQP_BIN', default='cqp')
 
 # CACHE
-CCC_DATA_PATH = getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc-cache/')
+CCC_DATA_PATH = str(getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc-cache/'))
 ANYCACHE_PATH = str(getenv('ANYCACHE_PATH', '/tmp/mmda-anycache/'))
 
 # HOST AND PORT
@@ -34,7 +34,7 @@ APP_HOST = str(getenv('HOST', default='0.0.0.0'))
 APP_PORT = int(getenv('PORT', default='5000'))
 
 # TLS SETTINGS
-APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=''))
+APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=False))
 APP_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='/var/local/key.pem'))
 APP_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='/var/local/cert.pem'))
 
