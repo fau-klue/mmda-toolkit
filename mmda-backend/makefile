@@ -1,6 +1,5 @@
 # INSTALL
 install:
-	pip3 install -r requirements.txt
 	pipenv install --dev
 
 
@@ -22,6 +21,8 @@ database:
 
 # DEVELOPMENT SERVER
 run:
+	export CORPORA_SETTINGS='/home/ausgerechnet/corpora/cwb/mmda-corpora.py' &&\
+	export CWB_REGISTRY_PATH='/home/ausgerechnet/corpora/cwb/registry/' &&\
 	pipenv run flask --app backend --debug run
 
 
