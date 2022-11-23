@@ -8,6 +8,7 @@ from backend.ccc import (ccc_collocates, ccc_concordance,
 # CONCORDANCE #
 ###############
 @pytest.mark.concordance
+@pytest.mark.now
 def test_ccc_simple_concordance(app, test_corpus):
 
     conc = ccc_concordance(
@@ -66,7 +67,7 @@ def test_ccc_constellation_concordance_2(app, test_corpus):
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )
-    assert len(conc) == 1285
+    assert len(conc) == 1279
     assert 'cpos' in conc[0]
 
 
@@ -87,7 +88,7 @@ def test_ccc_constellation_concordance_3(app, test_corpus):
         s_show=test_corpus['parameters']['s_show'],
         cut_off=None
     )
-    assert len(conc) == 1285
+    assert len(conc) == 1279
     assert 'cpos' in conc[0]
 
 

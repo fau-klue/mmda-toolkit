@@ -416,7 +416,6 @@ def ccc_keywords(corpus, corpus_reference,
     return kw
 
 
-@anycache(CACHE_PATH)
 def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
                     lib_path, topic_discourseme, filter_discoursemes,
                     additional_discoursemes, s_context,
@@ -455,40 +454,33 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
     """
 
     # preprocess parameters
+    match_strategy = 'longest'
     s_query = s_context if s_query is None else s_query
     window = context if window_size is None else window_size
-    match_strategy = 'longest'
 
-    # create constellation
-    const = create_constellation(corpus_name,
-                                 # discoursemes
-                                 topic_discourseme,
-                                 filter_discoursemes,
-                                 additional_discoursemes,
-                                 # context settings
-                                 s_context,
-                                 context,
-                                 # query settings
-                                 p_query,
-                                 s_query,
-                                 flags_query,
-                                 escape_query,
-                                 match_strategy,
-                                 # CWB settings
-                                 lib_path,
-                                 cqp_bin,
-                                 registry_path,
-                                 data_path,
-                                 window=window_size,
-                                 approximate=True)
+    # preprocess queries
+    topic_query = format_cqp_query(topic_discourseme['topic'], p_query=p_query)
+    filter_queries = dict()
+    highlight_queries = {'topic': topic_query}
+    for name, items in filter_discoursemes.items():
+        filter_queries[name] = format_cqp_query(items, p_query=p_query)
+        highlight_queries[name] = format_cqp_query(items, p_query=p_query)
+    for name, items in additional_discoursemes.items():
+        highlight_queries[name] = format_cqp_query(items, p_query=p_query)
 
-    # retrieve lines
-    lines = const.concordance(window,
-                              p_show,
-                              s_show,
-                              order=order,
-                              cut_off=cut_off,
-                              random_seed=random_seed,
-                              htmlify_meta=True)
+    # quick lines
+    corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
+    lines = corpus.quick_conc(
+        topic_query=topic_query,
+        filter_queries=filter_queries,
+        highlight_queries=highlight_queries,
+        s_context=s_context,
+        window=window,
+        cut_off=cut_off,
+        order=random_seed,
+        p_show=p_show,
+        s_show=s_show,
+        match_strategy=match_strategy
+    )
 
     return lines
