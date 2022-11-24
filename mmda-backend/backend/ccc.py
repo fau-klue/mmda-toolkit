@@ -459,14 +459,20 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
     window = context if window_size is None else window_size
 
     # preprocess queries
-    topic_query = format_cqp_query(topic_discourseme['topic'], p_query=p_query)
+    highlight_queries = dict()
     filter_queries = dict()
-    highlight_queries = {'topic': topic_query}
     for name, items in filter_discoursemes.items():
         filter_queries[name] = format_cqp_query(items, p_query=p_query)
         highlight_queries[name] = format_cqp_query(items, p_query=p_query)
     for name, items in additional_discoursemes.items():
         highlight_queries[name] = format_cqp_query(items, p_query=p_query)
+
+    # topic query?
+    if len(topic_discourseme) == 0:
+        topic_query = ""
+    else:
+        topic_query = format_cqp_query(topic_discourseme['topic'], p_query=p_query)
+        highlight_queries['topic'] = topic_query
 
     # quick lines
     corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
