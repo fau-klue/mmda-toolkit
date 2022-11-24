@@ -57,9 +57,7 @@
 
             <td class="text-xs-left">
               <template v-for="(el,idx) in props.item.text">
-                <span :key="'t_'+idx" @click="selectItem(el)" :class="'concordance '+ el.role " :style="el.style" :title="el.lemma">
-                  {{el.text}}
-                </span>
+                <span :key="'t_'+idx" @click="selectItem(el)" :class="'concordance '+ el.role " :style="el.style" :title="el.lemma">{{el.text}}</span>&#32;
               </template>
             </td> 
           </template>
@@ -133,7 +131,7 @@ export default {
       function checkDiscoursemes(disc) {
         var a = true;
         for (var i = 0; i < required.length; ++i) {
-          var r = ["BOOL", required[i]].join("_");
+          var r = [required[i], "BOOL"].join("_");
           a = a & disc[r];
         }
         return a
