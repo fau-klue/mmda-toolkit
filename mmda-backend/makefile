@@ -54,16 +54,16 @@ docker:
 	mmda-backend
 
 docker_abacist:
-       docker run -ti \
-       -v /home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/:/opt/mmda/ \
-       -v /home/ausgerechnet/corpora/cwb/mmda-corpora.py:/opt/mmda-corpora.py:ro \
-       -v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
-       -v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
-       -v /home/ausgerechnet/corpora/embeddings/magnitude/:/home/ausgerechnet/corpora/embeddings/magnitude/:ro \
-       -e WORKERS=8 \
-       -p 5000:5000 \
-       --name mmda-backend \
-       mmda-backend
+	docker run -ti \
+	-v /home/ausgerechnet/implementation/mmda-toolkit/mmda-backend/instance/:/opt/mmda/ \
+	-v /home/ausgerechnet/corpora/cwb/mmda-corpora.py:/opt/mmda-corpora.py:ro \
+	-v /home/ausgerechnet/corpora/cwb/registry/:/opt/cwb/registry/:ro \
+	-v /home/ausgerechnet/corpora/cwb/data/:/home/ausgerechnet/corpora/cwb/data/:ro \
+	-v /home/ausgerechnet/corpora/embeddings/magnitude/:/home/ausgerechnet/corpora/embeddings/magnitude/:ro \
+	-e WORKERS=8 \
+	-p 5000:5000 \
+	--name mmda-backend \
+	 mmda-backend
 
 docker_obelix:
 	docker run \
