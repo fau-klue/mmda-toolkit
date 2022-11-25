@@ -80,3 +80,4 @@ COPY . /app
 # SET UP AND START THE SEVER
 #############################
 CMD /app/entrypoint.sh
+# CMD /bin/bash
