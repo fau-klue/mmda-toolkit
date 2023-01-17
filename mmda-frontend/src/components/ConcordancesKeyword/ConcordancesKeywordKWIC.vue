@@ -198,7 +198,7 @@ export default {
       return [
         { class:'kwic-id-head',text:'ID',value:'match_pos',align:'center'},
         { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
-        { class:'kwic-keyword-head',align:'center', text:'keyword', value:'keyword.text'},
+        { class:'kwic-keyword-head no-overflow',align:'center', text:'keyword', value:'keyword.text'},
         { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
       ];
     },
