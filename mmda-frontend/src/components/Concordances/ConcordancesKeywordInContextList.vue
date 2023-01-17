@@ -343,6 +343,7 @@ export default {
       downloadText("concordances.csv",this.csvFileText.replace(/"/g,"&quot;"));
     },
     update(){
+      this.pagination.page = 1
       //the required data (see setupIt) is available only after two ticks
       this.$nextTick(()=>this.$nextTick(()=>this.setupTableSize()));
     },
