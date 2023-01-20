@@ -56,6 +56,9 @@ export default {
       this._setAM(this.am_value);
     },
   },
+  beforeMount() {
+    this._setAM('Conservative LR');
+  },
   mounted () {
     this.am_value = this.AM;
     this.selectWindow = this.windowSize;
