@@ -4,10 +4,11 @@
 Keywords view
 """
 
-# logging
 from logging import getLogger
+from multiprocessing import Pool
 
 # requirements
+import click
 from flask import Blueprint, current_app, jsonify, request
 from numpy import nan
 from pandas import DataFrame, concat, notnull
@@ -759,3 +760,24 @@ def update_coordinates_keyword(username, keyword):
 
     log.debug('updated semantic space for keyword analysis %s', keyword)
     return jsonify({'msg': 'updated'}), 200
+
+
+def prepare_marginals(corpus_name, p_atts=['lemma']):
+
+    from ccc import Corpus
+    c = Corpus(corpus_name,
+               cqp_bin=current_app.config['CCC_CQP_BIN'],
+               registry_path=current_app.config['CCC_REGISTRY_PATH'],
+               data_path=current_app.config['CCC_DATA_PATH'])
+    c.marginals(p_atts=p_atts)
+    log.debug(f'prepared marginals for corpus "{corpus_name}" (attribute(s): {p_atts})')
+
+
+@keyword_blueprint.cli.command('marginals')
+@click.argument('nr_cpus', default=4)
+def prepare_all_marginals(nr_cpus):
+    """create cache of marginals for each corpus"""
+
+    corpus_names = [c['name_api'] for c in current_app.config['CORPORA'].values()]
+    with Pool(processes=nr_cpus) as pool:
+        pool.map(prepare_marginals, corpus_names)
