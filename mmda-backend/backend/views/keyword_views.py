@@ -8,13 +8,13 @@ from logging import getLogger
 from multiprocessing import Pool
 
 # requirements
-import click
+from ccc import Corpus
 from flask import Blueprint, current_app, jsonify, request
 from numpy import nan
 from pandas import DataFrame, concat, notnull
 
 # backend
-from backend import db, user_required
+from backend import db, user_required, admin_required
 from backend.ccc import ccc_concordance, ccc_corpus, ccc_keywords
 from backend.models.coordinates_models import Coordinates
 from backend.models.discourseme_models import Discourseme
@@ -764,7 +764,6 @@ def update_coordinates_keyword(username, keyword):
 
 def prepare_marginals(corpus_name, p_atts=['lemma']):
 
-    from ccc import Corpus
     c = Corpus(corpus_name,
                cqp_bin=current_app.config['CCC_CQP_BIN'],
                registry_path=current_app.config['CCC_REGISTRY_PATH'],
@@ -773,11 +772,12 @@ def prepare_marginals(corpus_name, p_atts=['lemma']):
     log.debug(f'prepared marginals for corpus "{corpus_name}" (attribute(s): {p_atts})')
 
 
-@keyword_blueprint.cli.command('marginals')
-@click.argument('nr_cpus', default=4)
+@keyword_blueprint.route('/api/keyword/marginals/<int:nr_cpus>', methods=['GET'])
+@admin_required
 def prepare_all_marginals(nr_cpus):
     """create cache of marginals for each corpus"""
 
     corpus_names = [c['name_api'] for c in current_app.config['CORPORA'].values()]
     with Pool(processes=nr_cpus) as pool:
         pool.map(prepare_marginals, corpus_names)
+    return jsonify({'msg': 'created'}), 200

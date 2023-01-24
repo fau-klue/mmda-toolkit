@@ -18,9 +18,6 @@ coverage:
 database:
 	pipenv run flask --app backend database init
 
-marginals:
-	pipenv run flask --app backend keyword marginals 4
-
 
 # DEVELOPMENT SERVER
 run:
