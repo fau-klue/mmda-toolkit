@@ -17,6 +17,11 @@
 
     curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" https://corpora.linguistik.uni-erlangen.de:5000/api/user/admin/discourseme/ -d '{"name": "TestTesterson", "items": ["COVID-19"]}'
 
+## cache marginals
+for keyword analyses, it is best to prepare marginal frequencies of all corpora beforehand (you need to be an admin to do this):
+
+    curl -v -H "Authorization: Bearer $TOKEN" -H "Content-type: application/json" https://corpora.linguistik.uni-erlangen.de:5000/api/keyword/cache-marginals
+
 
 # frontend
 
