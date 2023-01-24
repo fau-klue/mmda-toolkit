@@ -19,9 +19,7 @@ database:
 	pipenv run flask --app backend database init
 
 marginals:
-	export CORPORA_SETTINGS='/home/ausgerechnet/corpora/cwb/mmda-corpora.py' &&\
-	export CWB_REGISTRY_PATH='/home/ausgerechnet/corpora/cwb/registry/' &&\
-	pipenv run flask --app backend keyword marginals
+	pipenv run flask --app backend keyword marginals 4
 
 
 # DEVELOPMENT SERVER
