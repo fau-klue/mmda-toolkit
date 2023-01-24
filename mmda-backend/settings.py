@@ -38,13 +38,16 @@ APP_TLS_ENABLE = bool(getenv('TLS_ENABLE', default=False))
 APP_TLS_KEYFILE = str(getenv('TLS_KEYFILE', default='/var/local/key.pem'))
 APP_TLS_CERTFILE = str(getenv('TLS_CERTFILE', default='/var/local/cert.pem'))
 
+# NUMBER OF PROCESSES FOR MULTIPROCESSING (only used when caching marginals)
+APP_PROCESSES = int(getenv('PROCESSES', default=16))
+
 
 #################
 # FIXED SETTINGS
 #################
 APP_NAME = "MMDA Backend"
 
-# DO NOT use "DEBUG = True" in production environments
+# DO NOT USE "DEBUG = True" IN PRODUCTION ENVIRONMENTS
 DEBUG = False if APP_ENV == 'production' else True
 
 # JWT Settings (seconds)

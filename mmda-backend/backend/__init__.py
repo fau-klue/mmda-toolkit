@@ -66,8 +66,8 @@ def preflight_check_vectors_passed(app):
 
     for corpus_settings in app.config['CORPORA'].values():
         if not os.path.exists(corpus_settings['embeddings']):
-            print('INFO: Wordvectors {path} not available'.format(
-                path=corpus_settings['embeddings'])
+            app.logger.error(
+                'Wordvectors {path} not available'.format(path=corpus_settings['embeddings'])
             )
 
 
@@ -133,7 +133,6 @@ def create_app(extra_config_settings={}):
     app.config.update(extra_config_settings)
 
     # Load corpora settings
-    print('Loading Corpora: {PATH}'.format(PATH=app.config['CORPORA_SETTINGS']))
     app.config.from_pyfile(app.config['CORPORA_SETTINGS'])
 
     # Preflight: Check if wordvectors are available

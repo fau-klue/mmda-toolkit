@@ -103,7 +103,7 @@ def create_keyword(username):
     # TODO check attributes
 
     # PROCESS
-    log.debug('starting keyword analysis')
+    log.debug('starting keyword analysis (POST)')
     keywords = ccc_keywords(
         corpus=corpus,
         corpus_reference=corpus_reference,
@@ -116,6 +116,7 @@ def create_keyword(username):
         flags=flags,
         flags_reference=flags_reference
     )
+    log.debug('keywords retrieved (POST)')
 
     # get tokens for coordinate generation
     log.debug('generating semantic space')
@@ -502,7 +503,7 @@ def get_keywords_for_keyword(username, keyword):
         log.debug(msg)
         return jsonify({'msg': msg}), 404
 
-    log.debug('starting keyword analysis')
+    log.debug('starting keyword analysis (GET)')
     keywords = ccc_keywords(
         corpus=corpus,
         corpus_reference=corpus_reference,
@@ -519,6 +520,7 @@ def get_keywords_for_keyword(username, keyword):
         min_freq=min_freq,
         flags_show=flags_show
     )
+    log.debug('keywords retrieved (GET)')
 
     if keywords.empty:
         log.debug('no keywords available')
@@ -772,12 +774,15 @@ def prepare_marginals(corpus_name, p_atts=['lemma']):
     log.debug(f'prepared marginals for corpus "{corpus_name}" (attribute(s): {p_atts})')
 
 
-@keyword_blueprint.route('/api/keyword/marginals/<int:nr_cpus>', methods=['GET'])
+@keyword_blueprint.route('/api/keyword/cache-marginals', methods=['GET'])
 @admin_required
-def prepare_all_marginals(nr_cpus):
+def prepare_all_marginals():
     """create cache of marginals for each corpus"""
 
+    nr_cpus = current_app.config['APP_PROCESSES']
+    log.debug(f'caching marginals using {nr_cpus} threads')
     corpus_names = [c['name_api'] for c in current_app.config['CORPORA'].values()]
     with Pool(processes=nr_cpus) as pool:
         pool.map(prepare_marginals, corpus_names)
-    return jsonify({'msg': 'created'}), 200
+    nr = len(current_app.config['CORPORA'].values())
+    return jsonify({'msg': f'cached marginals for {nr} corpora'}), 200

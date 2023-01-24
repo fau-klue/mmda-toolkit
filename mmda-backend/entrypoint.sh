@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 
 ENVIRONMENT=${ENVIRONMENT:-'production'}
-WORKERS=${WORKERS:-8}
+WORKERS=${WORKERS:-16}
+TIMEOUT=${TIMEOUT:-3600}
 
 # initialise database (runs idempotently)
 echo "Creating Database"
@@ -12,5 +13,5 @@ echo "starting Application ($ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
     flask --app backend --debug run
 else
-    gunicorn -w $WORKERS --certfile=$TLS_CERTFILE --keyfile=$TLS_KEYFILE --timeout 600 --bind :5000 wsgi:app
+    gunicorn -w $WORKERS --certfile=$TLS_CERTFILE --keyfile=$TLS_KEYFILE --timeout $TIMEOUT --bind :5000 wsgi:app
 fi

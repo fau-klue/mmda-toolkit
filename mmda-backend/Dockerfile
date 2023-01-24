@@ -31,6 +31,13 @@ RUN apt-get update && \
     mg \
     git
 
+#####################
+# SYSTEM ENVIRONMENT
+#####################
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
+ENV PYTHONIOENCODING utf-8
+ENV DEBIAN_FRONTEND noninteractive
 
 #####################
 # INSTALL LATEST CWB
@@ -45,6 +52,7 @@ RUN sed -i 's/SITE=beta-install/SITE=standard/' config.mk && \
 ############################
 # SET UP PYTHON ENVIRONMENT
 ############################
+# application is copied later so that all previous layers and python environment can be cached
 WORKDIR /app
 
 RUN python3 -m pip install --upgrade pip && \
@@ -55,29 +63,21 @@ COPY Pipfile Pipfile.lock /app/
 RUN pipenv install --dev --system --ignore-pipfile --deploy
 
 
-########################
-# ENVIRONMENT VARIABLES
-########################
-
-ENV LANG C.UTF-8
-ENV LC_ALL C.UTF-8
-ENV PYTHONIOENCODING utf-8
-ENV DEBIAN_FRONTEND noninteractive
-
-ENV CORPORA_SETTINGS /opt/mmda-corpora.py
-ENV CWB_REGISTRY_PATH /opt/cwb/registry/
-ENV SQL_DATABASE_URI sqlite:////opt/mmda/mmda.sqlite
-
-
 ###########
 # COPY APP
 ###########
-# We copy the application here, so that the previous layers can be cached
 COPY . /app
 
 
 #############################
 # SET UP AND START THE SEVER
 #############################
+ENV CORPORA_SETTINGS /opt/mmda-corpora.py
+ENV CWB_REGISTRY_PATH /opt/cwb/registry/
+ENV SQL_DATABASE_URI sqlite:////opt/mmda/mmda.sqlite
+
+ENV WORKERS 16
+ENV TIMEOUT 3600
+
 CMD /app/entrypoint.sh
 # CMD /bin/bash
