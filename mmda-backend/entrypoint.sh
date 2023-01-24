@@ -5,11 +5,11 @@ WORKERS=${WORKERS:-16}
 TIMEOUT=${TIMEOUT:-3600}
 
 # initialise database (runs idempotently)
-echo "Creating Database"
+echo "creating database"
 flask --app backend database init
 
 # start server
-echo "starting Application ($ENVIRONMENT)"
+echo "starting application (environment: $ENVIRONMENT)"
 if [ "$ENVIRONMENT" = 'development' ]; then
     flask --app backend --debug run
 else

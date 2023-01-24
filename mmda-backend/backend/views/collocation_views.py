@@ -386,7 +386,7 @@ def get_discoursemes_for_collocation(username, collocation):
         discourseme.serialize for discourseme in collocation.discoursemes
     ]
     if not collocation_discoursemes:
-        log.debug('no disoursemes associated')
+        log.info('no discoursemes associated')
         return jsonify([]), 200
 
     return jsonify(collocation_discoursemes), 200

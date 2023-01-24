@@ -37,12 +37,12 @@ def create_discourseme(username):
     user = User.query.filter_by(username=username).first()
 
     # Add Discourseme to DB
-    log.debug('Creating discourseme with %s', items)
+    log.info('Creating discourseme with %s', items)
     discourseme = Discourseme(name=name, description=description, items=items, user_id=user.id)
     db.session.add(discourseme)
     db.session.commit()
 
-    log.debug('Discourseme created %s', discourseme.id)
+    log.info('Discourseme created %s', discourseme.id)
     return jsonify({'msg': discourseme.id}), 201
 
 
@@ -59,7 +59,7 @@ def get_discoursemes(username):
 
     discoursemes = Discourseme.query.filter_by(user_id=user.id).all()
     discoursemes_list = [discourseme.serialize for discourseme in discoursemes]
-    log.debug('%d discoursemes retrieved', len(discoursemes))
+    log.info('%d discoursemes retrieved', len(discoursemes))
 
     return jsonify(discoursemes_list), 200
 
@@ -111,7 +111,7 @@ def update_discourseme(username, discourseme):
     discourseme.items = items
     db.session.commit()
 
-    log.debug('Updated discourseme %s', discourseme)
+    log.info('Updated discourseme %s', discourseme)
     return jsonify({'msg': discourseme.id}), 200
 
 
@@ -141,5 +141,5 @@ def delete_discourseme(username, discourseme):
     db.session.delete(discourseme)
     db.session.commit()
 
-    log.debug('Deleted discourseme %s', discourseme)
+    log.info('Deleted discourseme %s', discourseme)
     return jsonify({'msg': 'Deleted'}), 200

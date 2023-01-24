@@ -295,7 +295,7 @@ def get_discoursemes_for_keyword(username, keyword):
         discourseme.serialize for discourseme in keyword.discoursemes
     ]
     if not keyword_discoursemes:
-        log.debug('no disoursemes associated')
+        log.info('no discoursemes associated')
         return jsonify([]), 200
 
     return jsonify(keyword_discoursemes), 200
