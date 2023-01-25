@@ -24,7 +24,7 @@ umap-learn = "==0.5.3"
 anycache = "==2.0.7"
 gevent = "==22.8.0"
 gunicorn = "==20.1.0"
-cwb-ccc = "==0.11.2"
+cwb-ccc = "==0.11.3"
 # cwb-ccc = {path = "./../../cwb-ccc", editable=true}
 
 [requires]
