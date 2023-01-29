@@ -209,7 +209,7 @@ const actions = {
   getConstellationConcordances ({commit}, data) {
     // Get Constellations discoursemes
     // In order to avoid displaying stale data, we clear the current constellation concordances before fetching new ones
-    commit('setConstellationConcordances', null)
+    commit('setConstellationConcordances', [])
     commit('setIsLoadingConcordances', true)
 
     return new Promise((resolve, reject) => {
