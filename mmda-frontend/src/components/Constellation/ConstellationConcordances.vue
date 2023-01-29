@@ -40,7 +40,10 @@
           </v-form>
         </v-container>
 
-        <v-data-table v-if="filteredConcordances" :headers="concordanceHeaders" :items="filteredConcordances" :pagination.sync="concordancePagination" class="elevation-1">
+        <v-container v-if="isLoadingConcordances" class="text-lg-center">
+          <v-progress-circular indeterminate color="primary" class="align-self-center mx-auto" size="42"></v-progress-circular>
+        </v-container>
+        <v-data-table v-if="!isLoadingConcordances" :headers="concordanceHeaders" :items="filteredConcordances" :pagination.sync="concordancePagination" class="elevation-1">
           <template v-slot:items="props">
 
             <td class="text-xs-center">
@@ -59,14 +62,14 @@
               <template v-for="(el,idx) in props.item.text">
                 <span :key="'t_'+idx" @click="selectItem(el)" :class="'concordance '+ el.role " :style="el.style" :title="el.lemma">{{el.text}}</span>&#32;
               </template>
-            </td> 
+            </td>
           </template>
         </v-data-table>
 
       </v-tab-item>
     </v-tabs>
   </v-container>
- 
+
 </div>
 </template>
 
@@ -99,7 +102,7 @@ export default {
       {text: 'log likelihood', align: 'center', value: 'log_likelihood'},
       {text: 'Dice', align: 'center', value: 'dice'},
       {text: 'log ratio', align: 'center', value: 'log_ratio'},
-      {text: 'MI', align: 'center', value: 'mutual_information'},     
+      {text: 'MI', align: 'center', value: 'mutual_information'},
       {text: 'z-score', align: 'left', value: 'z_score'},
       {text: 't-score', align: 'left', value: 't_score'},
       {text: 'f', align: 'center', value: 'f'},
@@ -118,7 +121,13 @@ export default {
       concordances: 'constellation/concordances',
       associations: 'constellation/associations',
       discoursemes: 'constellation/discoursemes',
+      isLoadingConcordances: 'constellation/isLoadingConcordances',
     })
+  },
+  watch: {
+    concordances: function () {
+      this.filterConcordances()
+    }
   },
   methods: {
     ...mapActions({
@@ -144,7 +153,7 @@ export default {
       if(!this.filteredConcordances) return C;
       for(var ci of Object.keys(this.filteredConcordances)){
         var c = this.filteredConcordances[ci]
-        var r = { 
+        var r = {
           match_pos: ci,
           text: []
         };
