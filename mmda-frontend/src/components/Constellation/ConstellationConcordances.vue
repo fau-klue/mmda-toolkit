@@ -145,7 +145,8 @@ export default {
         }
         return a
       }
-      this.filteredConcordances = this.concordances.filter(checkDiscoursemes)
+      // account for this.concordances being null
+      this.filteredConcordances = this.concordances ? this.concordances.filter(checkDiscoursemes) : []
       this.filteredConcordances = this.formatConcordances()
     },
     formatConcordances () {
