@@ -9,12 +9,14 @@ const state = {
   userConstellations: null,
   // One single constellation
   constellation: null,
+  // State of loading constellation concordances
+  isLoadingConcordances: false,
   // Constellation Concordances
   concordances: [],
   // Constellation Discoursemes
   discoursemes: [],
   // Constellation Associations
-  associations: []
+  associations: [],
 }
 
 const getters = {
@@ -32,7 +34,10 @@ const getters = {
   },
   associations (state) {
     return state.associations
-  }
+  },
+  isLoadingConcordances (state) {
+    return state.isLoadingConcordances
+  },
 }
 
 const actions = {
@@ -203,6 +208,10 @@ const actions = {
   },
   getConstellationConcordances ({commit}, data) {
     // Get Constellations discoursemes
+    // In order to avoid displaying stale data, we clear the current constellation concordances before fetching new ones
+    commit('setConstellationConcordances', [])
+    commit('setIsLoadingConcordances', true)
+
     return new Promise((resolve, reject) => {
 
       if (!data.username) return reject('No user provided')
@@ -220,6 +229,7 @@ const actions = {
       }
       api.get(`/user/${data.username}/constellation/${data.constellation_id}/concordance/`, request).then(function (response) {
         commit('setConstellationConcordances', response.data)
+        commit('setIsLoadingConcordances', false)
         resolve()
       }).catch(function (error) {
         reject(error)
@@ -240,6 +250,9 @@ const mutations = {
   setConstellationConcordances (state, concordances) {
     // List of Concordances: [{corpusName: concordances}]
     state.concordances = concordances
+  },
+  setIsLoadingConcordances (state, isLoading) {
+    state.isLoadingConcordances = isLoading
   },
   setConstellationSingle (state, constellation) {
     // One Constellation
