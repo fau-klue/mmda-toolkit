@@ -36,7 +36,7 @@ sudo systemctl start mmda-backend.service
 
 ## Frontend
 
-The backend is a static build:
+The frontend is a static build:
 
     cd mmda-frontend
     yarn run build || npm run build
