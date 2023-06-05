@@ -259,12 +259,7 @@ export default {
               }
           }
         }
-        r.head_text_last = (r
-            .head
-            // filter out elements that are not within the window
-            .filter(({ role }) => role === '')
-            .at(-1) || { text: '' })
-            .text.trim()
+        r.head_text_last = (r.head.at(-1) || { text: '' }).text.trim()
         C.push(r);
       }
       return C;
