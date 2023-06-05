@@ -218,7 +218,7 @@ export default {
     headers () {
       return [
         { class:'kwic-id-head',text:'ID',value:'match_pos',align:'center'},
-        { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'reverse_head_text'},
+        { class:'kwic-context text-xs-right', align:"right", text:'... context', value:'head_text_last'},
         { class:'kwic-keyword-head no-overflow',align:'center', text:'keyword', value:'keyword.text'},
         { class:'kwic-context text-xs-left',align:'left', text:'context ...', value:'tail_text'},
         // ...this.useSentiment?[{text:"sentiment",value:'sentiment'}]:[]
@@ -241,7 +241,7 @@ export default {
           meta: [],
           // sentiment: 0,
           // these are for sorting context -purposes
-          reverse_head_text: '',
+          head_text_last: '',
           head_text: '',
           tail_text: ''
         };
@@ -295,10 +295,15 @@ export default {
             }
           }
         }
-
-        r.reverse_head_text = r.head_text.split("").reverse().join("");
+        r.head_text_last = (r
+          .head
+          // filter out elements that are not within the window
+          .filter(({ role }) => role === '')
+          .at(-1) || { text: '' })
+          .text.trim()
         C.push(r);
       }
+
       return C;
     },
     csvFileText(){
