@@ -16,11 +16,13 @@ coverage:
 
 # DATABASE
 database:
+	export SQL_DATABASE_URI='sqlite:///mmda-test.sqlite' &&\
 	pipenv run flask --app backend database init
 
 
 # DEVELOPMENT SERVER
 run:
+	export SQL_DATABASE_URI='sqlite:///mmda-test.sqlite' &&\
 	pipenv run flask --app backend --debug run
 
 run_abacist:
