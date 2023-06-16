@@ -3,7 +3,6 @@ all:
 	code .
 	firefox localhost:8080 &
 install:
-	npm install yarn
 	yarn install || npm install
 lint:
 	yarn run lint || npm run lint
