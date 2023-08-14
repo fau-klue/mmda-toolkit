@@ -152,12 +152,12 @@ def create_collocation(username):
     breakdown, collocates = ccc_collocates(
         corpus_name=corpus_name,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_items=items,
         s_context=s_break,
-        windows=range(1, context + 1),
+        windows=[context],
         context=context,
         p_query=p_query,
         flags_query=flags_query,
@@ -608,9 +608,9 @@ def get_collocate_for_collocation(username, collocation):
     breakdown, collocates = ccc_collocates(
         corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_items=collocation.items,
         s_context=collocation.s_break,
         windows=[window_size],
@@ -729,8 +729,8 @@ def get_concordance_for_collocation(username, collocation):
     # ... where's the meta data?
     corpus = ccc_corpus(collocation.corpus,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
+                        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+                        data_dir=current_app.config['CCC_DATA_DIR'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     s_show = corpus['s-annotations']
 
@@ -764,9 +764,9 @@ def get_concordance_for_collocation(username, collocation):
     concordance = ccc_concordance(
         corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_discourseme={'topic': collocation.items},
         filter_discoursemes=filter_discoursemes,
         additional_discoursemes=additional_discoursemes,
@@ -831,9 +831,9 @@ def get_breakdown_for_collocation(username, collocation):
     breakdown = ccc_breakdown(
         corpus_name=collocation.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_items=collocation.items,
         p_query=collocation.p_query,
         p_show=[collocation.p_collocation],
@@ -888,8 +888,8 @@ def get_meta_for_collocation(username, collocation):
     # ... where's the meta data?
     # corpus = ccc_corpus(collocation.corpus,
     #                     cqp_bin=current_app.config['CCC_CQP_BIN'],
-    #                     registry_path=current_app.config['CCC_REGISTRY_PATH'],
-    #                     data_path=current_app.config['CCC_DATA_PATH'])
+    #                     registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+    #                     data_dir=current_app.config['CCC_DATA_DIR'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     # s_show = corpus['s-annotations']
 
@@ -897,9 +897,9 @@ def get_meta_for_collocation(username, collocation):
     # meta = ccc_meta(
     #     corpus_name=collocation.corpus,
     #     cqp_bin=current_app.config['CCC_CQP_BIN'],
-    #     registry_path=current_app.config['CCC_REGISTRY_PATH'],
-    #     data_path=current_app.config['CCC_DATA_PATH'],
-    #     lib_path=current_app.config['CCC_LIB_PATH'],
+    #     registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+    #     data_dir=current_app.config['CCC_DATA_DIR'],
+    #     lib_dir=current_app.config['CCC_LIB_DIR'],
     #     topic_items=collocation.items,
     #     p_query=collocation.p_query,
     #     s_query=collocation.s_break,

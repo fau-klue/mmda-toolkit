@@ -108,9 +108,9 @@ def create_keyword(username):
         corpus=corpus,
         corpus_reference=corpus_reference,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         p=p,
         p_reference=p_reference,
         flags=flags,
@@ -508,9 +508,9 @@ def get_keywords_for_keyword(username, keyword):
         corpus=corpus,
         corpus_reference=corpus_reference,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         p=p,
         p_reference=p_reference,
         flags=keyword.flags,
@@ -609,8 +609,8 @@ def get_concordance_for_keyword(username, keyword):
     # ... where's the meta data?
     corpus = ccc_corpus(keyword.corpus,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
+                        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+                        data_dir=current_app.config['CCC_DATA_DIR'])
     # s_show = [i for i in request.args.getlist('s_meta', None)]
     s_show = corpus['s-annotations']
 
@@ -628,9 +628,9 @@ def get_concordance_for_keyword(username, keyword):
     concordance = ccc_concordance(
         corpus_name=keyword.corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_discourseme=topic_discourseme,
         filter_discoursemes=filter_discoursemes,
         additional_discoursemes=additional_discoursemes,
@@ -768,8 +768,8 @@ def prepare_marginals(corpus_name, p_atts=['lemma']):
 
     c = Corpus(corpus_name,
                cqp_bin=current_app.config['CCC_CQP_BIN'],
-               registry_path=current_app.config['CCC_REGISTRY_PATH'],
-               data_path=current_app.config['CCC_DATA_PATH'])
+               registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+               data_dir=current_app.config['CCC_DATA_DIR'])
     c.marginals(p_atts=p_atts)
     log.debug(f'prepared marginals for corpus "{corpus_name}" (attribute(s): {p_atts})')
 

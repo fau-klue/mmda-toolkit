@@ -285,8 +285,8 @@ def get_constellation_concordance(username, constellation):
 
     corpus = ccc_corpus(corpus_name,
                         cqp_bin=current_app.config['CCC_CQP_BIN'],
-                        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                        data_path=current_app.config['CCC_DATA_PATH'])
+                        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+                        data_dir=current_app.config['CCC_DATA_DIR'])
     s_show = corpus['s-annotations']
 
     # get constellation discoursemes as dict
@@ -302,9 +302,9 @@ def get_constellation_concordance(username, constellation):
     concordance = ccc_concordance(
         corpus_name=corpus_name,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         topic_discourseme={},
         filter_discoursemes={},
         additional_discoursemes=discoursemes,
@@ -366,9 +366,9 @@ def get_constellation_associations(username, constellation):
     assoc = ccc_constellation_association(
         corpus_name=corpus,
         cqp_bin=current_app.config['CCC_CQP_BIN'],
-        registry_path=current_app.config['CCC_REGISTRY_PATH'],
-        data_path=current_app.config['CCC_DATA_PATH'],
-        lib_path=current_app.config['CCC_LIB_PATH'],
+        registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+        data_dir=current_app.config['CCC_DATA_DIR'],
+        lib_dir=current_app.config['CCC_LIB_DIR'],
         discoursemes=discoursemes,
         p_query=p_query,
         s_query=s_break,

@@ -31,8 +31,8 @@ def get_corpora():
         try:
             crps = ccc_corpus(corpus_name=corpus['name_api'],
                               cqp_bin=current_app.config['CCC_CQP_BIN'],
-                              registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                              data_path=current_app.config['CCC_DATA_PATH'])
+                              registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+                              data_dir=current_app.config['CCC_DATA_DIR'])
         except KeyError:
             return {'msg': 'corpus not available via CWB '}, 404
         corpus['pQueries'] = crps['p-atts']
@@ -62,8 +62,8 @@ def get_corpus(corpus):
     try:
         crps = ccc_corpus(corpus_name=corpus['name_api'],
                           cqp_bin=current_app.config['CCC_CQP_BIN'],
-                          registry_path=current_app.config['CCC_REGISTRY_PATH'],
-                          data_path=current_app.config['CCC_DATA_PATH'])
+                          registry_dir=current_app.config['CCC_REGISTRY_DIR'],
+                          data_dir=current_app.config['CCC_DATA_DIR'])
     except KeyError:
         return {'msg': 'corpus not available via CWB '}, 404
 

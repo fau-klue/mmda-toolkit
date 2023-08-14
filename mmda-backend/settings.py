@@ -21,13 +21,13 @@ SQLALCHEMY_DATABASE_URI = str(getenv('SQL_DATABASE_URI', default='sqlite:///mmda
 CORPORA_SETTINGS = str(getenv('CORPORA_SETTINGS', default='../tests/corpora/corpora.py'))
 
 # CWB-CCC
-CCC_REGISTRY_PATH = str(getenv('CWB_REGISTRY_PATH', default='tests/corpora/registry/'))
+CCC_REGISTRY_DIR = str(getenv('CORPUS_REGISTRY', default='tests/corpora/registry/'))
 CCC_CQP_BIN = str(getenv('CQP_BIN', default='cqp'))
-CCC_LIB_PATH = getenv('CCC_LIB_PATH', None)
+CCC_LIB_DIR = getenv('CCC_LIB_DIR', None)
 
 # CACHE
-CCC_DATA_PATH = str(getenv('CCC_DATA_PATH', default='/tmp/mmda-ccc-cache/'))
-ANYCACHE_PATH = str(getenv('ANYCACHE_PATH', '/tmp/mmda-anycache/'))
+CCC_DATA_DIR = str(getenv('CCC_DATA_DIR', default='/tmp/mmda-ccc-cache/'))
+ANYCACHE_DIR = str(getenv('ANYCACHE_DIR', '/tmp/mmda-anycache/'))
 
 # HOST AND PORT
 APP_HOST = str(getenv('HOST', default='0.0.0.0'))
