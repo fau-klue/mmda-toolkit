@@ -17,7 +17,7 @@ from ccc.discoursemes import create_constellation
 from ccc.keywords import keywords
 from ccc.utils import format_cqp_query
 
-from settings import ANYCACHE_PATH as CACHE_PATH
+from settings import ANYCACHE_DIR as CACHE_PATH
 
 log = getLogger('mmda-logger')
 
@@ -79,24 +79,24 @@ def sort_s(s_atts, order=['tweet', 's', 'p', 'text']):
 #################
 # CCC INTERFACE #
 #################
-def ccc_corpora(cqp_bin, registry_path):
+def ccc_corpora(cqp_bin, registry_dir):
     """get available corpora
 
     :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
+    :param str registry_dir: path to CWB registry
 
     """
-    corpora = Corpora(cqp_bin, registry_path).show()
+    corpora = Corpora(cqp_bin, registry_dir).show()
     return corpora
 
 
-def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
+def ccc_corpus(corpus_name, cqp_bin, registry_dir, data_dir):
     """get available corpus attributes
 
     :param str corpus_name: name of corpus in CWB registry
     :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
+    :param str registry_dir: path to CWB registry
+    :param str data_dir: path to data directory
 
     :return: available corpus attributes
     :rtype: dict
@@ -104,9 +104,9 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
     """
     corpus = Corpus(corpus_name,
                     cqp_bin=cqp_bin,
-                    registry_path=registry_path,
-                    data_path=data_path)
-    attributes = corpus.attributes_available
+                    registry_dir=registry_dir,
+                    data_dir=data_dir)
+    attributes = corpus.available_attributes()
     p_atts = list(attributes.loc[attributes['type'] == 'p-Att']['attribute'].values)
     s_atts = attributes[attributes['type'] == 's-Att']
     s_annotations = list(s_atts[s_atts['annotation']]['attribute'].values)
@@ -122,8 +122,8 @@ def ccc_corpus(corpus_name, cqp_bin, registry_path, data_path):
 
 
 @anycache(CACHE_PATH)
-def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
-                   lib_path, topic_items, s_context, windows,
+def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
+                   lib_dir, topic_items, s_context, windows,
                    context=20, filter_discoursemes={},
                    additional_discoursemes={}, p_query='lemma',
                    flags_query='%c', s_query=None, p_show=['lemma'],
@@ -134,9 +134,9 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     :param str corpus_name: name of corpus in CWB registry
     :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
-    :param str lib_path: path to library (with macros and wordlists)
+    :param str registry_dir: path to CWB registry
+    :param str data_dir: path to data directory
+    :param str lib_dir: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
     :param str s_context: s-att to use for delimiting contexts
@@ -173,26 +173,27 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     # create constellation
     try:
-        const = create_constellation(corpus_name,
+        const = create_constellation(corpus_name=corpus_name,
                                      # discoursemes
-                                     topic_discourseme,
-                                     filter_discoursemes,
-                                     additional_discoursemes,
+                                     topic_discourseme=topic_discourseme,
+                                     filter_discoursemes=filter_discoursemes,
+                                     additional_discoursemes=additional_discoursemes,
                                      # context settings
-                                     s_context,
-                                     context,
-                                     # query settings
-                                     p_query,
-                                     s_query,
-                                     flags_query,
-                                     escape,
-                                     match_strategy,
+                                     s_context=s_context,
+                                     context=context,
+                                     window=None,
+                                     approximate=True,
                                      # CWB settings
-                                     lib_path,
-                                     cqp_bin,
-                                     registry_path,
-                                     data_path,
-                                     approximate=True)
+                                     match_strategy=match_strategy,
+                                     cqp_bin=cqp_bin,
+                                     registry_dir=registry_dir,
+                                     data_dir=data_dir,
+                                     # query creation
+                                     querify=True,
+                                     p_query=p_query,
+                                     s_query=s_query,
+                                     flags=flags_query,
+                                     escape=escape)
     except KeyError:            # no matches
         return None  # , None
 
@@ -203,9 +204,12 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
     collocates = const.collocates(
         windows=windows,
-        p_show=p_show, flags=flags_show,
-        ams=ams, frequencies=frequencies, min_freq=min_freq,
-        order=order, cut_off=cut_off
+        p_show=p_show,
+        flags=flags_show,
+        ams=ams,
+        min_freq=min_freq,
+        order=order,
+        cut_off=cut_off
     )
 
     for window in collocates.keys():
@@ -215,15 +219,15 @@ def ccc_collocates(corpus_name, cqp_bin, registry_path, data_path,
 
 
 @anycache(CACHE_PATH)
-def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
+def ccc_breakdown(corpus_name, cqp_bin, registry_dir, data_dir, lib_dir,
                   topic_items, p_query='lemma', s_query=None, p_show=['lemma'],
                   flags_query='%c', escape=True, flags_show='%c'):
     """get breakdown of topic.
     :param str corpus_name: name of corpus in CWB registry
-    :param str lib_path:
+    :param str lib_dir:
     :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
+    :param str registry_dir:
+    :param str data_dir:
 
     :param list topic_items: list of lexical items
     :param str p_query: p-att layer to query
@@ -239,7 +243,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     """
 
     # init corpus
-    corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
+    corpus = Corpus(corpus_name, lib_dir, cqp_bin, registry_dir, data_dir)
 
     # init discourseme constellation
     topic_query = format_cqp_query(topic_items,
@@ -260,7 +264,7 @@ def ccc_breakdown(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 
 
 @anycache(CACHE_PATH)
-def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
+def ccc_meta(corpus_name, cqp_bin, registry_dir, data_dir, lib_dir,
              topic_items, p_query='lemma', s_query=None,
              flags_query='%c', s_show=['text_id'], order='first',
              cut_off=None, escape=True):
@@ -268,9 +272,9 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 
     :param str corpus_name: name of corpus in CWB registry
     :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
-    :param str lib_path: path to library (with macros and wordlists)
+    :param str registry_dir: path to CWB registry
+    :param str data_dir: path to data directory
+    :param str lib_dir: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
     :param str p_query: p-att layer to query
@@ -287,7 +291,7 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
     """
 
     # init corpus
-    corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
+    corpus = Corpus(corpus_name, lib_dir, cqp_bin, registry_dir, data_dir)
 
     # init discourseme constellation
     topic_query = format_cqp_query(topic_items,
@@ -328,8 +332,8 @@ def ccc_meta(corpus_name, cqp_bin, registry_path, data_path, lib_path,
 
 
 @anycache(CACHE_PATH)
-def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
-                                  data_path, lib_path, discoursemes,
+def ccc_constellation_association(corpus_name, cqp_bin, registry_dir,
+                                  data_dir, lib_dir, discoursemes,
                                   p_query='lemma', s_query=None,
                                   flags_query='%c',
                                   escape_query=True, s_context=None,
@@ -338,9 +342,9 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
 
     :param str corpus_name: name corpus in CWB registry
     :param str cqp_bin:
-    :param str registry_path:
-    :param str data_path:
-    :param str lib_path:
+    :param str registry_dir:
+    :param str data_dir:
+    :param str lib_dir:
 
     :param dict discoursemes: {name: items}
     :param str p_query: p-att layer to query
@@ -361,26 +365,27 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
     match_strategy = 'longest'
 
     # create constellation
-    const = create_constellation(corpus_name,
+    const = create_constellation(corpus_name=corpus_name,
                                  # discoursemes
-                                 {},
-                                 discoursemes,
-                                 {},
+                                 topic_discourseme={},
+                                 filter_discoursemes=discoursemes,
+                                 additional_discoursemes={},
                                  # context settings
-                                 s_context,
-                                 context,
-                                 # query settings
-                                 p_query,
-                                 s_query,
-                                 flags_query,
-                                 escape_query,
-                                 match_strategy,
+                                 s_context=s_context,
+                                 context=context,
+                                 window=None,
+                                 approximate=True,
                                  # CWB settings
-                                 lib_path,
-                                 cqp_bin,
-                                 registry_path,
-                                 data_path,
-                                 approximate=True)
+                                 match_strategy=match_strategy,
+                                 cqp_bin=cqp_bin,
+                                 registry_dir=registry_dir,
+                                 data_dir=data_dir,
+                                 # query creation
+                                 querify=True,
+                                 p_query=p_query,
+                                 s_query=s_query,
+                                 flags=flags_query,
+                                 escape=escape_query)
 
     tables = const.associations()
 
@@ -392,14 +397,14 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_path,
 
 @anycache(CACHE_PATH)
 def ccc_keywords(corpus, corpus_reference,
-                 cqp_bin, registry_path, data_path, lib_path,
+                 cqp_bin, registry_dir, data_dir, lib_dir,
                  p=['lemma'], p_reference=['lemma'],
                  flags=None, flags_reference=None,
                  ams=None, cut_off=500, min_freq=2, order='log_likelihood',
                  flags_show="%c", additional_discoursemes={}):
 
-    corpus = Corpus(corpus, lib_path, cqp_bin, registry_path, data_path)
-    corpus_reference = Corpus(corpus_reference, lib_path, cqp_bin, registry_path, data_path)
+    corpus = Corpus(corpus, lib_dir, cqp_bin, registry_dir, data_dir)
+    corpus_reference = Corpus(corpus_reference, lib_dir, cqp_bin, registry_dir, data_dir)
 
     kw = keywords(corpus,
                   corpus_reference,
@@ -416,8 +421,9 @@ def ccc_keywords(corpus, corpus_reference,
     return kw
 
 
-def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
-                    lib_path, topic_discourseme, filter_discoursemes,
+@anycache(CACHE_PATH)
+def ccc_concordance(corpus_name, cqp_bin, registry_dir, data_dir,
+                    lib_dir, topic_discourseme, filter_discoursemes,
                     additional_discoursemes, s_context,
                     window_size, context=20, p_query='lemma',
                     p_show=['word', 'lemma'], s_show=['text_id'],
@@ -427,9 +433,9 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
 
     :param str corpus_name: name of corpus in CWB registry
     :param str cqp_bin: path to CQP binary
-    :param str registry_path: path to CWB registry
-    :param str data_path: path to data directory
-    :param str lib_path: path to library (with macros and wordlists)
+    :param str registry_dir: path to CWB registry
+    :param str data_dir: path to data directory
+    :param str lib_dir: path to library (with macros and wordlists)
 
     :param list topic_items: list of lexical items
     :param str topic_name: name of the topic ('node') discourseme
@@ -475,7 +481,7 @@ def ccc_concordance(corpus_name, cqp_bin, registry_path, data_path,
         highlight_queries['topic'] = topic_query
 
     # quick lines
-    corpus = Corpus(corpus_name, lib_path, cqp_bin, registry_path, data_path)
+    corpus = Corpus(corpus_name, lib_dir, cqp_bin, registry_dir, data_dir)
     lines = corpus.quick_conc(
         topic_query=topic_query,
         filter_queries=filter_queries,
