@@ -25,9 +25,9 @@ run:
 	export SQL_DATABASE_URI='sqlite:///mmda-test.sqlite' &&\
 	pipenv run flask --app backend --debug run
 
-run_abacist:
+run_algorist:
+	export CORPUS_REGISTRY='/home/ausgerechnet/corpora/cwb/registry/' &&\
 	export CORPORA_SETTINGS='/home/ausgerechnet/corpora/cwb/mmda-corpora.py' &&\
-	export CWB_REGISTRY_PATH='/home/ausgerechnet/corpora/cwb/registry/' &&\
 	pipenv run flask --app backend --debug run
 
 
@@ -48,8 +48,8 @@ docker_build:
 docker:
 	docker run -ti \
 	-e WORKERS=8 \
+	-e CORPUS_REGISTRY=/app/tests/corpora/registry/ \
 	-e CORPORA_SETTINGS=/app/tests/corpora/corpora.py \
-	-e CWB_REGISTRY_PATH=/app/tests/corpora/registry/ \
 	-e SQL_DATABASE_URI=sqlite:////opt/mmda.sqlite \
 	-p 5000:5000 \
 	--name mmda-backend \
