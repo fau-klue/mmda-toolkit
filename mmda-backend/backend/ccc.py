@@ -406,16 +406,15 @@ def ccc_keywords(corpus, corpus_reference,
     corpus = Corpus(corpus, lib_dir, cqp_bin, registry_dir, data_dir)
     corpus_reference = Corpus(corpus_reference, lib_dir, cqp_bin, registry_dir, data_dir)
 
-    kw = keywords(corpus,
-                  corpus_reference,
-                  p,
-                  p_reference,
-                  order,
-                  cut_off,
-                  ams,
-                  min_freq,
-                  True,
-                  flags)
+    kw = keywords(corpus=corpus,
+                  corpus_reference=corpus_reference,
+                  p=p,
+                  p_reference=p_reference,
+                  order=order,
+                  cut_off=cut_off,
+                  ams=ams,
+                  min_freq=min_freq,
+                  flags=flags)
     kw = format_ams(kw)
 
     return kw
