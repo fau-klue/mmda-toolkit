@@ -31,11 +31,11 @@ run_algorist:
 
 # PRODUCTION SERVER
 run_obelix:
-        export SQL_DATABASE_URI='sqlite:////data/Philipp/mmda/mmda.sqlite' && \
-        export CORPORA_SETTINGS='/data/Philipp/mmda/mmda-corpora.py' && \
-        export CWB_REGISTRY_PATH='/data/corpora/cqpweb/registry/' &&\
-        export ENVIRONMENT='production' &&\
-        pipenv run gunicorn -w 16 --certfile=fullchain13.pem --keyfile=privkey13.pem --timeout 3600 --bind :5051 wsgi:app
+	export SQL_DATABASE_URI='sqlite:////data/Philipp/mmda/mmda.sqlite' && \
+	export CORPORA_SETTINGS='/data/Philipp/mmda/mmda-corpora.py' && \
+	export CORPUS_REGISTRY='/data/corpora/cqpweb/registry/' &&\
+	export ENVIRONMENT='production' &&\
+	pipenv run gunicorn -w 16 --certfile=/etc/letsencrypt/live/corpora.linguistik.uni-erlangen.de/fullchain.pem --keyfile=/etc/letsencrypt/live/corpora.linguistik.uni-erlangen.de/privkey.pem --timeout 3600 --bind :5051 wsgi:app
 
 
 # DOCKER
