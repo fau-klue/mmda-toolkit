@@ -21,9 +21,9 @@ the_app = create_app(dict(
     TESTING=True,
     CORPORA_SETTINGS='../tests/corpora/corpora.py',
     SQLALCHEMY_DATABASE_URI='sqlite:///:memory:',
-    CCC_REGISTRY_PATH='tests/corpora/registry/',
-    CCC_DATA_PATH='instance/ccc-data-testing/',
-    ANYCACHE_PATH='instance/mmda-anycache-testing/',
+    CCC_REGISTRY_DIR='tests/corpora/registry/',
+    CCC_DATA_DIR='instance/ccc-data-testing/',
+    ANYCACHE_DIR='instance/mmda-anycache-testing/',
     SERVER_NAME='localhost'
 ))
 

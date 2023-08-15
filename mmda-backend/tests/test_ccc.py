@@ -14,9 +14,9 @@ def test_ccc_simple_concordance(app, test_corpus):
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
         filter_discoursemes={},
         additional_discoursemes={},
@@ -34,9 +34,9 @@ def test_ccc_constellation_concordance(app, test_corpus):
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
         filter_discoursemes={},
         additional_discoursemes={},
@@ -55,9 +55,9 @@ def test_ccc_constellation_concordance_2(app, test_corpus):
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
         filter_discoursemes={},
         additional_discoursemes={},
@@ -77,9 +77,9 @@ def test_ccc_constellation_concordance_3(app, test_corpus):
     conc = ccc_concordance(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_discourseme={'topic': test_corpus['discoursemes']['topic']},
         filter_discoursemes={},
         additional_discoursemes={},
@@ -101,9 +101,9 @@ def test_ccc_simple_collocates(app, test_corpus):
     breakdown, coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_items=test_corpus['discoursemes']['topic'],
         s_context=test_corpus['parameters']['s_context'],
         windows=[3, 5, 7]
@@ -119,9 +119,9 @@ def test_ccc_constellation_collocates(app, test_corpus):
     breakdown, coll = ccc_collocates(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         topic_items=test_corpus['discoursemes']['topic'],
         s_context=test_corpus['parameters']['s_context'],
         windows=test_corpus['parameters']['window_sizes'],
@@ -143,9 +143,9 @@ def test_ccc_keywords(app, test_corpus):
         corpus=test_corpus['corpus_name'],
         corpus_reference=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH']
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR']
     )
     assert len(kw) == 500
 
@@ -159,9 +159,9 @@ def test_ccc_constellation_association(app, test_corpus):
     assoc = ccc_constellation_association(
         corpus_name=test_corpus['corpus_name'],
         cqp_bin=app.config['CCC_CQP_BIN'],
-        registry_path=app.config['CCC_REGISTRY_PATH'],
-        data_path=app.config['CCC_DATA_PATH'],
-        lib_path=app.config['CCC_LIB_PATH'],
+        registry_dir=app.config['CCC_REGISTRY_DIR'],
+        data_dir=app.config['CCC_DATA_DIR'],
+        lib_dir=app.config['CCC_LIB_DIR'],
         discoursemes=test_corpus['discoursemes2'],
         p_query=test_corpus['parameters']['p_query'],
         s_query=test_corpus['parameters']['s_query'],
