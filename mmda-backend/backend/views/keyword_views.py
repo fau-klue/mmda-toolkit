@@ -14,7 +14,7 @@ from numpy import nan
 from pandas import DataFrame, concat, notnull
 
 # backend
-from backend import db, user_required, admin_required
+from backend import admin_required, db, user_required
 from backend.ccc import ccc_concordance, ccc_corpus, ccc_keywords
 from backend.models.coordinates_models import Coordinates
 from backend.models.discourseme_models import Discourseme
