@@ -16,13 +16,11 @@ coverage:
 
 # DATABASE
 database:
-	export SQL_DATABASE_URI='sqlite:///mmda-test.sqlite' &&\
 	pipenv run flask --app backend database init
 
 
 # DEVELOPMENT SERVER
 run:
-	export SQL_DATABASE_URI='sqlite:///mmda-test.sqlite' &&\
 	pipenv run flask --app backend --debug run
 
 run_algorist:
@@ -32,13 +30,12 @@ run_algorist:
 
 
 # PRODUCTION SERVER
-run_production:
-	export ENVIRONMENT='production' &&\
-	pipenv run gunicorn -w 8 --timeout 600 --bind localhost:5000 wsgi:app
-
-run_production_gevent:
-	export ENVIRONMENT='production' &&\
-	pipenv run python wsgi_gevent.py
+run_obelix:
+        export SQL_DATABASE_URI='sqlite:////data/Philipp/mmda/mmda.sqlite' && \
+        export CORPORA_SETTINGS='/data/Philipp/mmda/mmda-corpora.py' && \
+        export CWB_REGISTRY_PATH='/data/corpora/cqpweb/registry/' &&\
+        export ENVIRONMENT='production' &&\
+        pipenv run gunicorn -w 16 --certfile=fullchain13.pem --keyfile=privkey13.pem --timeout 3600 --bind :5051 wsgi:app
 
 
 # DOCKER
