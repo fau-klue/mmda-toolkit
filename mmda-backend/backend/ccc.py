@@ -11,7 +11,7 @@ Interface to CWB/CQP
 
 from logging import getLogger
 from itertools import chain
-from pandas import concat
+from pandas import concat, DataFrame
 
 from anycache import anycache
 from ccc import Corpora, Corpus
@@ -231,7 +231,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
 
         # get highest CLR as reference, then set AM = AM * 1.1 for all AMs
         df_discoursemes_items = concat(
-            [collocates[window].sort_values(by='conservative_log_ratio', ascending=False).head(1) * 1.1] * len(discoursemes_items)
+            [DataFrame(collocates[window].max() * 1.1).T] * len(discoursemes_items)
         )
         df_discoursemes_items.index = discoursemes_items
         df_discoursemes_items.index.name = 'item'
@@ -240,7 +240,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
         df_discoursemes_items = df_discoursemes_items.drop(['O11', 'ipm_expected'], axis=1)
         O11 = breakdown[['freq']].rename({'freq': 'O11'}, axis=1)
         df_discoursemes_items = df_discoursemes_items.join(O11, how='left')
-        df_discoursemes_items['ipm'] = df_discoursemes_items['O11'] / df_discoursemes_items['N'] / 1.1
+        df_discoursemes_items['ipm'] = df_discoursemes_items['O11'] / df_discoursemes_items['R1'] * 1.1 * 10 ** 6
 
         # concat
         collocates[window] = concat([collocates[window], df_discoursemes_items])
