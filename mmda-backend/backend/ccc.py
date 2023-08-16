@@ -51,6 +51,9 @@ def format_ams(df, cut_off=200):
         'local_mutual_information': 'local MI',
     }
 
+    # select columns
+    df = df[list(ams_dict.keys())]
+
     # select items (top cut_off of each AM)
     items = set()
     for am in ams_dict.keys():
@@ -59,8 +62,7 @@ def format_ams(df, cut_off=200):
             items = items.union(set(df.head(cut_off).index))
     df = df.loc[list(items)]
 
-    # select and rename columns
-    df = df[list(ams_dict.keys())]
+    # rename columns
     df = df.rename(ams_dict, axis=1)
 
     return df
@@ -226,9 +228,21 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
 
         # add items of additional discoursemes to collocate table (ignored by cwb-ccc)
         discoursemes_items = list(chain.from_iterable([* additional_discoursemes.values()]))
-        df_discoursemes_items = concat([collocates[window].sort_values(by='conservative_log_ratio', ascending=False).head(1)] * len(discoursemes_items))
+
+        # get highest CLR as reference, then set AM = AM * 1.1 for all AMs
+        df_discoursemes_items = concat(
+            [collocates[window].sort_values(by='conservative_log_ratio', ascending=False).head(1) * 1.1] * len(discoursemes_items)
+        )
         df_discoursemes_items.index = discoursemes_items
         df_discoursemes_items.index.name = 'item'
+
+        # get actual O11 (and IPM) from breakdown, ignore expected IPM
+        df_discoursemes_items = df_discoursemes_items.drop(['O11', 'ipm_expected'], axis=1)
+        O11 = breakdown[['freq']].rename({'freq': 'O11'}, axis=1)
+        df_discoursemes_items = df_discoursemes_items.join(O11, how='left')
+        df_discoursemes_items['ipm'] = df_discoursemes_items['O11'] / df_discoursemes_items['N'] / 1.1
+
+        # concat
         collocates[window] = concat([collocates[window], df_discoursemes_items])
 
         collocates[window] = format_ams(collocates[window])
@@ -406,6 +420,8 @@ def ccc_constellation_association(corpus_name, cqp_bin, registry_dir,
                                  escape=escape_query)
 
     tables = const.associations()
+    if tables is None:
+        return []
 
     # formatting
     out = [dict(row[1]) for row in tables.iterrows()]
