@@ -105,8 +105,9 @@ def create_collocation(username):
     cut_off = request.json.get('cut_off', 200)
     order = request.json.get('order', 'log_likelihood')
     flags_query = request.json.get('flags_query', '')
-    flags_show = request.args.get('flags_show', "")  # flags_query)
+    flags_show = request.args.get('flags_show', '')
     min_freq = request.json.get('min_freq', 2)
+    escape = request.json.get('escape', False)
     ams = request.json.get('ams', None)
     collocation_name = request.json.get('name', None)
 
@@ -122,22 +123,18 @@ def create_collocation(username):
 
     # DISCOURSEME
     if isinstance(discourseme, str):
-        # create new discourseme
-        topic_discourseme = Discourseme(name=discourseme, items=items, user_id=user.id)
-        db.session.add(topic_discourseme)
-        db.session.commit()
-        log.debug('.. created discourseme %s', topic_discourseme.id)
+        log.debug('.. will create discourseme')
+        topic_discourseme = None
     elif isinstance(discourseme, dict):
         # retrieve chosen discourseme
         topic_discourseme = Discourseme.query.filter_by(id=discourseme['id']).first()
-        # update items
-        topic_discourseme.items = items
-        db.session.commit()
+        log.debug('.. will update discourseme %s', topic_discourseme.id)
         # delete old collocation analysis in this corpus if it exists
         collocation = Collocation.query.filter_by(user_id=user.id,
                                                   corpus=corpus_name,
                                                   topic_id=topic_discourseme.id).first()
         if collocation is not None:
+            log.debug('.. deleting collocation analysis %s', collocation.id)
             db.session.delete(collocation)
             db.session.commit()
     else:
@@ -168,8 +165,17 @@ def create_collocation(username):
         cut_off=cut_off,
         min_freq=min_freq,
         order=order,
-        escape=True
+        escape=escape
     )
+
+    # create or update topic_discourseme
+    if topic_discourseme is None:
+        topic_discourseme = Discourseme(name=discourseme, items=list(breakdown.index), user_id=user.id)
+        db.session.add(topic_discourseme)
+    else:
+        topic_discourseme.items = topic_discourseme.items + list(breakdown.index)
+
+    db.session.commit()
 
     # no query matches?
     if collocates is None:
@@ -199,7 +205,7 @@ def create_collocation(username):
         p_collocation=p_collocation,
         s_break=s_break,
         context=context,
-        items=items,
+        items=list(breakdown.index),
         topic_id=topic_discourseme.id,
         user_id=user.id,
     )
