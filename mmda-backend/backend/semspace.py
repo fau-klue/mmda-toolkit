@@ -6,7 +6,7 @@ Handling word embeddings and their two-dimensional coordinates.
 
 from logging import getLogger
 
-from numpy import matmul, where
+from numpy import matmul, where, errstate
 from pandas import DataFrame, concat
 from pymagnitude import Magnitude
 from sklearn.metrics.pairwise import cosine_similarity
@@ -115,11 +115,11 @@ class SemanticSpace:
         sim = cosine_similarity(item_embeddings, base_embeddings)
 
         # apply cut-off
-        sim = where(sim < cutoff, 0, sim)
+        # sim = where(sim < cutoff, 0, sim)
 
         # norm rows to use as convex combination
         simsum = sim.sum(axis=1)
-        sim = (sim.T/simsum).T          # TODO catch global 0 warning
+        sim = (sim.T/simsum).T
 
         # matrix multiplication takes care of linear combination
         new_coordinates = matmul(sim, base_coordinates)
