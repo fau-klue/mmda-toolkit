@@ -10,6 +10,8 @@ Interface to CWB/CQP
 """
 
 from logging import getLogger
+from itertools import chain
+from pandas import concat
 
 from anycache import anycache
 from ccc import Corpora, Corpus
@@ -25,7 +27,7 @@ log = getLogger('mmda-logger')
 #############
 # UTILITIES #
 #############
-def format_ams(df):
+def format_ams(df, cut_off=200):
 
     ams_dict = {
         # conservative estimates
@@ -49,7 +51,15 @@ def format_ams(df):
         'local_mutual_information': 'local MI',
     }
 
-    # select and rename
+    # select items (top cut_off of each AM)
+    items = set()
+    for am in ams_dict.keys():
+        if am not in ['O11', 'ipm', 'ipm_expected']:
+            df = df.sort_values(by=[am, 'item'], ascending=[False, True])
+            items = items.union(set(df.head(cut_off).index))
+    df = df.loc[list(items)]
+
+    # select and rename columns
     df = df[list(ams_dict.keys())]
     df = df.rename(ams_dict, axis=1)
 
@@ -169,7 +179,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
     s_query = s_context if s_query is None else s_query
     match_strategy = 'longest'
     topic_discourseme = {'topic': topic_items}
-    additional_discoursemes = {}  # avoids removal from sem-map
+    # additional_discoursemes = {}  # avoids removal from sem-map
 
     # create constellation
     try:
@@ -195,7 +205,7 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
                                      flags=flags_query,
                                      escape=escape)
     except KeyError:            # no matches
-        return None  # , None
+        return None, None
 
     breakdown = const.breakdown(
         p_atts=[p_query],
@@ -209,10 +219,18 @@ def ccc_collocates(corpus_name, cqp_bin, registry_dir, data_dir,
         ams=ams,
         min_freq=min_freq,
         order=order,
-        cut_off=cut_off
+        cut_off=None
     )
 
     for window in collocates.keys():
+
+        # add items of additional discoursemes to collocate table (ignored by cwb-ccc)
+        discoursemes_items = list(chain.from_iterable([* additional_discoursemes.values()]))
+        df_discoursemes_items = concat([collocates[window].sort_values(by='conservative_log_ratio', ascending=False).head(1)] * len(discoursemes_items))
+        df_discoursemes_items.index = discoursemes_items
+        df_discoursemes_items.index.name = 'item'
+        collocates[window] = concat([collocates[window], df_discoursemes_items])
+
         collocates[window] = format_ams(collocates[window])
 
     return breakdown, collocates
