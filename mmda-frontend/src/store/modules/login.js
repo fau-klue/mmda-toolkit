@@ -6,7 +6,7 @@ Vue.use(Vuex)
 
 // Use a custom api without interceptor. Otherwise we cant change the token to the refresh token
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000/api/',
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000/mmda/',
 })
 
 /**

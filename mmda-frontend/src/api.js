@@ -2,7 +2,7 @@ import axios from 'axios'
 
 // Default API Instance to use for requests.
 const api = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000/api/',
+  baseURL: process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000/mmda/',
 })
 
 // Add the JWT Token to each request so you dont have to
